@@ -70,20 +70,16 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 
 
 	# Write metadata for original video file - with open will auto close the file.
-    with open(inputxml, "w+") as fo:
-		mediaxmlinput = subprocess.check_output(['mediainfo',
-							'-f',
-							'--language=raw', # Use verbose output.
-							'--output=XML',
-							filename ])       #input filename
-		fo.write(mediaxmlinput)
+    def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
+      with open(xmlfilename, "w+") as fo:
+      	xmlvariable = subprocess.check_output(['mediainfo',
+      						'-f',
+      						'--language=raw', # Use verbose output.
+      						'--output=XML',
+      						inputfilename])       #input filename
+      	fo.write(xmlvariable)
+        
+    make_mediainfo(inputxml,'mediaxmlinput',filename)
+    make_mediainfo(outputxml,'mediaxmloutput',output)
 	
 
-	# Write metadata for output video file
-    with open(outputxml, "w+") as fo:
-		mediaxmloutput = subprocess.check_output(['mediainfo',
-							'-f',
-							'--language=raw',
-							'--output=XML',
-							output ])         #output ffv1 file
-		fo.write(mediaxmloutput)
