@@ -18,23 +18,22 @@ output = filename + 'transcoded.mov'
 inputxml = filename + '.xml'
 outputxml = output + '.xml'
 # Transcode video file writing frame md5 and output appropriately
-def transcode(inputfile, video_codec,audio_options, output):
-    subprocess.call(['ffmpeg',
-                '-i',inputfile, 
-                '-c:v',video_codec,
-                
-                '-c:a',audio_options,         
-                output])	
-
-#pdb.set_trace()
+cmd_list = ['ffmpeg',
+        '-i',filename, 
+        '-c:v']
+  #pdb.set_trace()
 codec = raw_input("Pick a codec: (1) ProRes, (2) v210 or (3) h264 ")
 if codec== "1":
-     transcode(filename, 'prores','copy',output)   
+    cmd_list += ['v210', '-c:a', 'copy', output]
+        
 elif codec == "2":
-     transcode(filename, 'v210','copy',output)   
+     cmd_list += ['prores', '-c:a', 'copy', output]  
 elif codec == "3":
+    cmd_list += ['libx264', '-pix_fmt', 'yuv420p', '-c:a', 'libfaac', output] 
+subprocess.call(cmd_list)    
     
-     transcode(filename, "libx264 -pix_fmt yuv420p" ,'copy',output)  
+    
+     
 
 
 
