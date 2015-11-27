@@ -19,4 +19,8 @@ def make_qctools(input):
     subprocess.call(qctools_args)
     #"movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1[out1]", 
     #'-show_frames', '-show_versions', '-of', 'xml=x=1:q=1', '-noprivate', % input]) 
-    
+   
+def write_qctools_gz(qctoolsxml, sourcefile):
+    with open(qctoolsxml, "w+") as fo:
+        fo.write(make_qctools(sourcefile))
+    subprocess.call(['gzip', qctoolsxml]) 
