@@ -7,7 +7,7 @@ from easygui import multenterbox, choicebox
 
 msg ="Which Workflow?"
 title = "Workflows"
-choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Ingest 2"]
+choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 choice = choicebox(msg, title, choices)
 print choice
 
@@ -15,6 +15,11 @@ msg ="User?"
 title = "Pick a name yo!"
 choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe"]
 user = choicebox(msg, title, choices)
+
+msg ="Tape Deck?"
+title = "Pick a name yo!"
+choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo"]
+deck = choicebox(msg, title, choices)
     
 msg = "Enter your personal information"
 title = "Credit Card Application"
@@ -145,6 +150,30 @@ def bestlight():
     add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
+def ingest1():
+        
+    add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
+    add_to_revtmd('//revtmd:identifier', fieldValues[0], inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:role', 'Playback', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:description', '16mm Film Digitisation', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:manufacturer', 'MWA', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:modelName', 'Flashtransfer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', inmagicxml)
+    add_to_revtmd('//revtmd:digitizationEngineer[2]', user, inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'Transcode', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
+    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
 if choice == "bestlight":
     bestlight()
+elif choice =="Tape Ingest 1":
+    ingest1()
 
