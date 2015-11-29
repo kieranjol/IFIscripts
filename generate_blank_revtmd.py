@@ -10,16 +10,18 @@ title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 choice = choicebox(msg, title, choices)
 print choice
+if choice not in ("Telecine One Light", "bestlight", "Telecine Grade"):
+    msg ="Tape Deck?"
+    title = "Pick a name yo!"
+    choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo"]
+    deck = choicebox(msg, title, choices)
 
 msg ="User?"
 title = "Pick a name yo!"
 choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe"]
 user = choicebox(msg, title, choices)
 
-msg ="Tape Deck?"
-title = "Pick a name yo!"
-choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo"]
-deck = choicebox(msg, title, choices)
+
     
 msg = "Enter your personal information"
 title = "Credit Card Application"
