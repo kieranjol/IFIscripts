@@ -129,7 +129,12 @@ with open(inmagicxml, "w+") as fo:
     
 def add_to_revtmd(element, value, xmlfile):
     subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
-
+def ffmpeg_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'Transcode', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
 def bestlight():
         
     add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
@@ -140,18 +145,14 @@ def bestlight():
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:modelName', 'Flashtransfer', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', inmagicxml)
-    add_to_revtmd('//revtmd:digitizationEngineer[2]', user, inmagicxml)
+    
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'Transcode', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
+    ffmpeg_revtmd()
 def ingest1():
         
     add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
@@ -162,18 +163,14 @@ def ingest1():
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:modelName', 'Flashtransfer', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', inmagicxml)
-    add_to_revtmd('//revtmd:digitizationEngineer[2]', user, inmagicxml)
+    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'Transcode', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
-    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
+    ffmpeg_revtmd()
+  
 if choice == "bestlight":
     bestlight()
 elif choice =="Tape Ingest 1":
