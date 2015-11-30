@@ -36,7 +36,7 @@ user = choicebox(msg, title, choices)
 
 
     
-msg = "Enter your personal information"
+msg = "Fill out these things please"
 title = "blablablabl"
 fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number"]
 fieldValues = []  # we start with blanks for the values
