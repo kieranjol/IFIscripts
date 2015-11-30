@@ -1,9 +1,11 @@
 import sys
 import subprocess
+import os
 
 
 
 from easygui import multenterbox, choicebox
+filenoext = filenoext = os.path.basename(sys.argv[1])
 
 msg ="Which Workflow?"
 title = "Workflows"
@@ -141,7 +143,7 @@ def avid_consolidate_revtmd():
   
 def bestlight():
         
-    add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
+    add_to_revtmd('//revtmd:filename', filenoext, inmagicxml)
     add_to_revtmd('//revtmd:identifier', fieldValues[0], inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:role', 'Playback', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:description', '16mm Film Digitisation', inmagicxml)
@@ -157,7 +159,7 @@ def bestlight():
     ffmpeg_revtmd()
 def ingest1():
         
-    add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
+    add_to_revtmd('//revtmd:filename', filenoext, inmagicxml)
     add_to_revtmd('//revtmd:identifier', fieldValues[0], inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:role', 'Playback', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:description', '16mm Film Digitisation', inmagicxml)
