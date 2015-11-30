@@ -1,12 +1,17 @@
 import sys
 import subprocess
 import os
-
+import time
 
 
 from easygui import multenterbox, choicebox
 filenoext = filenoext = os.path.basename(sys.argv[1])
+md5 = subprocess.check_output(['md5sum', sys.argv[1]])
+print md5.split()[0]
 
+
+time = time.strftime("%Y-%m-%dT%H:%M:%S")
+print time
 msg ="Which Workflow?"
 title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
@@ -46,11 +51,14 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
+        
  
 print "Reply was:", fieldValues
+
     
 inmagicxml = sys.argv[1] + '.xml'
 updated = inmagicxml + 'updated.xml'
+
 def revtmd_coding_process_history():
     fo.write('<revtmd:codingProcessHistory>\n')
     fo.write('<revtmd:role/>\n')
@@ -90,7 +98,7 @@ with open(inmagicxml, "w+") as fo:
     fo.write('</revtmd:organization>\n')
     fo.write('<revtmd:identifier/>\n')
     fo.write('<revtmd:mimetype/>\n')
-    fo.write('<revtmd:checksum algorithm="" dateTime=""/>\n')
+    fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time,md5.split()[0])) 
     fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
     fo.write('<revtmd:use/>\n')
     fo.write('<revtmd:captureHistory>\n')
