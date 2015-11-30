@@ -15,6 +15,12 @@ if choice not in ("Telecine One Light", "bestlight", "Telecine Grade"):
     title = "Pick a name yo!"
     choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo", "Unknown"]
     deck = choicebox(msg, title, choices)
+else:
+    msg ="Telecine Machine"
+    title = "Pick a name yo!"
+    choices = ["Flashtransfer", "Flashscan",]
+    scanner = choicebox(msg, title, choices)
+    
 
 msg ="User?"
 title = "Pick a name yo!"
@@ -49,6 +55,7 @@ def revtmd_coding_process_history():
     fo.write('<revtmd:description/>\n')
     fo.write('<revtmd:manufacturer/>\n')
     fo.write('<revtmd:modelName/>\n')
+    fo.write('<revtmd:version/>\n')
     fo.write('<revtmd:serialNumber/>\n')
     fo.write('<revtmd:signal/>\n')
     fo.write('<revtmd:settings/>\n')
@@ -87,7 +94,6 @@ with open(inmagicxml, "w+") as fo:
     fo.write('<revtmd:captureHistory>\n')
     fo.write('<revtmd:digitizationDate/>\n')
     fo.write('<revtmd:digitizationEngineer/>\n')
-    fo.write('<revtmd:digitizationEngineer/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<!-- Here you list the tools used to create the object being described in this record.\n')
@@ -107,11 +113,32 @@ with open(inmagicxml, "w+") as fo:
 def add_to_revtmd(element, value, xmlfile):
     subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
 def ffmpeg_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:role', 'Transcode', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:modelName', '2.8.2', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:videoEncoding', "FFv1", inmagicxml)
+def avid_capture_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:version', '8.3.0', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
+def avid_export_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:role', 'Transcode', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:description', 'Transcode to v210 in quicktime warpper', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:manufacturer', 'Avid', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:modelName', 'Media Composer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:version', '8.3.0', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:videoEncoding', "v210", inmagicxml)
+def avid_consolidate_revtmd():
     add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'Transcode', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', '2.8.2', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:videoEncoding', "FFv1", inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Add plate, consolidate multiple clips', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'Avid', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', 'Media Composer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:version', '8.3.0', inmagicxml)
+  
 def bestlight():
         
     add_to_revtmd('//revtmd:filename', fieldValues[1], inmagicxml)
@@ -123,12 +150,10 @@ def bestlight():
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', inmagicxml)
     
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
+    avid_capture_revtmd()
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
+    avid_consolidate_revtmd()
+    avid_export_revtmd()
     ffmpeg_revtmd()
 def ingest1():
         
@@ -141,11 +166,8 @@ def ingest1():
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', inmagicxml)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
+
+    avid_export_revtmd()
     ffmpeg_revtmd()
   
 if choice == "bestlight":
