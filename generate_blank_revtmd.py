@@ -13,18 +13,18 @@ print choice
 if choice not in ("Telecine One Light", "bestlight", "Telecine Grade"):
     msg ="Tape Deck?"
     title = "Pick a name yo!"
-    choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo"]
+    choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo", "Unknown"]
     deck = choicebox(msg, title, choices)
 
 msg ="User?"
 title = "Pick a name yo!"
-choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe"]
+choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
 user = choicebox(msg, title, choices)
 
 
     
 msg = "Enter your personal information"
-title = "Credit Card Application"
+title = "blablablabl"
 fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number"]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
@@ -43,6 +43,18 @@ print "Reply was:", fieldValues
     
 inmagicxml = sys.argv[1] + '.xml'
 updated = inmagicxml + 'updated.xml'
+def revtmd_coding_process_history():
+    fo.write('<revtmd:codingProcessHistory>\n')
+    fo.write('<revtmd:role/>\n')
+    fo.write('<revtmd:description/>\n')
+    fo.write('<revtmd:manufacturer/>\n')
+    fo.write('<revtmd:modelName/>\n')
+    fo.write('<revtmd:serialNumber/>\n')
+    fo.write('<revtmd:signal/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:videoEncoding/>\n')
+    fo.write('</revtmd:codingProcessHistory>\n')
+
 with open(inmagicxml, "w+") as fo:
 
     fo.write('<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -81,46 +93,11 @@ with open(inmagicxml, "w+") as fo:
     fo.write('<!-- Here you list the tools used to create the object being described in this record.\n')
     fo.write('For example, if you are creating a record for a low-quality viewing copy, you would describe\n')
     fo.write('all of the tools used to get from the higher quality preservation copy to the viewing copy. -->\n')
-    fo.write('<revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:description/>\n')
-    fo.write('<revtmd:manufacturer/>\n')
-    fo.write('<revtmd:modelName/>\n')
-    fo.write('<revtmd:serialNumber/>\n')
-    fo.write('<revtmd:signal/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:videoEncoding/>\n')
-    fo.write('</revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:description/>\n')
-    fo.write('<revtmd:manufacturer/>\n')
-    fo.write('<revtmd:modelName/>\n')
-    fo.write('<revtmd:serialNumber/>\n')
-    fo.write('<revtmd:signal/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:videoEncoding/>\n')
-    fo.write('</revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:description/>\n')
-    fo.write('<revtmd:manufacturer/>\n')
-    fo.write('<revtmd:modelName/>\n')
-    fo.write('<revtmd:serialNumber/>\n')
-    fo.write('<revtmd:signal/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:videoEncoding/>\n')
-    fo.write('</revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:description/>\n')
-    fo.write('<revtmd:manufacturer/>\n')
-    fo.write('<revtmd:modelName/>\n')
-    fo.write('<revtmd:serialNumber/>\n')
-    fo.write('<revtmd:signal/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:videoEncoding/>\n')
-    fo.write('</revtmd:codingProcessHistory>\n')
+    revtmd_coding_process_history()
+    revtmd_coding_process_history()
+    revtmd_coding_process_history()
+    revtmd_coding_process_history()
+    revtmd_coding_process_history()
     fo.write('</revtmd:captureHistory>\n')
     fo.write('</revtmd:object>\n')
     fo.write('</revtmd:reVTMD>\n')
