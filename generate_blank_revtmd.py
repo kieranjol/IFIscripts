@@ -103,6 +103,8 @@ with open(inmagicxml, "w+") as fo:
     revtmd_coding_process_history()
     revtmd_coding_process_history()
     revtmd_coding_process_history()
+    revtmd_coding_process_history()
+    revtmd_coding_process_history()
     fo.write('</revtmd:captureHistory>\n')
     fo.write('</revtmd:object>\n')
     fo.write('</revtmd:reVTMD>\n')
@@ -117,6 +119,7 @@ def ffmpeg_revtmd():
     add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:manufacturer', 'ffmpeg', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:modelName', '2.8.2', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:videoEncoding', "FFv1", inmagicxml)
+    
 def avid_capture_revtmd():
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', inmagicxml)
@@ -124,6 +127,20 @@ def avid_capture_revtmd():
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:version', '8.3.0', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', inmagicxml)
+def telecine_mac_pro_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:role', 'Host Computer', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:description', 'Provides computing environment', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:manufacturer', 'Apple', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:modelName', 'Mac Pro', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:version', 'dunno', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:serialNumber', 'ABC123', inmagicxml)
+def telecine_mac_pro_os_revtmd():
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:role', 'Host Computer Operating System', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:description', 'Provides computing environment operating system', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:manufacturer', 'Apple', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:modelName', 'Mavericks', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:version', 'dunno', inmagicxml)
+    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:serialNumber', 'ABC123', inmagicxml)
 def avid_export_revtmd():
     add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:role', 'Transcode', inmagicxml)
     add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:description', 'Transcode to v210 in quicktime wrapper', inmagicxml)
@@ -154,6 +171,8 @@ def bestlight():
     avid_consolidate_revtmd()
     avid_export_revtmd()
     ffmpeg_revtmd()
+    telecine_mac_pro_revtmd()
+    telecine_mac_pro_os_revtmd()
 def ingest1():
         
     add_to_revtmd('//revtmd:filename', filenoext, inmagicxml)
