@@ -6,8 +6,7 @@ from easygui import multenterbox, choicebox
 
 # Store the filename without extension.
 filename_without_path = os.path.basename(sys.argv[1])
-# Store md5 checksum.
-md5 = subprocess.check_output(['md5sum', sys.argv[1]])
+
 # Store the current time in ISO8601 format.
 time = time.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -58,6 +57,10 @@ print "Reply was:", fieldValues
 # Generate filename for the reVTMD xmlfile
 revtmd_xmlfile = sys.argv[1] + '.xml'
 
+
+# Store md5 checksum.
+print 'generating md5 checksum, this may take some time'
+md5 = subprocess.check_output(['md5deep', '-e', sys.argv[1]])
 # Begin creating functions for repetitive tasks:
 # Generate xml elements for coding process history.
 def revtmd_coding_process_history():
