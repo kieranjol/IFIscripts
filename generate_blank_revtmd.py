@@ -20,7 +20,7 @@ choice = choicebox(msg, title, choices)
 if choice not in ("Telecine One Light", "bestlight", "Telecine Grade"):
     msg ="Tape Deck?"
     title = "Pick a name yo!"
-    choices = ["DVW-500", "MiniDV-Something", "Beta-1800p-something", "J-30", "HDCAM-thing", "Another Beta gizmo", "Unknown"]
+    choices = ["DVW-A500p", "MiniDV-Something", "UVW-1800P", "J-30", "J-H1", "Another Beta gizmo", "Unknown"]
     deck = choicebox(msg, title, choices)
 # Currently unused, but I'll get around to it :[
 else:
@@ -128,83 +128,84 @@ def add_to_revtmd(element, value, xmlfile):
     subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
     
 # What follows are a lot of functions that can be reused. Titles should be self explanatory.
-def ffmpeg_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:role', 'Transcode', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:modelName', '2.8.2', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[5]/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
+def ffmpeg_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
     
-def avid_capture_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:role', 'Capture', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:version', '8.3.0', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[2]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-def telecine_mac_pro_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:role', 'Host Computer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:description', 'Provides computing environment', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:modelName', 'Mac Pro', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:version', 'dunno', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[6]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-def telecine_mac_pro_os_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:description', 'Provides computing environment operating system', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:modelName', 'Mavericks', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:version', 'dunno', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[7]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-def avid_export_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:role', 'Transcode', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:version', '8.3.0', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[4]/revtmd:videoEncoding', "v210", revtmd_xmlfile)
-def avid_consolidate_revtmd():
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:role', 'File Editing', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[3]/revtmd:version', '8.3.0', revtmd_xmlfile)
+def avid_capture_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+def telecine_mac_pro_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mac Pro', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+def telecine_mac_pro_os_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment operating system', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mavericks', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+def avid_export_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
+def avid_consolidate_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'File Editing', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+def flashtransfer(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
 
 # Combine previous functions for the bestlight workflow  
 def bestlight():
         
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:role', 'Playback', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-    
-    avid_capture_revtmd()
+    flashtransfer(1)
+    avid_capture_revtmd(4)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-    avid_consolidate_revtmd()
-    avid_export_revtmd()
-    ffmpeg_revtmd()
-    telecine_mac_pro_revtmd()
-    telecine_mac_pro_os_revtmd()
+    avid_consolidate_revtmd(5)
+    avid_export_revtmd(6)
+    ffmpeg_revtmd(7)
+    telecine_mac_pro_revtmd(2)
+    telecine_mac_pro_os_revtmd(3)
     
 # Currently just a test. Not useful yet.
-def ingest1():
-        
-    add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
-    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:role', 'Playback', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:signal', 'SDI', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory[1]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-
-    avid_export_revtmd()
-    ffmpeg_revtmd()
+# def ingest1():
+#
+#     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:role', 'Playback', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:signal', 'SDI', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '1]/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+#     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+#
+#     avid_export_revtmd()
+#     ffmpeg_revtmd()
 
 # This launches the xml creation based on your selections  
 if choice == "bestlight":
