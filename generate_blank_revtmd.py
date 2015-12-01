@@ -8,7 +8,9 @@ from easygui import multenterbox, choicebox
 filename_without_path = os.path.basename(sys.argv[1])
 
 # Store the current time in ISO8601 format.
-time = time.strftime("%Y-%m-%dT%H:%M:%S")
+time_date = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+date = time.strftime("%Y-%m-%d")
 
 # Begin Interview using Easygui.
 msg ="Which Workflow?"
@@ -16,10 +18,7 @@ title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 choice = choicebox(msg, title, choices)
 
-msg ="Preperation?"
-title = "Workflows"
-choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
-preperation = choicebox(msg, title, choices)
+
 
 # Forking path in order to get more accurate info depending on workflow
 if choice not in ("Telecine One Light", "bestlight", "Telecine Grade"):
@@ -33,6 +32,16 @@ else:
     title = "Pick a name yo!"
     choices = ["Flashtransfer", "Flashscan",]
     scanner = choicebox(msg, title, choices)
+    
+    msg ="Preperation?"
+    title = "Workflows"
+    choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
+    preparation = choicebox(msg, title, choices)
+    if preparation == "Splice and perforation check & repairs":
+        def prep():
+            add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:preparationActions[2]', 'Carry out repairs', revtmd_xmlfile)
+            
 
 #More interviews    
 msg ="User?"
@@ -98,24 +107,17 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:name>Irish Film Archive</revtmd:name>\n')
     fo.write('</revtmd:organization_division>\n')
     fo.write('</revtmd:organization>\n')
-    fo.write('<!-- Use for custodian of the content item -->\n')
-    fo.write('<revtmd:organization>\n')
-    fo.write('<revtmd:organization_main>\n')
-    fo.write('<revtmd:name/>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:role_note/>\n')
-    fo.write('</revtmd:organization_main>\n')
-    fo.write('</revtmd:organization>\n')
     fo.write('<revtmd:identifier/>\n')
     fo.write('<revtmd:mimetype/>\n')
-    fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time,md5.split()[0])) 
+    fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time_date,md5.split()[0])) 
     fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
     fo.write('<revtmd:use/>\n')
     fo.write('<revtmd:captureHistory>\n')
-    fo.write('<revtmd:digitizationDate/>\n')
+    fo.write('<revtmd:digitizationDate>%s</revtmd:digitizationDate>\n' % date)
     fo.write('<revtmd:digitizationEngineer/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:preparationActions/>\n')
+    revtmd_coding_process_history()
     revtmd_coding_process_history()
     revtmd_coding_process_history()
     revtmd_coding_process_history()
@@ -168,6 +170,13 @@ def avid_export_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
+def bmd_us4k_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI signal', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
 def avid_consolidate_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'File Editing', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
@@ -187,14 +196,16 @@ def bestlight():
         
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
-    flashtransfer(1)
-    avid_capture_revtmd(4)
+    flashtransfer(2)
+    prep()
+    bmd_us4k_revtmd(1)
+    avid_capture_revtmd(5)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-    avid_consolidate_revtmd(5)
-    avid_export_revtmd(6)
-    ffmpeg_revtmd(7)
-    telecine_mac_pro_revtmd(2)
-    telecine_mac_pro_os_revtmd(3)
+    avid_consolidate_revtmd(6)
+    avid_export_revtmd(7)
+    ffmpeg_revtmd(8)
+    telecine_mac_pro_revtmd(3)
+    telecine_mac_pro_os_revtmd(4)
     
 # Currently just a test. Not useful yet.
 # def ingest1():
