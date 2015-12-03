@@ -24,3 +24,7 @@ def write_qctools_gz(qctoolsxml, sourcefile):
     with open(qctoolsxml, "w+") as fo:
         fo.write(make_qctools(sourcefile))
     subprocess.call(['gzip', qctoolsxml]) 
+    
+def get_audio_stream_count():
+    audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
+    return len(audio_stream_count)
