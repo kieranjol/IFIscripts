@@ -28,3 +28,7 @@ def write_qctools_gz(qctoolsxml, sourcefile):
 def get_audio_stream_count():
     audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
     return len(audio_stream_count)
+def get_mediainfo(var_type, type, filename):
+    var_type = subprocess.check_output(['MediaInfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    return var_type
+# example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
