@@ -11,7 +11,7 @@ root = Tk()
 
 # Create file-open dialog.
 root.update()
-# Directory with files that we want to transcode losslessly and generate metadata for
+# Directory with files that we want to transcode losslessly and generate metadata for P.S just as for directory instead, fix later.
 video_dir = tkFileDialog.askopenfilename(parent=root)
 
 # Change directory to directory with video files
