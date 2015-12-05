@@ -18,8 +18,8 @@ title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 workflow = choicebox(msg, title, choices)
 
-
-
+hardware = ['<revtmd:codingProcessHistory>\n','<revtmd:role/>\n','<revtmd:manufacturer/>\n','<revtmd:modelName/>\n','<revtmd:serialNumber/>\n','<revtmd:signal/>\n','</revtmd:codingProcessHistory>\n',]
+hist_list = []
 # Forking path in order to get more accurate info depending on workflow
 if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
     msg ="Tape Deck?"
@@ -33,6 +33,7 @@ if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A500p', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+        hist_list += hardware
     elif deck == "J-30":
         def deck(numbo):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
@@ -40,6 +41,7 @@ if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-30', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+        hist_list += hardware
 if workflow == "Tape Ingest 1":
     def workstation(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
@@ -47,6 +49,7 @@ if workflow == "Tape Ingest 1":
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    hist_list += hardware
 elif workflow == "Tape Ingest 2":
     def workstation(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
@@ -54,6 +57,7 @@ elif workflow == "Tape Ingest 2":
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    hist_list += hardware
 # Currently unused, but I'll get around to it :[
 else:
     msg ="Telecine Machine"
