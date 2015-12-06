@@ -67,6 +67,7 @@ else:
     title = "Workflows"
     choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
     preparation = choicebox(msg, title, choices)
+    print preparation
     if preparation == "Splice and perforation check & repairs":
         def prep():
             add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
@@ -97,6 +98,7 @@ while 1:
         
 # Prints info to screen. Make this actually useful! 
 print "Reply was:", fieldValues
+print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
 
 # Generate filename for the reVTMD xmlfile
 revtmd_xmlfile = sys.argv[1] + '.xml'
@@ -206,6 +208,10 @@ def avid_capture_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoBitDepth', "10", revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioBitDepth', "abc123", revtmd_xmlfile)
 def control_room_capture_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
@@ -286,6 +292,7 @@ def bestlight():
     ffmpeg_revtmd(8)
     telecine_mac_pro_revtmd(3)
     telecine_mac_pro_os_revtmd(4)
+    
     
 #Currently just a test. Not useful yet.
 def ingest1():
