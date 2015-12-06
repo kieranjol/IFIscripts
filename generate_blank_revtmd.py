@@ -22,6 +22,7 @@ workflow = choicebox(msg, title, choices)
 
 # Forking path in order to get more accurate info depending on workflow
 if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
+    no_of_emptyfields = 9
     msg ="Tape Deck?"
     title = "Pick a name yo!"
     choices = ["DVW-A500p", "MiniDV-Something", "UVW-1800P", "J-30", "J-H1", "Another Beta gizmo", "Unknown"]
@@ -47,6 +48,7 @@ if workflow == "Tape Ingest 1":
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    no_of_emptyfields = 6
 elif workflow == "Tape Ingest 2":
     def workstation(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
@@ -56,11 +58,11 @@ elif workflow == "Tape Ingest 2":
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
 # Currently unused, but I'll get around to it :[
 else:
+    no_of_emptyfields = 8
     msg ="Telecine Machine"
     title = "Pick a name yo!"
     choices = ["Flashtransfer", "Flashscan",]
     scanner = choicebox(msg, title, choices)
-    
     msg ="Preperation?"
     title = "Workflows"
     choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
@@ -165,14 +167,8 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:digitizationEngineer/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:preparationActions/>\n')
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
-    revtmd_coding_process_history()
+    for _ in range(no_of_emptyfields):    
+	    revtmd_coding_process_history()
     fo.write('</revtmd:captureHistory>\n')
     fo.write('</revtmd:object>\n')
     fo.write('</revtmd:reVTMD>\n')
