@@ -1,13 +1,16 @@
 # Written by Kieran O'Leary, with a major review and overhaul/cleanup by Zach Kelling aka @Zeekay
-# Makes a single ffv1.mkv
 
 import subprocess
 import sys
 import filecmp
+
+import time
+from easygui import multenterbox, choicebox
 from glob import glob
 import os
 from Tkinter import *
 import tkFileDialog
+
 root = Tk()
 
 # Create file-open dialog.
@@ -22,7 +25,7 @@ print filenoext
 # Generate new directory names in AIP
 metadata_dir   = "%s/metadata" % filenoext
 
-data_dir   = "%s/data" % filenoext
+data_dir   = "%s/video" % filenoext
 provenance_dir   = "%s/provenance" % filenoext
 
 # Actually create the directories.
@@ -33,6 +36,114 @@ os.makedirs(provenance_dir)
 #Generate filenames for new files in AIP.
 inputxml  = "%s/%s.xml" % (metadata_dir,os.path.basename(filename) )
 output    = "%s/%s.mkv" % (data_dir, os.path.basename(filename))
+
+# Store the filename without extension.
+filename_without_path = os.path.basename(output)
+
+# Store the current time in ISO8601 format.
+time_date = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+date = time.strftime("%Y-%m-%d")
+
+# Begin Interview using Easygui.
+msg ="Which Workflow?"
+title = "Workflows"
+choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
+workflow = choicebox(msg, title, choices)
+
+
+
+# Forking path in order to get more accurate info depending on workflow
+if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
+    no_of_emptyfields = 9
+    msg ="Tape Deck?"
+    title = "Pick a name yo!"
+    choices = ["DVW-A500p", "MiniDV-Something", "UVW-1800P", "J-30", "J-H1", "Another Beta gizmo", "Unknown"]
+    deck = choicebox(msg, title, choices)
+    if deck == "DVW-A500p":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A500p', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    elif deck == "J-30":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-30', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+if workflow == "Tape Ingest 1":
+    def workstation(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Hewlett Packard', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    no_of_emptyfields = 6
+elif workflow == "Tape Ingest 2":
+    def workstation(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Hewlett Packard2', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+# Currently unused, but I'll get around to it :[
+else:
+    no_of_emptyfields = 8
+    if workflow == "Telecine Grade":
+        msg = "Interventions post capture"
+        title = "Interventions post capture?"
+        fieldNames = ["Colour Alterations","Exposure Alterations","Sound Alterations"]
+        grade_interventions = []  # we start with blanks for the values
+        grade_interventions = multenterbox(msg,title, fieldNames)
+    
+    
+    msg ="Telecine Machine"
+    title = "Pick a name yo!"
+    choices = ["Flashtransfer", "Flashscan",]
+    scanner = choicebox(msg, title, choices)
+    msg ="Preperation?"
+    title = "Workflows"
+    choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
+    preparation = choicebox(msg, title, choices)
+
+    if preparation == "Splice and perforation check & repairs":
+        def prep():
+            add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:preparationActions[2]', 'Carry out repairs', revtmd_xmlfile)
+        
+
+#More interviews    
+msg ="User?"
+title = "Pick a name yo!"
+choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
+user = choicebox(msg, title, choices)
+
+msg = "Fill out these things please"
+title = "blablablabl"
+fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number"]
+fieldValues = []  # we start with blanks for the values
+fieldValues = multenterbox(msg,title, fieldNames)
+
+# make sure that none of the fields was left blank
+while 1:
+        if fieldValues == None: break
+        errmsg = ""
+        for i in range(len(fieldNames)):
+            if fieldValues[i].strip() == "":
+                errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
+        if errmsg == "": break # no problems found
+        fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
+    
+# Prints info to screen. Make this actually useful! 
+print "Reply was:", fieldValues
+
+
+# Generate filename for the reVTMD xmlfile
+revtmd_xmlfile = output + '.xml'
+
 
 # Generate filename of ffv1.mkv without the path.
 outputfilename = os.path.basename(output)
@@ -78,5 +189,237 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     
 make_mediainfo(inputxml,'mediaxmlinput',filename)
 make_mediainfo(outputxml,'mediaxmloutput',output)
-	
+
+
+
+
+
+
+
+
+# Store md5 checksum.
+print 'generating md5 checksum, this may take some time'
+md5 = subprocess.check_output(['md5deep', '-e', output])
+# Begin creating functions for repetitive tasks:
+# Generate xml elements for coding process history.
+def revtmd_coding_process_history():
+    fo.write('<revtmd:codingProcessHistory>\n')
+    fo.write('<revtmd:role/>\n')
+    fo.write('<revtmd:description/>\n')
+    fo.write('<revtmd:manufacturer/>\n')
+    fo.write('<revtmd:modelName/>\n')
+    fo.write('<revtmd:version/>\n')
+    fo.write('<revtmd:serialNumber/>\n')
+    fo.write('<revtmd:signal/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:videoEncoding/>\n')
+    fo.write('</revtmd:codingProcessHistory>\n')
+
+# Create mostly blank reVTMD template which we'll gradually fill up with info.
+with open(revtmd_xmlfile, "w+") as fo:
+
+    fo.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    fo.write('<revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd">\n')
+    fo.write('<revtmd:reVTMD>\n')
+    fo.write('<revtmd:object>\n')
+    fo.write('<revtmd:filename/>\n')
+    fo.write('<revtmd:organization>\n')
+    fo.write('<revtmd:organization_main>\n')
+    fo.write('<revtmd:name>Irish Film Institute</revtmd:name>\n')
+    fo.write('<revtmd:role/>\n')
+    fo.write('</revtmd:organization_main>\n')
+    fo.write('<revtmd:organization_division>\n')
+    fo.write('<revtmd:name>Irish Film Archive</revtmd:name>\n')
+    fo.write('</revtmd:organization_division>\n')
+    fo.write('</revtmd:organization>\n')
+    fo.write('<revtmd:identifier/>\n')
+    fo.write('<revtmd:mimetype/>\n')
+    fo.write('<revtmd:use/>\n')
+    fo.write('<revtmd:duration/>\n')
+    fo.write('<revtmd:language/>\n')
+    fo.write('<revtmd:size/>\n')
+    fo.write('<revtmd:datarate/>\n')
+    fo.write('<revtmd:color/>\n')
+    fo.write('<revtmd:framerate/>\n')
+    fo.write('<revtmd:format/>\n')
+    fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
+    fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time_date,md5.split()[0])) 
+    fo.write('<revtmd:track id="1" type="video">\n')
+    fo.write('<revtmd:size/>\n')
+    fo.write('<revtmd:datarate/>\n')
+    fo.write('<revtmd:color/>\n')
+    fo.write('<revtmd:frame>\n')
+    fo.write('<revtmd:pixelsHorizontal/>\n')
+    fo.write('<revtmd:pixelsVertical/>\n')
+    fo.write('<revtmd:PAR/>\n')
+    fo.write('<revtmd:DAR/>\n')
+    fo.write('</revtmd:frame>\n')
+    fo.write('<revtmd:framerate/>\n')
+    fo.write('<revtmd:format/>\n')
+    fo.write('</revtmd:track>\n')
+    fo.write('<revtmd:captureHistory>\n')
+    fo.write('<revtmd:digitizationDate>%s</revtmd:digitizationDate>\n' % date)
+    fo.write('<revtmd:digitizationEngineer/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
+    for _ in range(no_of_emptyfields):    
+	    revtmd_coding_process_history()
+    fo.write('</revtmd:captureHistory>\n')
+    fo.write('</revtmd:object>\n')
+    fo.write('</revtmd:reVTMD>\n')
+    fo.write('</revtmd>\n')
+
+# This function actually adds value to a specified xml element.    
+def add_to_revtmd(element, value, xmlfile):
+    subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
+
+# What follows are a lot of functions that can be reused. Titles should be self explanatory.
+
+def get_mediainfo(var_type, type, filename):
+    var_type = subprocess.check_output(['MediaInfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    return var_type
+duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', output )
+par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', output )
+dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', output )
+
+def tech_metadata_revtmd():
+    add_to_revtmd('//revtmd:duration', duration, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:PAR', par, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:DAR', dar, revtmd_xmlfile)
+
+def ffmpeg_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
+
+def avid_capture_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoBitDepth', "10", revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioBitDepth', "abc123", revtmd_xmlfile)
+def control_room_capture_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Control Room', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)   
+def telecine_mac_pro_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mac Pro', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+
+
+def telecine_mac_pro_os_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment operating system', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mavericks', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+def win7_hp_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Windows', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '7 Professional', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'Service pack X', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+def avid_export_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
+def bmd_us4k_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI signal', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
+def avid_consolidate_revtmd(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'File Editing', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+def flashtransfer(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+
+def aja_analog2digital(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to Digital Converter', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Kona somethingorother', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+
+# Combine previous functions for the bestlight workflow  
+def bestlight():
+    
+    add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+    flashtransfer(2)
+    prep()
+    tech_metadata_revtmd()
+    bmd_us4k_revtmd(1)
+    avid_capture_revtmd(5)
+    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+    avid_consolidate_revtmd(6)
+    avid_export_revtmd(7)
+    ffmpeg_revtmd(8)
+    telecine_mac_pro_revtmd(3)
+    telecine_mac_pro_os_revtmd(4)
+
+
+#Currently just a test. Not useful yet.
+def ingest1():
+
+    add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+    aja_analog2digital(4)
+    tech_metadata_revtmd()
+    win7_hp_revtmd(3)
+    ffmpeg_revtmd(6)
+    workstation(2)
+    control_room_capture_revtmd(5)
+    deck(1)
+def ingest2():
+
+    add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+    add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+    aja_analog2digital(4)
+    tech_metadata_revtmd()
+    win7_hp_revtmd(3)
+    ffmpeg_revtmd(6)
+    workstation(2)
+    control_room_capture_revtmd(5)
+    deck(1)
+
+# This launches the xml creation based on your selections  
+if workflow == "bestlight":
+    bestlight()
+elif workflow =="Tape Ingest 1":
+    ingest1()
+elif workflow =="Tape Ingest 2":
+    ingest2()
+
+subprocess.call(['xml', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
 
