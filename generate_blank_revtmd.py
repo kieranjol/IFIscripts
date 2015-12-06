@@ -321,4 +321,4 @@ elif workflow =="Tape Ingest 1":
 elif workflow =="Tape Ingest 2":
     ingest2()
 
-subprocess.call(['xmlstarlet', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
+subprocess.call(['xml', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
