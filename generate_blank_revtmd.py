@@ -59,6 +59,14 @@ elif workflow == "Tape Ingest 2":
 # Currently unused, but I'll get around to it :[
 else:
     no_of_emptyfields = 8
+    if workflow == "Telecine Grade":
+        msg = "Interventions post capture"
+        title = "Interventions post capture?"
+        fieldNames = ["Colour Alterations","Exposure Alterations","Sound Alterations"]
+        grade_interventions = []  # we start with blanks for the values
+        grade_interventions = multenterbox(msg,title, fieldNames)
+        
+        
     msg ="Telecine Machine"
     title = "Pick a name yo!"
     choices = ["Flashtransfer", "Flashscan",]
@@ -67,7 +75,7 @@ else:
     title = "Workflows"
     choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
     preparation = choicebox(msg, title, choices)
-    print preparation
+    
     if preparation == "Splice and perforation check & repairs":
         def prep():
             add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
