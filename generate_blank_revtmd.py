@@ -4,6 +4,7 @@ import os
 import time
 from easygui import multenterbox, choicebox
 
+
 # Store the filename without extension.
 filename_without_path = os.path.basename(sys.argv[1])
 
@@ -65,8 +66,8 @@ else:
         fieldNames = ["Colour Alterations","Exposure Alterations","Sound Alterations"]
         grade_interventions = []  # we start with blanks for the values
         grade_interventions = multenterbox(msg,title, fieldNames)
-        
-        
+    
+    
     msg ="Telecine Machine"
     title = "Pick a name yo!"
     choices = ["Flashtransfer", "Flashscan",]
@@ -75,12 +76,12 @@ else:
     title = "Workflows"
     choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
     preparation = choicebox(msg, title, choices)
-    
+
     if preparation == "Splice and perforation check & repairs":
         def prep():
             add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
             add_to_revtmd('//revtmd:preparationActions[2]', 'Carry out repairs', revtmd_xmlfile)
-            
+        
 
 #More interviews    
 msg ="User?"
@@ -93,7 +94,7 @@ title = "blablablabl"
 fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number"]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
- 
+
 # make sure that none of the fields was left blank
 while 1:
         if fieldValues == None: break
@@ -103,7 +104,7 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
-        
+    
 # Prints info to screen. Make this actually useful! 
 print "Reply was:", fieldValues
 print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
@@ -170,7 +171,7 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:DAR/>\n')
     fo.write('</revtmd:frame>\n')
     fo.write('<revtmd:framerate/>\n')
-    fo.write('<revtmd:format/>\n')
+    fo.write('<revtmd:codec/>\n')
     fo.write('</revtmd:track>\n')
     fo.write('<revtmd:captureHistory>\n')
     fo.write('<revtmd:digitizationDate>%s</revtmd:digitizationDate>\n' % date)
@@ -183,11 +184,11 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('</revtmd:object>\n')
     fo.write('</revtmd:reVTMD>\n')
     fo.write('</revtmd>\n')
-    
+
 # This function actually adds value to a specified xml element.    
 def add_to_revtmd(element, value, xmlfile):
     subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
-    
+
 # What follows are a lot of functions that can be reused. Titles should be self explanatory.
 
 def get_mediainfo(var_type, type, filename):
@@ -196,19 +197,25 @@ def get_mediainfo(var_type, type, filename):
 duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
 dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
-    
+width =  get_mediainfo('dar', '--inform=Video;%Width%', sys.argv[1] )
+height =  get_mediainfo('dar', '--inform=Video;%Height%', sys.argv[1] )
+vcodec =  get_mediainfo('dar', '--inform=Video;%Codec%', sys.argv[1] )
+
 def tech_metadata_revtmd():
     add_to_revtmd('//revtmd:duration', duration, revtmd_xmlfile)
     add_to_revtmd('//revtmd:PAR', par, revtmd_xmlfile)
     add_to_revtmd('//revtmd:DAR', dar, revtmd_xmlfile)
-   
+    add_to_revtmd('//revtmd:pixelsHorizontal', width, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:pixelsVertical', height, revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codec', vcodec, revtmd_xmlfile)
+
 def ffmpeg_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
-    
+
 def avid_capture_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
@@ -286,7 +293,7 @@ def aja_analog2digital(numbo):
 
 # Combine previous functions for the bestlight workflow  
 def bestlight():
-        
+    
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
     flashtransfer(2)
@@ -300,8 +307,8 @@ def bestlight():
     ffmpeg_revtmd(8)
     telecine_mac_pro_revtmd(3)
     telecine_mac_pro_os_revtmd(4)
-    
-    
+
+
 #Currently just a test. Not useful yet.
 def ingest1():
 
