@@ -91,7 +91,7 @@ user = choicebox(msg, title, choices)
 
 msg = "Fill out these things please"
 title = "blablablabl"
-fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number"]
+fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number", "Identifier-Object Entry/Accession Number:"]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
 
@@ -106,8 +106,8 @@ while 1:
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
     
 # Prints info to screen. Make this actually useful! 
-print "Reply was:", fieldValues
-print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
+#print "Reply was:", fieldValues
+#print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
 
 # Generate filename for the reVTMD xmlfile
 revtmd_xmlfile = sys.argv[1] + '.xml'
@@ -148,7 +148,8 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:name>Irish Film Archive</revtmd:name>\n')
     fo.write('</revtmd:organization_division>\n')
     fo.write('</revtmd:organization>\n')
-    fo.write('<revtmd:identifier/>\n')
+    fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[3])
+    fo.write('<revtmd:identifier type="Inmagic DB/Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[2])
     fo.write('<revtmd:mimetype/>\n')
     fo.write('<revtmd:use/>\n')
     fo.write('<revtmd:duration/>\n')
@@ -178,6 +179,7 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:digitizationEngineer/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:source/>\n')
     for _ in range(no_of_emptyfields):    
 	    revtmd_coding_process_history()
     fo.write('</revtmd:captureHistory>\n')
@@ -187,12 +189,12 @@ with open(revtmd_xmlfile, "w+") as fo:
 
 # This function actually adds value to a specified xml element.    
 def add_to_revtmd(element, value, xmlfile):
-    subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
+    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
 
 # What follows are a lot of functions that can be reused. Titles should be self explanatory.
 
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['MediaInfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
     return var_type
 duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
@@ -295,7 +297,8 @@ def aja_analog2digital(numbo):
 def bestlight():
     
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
-    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+    add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
+
     flashtransfer(2)
     prep()
     tech_metadata_revtmd()
@@ -313,7 +316,8 @@ def bestlight():
 def ingest1():
 
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
-    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+    add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
+
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
     aja_analog2digital(4)
     tech_metadata_revtmd()
@@ -325,7 +329,8 @@ def ingest1():
 def ingest2():
 
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
-    add_to_revtmd('//revtmd:identifier', fieldValues[0], revtmd_xmlfile)
+
+    add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
     aja_analog2digital(4)
     tech_metadata_revtmd()
@@ -343,4 +348,4 @@ elif workflow =="Tape Ingest 1":
 elif workflow =="Tape Ingest 2":
     ingest2()
 
-subprocess.call(['xml', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
+subprocess.call(['xmlstarlet', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
