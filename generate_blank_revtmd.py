@@ -202,6 +202,7 @@ dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
 width =  get_mediainfo('dar', '--inform=Video;%Width%', sys.argv[1] )
 height =  get_mediainfo('dar', '--inform=Video;%Height%', sys.argv[1] )
 vcodec =  get_mediainfo('dar', '--inform=Video;%Codec%', sys.argv[1] )
+size =  get_mediainfo('size', '--inform=Video;%StreamSize%', sys.argv[1] )
 
 def tech_metadata_revtmd():
     add_to_revtmd('//revtmd:duration', duration, revtmd_xmlfile)
@@ -210,7 +211,7 @@ def tech_metadata_revtmd():
     add_to_revtmd('//revtmd:pixelsHorizontal', width, revtmd_xmlfile)
     add_to_revtmd('//revtmd:pixelsVertical', height, revtmd_xmlfile)
     add_to_revtmd('//revtmd:codec', vcodec, revtmd_xmlfile)
-
+    add_to_revtmd('//revtmd:track[@id="1" and @type="video"]/revtmd:size', size, revtmd_xmlfile)
 def ffmpeg_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
