@@ -74,7 +74,10 @@ else:
     scanner = choicebox(msg, title, choices)
     msg ="Preperation?"
     title = "Workflows"
-    choices = ["Splice and perforation check", "Splice and perforation check & repairs", "Splice and perferation check & repairs & leader added", "Splice and perforation check and leader added", ]
+    choices = ["Splice and perforation check",
+               "Splice and perforation check & repairs",
+               "Splice and perferation check & repairs & leader added", 
+               "Splice and perforation check and leader added", ]
     preparation = choicebox(msg, title, choices)
 
     if preparation == "Splice and perforation check & repairs":
@@ -86,12 +89,16 @@ else:
 #More interviews    
 msg ="User?"
 title = "Pick a name yo!"
-choices = ["Kieran O'Leary", "Gavin Martin", "Dean Kavanagh", "Raelene Casey", "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
+choices = ["Kieran O'Leary", "Gavin Martin", 
+           "Dean Kavanagh", "Raelene Casey", 
+	   "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
 user = choicebox(msg, title, choices)
 
 msg = "Fill out these things please"
 title = "blablablabl"
-fieldNames = ["Source Accession Number","Notes","Filmographic Reference Number", "Identifier-Object Entry/Accession Number:"]
+fieldNames = ["Source Accession Number",
+	      "Notes","Filmographic Reference Number", 
+              "Identifier-Object Entry/Accession Number:"]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
 
@@ -151,7 +158,6 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[3])
     fo.write('<revtmd:identifier type="Inmagic DB Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[2])
     fo.write('<revtmd:mimetype/>\n')
-
     fo.write('<revtmd:duration/>\n')
     fo.write('<revtmd:language/>\n')
     fo.write('<revtmd:size/>\n')
@@ -204,7 +210,8 @@ def add_to_revtmd(element, value, xmlfile):
 # What follows are a lot of functions that can be reused. Titles should be self explanatory.
 
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full',
+                                         type , filename ]).replace('\n', '')
     return var_type
 duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
@@ -319,10 +326,8 @@ def aja_analog2digital(numbo):
 
 # Combine previous functions for the bestlight workflow  
 def bestlight():
-    
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
-
     flashtransfer(2)
     prep()
     tech_metadata_revtmd()
@@ -335,13 +340,9 @@ def bestlight():
     telecine_mac_pro_revtmd(3)
     telecine_mac_pro_os_revtmd(4)
 
-
-#Currently just a test. Not useful yet.
 def ingest1():
-
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
-
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
     aja_analog2digital(4)
     tech_metadata_revtmd()
@@ -351,9 +352,7 @@ def ingest1():
     control_room_capture_revtmd(5)
     deck(1)
 def ingest2():
-
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
-
     add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
     aja_analog2digital(4)
@@ -372,4 +371,7 @@ elif workflow =="Tape Ingest 1":
 elif workflow =="Tape Ingest 2":
     ingest2()
 
-subprocess.call(['xmlstarlet', 'ed', '--inplace','-d', '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]', revtmd_xmlfile])
+# Temporary, possibly permanent way to delete empty elements
+subprocess.call(['xmlstarlet', 'ed', '--inplace','-d',
+                '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
+                 revtmd_xmlfile])
