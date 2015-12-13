@@ -151,6 +151,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	megapixels =  get_exiftool('megapixels', '-Megapixels', filename )
 	filesize =  get_exiftool('filesize', '-FileSize', filename )
 	codec =  get_exiftool('codec', '-FileType', filename )
+	print "processing", filename
 	print codec
 	print megapixels
 	print filesize
@@ -166,3 +167,4 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 subprocess.call(['xmlstarlet', 'ed', '--inplace','-d',
                 '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
                  inmagic_xmlfile])
+print "You've created", no_of_emptyfields, "Inmagic records. Open the image database, select File ->Import ->select xml file and make sure that ""'check for matching records'"" is not selected" 
