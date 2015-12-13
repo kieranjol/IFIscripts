@@ -10,14 +10,14 @@ root = Tk()
 # Create file-open dialog.
 root.update()
 # Directory with files that we want to transcode losslessly and generate metadata for P.S just as for directory instead, fix later.
-video_dir = tkFileDialog.askdirectory(parent=root)
+video_dir 	= tkFileDialog.askdirectory(parent=root)
 inmagic_xmlfile = 'blablabla.xml'
 
 os.chdir(video_dir)
 
-# Find all video files to transcode
-video_files =  glob('*.tif') + glob('*.jpg')
-no_of_emptyfields = len (video_files)
+# Find all image files
+video_files 	  =  glob('*.tif') + glob('*.jpg') + glob('*.jpeg') + glob('*.JPG')
+no_of_emptyfields = len(video_files) # the number of inmagic records based on the number of files
 
 msg = "Fill out these things please"
 title = "blablablabl"
@@ -38,7 +38,7 @@ while 1:
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
  
-number = 0
+number = 0 #Inmagic lists the first record as number 0. the second record is number 1 and so on.
 #print noofemptyfields
 with open(inmagic_xmlfile, "w+") as fo:
 
@@ -84,7 +84,7 @@ with open(inmagic_xmlfile, "w+") as fo:
 	fo.write('<inm:Depositor-Ref-Number/>\n')
 	fo.write('<inm:Movement-Field/>\n')
 	fo.write('</inm:Record>\n')
-for _ in range(no_of_emptyfields - 1):
+for _ in range(no_of_emptyfields - 1): # -1 because one blank record has already been created
 	number += 1
 	with open(inmagic_xmlfile, "a+") as fo:
 		fo.write('<inm:Record setEntry="%s">\n' % number)
