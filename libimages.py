@@ -6,6 +6,7 @@ from easygui import multenterbox, choicebox
 from Tkinter import *
 import tkFileDialog
 root = Tk()
+import pdb
 
 # Create file-open dialog.
 root.update()
@@ -23,7 +24,7 @@ msg = "Fill out these things please"
 title = "blablablabl"
 fieldNames = ["Year",
 	      "Film Title","Copyright", 
-              "Donation Date", "Director"]
+              "Donation Date", "Director", "Reference number of first record"]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
 
@@ -37,7 +38,9 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
- 
+print fieldValues[5]
+ref = fieldValues[5]
+
 number = 0 #Inmagic lists the first record as number 0. the second record is number 1 and so on.
 #print noofemptyfields
 with open(inmagic_xmlfile, "w+") as fo:
@@ -46,7 +49,7 @@ with open(inmagic_xmlfile, "w+") as fo:
 	fo.write('<inm:Results xmlns:inm="http://www.inmagic.com/webpublisher/query" productTitle="Inmagic DB/TextWorks for SQL" productVersion="13.00">\n')
 	fo.write('<inm:Recordset setCount="%s">\n' % no_of_emptyfields)
 	fo.write('<inm:Record setEntry="%s">\n' % number)
-	fo.write('<inm:Reference-Number/>\n')
+	fo.write('<inm:Reference-Number>%s</inm:Reference-Number>\n' % ref)
 	fo.write('<inm:Type/>\n')
 	fo.write('<inm:Item-Title/>\n')
 	fo.write('<inm:Film-Title/>\n')
@@ -86,6 +89,7 @@ with open(inmagic_xmlfile, "w+") as fo:
 	fo.write('</inm:Record>\n')
 for _ in range(no_of_emptyfields - 1): # -1 because one blank record has already been created
 	number += 1
+	
 	with open(inmagic_xmlfile, "a+") as fo:
 		fo.write('<inm:Record setEntry="%s">\n' % number)
 		fo.write('<inm:Reference-Number/>\n')
@@ -130,20 +134,33 @@ for _ in range(no_of_emptyfields - 1): # -1 because one blank record has already
 with open(inmagic_xmlfile, "a+") as fo:
 		fo.write('</inm:Recordset>\n')
 		fo.write('</inm:Results>\n')	
+		
 numbo = 0
+numbo_1 = 1
+ref = int(fieldValues[5])
+print ref
 for filename in video_files: #Begin a loop for all .mov and .mp4 files.
-
+	#pdb.set_trace()
 	msg ="User?"
 	title = "Depositor?"
 	choices = ["IFB", "BAI"]
 	#user = choicebox(msg, title, choices)
-
+	print inmagic_xmlfile
+	print video_dir
+	print video_files
+	
+	
+	ref +=1
+	
+	print ref
+	print fieldValues
 	def add_to_inmagic(element, value, xmlfile):
-	    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
+	    subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
 	add_to_inmagic('//inm:Collection-Name', 'BAI',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Source', 'Broadcasting Authority of Ireland [BAI]',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Method', 'BAI Delivery',inmagic_xmlfile)
-
+	add_to_inmagic('//inm:Record' + str([numbo_1 + 1]) +'//inm:Reference-Number',str(ref),inmagic_xmlfile)
+	numbo_1 += 1
 	def get_exiftool(var_type, type, filename):
 	    var_type = subprocess.check_output(['exiftool', '-b',
 				                 type , filename ])
@@ -155,7 +172,9 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	print codec
 	print megapixels
 	print filesize
+	
 	numbo +=1
+	
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:File-Format', codec,inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Digital-Size', filesize,inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Year', fieldValues[0],inmagic_xmlfile)
@@ -163,8 +182,8 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Copyright', fieldValues[2],inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Date-Of-Donation', fieldValues[3],inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Director', fieldValues[4],inmagic_xmlfile)
-
-subprocess.call(['xmlstarlet', 'ed', '--inplace','-d',
+	
+subprocess.call(['xml', 'ed', '--inplace','-d',
                 '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
                  inmagic_xmlfile])
 print "You've created", no_of_emptyfields, "Inmagic records. Open the image database, select File ->Import ->select xml file and make sure that ""'check for matching records'"" is not selected" 
