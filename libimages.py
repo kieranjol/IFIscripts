@@ -24,7 +24,7 @@ msg = "Fill out these things please"
 title = "blablablabl"
 fieldNames = ["Year",
 	      "Film Title","Copyright", 
-              "Donation Date", "Director", "Reference number of first record"]
+              "Donation Date", "Director", "Reference number of first record", "Accession number of first record "]
 fieldValues = []  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
 
@@ -38,9 +38,14 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
+		
+msg ="User?"
+title = "Pick a name yo!"
+choices = ["Fiona Rigney", "Fleur Finley", "Kasandra O'Connell", "Kieran O'Leary"]
+user = choicebox(msg, title, choices)
 print fieldValues[5]
 ref = fieldValues[5]
-
+acc_number = int(fieldValues[6])
 number = 0 #Inmagic lists the first record as number 0. the second record is number 1 and so on.
 #print noofemptyfields
 with open(inmagic_xmlfile, "w+") as fo:
@@ -72,7 +77,7 @@ with open(inmagic_xmlfile, "w+") as fo:
 	fo.write('<inm:Description/>\n')
 	fo.write('<inm:Subject-Headings/>\n')
 	fo.write('<inm:Date-Of-Donation/>\n')
-	fo.write('<inm:Accession-Number/>\n')
+	fo.write('<inm:Accession-Number>15/%s</inm:Accession-Number>\n' % str(acc_number).zfill(4) )
 	fo.write('<inm:Director/>\n')
 	fo.write('<inm:Image/>\n')
 	fo.write('<inm:Collection-Name/>\n')
@@ -138,6 +143,7 @@ with open(inmagic_xmlfile, "a+") as fo:
 numbo = 0
 numbo_1 = 1
 ref = int(fieldValues[5])
+
 print ref
 for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	#pdb.set_trace()
@@ -151,6 +157,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	
 	
 	ref +=1
+	acc_number +=1
 	
 	print ref
 	print fieldValues
@@ -159,7 +166,9 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	add_to_inmagic('//inm:Collection-Name', 'BAI',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Source', 'Broadcasting Authority of Ireland [BAI]',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Method', 'BAI Delivery',inmagic_xmlfile)
+	add_to_inmagic('//inm:Edited-By', user,inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo_1 + 1]) +'//inm:Reference-Number',str(ref),inmagic_xmlfile)
+	add_to_inmagic('//inm:Record' + str([numbo_1 + 1]) +'//inm:Accession-Number', '15/' + str(acc_number).zfill(4),inmagic_xmlfile)
 	numbo_1 += 1
 	def get_exiftool(var_type, type, filename):
 	    var_type = subprocess.check_output(['exiftool', '-b',
@@ -182,6 +191,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Copyright', fieldValues[2],inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Date-Of-Donation', fieldValues[3],inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Director', fieldValues[4],inmagic_xmlfile)
+	
 	
 subprocess.call(['xml', 'ed', '--inplace','-d',
                 '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
