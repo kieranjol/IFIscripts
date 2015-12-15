@@ -82,8 +82,8 @@ with open(inmagic_xmlfile, "w+") as fo:
 	fo.write('<inm:Image/>\n')
 	fo.write('<inm:Collection-Name/>\n')
 	fo.write('<inm:Collection-Level-Des/>\n')
-	fo.write('<inm:Level-of-Description/>\n')
-	fo.write('<inm:Digital-or-Hardcopy/>\n')
+	fo.write('<inm:Level-of-Description>File</inm:Level-of-Description>\n')
+	fo.write('<inm:Digital-or-Hardcopy>Digital</inm:Digital-or-Hardcopy>\n')
 	fo.write('<inm:Master-or-Access/>\n')
 	fo.write('<inm:Size/>\n')
 	fo.write('<inm:Digital-Size/>\n')
@@ -125,8 +125,8 @@ for _ in range(no_of_emptyfields - 1): # -1 because one blank record has already
 		fo.write('<inm:Image/>\n')
 		fo.write('<inm:Collection-Name/>\n')
 		fo.write('<inm:Collection-Level-Des/>\n')
-		fo.write('<inm:Level-of-Description/>\n')
-		fo.write('<inm:Digital-or-Hardcopy/>\n')
+		fo.write('<inm:Level-of-Description>File</inm:Level-of-Description>\n')
+		fo.write('<inm:Digital-or-Hardcopy>Digital</inm:Digital-or-Hardcopy>\n')
 		fo.write('<inm:Master-or-Access/>\n')
 		fo.write('<inm:Size/>\n')
 		fo.write('<inm:Digital-Size/>\n')
@@ -162,7 +162,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	print ref
 	print fieldValues
 	def add_to_inmagic(element, value, xmlfile):
-	    subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
+	    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
 	add_to_inmagic('//inm:Collection-Name', 'BAI',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Source', 'Broadcasting Authority of Ireland [BAI]',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Method', 'BAI Delivery',inmagic_xmlfile)
@@ -193,7 +193,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Director', fieldValues[4],inmagic_xmlfile)
 	
 	
-subprocess.call(['xml', 'ed', '--inplace','-d',
+subprocess.call(['xmlstarlet', 'ed', '--inplace','-d',
                 '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
                  inmagic_xmlfile])
 print "You've created", no_of_emptyfields, "Inmagic records. Open the image database, select File ->Import ->select xml file and make sure that ""'check for matching records'"" is not selected" 
