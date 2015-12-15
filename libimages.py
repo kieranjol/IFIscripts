@@ -17,7 +17,7 @@ inmagic_xmlfile = 'blablabla.xml'
 os.chdir(video_dir)
 
 # Find all image files
-video_files 	  =  glob('*.tif') + glob('*.jpg') + glob('*.jpeg') + glob('*.JPG')
+video_files 	  =  glob('*.tif') + glob('*.jpg') + glob('*.jpeg')
 no_of_emptyfields = len(video_files) # the number of inmagic records based on the number of files
 
 msg = "Fill out these things please"
@@ -43,6 +43,11 @@ msg ="User?"
 title = "Pick a name yo!"
 choices = ["Fiona Rigney", "Fleur Finley", "Kasandra O'Connell", "Kieran O'Leary"]
 user = choicebox(msg, title, choices)
+
+msg ="Type?"
+title = "Pick a name yo!"
+choices = ["Poster", "Still"]
+type = choicebox(msg, title, choices)
 print fieldValues[5]
 ref = fieldValues[5]
 acc_number = int(fieldValues[6])
@@ -162,11 +167,12 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	print ref
 	print fieldValues
 	def add_to_inmagic(element, value, xmlfile):
-	    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
+	    subprocess.call(['xml', 'ed', '--inplace', '-N', 'x=http://www.inmagic.com/webpublisher/query', '-u', element, '-v', value, xmlfile])
 	add_to_inmagic('//inm:Collection-Name', 'BAI',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Source', 'Broadcasting Authority of Ireland [BAI]',inmagic_xmlfile)
 	add_to_inmagic('//inm:Acquisition-Method', 'BAI Delivery',inmagic_xmlfile)
 	add_to_inmagic('//inm:Edited-By', user,inmagic_xmlfile)
+	add_to_inmagic('//inm:Type', type,inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo_1 + 1]) +'//inm:Reference-Number',str(ref),inmagic_xmlfile)
 	add_to_inmagic('//inm:Record' + str([numbo_1 + 1]) +'//inm:Accession-Number', '15/' + str(acc_number).zfill(4),inmagic_xmlfile)
 	numbo_1 += 1
@@ -193,7 +199,7 @@ for filename in video_files: #Begin a loop for all .mov and .mp4 files.
 	add_to_inmagic('//inm:Record' + str([numbo]) + '//inm:Director', fieldValues[4],inmagic_xmlfile)
 	
 	
-subprocess.call(['xmlstarlet', 'ed', '--inplace','-d',
+subprocess.call(['xml', 'ed', '--inplace','-d',
                 '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
                  inmagic_xmlfile])
 print "You've created", no_of_emptyfields, "Inmagic records. Open the image database, select File ->Import ->select xml file and make sure that ""'check for matching records'"" is not selected" 
