@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import subprocess
 import sys
 import os
@@ -22,10 +24,10 @@ cmd_list = ['ffmpeg',
 
 codec = raw_input("Pick a codec: (1) ProRes, (2) v210 or (3) h264 ")
 if codec== "1":
-    cmd_list += ['v210', '-c:a', 'copy', output]
+    cmd_list += ['prores', '-c:a', 'copy', output]  
         
 elif codec == "2":
-     cmd_list += ['prores', '-c:a', 'copy', output]  
+    cmd_list += ['v210', '-c:a', 'copy', output]
 
 elif codec == "3":
     cmd_list += ['libx264', '-pix_fmt', 'yuv420p', '-c:a', 'libfaac', output] 
