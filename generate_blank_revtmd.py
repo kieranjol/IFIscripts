@@ -26,15 +26,24 @@ if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
     no_of_emptyfields = 9
     msg ="Tape Deck?"
     title = "Pick a name yo!"
-    choices = ["DVW-A500p", "MiniDV-Something", "UVW-1800P", "J-30", "J-H1", "Another Beta gizmo", "Unknown"]
+    choices = ["DVW-A500P", "MiniDV-Something", "UVW-1400AP", "DVW-510P", "J-30", "J-H3", "UVW-1200P", "Unknown"]
     deck = choicebox(msg, title, choices)
-    if deck == "DVW-A500p":
+    if deck == "DVW-A500P":
         def deck(numbo):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A500p', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A500P', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '10317', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Timecode = Auto', revtmd_xmlfile)  
+    if deck == "DVW-A510P":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A510p', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11414', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Timecode = Auto', revtmd_xmlfile)   
     elif deck == "J-30":
         def deck(numbo):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
@@ -42,6 +51,32 @@ if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-30', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    elif deck == "J-H3":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-H3', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11482', revtmd_xmlfile)    
+    elif deck == "UVW-1400AP":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'UVW-1400AP', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile) 
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Component out = Y-R,B', revtmd_xmlfile)   
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Timecode = LTC', revtmd_xmlfile)    
+              
+    elif deck == "UVW-1200P":
+        def deck(numbo):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'UVW-1200P', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Component out = Y-R,B', revtmd_xmlfile)   
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', 'Timecode = LTC', revtmd_xmlfile)                  
 if workflow == "Tape Ingest 1":
     def workstation(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
@@ -315,7 +350,9 @@ def flashtransfer(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-
+'''
+to do - add in bmd a2d, and add aja kona as a capture card.
+'''
 def aja_analog2digital(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to Digital Converter', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
@@ -367,7 +404,21 @@ def ingest2():
 if workflow == "bestlight":
     bestlight()
 elif workflow =="Tape Ingest 1":
-    ingest1()
+    if deck not in ("UVW-1400AP", "UVW-1200P"):
+        ingest1()
+    else:
+        def betasp_ingest1():
+            add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+            add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
+            add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+            aja_analog2digital(4)
+            tech_metadata_revtmd()
+            win7_hp_revtmd(3)
+            ffmpeg_revtmd(6)
+            workstation(2)
+            control_room_capture_revtmd(5)
+            deck(1)
+        
 elif workflow =="Tape Ingest 2":
     ingest2()
 
