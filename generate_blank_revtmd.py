@@ -2,7 +2,9 @@ import sys
 import subprocess
 import os
 import time
-from easygui import multenterbox, choicebox
+from easygui import multenterbox, choicebox, multchoicebox
+
+revtmd_xmlfile = sys.argv[1] + '.xml'
 
 
 # Store the filename without extension.
@@ -19,7 +21,9 @@ title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 workflow = choicebox(msg, title, choices)
 
-
+# This function actually adds value to a specified xml element.    
+def add_to_revtmd(element, value, xmlfile):
+    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
 
 # Forking path in order to get more accurate info depending on workflow
 if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
@@ -110,17 +114,19 @@ else:
     scanner = choicebox(msg, title, choices)
     msg ="Preperation?"
     title = "Workflows"
-    choices = ["Splice and perforation check",
-               "Splice and perforation check & repairs",
-               "Splice and perferation check & repairs & leader added", 
-               "Splice and perforation check and leader added", ]
-    preparation = choicebox(msg, title, choices)
-
+    choices = ["Splice and perforation check on rewind table",
+               "Splice repairs",
+               "Leader added", 
+               "Perforation repairs", ]
+    preparation = multchoicebox(msg, title, choices)
+    print preparation
+    '''
     if preparation == "Splice and perforation check & repairs":
         def prep():
             add_to_revtmd('//revtmd:preparationActions[1]', 'Check for splices and perforation damage', revtmd_xmlfile)
             add_to_revtmd('//revtmd:preparationActions[2]', 'Carry out repairs', revtmd_xmlfile)
-        
+     '''
+
 
 #More interviews    
 msg ="User?"
@@ -135,8 +141,9 @@ title = "blablablabl"
 fieldNames = ["Source Accession Number",
 	      "Notes","Filmographic Reference Number", 
               "Identifier-Object Entry/Accession Number:"]
-fieldValues = []  # we start with blanks for the values
+  # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
+print fieldValues
 
 # make sure that none of the fields was left blank
 while 1:
@@ -232,6 +239,10 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:digitizationEngineer/>\n')
     fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
+    fo.write('<revtmd:preparationActions/>\n')
     fo.write('<revtmd:source/>\n')
     for _ in range(no_of_emptyfields):    
 	    revtmd_coding_process_history()
@@ -240,9 +251,7 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('</revtmd:reVTMD>\n')
     fo.write('</revtmd>\n')
 
-# This function actually adds value to a specified xml element.    
-def add_to_revtmd(element, value, xmlfile):
-    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
+
 
 # What follows are a lot of functions that can be reused. Titles should be self explanatory.
 
@@ -264,6 +273,11 @@ scanorder =  get_mediainfo('scanorder', '--inform=Video;%ScanOrder%', sys.argv[1
 bitspersample =  get_mediainfo('bitspersample', '--inform=Video;%BitDepth%', sys.argv[1] )
 quality =  get_mediainfo('bitspersample', '--inform=Video;%Compression_Mode%', sys.argv[1] )
 
+numbo1 = 1
+for prep_actions in preparation:
+     
+     add_to_revtmd('//revtmd:preparationActions' + '[' + str(numbo1) + ']' , prep_actions, revtmd_xmlfile)
+     numbo1 += 1	 
 def tech_metadata_revtmd():
     add_to_revtmd('//revtmd:duration', duration, revtmd_xmlfile)
     add_to_revtmd('//revtmd:PAR', par, revtmd_xmlfile)
@@ -337,7 +351,7 @@ def bmd_us4k_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI signal', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
-    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '10.5', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
 def bmd_miniconverter_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to digital converter', revtmd_xmlfile)
@@ -451,7 +465,7 @@ def bestlight():
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
     flashtransfer(2)
-    prep()
+
     tech_metadata_revtmd()
     bmd_us4k_revtmd(1)
     avid_capture_revtmd(5)
@@ -484,7 +498,7 @@ def ingest2():
     workstation(2)
     control_room_capture_revtmd(5)
     deck_func(1)
-print deck
+
 # This launches the xml creation based on your selections  
 if workflow == "bestlight":
     bestlight()
