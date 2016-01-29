@@ -107,40 +107,40 @@ else:
         grade_interventions = []  # we start with blanks for the values
         grade_interventions = multenterbox(msg,title, fieldNames)
     
-
-msg ="Telecine Machine"
-title = "Pick a name yo!"
-choices = ["Flashtransfer", "Flashscan",]
-scanner = choicebox(msg, title, choices)
+    else:
+	msg ="Telecine Machine"
+	title = "Pick a name yo!"
+	choices = ["Flashtransfer", "Flashscan",]
+	scanner = choicebox(msg, title, choices)
 	
-if scanner == "Flashtransfer":
-	    def scanner(numbo):
-		    
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-if scanner == "Flashscan":
-	    def scanner(numbo):
-		    
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-msg ="Preperation?"
-title = "Workflows"
-choices = ["Splice and perforation check on rewind table",
-		   "Splice repairs",
-		   "Leader added", 
-		   "Perforation repairs",
-		   "Recanned",
-		   "Film reversed during transfer"	]
-preparation = multchoicebox(msg, title, choices)
-print preparation
+	if scanner == "Flashtransfer":
+		    def scanner(numbo):
+			    
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+	if scanner == "Flashscan":
+		    def scanner(numbo):
+			    
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+	msg ="Preperation?"
+	title = "Workflows"
+	choices = ["Splice and perforation check on rewind table",
+			   "Splice repairs",
+			   "Leader added", 
+			   "Perforation repairs",
+			   "Recanned",
+			   "Film reversed during transfer"	]
+	preparation = multchoicebox(msg, title, choices)
+	print preparation
 '''
 if preparation == "Splice and perforation check & repairs":
 	def prep():
@@ -156,7 +156,7 @@ choices = ["Kieran O'Leary", "Gavin Martin",
            "Dean Kavanagh", "Raelene Casey", 
 	   "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
 user = choicebox(msg, title, choices)
-user = choicebox(msg, title, choices)
+
 
 msg = "Fill out these things please"
 title = "blablablabl"
