@@ -4,16 +4,19 @@ import os
 import time
 from easygui import multenterbox, choicebox, multchoicebox
 
+# Store the filename for the XML sidecar.
 revtmd_xmlfile = sys.argv[1] + '.xml'
-
 
 # Store the filename without extension.
 filename_without_path = os.path.basename(sys.argv[1])
 
 # Store the current time in ISO8601 format.
 time_date = time.strftime("%Y-%m-%dT%H:%M:%S")
-
 date = time.strftime("%Y-%m-%d")
+
+# This function actually adds value to a specified xml element.    
+def add_to_revtmd(element, value, xmlfile):
+    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
 
 # Begin Interview using Easygui.
 msg ="Which Workflow?"
@@ -21,13 +24,9 @@ title = "Workflows"
 choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
 workflow = choicebox(msg, title, choices)
 
-# This function actually adds value to a specified xml element.    
-def add_to_revtmd(element, value, xmlfile):
-    subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
-
 # Forking path in order to get more accurate info depending on workflow
 if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
-    no_of_emptyfields = 13
+    no_of_emptyfields = 13 #temp, this will be a variable.
     msg ="Tape Deck?"
     title = "Pick a name yo!"
     choices = ["DVW-500P", "MiniDV-Something", "UVW-1400AP", "DVW-510P", "J-30", "J-H3", "UVW-1200P", "Unknown"]
@@ -109,28 +108,26 @@ else:
     
     else:
 	msg ="Telecine Machine"
-	title = "Pick a name yo!"
+	title = "Choose the telecine machine"
 	choices = ["Flashtransfer", "Flashscan",]
 	scanner = choicebox(msg, title, choices)
 	
 	if scanner == "Flashtransfer":
-		    def scanner(numbo):
-			    
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+		def scanner(numbo):		    
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
 	if scanner == "Flashscan":
-		    def scanner(numbo):
-			    
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-				add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+		def scanner(numbo):		    
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+			add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
 	msg ="Preperation?"
 	title = "Workflows"
 	choices = ["Splice and perforation check on rewind table",
@@ -141,6 +138,17 @@ else:
 			   "Film reversed during transfer"	]
 	preparation = multchoicebox(msg, title, choices)
 	print preparation
+	
+	msg ="Post Processing?"
+	title = "Post Processing"
+	choices = ["Horizontal Flipping",
+			   "Vertical Flipping",
+			   "Audio normalised to -20db", 
+			   "Broadcast Safe Filter",
+			   "Desaturate Filter",
+			   ]
+	post_processing = multchoicebox(msg, title, choices)
+	print post_processing
 '''
 if preparation == "Splice and perforation check & repairs":
 	def prep():
@@ -199,6 +207,10 @@ def revtmd_coding_process_history():
     fo.write('<revtmd:version/>\n')
     fo.write('<revtmd:serialNumber/>\n')
     fo.write('<revtmd:signal/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
     fo.write('<revtmd:settings/>\n')
     fo.write('<revtmd:settings/>\n')
     fo.write('<revtmd:videoEncoding/>\n')
@@ -299,7 +311,9 @@ numbo1 = 1
 for prep_actions in preparation:
      
      add_to_revtmd('//revtmd:preparationActions' + '[' + str(numbo1) + ']' , prep_actions, revtmd_xmlfile)
-     numbo1 += 1	 
+     numbo1 += 1	
+
+ 
 def tech_metadata_revtmd():
     add_to_revtmd('//revtmd:duration', duration, revtmd_xmlfile)
     add_to_revtmd('//revtmd:PAR', par, revtmd_xmlfile)
@@ -387,7 +401,13 @@ def avid_consolidate_revtmd(numbo):
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
     add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
-
+def avid_post_processing(numbo):
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Post Processing', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+    add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    
+	
 '''
 to do - add in bmd a2d, and add aja kona as a capture card.
 '''
@@ -481,18 +501,25 @@ def bestlight():
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
     add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
     scanner(2)
-    IiyamaMonitor_telecine(9)
-    tvlogic_broadcast_telecine(10)
-    bmd_ultrascopes_telecine(11)
+    IiyamaMonitor_telecine(5)
+    tvlogic_broadcast_telecine(6)
+    bmd_ultrascopes_telecine(7)
     tech_metadata_revtmd()
     bmd_us4k_revtmd(1)
-    avid_capture_revtmd(5)
+    avid_capture_revtmd(9)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-    avid_consolidate_revtmd(6)
-    avid_export_revtmd(7)
-    ffmpeg_revtmd(8)
+    avid_consolidate_revtmd(9)
+    avid_export_revtmd(10)
+    #ffmpeg_revtmd(8)
     telecine_mac_pro_revtmd(3)
     telecine_mac_pro_os_revtmd(4)
+    avid_post_processing(11)
+    numbo2 = 1
+    for post in post_processing:
+     
+     
+        add_to_revtmd('//revtmd:codingProcessHistory[11]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
+        numbo2 += 1	
 
 def ingest1():
     add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
