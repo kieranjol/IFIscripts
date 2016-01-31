@@ -13,6 +13,14 @@ filename_without_path = os.path.basename(sys.argv[1])
 # Store the current time in ISO8601 format.
 time_date = time.strftime("%Y-%m-%dT%H:%M:%S")
 date = time.strftime("%Y-%m-%d")
+def get_audio_stream_count():
+    audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
+    return len(audio_stream_count)
+audio_tracks = get_audio_stream_count()
+if audio_tracks > 0:
+    sound = "Yes"
+elif audio_tracks == 0:
+    sound = "No"
 
 # This function actually adds value to a specified xml element.    
 def add_to_revtmd(element, value, xmlfile):
@@ -246,6 +254,8 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('<revtmd:format/>\n')
     fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
     fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time_date,md5.split()[0])) 
+	
+    fo.write('<revtmd:sound>%s</revtmd:sound>\n' % sound)
     fo.write('<revtmd:track id="1" type="video">\n')
     fo.write('<revtmd:size/>\n')
     fo.write('<revtmd:datarate/>\n')
