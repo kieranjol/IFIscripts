@@ -291,7 +291,7 @@ with open(revtmd_xmlfile, "w+") as fo:
 
 def get_mediainfo(var_type, type, filename):
     var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full',
-                                         type , filename ]).replace('\n', '')
+                                         type , filename ]).replace('\n', '').replace('\r', '')
     return var_type
 duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
@@ -506,7 +506,7 @@ def bestlight():
     bmd_ultrascopes_telecine(7)
     tech_metadata_revtmd()
     bmd_us4k_revtmd(1)
-    avid_capture_revtmd(9)
+    avid_capture_revtmd(8)
     add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
     avid_consolidate_revtmd(9)
     avid_export_revtmd(10)
