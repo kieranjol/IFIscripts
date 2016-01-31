@@ -177,7 +177,7 @@ user = choicebox(msg, title, choices)
 msg = "Fill out these things please"
 title = "blablablabl"
 fieldNames = ["Source Accession Number",
-	      "Notes","Filmographic Reference Number", 
+	          "Notes","Filmographic Reference Number", 
               "Identifier-Object Entry/Accession Number:"]
   # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
@@ -192,7 +192,7 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
-    
+print fieldValues  
 # Prints info to screen. Make this actually useful! 
 #print "Reply was:", fieldValues
 #print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
@@ -223,6 +223,31 @@ def revtmd_coding_process_history():
     fo.write('<revtmd:settings/>\n')
     fo.write('<revtmd:videoEncoding/>\n')
     fo.write('</revtmd:codingProcessHistory>\n')
+
+
+def revtmd_blank_audio_fields():
+    audio_track_number = 1
+    global audio_track_number
+    while audio_track_number <= audio_tracks:
+        fo.write('<revtmd:track id="%s" type="audio">\n' % audio_track_number)
+        fo.write('<revtmd:duration/>\n')
+        fo.write('<revtmd:size/>\n')
+        fo.write('<revtmd:codec>\n')
+        fo.write('<revtmd:codecID/>\n')
+        fo.write('<revtmd:channelCount/>\n')
+        fo.write('<revtmd:endianness/>\n')
+        fo.write('<revtmd:quality/>\n')
+        fo.write('</revtmd:codec>\n')
+        fo.write('<revtmd:bitsPerSample/>\n')
+        fo.write('<revtmd:sampling/>\n')
+        
+        fo.write('<revtmd:bitsPerSample/>\n')
+        fo.write('<revtmd:sampling/>\n')
+        fo.write('</revtmd:track>\n')		
+        audio_track_number += 1
+		#PS C:\Users\kieranjol> xml sel -t -m "Mediainfo/File/track[@type='Audio' and @typeorder='12']" -v ChannelPositions D:\mi.xml
+	
+    
 
 # Create mostly blank reVTMD template which we'll gradually fill up with info.
 with open(revtmd_xmlfile, "w+") as fo:
@@ -277,7 +302,9 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('</revtmd:codec>\n')
     fo.write('<revtmd:bitsPerSample/>\n')
     fo.write('<revtmd:sampling/>\n')
+
     fo.write('</revtmd:track>\n')
+    revtmd_blank_audio_fields()
     fo.write('<revtmd:captureHistory>\n')
     fo.write('<revtmd:digitizationDate>%s</revtmd:digitizationDate>\n' % date)
     fo.write('<revtmd:digitizationEngineer/>\n')
