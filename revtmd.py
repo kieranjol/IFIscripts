@@ -2,10 +2,12 @@ import sys
 import subprocess
 import os
 import time
+import pdb
 from easygui import multenterbox, choicebox, multchoicebox
 
 # Store the filename for the XML sidecar.
 revtmd_xmlfile = sys.argv[1] + '.xml'
+mediaxml = sys.argv[1] + '_mediainfo.xml'
 
 # Store the filename without extension.
 filename_without_path = os.path.basename(sys.argv[1])
@@ -22,10 +24,95 @@ if audio_tracks > 0:
 elif audio_tracks == 0:
     sound = "No"
 
+	
+# Begin creating functions for repetitive tasks:
+# Generate xml elements for coding process history.
+def revtmd_coding_process_history():
+    fo.write('<revtmd:codingProcessHistory>\n')
+    fo.write('<revtmd:role/>\n')
+    fo.write('<revtmd:description/>\n')
+    fo.write('<revtmd:manufacturer/>\n')
+    fo.write('<revtmd:modelName/>\n')
+    fo.write('<revtmd:version/>\n')
+    fo.write('<revtmd:serialNumber/>\n')
+    fo.write('<revtmd:signal/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:settings/>\n')
+    fo.write('<revtmd:videoEncoding/>\n')
+    fo.write('</revtmd:codingProcessHistory>\n')
+#pdb.set_trace()
+def get_xml_output(xpath, element, source_xml,xml_variable):
+    command =  ['xml','sel', '-t', '-m', xpath, '-v', element, source_xml ]
+    xml_variable = subprocess.Popen(command, stdout=subprocess.PIPE)
+    xml_variable = xml_variable.communicate()[0]
+    
+    return xml_variable
+def revtmd_blank_audio_fields():
+    global audio_track_number
+    audio_track_number = 1
+    
+    while audio_track_number <= audio_tracks:
+        typeoo = "Mediainfo/File/track[@type='Audio' and @typeorder=%s]" % (audio_track_number)
+        #acodec = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Codec', mediaxml ])	
+        #aendian = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Codec_Settings_Endianness', mediaxml ])	
+        #command =  ['xml','sel', '-t', '-m', typeoo, '-v', 'Codec_Settings_Endianness', mediaxml ]
+        #aendian = subprocess.Popen(command, stdout=subprocess.PIPE)
+        #aendian = aendian.communicate()[0]
+        aendian = get_xml_output(typeoo,'Codec_SettingsEndianness', mediaxml, 'aendian')
+     	abitdepth = get_xml_output(typeoo,'Resolution', mediaxml, 'abitdepth')
+        acodec = get_xml_output(typeoo,'Codec', mediaxml, 'acodec')
+        channel_count = get_xml_output(typeoo,'Channel_s_', mediaxml, 'channel_count')		
+        asize = get_xml_output(typeoo,'StreamSize', mediaxml, 'asize')
+        compression_mode = get_xml_output(typeoo,'Compression_Mode', mediaxml, 'compression_mode')
+        sample_rate = get_xml_output(typeoo,'SamplingRate', mediaxml, 'sample_rate')
+        
+        
+        #abitdepth = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Resolution', mediaxml ])	
+        #asize = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'StreamSize', mediaxml ])	
+
+        fo.write('<revtmd:track id="%s" type="audio">\n' % audio_track_number)
+        fo.write('<revtmd:duration/>\n')
+        fo.write('<revtmd:size>%s</revtmd:size>\n' % asize)
+        fo.write('<revtmd:codec>\n')
+        fo.write('<revtmd:codecID>%s</revtmd:codecID>\n' % acodec)
+        fo.write('<revtmd:channelCount>%s</revtmd:channelCount>\n' % channel_count)
+        fo.write('<revtmd:endianness>%s</revtmd:endianness>\n' % aendian)
+        fo.write('<revtmd:quality>%s</revtmd:quality>\n'% compression_mode)
+        fo.write('</revtmd:codec>\n')
+        fo.write('<revtmd:bitsPerSample>%s</revtmd:bitsPerSample>\n'% abitdepth)
+        fo.write('<revtmd:samplingRate>%s</revtmd:samplingRate>\n' % sample_rate)
+        
+        fo.write('<revtmd:bitsPerSample/>\n')
+        fo.write('<revtmd:sampling/>\n')
+        fo.write('</revtmd:track>\n')
+        	
+        audio_track_number += 1
+		#PS C:\Users\kieranjol> xml sel -t -m "Mediainfo/File/track[@type='Audio' and @typeorder='12']" -v ID D:\mi.xml
+	
+    
+with open(mediaxml, "w+") as fo:
+		mediaxmlinput = subprocess.check_output(['mediainfo',
+							'-f',
+							'--language=raw', # Use verbose output.
+							'--output=XML',
+							sys.argv[1] ])       #input filename
+		fo.write(mediaxmlinput)
+	
+
 # This function actually adds value to a specified xml element.    
 def add_to_revtmd(element, value, xmlfile):
     subprocess.call(['xmlstarlet', 'ed', '--inplace', '-N', 'x=http://nwtssite.nwts.nara/schema/', '-u', element, '-v', value, xmlfile])
 
+	# What follows are a lot of functions that can be reused. Titles should be self explanatory.
+
+def get_mediainfo(var_type, type, filename):
+    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full',
+                                         type , filename ]).replace('\n', '').replace('\r', '')
+    return var_type
 # Begin Interview using Easygui.
 msg ="Which Workflow?"
 title = "Workflows"
@@ -177,7 +264,7 @@ user = choicebox(msg, title, choices)
 msg = "Fill out these things please"
 title = "blablablabl"
 fieldNames = ["Source Accession Number",
-	      "Notes","Filmographic Reference Number", 
+	          "Notes","Filmographic Reference Number", 
               "Identifier-Object Entry/Accession Number:"]
   # we start with blanks for the values
 fieldValues = multenterbox(msg,title, fieldNames)
@@ -192,7 +279,7 @@ while 1:
                 errmsg = errmsg + ('"%s" is a required field.' % fieldNames[i])
         if errmsg == "": break # no problems found
         fieldValues = multenterbox(errmsg, title, fieldNames, fieldValues)
-    
+print fieldValues  
 # Prints info to screen. Make this actually useful! 
 #print "Reply was:", fieldValues
 #print "Your selection was:\n Workflow =  %s\n Scanner = %s\n Preparation actions = %s\n User = %s\n" % (workflow,scanner, preparation, user)
@@ -204,25 +291,7 @@ revtmd_xmlfile = sys.argv[1] + '.xml'
 # Store md5 checksum.
 print 'generating md5 checksum, this may take some time'
 md5 = subprocess.check_output(['md5deep', '-e', sys.argv[1]])
-# Begin creating functions for repetitive tasks:
-# Generate xml elements for coding process history.
-def revtmd_coding_process_history():
-    fo.write('<revtmd:codingProcessHistory>\n')
-    fo.write('<revtmd:role/>\n')
-    fo.write('<revtmd:description/>\n')
-    fo.write('<revtmd:manufacturer/>\n')
-    fo.write('<revtmd:modelName/>\n')
-    fo.write('<revtmd:version/>\n')
-    fo.write('<revtmd:serialNumber/>\n')
-    fo.write('<revtmd:signal/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:settings/>\n')
-    fo.write('<revtmd:videoEncoding/>\n')
-    fo.write('</revtmd:codingProcessHistory>\n')
+
 
 # Create mostly blank reVTMD template which we'll gradually fill up with info.
 with open(revtmd_xmlfile, "w+") as fo:
@@ -277,7 +346,9 @@ with open(revtmd_xmlfile, "w+") as fo:
     fo.write('</revtmd:codec>\n')
     fo.write('<revtmd:bitsPerSample/>\n')
     fo.write('<revtmd:sampling/>\n')
+
     fo.write('</revtmd:track>\n')
+    revtmd_blank_audio_fields()
     fo.write('<revtmd:captureHistory>\n')
     fo.write('<revtmd:digitizationDate>%s</revtmd:digitizationDate>\n' % date)
     fo.write('<revtmd:digitizationEngineer/>\n')
@@ -297,12 +368,7 @@ with open(revtmd_xmlfile, "w+") as fo:
 
 
 
-# What follows are a lot of functions that can be reused. Titles should be self explanatory.
 
-def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full',
-                                         type , filename ]).replace('\n', '').replace('\r', '')
-    return var_type
 duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
 dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
