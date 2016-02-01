@@ -2,10 +2,12 @@ import sys
 import subprocess
 import os
 import time
+import pdb
 from easygui import multenterbox, choicebox, multchoicebox
 
 # Store the filename for the XML sidecar.
 revtmd_xmlfile = sys.argv[1] + '.xml'
+mediaxml = sys.argv[1] + '_mediainfo.xml'
 
 # Store the filename without extension.
 filename_without_path = os.path.basename(sys.argv[1])
@@ -21,6 +23,15 @@ if audio_tracks > 0:
     sound = "Yes"
 elif audio_tracks == 0:
     sound = "No"
+
+with open(mediaxml, "w+") as fo:
+		mediaxmlinput = subprocess.check_output(['mediainfo',
+							'-f',
+							'--language=raw', # Use verbose output.
+							'--output=XML',
+							sys.argv[1] ])       #input filename
+		fo.write(mediaxmlinput)
+	
 
 # This function actually adds value to a specified xml element.    
 def add_to_revtmd(element, value, xmlfile):
@@ -223,29 +234,52 @@ def revtmd_coding_process_history():
     fo.write('<revtmd:settings/>\n')
     fo.write('<revtmd:videoEncoding/>\n')
     fo.write('</revtmd:codingProcessHistory>\n')
-
-
+#pdb.set_trace()
+def get_xml_output(xpath, element, source_xml,xml_variable):
+    command =  ['xml','sel', '-t', '-m', xpath, '-v', element, source_xml ]
+    xml_variable = subprocess.Popen(command, stdout=subprocess.PIPE)
+    xml_variable = xml_variable.communicate()[0]
+    
+    return xml_variable
 def revtmd_blank_audio_fields():
     audio_track_number = 1
     global audio_track_number
     while audio_track_number <= audio_tracks:
+        typeoo = "Mediainfo/File/track[@type='Audio' and @typeorder=%s]" % (audio_track_number)
+        #acodec = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Codec', mediaxml ])	
+        #aendian = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Codec_Settings_Endianness', mediaxml ])	
+        #command =  ['xml','sel', '-t', '-m', typeoo, '-v', 'Codec_Settings_Endianness', mediaxml ]
+        #aendian = subprocess.Popen(command, stdout=subprocess.PIPE)
+        #aendian = aendian.communicate()[0]
+        aendian = get_xml_output(typeoo,'Codec_Settings', mediaxml, 'aendian')
+     	abitdepth = get_xml_output(typeoo,'Resolution', mediaxml, 'abitdepth')
+        acodec = get_xml_output(typeoo,'Codec', mediaxml, 'acodec')
+        asize = get_xml_output(typeoo,'StreamSize', mediaxml, 'asize')
+        compression_mode = get_xml_output(typeoo,'Compression_Mode', mediaxml, 'compression_mode')
+        sample_rate = get_xml_output(typeoo,'SamplingRate', mediaxml, 'sample_rate')
+        
+        
+        #abitdepth = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'Resolution', mediaxml ])	
+        #asize = subprocess.check_output(['xml','sel', '-t', '-m', typeoo, '-v', 'StreamSize', mediaxml ])	
+
         fo.write('<revtmd:track id="%s" type="audio">\n' % audio_track_number)
         fo.write('<revtmd:duration/>\n')
-        fo.write('<revtmd:size/>\n')
+        fo.write('<revtmd:size>%s</revtmd:size>\n' % asize)
         fo.write('<revtmd:codec>\n')
-        fo.write('<revtmd:codecID/>\n')
+        fo.write('<revtmd:codecID>%s</revtmd:codecID>\n' % acodec)
         fo.write('<revtmd:channelCount/>\n')
-        fo.write('<revtmd:endianness/>\n')
-        fo.write('<revtmd:quality/>\n')
+        fo.write('<revtmd:endianness>%s</revtmd:endianness>\n' % aendian)
+        fo.write('<revtmd:quality>%s</revtmd:quality>\n'% compression_mode)
         fo.write('</revtmd:codec>\n')
-        fo.write('<revtmd:bitsPerSample/>\n')
-        fo.write('<revtmd:sampling/>\n')
+        fo.write('<revtmd:bitsPerSample>%s</revtmd:bitsPerSample>\n'% abitdepth)
+        fo.write('<revtmd:samplingRate>%s</revtmd:samplingRate>\n' % sample_rate)
         
         fo.write('<revtmd:bitsPerSample/>\n')
         fo.write('<revtmd:sampling/>\n')
-        fo.write('</revtmd:track>\n')		
+        fo.write('</revtmd:track>\n')
+        	
         audio_track_number += 1
-		#PS C:\Users\kieranjol> xml sel -t -m "Mediainfo/File/track[@type='Audio' and @typeorder='12']" -v ChannelPositions D:\mi.xml
+		#PS C:\Users\kieranjol> xml sel -t -m "Mediainfo/File/track[@type='Audio' and @typeorder='12']" -v ID D:\mi.xml
 	
     
 
