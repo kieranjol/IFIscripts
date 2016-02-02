@@ -312,7 +312,7 @@ else:
             for post in post_processing:
                 add_to_revtmd('//revtmd:codingProcessHistory[11]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
                 numbo2 += 1    
-     def capture_interventions_func():           
+    def capture_interventions_func():           
         if capture_interventions != None:
             numbo2 = 2
             for interventions in capture_interventions:
