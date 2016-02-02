@@ -212,6 +212,14 @@ else:
             grade_interventions = multenterbox(msg,title, fieldNames)
         
         else:
+            
+            msg = "Capture Frame Rate"
+            title = "Capture Frame Rate"
+            fieldNames = ["15","16","18","20","22","25"]
+            capture_frame_rate = []  # we start with blanks for the values
+            capture_frame_rate = choicebox(msg,title, fieldNames)
+            fps_string = 'Captured at %s fps' % capture_frame_rate
+            
             msg ="Telecine Machine"
             title = "Choose the telecine machine"
             choices = ["Flashtransfer", "Flashscan",]
@@ -225,6 +233,7 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings', fps_string, revtmd_xmlfile)
         if scanner == "Flashscan":
             def scanner(numbo):            
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
@@ -233,6 +242,12 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
+                
+                
+      
+        
+        
         msg ="Preperation?"
         title = "Workflows"
         choices = ["Splice and perforation check on rewind table",
@@ -244,6 +259,16 @@ else:
         preparation = multchoicebox(msg, title, choices)
         print preparation
         
+        msg ="Interventions at point of capture"
+        title = "capture interventions"
+        choices = ["Exposure compensation",
+                   "Contrast adjustment",
+                   "Positive to negative", 
+                   "Spacing between reels not captured",
+                    ]
+        capture_interventions = multchoicebox(msg, title, choices)
+        print capture_interventions
+        
         msg ="Post Processing?"
         title = "Post Processing"
         choices = ["Horizontal Flipping",
@@ -251,6 +276,8 @@ else:
                    "Audio normalised to -20db", 
                    "Broadcast Safe Filter",
                    "Desaturate Filter",
+                   "Positive to Negative",
+                   "Avid Motion Editing"
                    ]
         post_processing = multchoicebox(msg, title, choices)
         print post_processing
@@ -627,6 +654,14 @@ else:
              
              
                 add_to_revtmd('//revtmd:codingProcessHistory[11]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
+                numbo2 += 1
+                
+        if capture_interventions != None:
+            numbo2 = 2
+            for interventions in capture_interventions:
+             
+             
+                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , interventions, revtmd_xmlfile)
                 numbo2 += 1    
         else:
             print 'all is well'
