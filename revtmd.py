@@ -301,6 +301,28 @@ else:
     # Store md5 checksum.
     print 'generating md5 checksum, this may take some time'
     md5 = subprocess.check_output(['md5deep', '-e', sys.argv[1]])
+    
+    duration =  get_mediainfo('duration', '--inform=Video;%Duration_String4%', sys.argv[1] )
+    par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
+    dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
+    width =  get_mediainfo('width', '--inform=Video;%Width%', sys.argv[1] )
+    height =  get_mediainfo('height', '--inform=Video;%Height%', sys.argv[1] )
+    vcodec =  get_mediainfo('dar', '--inform=Video;%Codec%', sys.argv[1] )
+    size =  get_mediainfo('size', '--inform=Video;%StreamSize%', sys.argv[1] )
+    chromasubsampling =  get_mediainfo('chromasubsampling', '--inform=Video;%ChromaSubsampling%', sys.argv[1] )
+    codec_id =  get_mediainfo('codecid', '--inform=Video;%CodecID%', sys.argv[1] )
+    scantype =  get_mediainfo('scantype', '--inform=Video;%ScanType%', sys.argv[1] )
+    scanorder =  get_mediainfo('scanorder', '--inform=Video;%ScanOrder%', sys.argv[1] )
+    bitspersample =  get_mediainfo('bitspersample', '--inform=Video;%BitDepth%', sys.argv[1] )
+    quality =  get_mediainfo('quality', '--inform=Video;%Compression_Mode%', sys.argv[1] )
+    container_duration =  get_mediainfo('container_duration', '--inform=General;%Duration_String4%', sys.argv[1] )
+    container_size =  get_mediainfo('container_size', '--inform=General;%FileSize%', sys.argv[1] )
+    overall_bitrate =  get_mediainfo('overall_bitrate', '--inform=General;%OverallBitRate%', sys.argv[1] )
+    video_bitrate =  get_mediainfo('video_bitrate', '--inform=Video;%BitRate%', sys.argv[1] )
+    container_mime =  get_mediainfo('container_mime', '--inform=General;%InternetMediaType%', sys.argv[1] )
+    frame_rate =  get_mediainfo('frame_rate', '--inform=Video;%FrameRate%', sys.argv[1] )
+    container_frame_rate =  get_mediainfo('container_frame_rate', '--inform=General;%FrameRate%', sys.argv[1] )
+    frame_count =  get_mediainfo('frame_count', '--inform=Video;%FrameCount%', sys.argv[1] )
 
 
     # Create mostly blank reVTMD template which we'll gradually fill up with info.
@@ -322,22 +344,23 @@ else:
         fo.write('</revtmd:organization>\n')
         fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[3])
         fo.write('<revtmd:identifier type="Inmagic DB Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[2])
-        fo.write('<revtmd:mimetype/>\n')
-        fo.write('<revtmd:duration/>\n')
+        fo.write('<revtmd:mimetype>%s</revtmd:mimetype>\n' % container_mime)
+        fo.write('<revtmd:duration>%s</revtmd:duration>\n' % container_duration)
         fo.write('<revtmd:language/>\n')
-        fo.write('<revtmd:size/>\n')
-        fo.write('<revtmd:datarate/>\n')
+        fo.write('<revtmd:size>%s</revtmd:size>\n' % container_size)
+        fo.write('<revtmd:datarate>%s</revtmd:datarate>\n' % overall_bitrate)
         fo.write('<revtmd:use>Preservation Master</revtmd:use>\n')
         fo.write('<revtmd:color/>\n')
-        fo.write('<revtmd:framerate/>\n')
+        fo.write('<revtmd:framerate>%s</revtmd:framerate>\n' % container_frame_rate)
         fo.write('<revtmd:format/>\n')
         fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
         fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time_date,md5.split()[0])) 
         
         fo.write('<revtmd:sound>%s</revtmd:sound>\n' % sound)
         fo.write('<revtmd:track id="1" type="video">\n')
+        fo.write('<revtmd:duration/> \n')
         fo.write('<revtmd:size/>\n')
-        fo.write('<revtmd:datarate/>\n')
+        fo.write('<revtmd:dataRate/>\n' )
         fo.write('<revtmd:color/>\n')
         fo.write('<revtmd:frame>\n')
         fo.write('<revtmd:pixelsHorizontal/>\n')
@@ -345,7 +368,7 @@ else:
         fo.write('<revtmd:PAR/>\n')
         fo.write('<revtmd:DAR/>\n')
         fo.write('</revtmd:frame>\n')
-        fo.write('<revtmd:framerate/>\n')
+        fo.write('<revtmd:frameRate>%s</revtmd:frameRate>\n' % frame_rate)
         fo.write('<revtmd:codec>\n')
         fo.write('<revtmd:codecID/>\n')
         fo.write('<revtmd:channelCount/>\n')
@@ -353,10 +376,12 @@ else:
         fo.write('<revtmd:quality/>\n')
         fo.write('<revtmd:scanType/>\n')
         fo.write('<revtmd:scanOrder/>\n')
+        
         fo.write('</revtmd:codec>\n')
         fo.write('<revtmd:bitsPerSample/>\n')
         fo.write('<revtmd:sampling/>\n')
-
+        fo.write('<revtmd:frameCount>%s</revtmd:frameCount> \n' % frame_count)
+        
         fo.write('</revtmd:track>\n')
         revtmd_blank_audio_fields()
         fo.write('<revtmd:captureHistory>\n')
@@ -379,19 +404,9 @@ else:
 
 
 
-    duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
-    par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
-    dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
-    width =  get_mediainfo('width', '--inform=Video;%Width%', sys.argv[1] )
-    height =  get_mediainfo('height', '--inform=Video;%Height%', sys.argv[1] )
-    vcodec =  get_mediainfo('dar', '--inform=Video;%Codec%', sys.argv[1] )
-    size =  get_mediainfo('size', '--inform=Video;%StreamSize%', sys.argv[1] )
-    chromasubsampling =  get_mediainfo('chromasubsampling', '--inform=Video;%ChromaSubsampling%', sys.argv[1] )
-    codec_id =  get_mediainfo('codecid', '--inform=Video;%CodecID%', sys.argv[1] )
-    scantype =  get_mediainfo('scantype', '--inform=Video;%ScanType%', sys.argv[1] )
-    scanorder =  get_mediainfo('scanorder', '--inform=Video;%ScanOrder%', sys.argv[1] )
-    bitspersample =  get_mediainfo('bitspersample', '--inform=Video;%BitDepth%', sys.argv[1] )
-    quality =  get_mediainfo('bitspersample', '--inform=Video;%Compression_Mode%', sys.argv[1] )
+
+    
+    
 
     numbo1 = 1
     if preparation != None:
@@ -414,6 +429,10 @@ else:
         add_to_revtmd('//revtmd:track[@id="1" and @type="video"]/revtmd:bitsPerSample', bitspersample, revtmd_xmlfile)
         add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:quality', quality, revtmd_xmlfile)
         add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:scanOrder', scanorder, revtmd_xmlfile)
+        add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:duration', duration, revtmd_xmlfile)
+        add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:dataRate', video_bitrate , revtmd_xmlfile)
+        
+        
 
 
     def ffmpeg_revtmd(numbo):
