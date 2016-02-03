@@ -73,6 +73,7 @@ else:
         fo.write('<revtmd:modelName/>\n')
         fo.write('<revtmd:version/>\n')
         fo.write('<revtmd:serialNumber/>\n')
+        fo.write('<revtmd:serialNumber/>\n')
         fo.write('<revtmd:signal/>\n')
         fo.write('<revtmd:settings/>\n')
         fo.write('<revtmd:settings/>\n')
@@ -270,7 +271,21 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)    
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)
+    def philips_headphones_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Headphones', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
+    def maudio_speaker_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left and Right Speakers', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
+      
    
     def revtmd_blank_audio_fields():   
         global audio_track_number		
@@ -329,7 +344,7 @@ else:
 
     # Forking path in order to get more accurate info depending on workflow
     if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
-        no_of_emptyfields = 13 #temp, this will be a variable.
+        no_of_emptyfields = 16 #temp, this will be a variable.
         msg ="Tape Deck?"
         title = "Pick a name yo!"
         choices = ["DVW-500P", "MiniDV-Something", "UVW-1400AP", "DVW-510P", "J-30", "J-H3", "UVW-1200P", "Unknown"]
@@ -413,7 +428,7 @@ else:
             
             msg = "Capture Frame Rate"
             title = "Capture Frame Rate"
-            fieldNames = ["15","16","18","20","22","25"]
+            fieldNames = ["15","16","18","20","22","25", "Multiple frame rates"]
             capture_frame_rate = []  # we start with blanks for the values
             capture_frame_rate = choicebox(msg,title, fieldNames)
             fps_string = 'Captured at %s fps' % capture_frame_rate
@@ -430,7 +445,6 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
         if scanner == "Flashscan":
             def scanner(numbo):            
@@ -439,7 +453,6 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
                 
         # Preparation History        
@@ -466,6 +479,33 @@ else:
         capture_interventions = multchoicebox(msg, title, choices)
         # End interventions during capture
         
+        # Audio assesment during capture
+        msg ="Headphones/speakers used during capture"
+        title = "capture audio assesment"
+        choices = ["Philips Headphones",
+                   "M-Audio Speakers",
+                   "Both", 
+                   
+                    ]
+        audio_choices = choicebox(msg, title, choices)
+        if audio_choices == "Philips Headphones":
+            def audio_capture_telecine(numbo):
+                philips_headphones_telecine(numbo)
+        elif audio_choices == "M-AUDIO Speakers":
+            def audio_capture_telecine(numbo):
+                maudio_speaker_telecine(numbo)
+
+        elif audio_choices == "Both":
+            def audio_capture_telecine(numbo):        
+                philips_headphones_telecine(numbo) 
+                numbo += 1
+                
+                maudio_speaker_telecine(numbo)
+               
+                
+              
+        
+        # End interventions during capture
         msg ="Post Processing?"
         title = "Post Processing"
         choices = ["Horizontal Flipping",
@@ -615,23 +655,47 @@ else:
                  prep1 += 1    
 
     # Combine previous functions for the bestlight workflow  
-    def bestlight():
+    counter = 0
+    
+    def bestlight(position):
         add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
         add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
-        scanner(2)
-        IiyamaMonitor_telecine(5)
-        tvlogic_broadcast_telecine(6)
-        bmd_ultrascopes_telecine(7)
+        position += 1
+        bmd_us4k_revtmd(position)
+        position += 1
+        scanner(position)
+        position += 1
+        telecine_mac_pro_revtmd(position)
+        position += 1
+        telecine_mac_pro_os_revtmd(position)
+        position += 1
+        IiyamaMonitor_telecine(position)
+        position += 1
+        tvlogic_broadcast_telecine(position)
+        position += 1     
+        audio_capture_telecine(position)
+        if not audio_choices == "Both":
+            position += 1
+        else:
+            position += 2
+        bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
-        bmd_us4k_revtmd(1)
-        avid_capture_revtmd(8)
+        
+        position += 1
+        avid_capture_revtmd(position)
+        position += 1
         add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-        avid_consolidate_revtmd(9)
-        avid_export_revtmd(10)
-        #ffmpeg_revtmd(8)
-        telecine_mac_pro_revtmd(3)
-        telecine_mac_pro_os_revtmd(4)
-        avid_post_processing(11)
+        avid_consolidate_revtmd(position)
+        position += 1
+        avid_export_revtmd(position)
+        position += 1
+        #ffmpeg_revtmd(position)
+       
+        position += 1
+        avid_post_processing(position)
+        position += 1
+        
+        
         prep_data_entry()
         capture_interventions_func()
                
@@ -661,7 +725,7 @@ else:
 
     # This launches the xml creation based on your selections  
     if workflow == "bestlight":
-        bestlight()
+        bestlight(counter)
     elif workflow =="Tape Ingest 1":
         if deck not in ("UVW-1400AP", "UVW-1200P"):
             ingest1()
