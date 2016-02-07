@@ -18,7 +18,7 @@ if len(sys.argv) < 2:
 
 else:
 
-    # Input, either file or firectory, that we want to transcode losslessly and generate metadata for
+    # Input, either file or firectory, that we want to process.
     input = sys.argv[1]
     print input
 
