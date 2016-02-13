@@ -297,12 +297,15 @@ else:
             asize = get_xml_output(audio_xpath,'StreamSize', mediaxml, 'asize')
             compression_mode = get_xml_output(audio_xpath,'Compression_Mode', mediaxml, 'compression_mode')
             sample_rate = get_xml_output(audio_xpath,'SamplingRate', mediaxml, 'sample_rate')
-    
+            a_duration = get_xml_output(audio_xpath,'Duration_String4', mediaxml, 'a_duration')
+            a_codecid = get_xml_output(audio_xpath,'CodecID', mediaxml, 'a_codecid')
+
             fo.write('<revtmd:track id="%s" type="audio">\n' % audio_track_number)
             fo.write('<revtmd:duration/>\n')
             fo.write('<revtmd:size>%s</revtmd:size>\n' % asize)
             fo.write('<revtmd:codec>\n')
-            fo.write('<revtmd:codecID>%s</revtmd:codecID>\n' % acodec)
+            fo.write('<revtmd:name>%s</revtmd:name>\n' % acodec)
+            fo.write('<revtmd:codecID>%s</revtmd:codecID>\n' % a_codecid)
             fo.write('<revtmd:channelCount>%s</revtmd:channelCount>\n' % channel_count)
             fo.write('<revtmd:endianness>%s</revtmd:endianness>\n' % aendian)
             fo.write('<revtmd:quality>%s</revtmd:quality>\n'% compression_mode)
@@ -569,6 +572,8 @@ else:
     container_mime =  get_mediainfo('container_mime', '--inform=General;%InternetMediaType%', sys.argv[1] )
     frame_rate =  get_mediainfo('frame_rate', '--inform=Video;%FrameRate%', sys.argv[1] )
     container_frame_rate =  get_mediainfo('container_frame_rate', '--inform=General;%FrameRate%', sys.argv[1] )
+    container_name =  get_mediainfo('container_frame_rate', '--inform=General;%Format%', sys.argv[1] )
+    container_profile =  get_mediainfo('container_profile', '--inform=General;%Format_Profile%', sys.argv[1] )
     frame_count =  get_mediainfo('frame_count', '--inform=Video;%FrameCount%', sys.argv[1] )
 
     # Create mostly blank reVTMD template which we'll gradually fill up with info.
@@ -590,7 +595,7 @@ else:
         fo.write('</revtmd:organization>\n')
         fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[3])
         fo.write('<revtmd:identifier type="Inmagic DB Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[2])
-        fo.write('<revtmd:mimetype>%s</revtmd:mimetype>\n' % container_mime)
+        
         fo.write('<revtmd:duration>%s</revtmd:duration>\n' % container_duration)
         fo.write('<revtmd:language/>\n')
         fo.write('<revtmd:size>%s</revtmd:size>\n' % container_size)
@@ -598,7 +603,11 @@ else:
         fo.write('<revtmd:use>Preservation Master</revtmd:use>\n')
         fo.write('<revtmd:color/>\n')
         fo.write('<revtmd:framerate>%s</revtmd:framerate>\n' % container_frame_rate)
-        fo.write('<revtmd:format/>\n')
+        fo.write('<revtmd:format>\n')
+        fo.write('<revtmd:name>%s</revtmd:name>\n' % container_name)
+        fo.write('<revtmd:mimetype>%s</revtmd:mimetype>\n' % container_mime)
+        fo.write('<revtmd:version>%s</revtmd:version>\n' % container_profile)
+        fo.write('</revtmd:format>\n')        
         fo.write('<!-- Checksum as generated immediately after the digitization process. -->\n')
         fo.write('<revtmd:checksum algorithm="md5" dateTime="%s">%s</revtmd:checksum>\n' % (time_date,md5.split()[0])) 
         fo.write('<revtmd:sound>%s</revtmd:sound>\n' % sound)
