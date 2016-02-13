@@ -478,7 +478,8 @@ else:
         title = "capture audio assesment"
         choices = ["Philips Headphones",
                    "M-Audio Speakers",
-                   "Both", 
+                   "Both",
+                   "None"                   
                    
                     ]
         audio_choices = choicebox(msg, title, choices)
@@ -496,7 +497,8 @@ else:
                 numbo += 1
                 
                 maudio_speaker_telecine(numbo)
-               
+        elif audio_choices == "None": 
+            print "No audio selected"        
         print audio_choices       
               
         
@@ -667,12 +669,14 @@ else:
         IiyamaMonitor_telecine(position)
         position += 1
         tvlogic_broadcast_telecine(position)
-        position += 1     
-        audio_capture_telecine(position)
-        if not audio_choices == "Both":
-            position += 1
-        else:
-            position += 2
+        position += 1
+        if not audio_choices == "None":         
+            audio_capture_telecine(position)
+            
+            if not audio_choices == "Both":
+                position += 1
+            else:
+                position += 2
         bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
         position += 1
