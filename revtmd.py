@@ -482,10 +482,11 @@ else:
                    
                     ]
         audio_choices = choicebox(msg, title, choices)
+
         if audio_choices == "Philips Headphones":
             def audio_capture_telecine(numbo):
                 philips_headphones_telecine(numbo)
-        elif audio_choices == "M-AUDIO Speakers":
+        elif audio_choices == "M-Audio Speakers":
             def audio_capture_telecine(numbo):
                 maudio_speaker_telecine(numbo)
 
@@ -496,7 +497,7 @@ else:
                 
                 maudio_speaker_telecine(numbo)
                
-                
+        print audio_choices       
               
         
         # End interventions during capture
@@ -674,22 +675,16 @@ else:
             position += 2
         bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
-        
         position += 1
         avid_capture_revtmd(position)
         position += 1
         add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
         avid_consolidate_revtmd(position)
         position += 1
-        avid_export_revtmd(position)
-        position += 1
-        #ffmpeg_revtmd(position)
-       
-        position += 1
         avid_post_processing(position)
         position += 1
-        
-        
+        avid_export_revtmd(position)
+        #ffmpeg_revtmd(position)        
         prep_data_entry()
         capture_interventions_func()
                
