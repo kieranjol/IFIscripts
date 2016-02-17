@@ -167,6 +167,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '10.5', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1955795', revtmd_xmlfile)
     def bmd_miniconverter_revtmd(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to digital converter', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
@@ -223,13 +224,20 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11183M4504437', revtmd_xmlfile)
-    def IiyamaMonitor_telecine(numbo):
+    def IiyamaMonitor1_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504428', revtmd_xmlfile)
+    def IiyamaMonitor2_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504434', revtmd_xmlfile)
     def bmd_ultrascopes_ingest1(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Digital Scopes', revtmd_xmlfile)
@@ -248,7 +256,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)        
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1969171', revtmd_xmlfile)        
     def tvlogic_broadcast_ingest1(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Ingest 1 Broadcast Monitor', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
@@ -266,7 +274,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'LV245N0048', revtmd_xmlfile)
     def philips_headphones_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Audio Monitoring Headphones', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
@@ -277,8 +285,8 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left and Right Speakers', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131071', revtmd_xmlfile)   
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)   
       
    
     def revtmd_blank_audio_fields():   
@@ -675,7 +683,9 @@ else:
         position += 1
         telecine_mac_pro_os_revtmd(position)
         position += 1
-        IiyamaMonitor_telecine(position)
+        IiyamaMonitor1_telecine(position)
+        position += 1
+        IiyamaMonitor2_telecine(numbo)
         position += 1
         tvlogic_broadcast_telecine(position)
         position += 1
