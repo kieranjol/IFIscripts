@@ -469,12 +469,11 @@ else:
         # Preparation History        
         msg ="Preperation?"
         title = "Workflows"
-        choices = ["Splice and perforation check on rewind table",
+        choices = ["Splice and perforation assessment",
                    "Splice repairs",
                    "Leader added", 
                    "Perforation repairs",
-                   "Recanned",
-                   "Film reversed during transfer"    ]
+                   "Recanned",]
         preparation = multchoicebox(msg, title, choices)
         print preparation
         # End preperation history
@@ -486,7 +485,7 @@ else:
                    "Gamma Curve - Standard", 
                    "Gamma Curve - High",
                    "Contrast - Low",
-                   "Contrast - Medium",
+                   "Contrast - Off",
                    "Contrast - High",
                    "None",]
         flashtransfer_settings = multchoicebox(msg, title, choices)
