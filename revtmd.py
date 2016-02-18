@@ -333,7 +333,7 @@ else:
         if post_processing != None:
             numbo2 = 1
             for post in post_processing:
-                add_to_revtmd('//revtmd:codingProcessHistory[11]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
+                add_to_revtmd("//revtmd:codingProcessHistory[revtmd:role = 'Post Processing']" + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
                 numbo2 += 1    
     def capture_interventions_func():           
         if capture_interventions != None:
@@ -427,7 +427,7 @@ else:
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
     # Currently unused, but I'll get around to it :[
     else:
-        no_of_emptyfields = 13
+        no_of_emptyfields = 18
         if workflow == "Telecine Grade":
             msg = "Interventions post capture"
             title = "Interventions post capture?"
@@ -709,7 +709,7 @@ else:
         position += 1
         IiyamaMonitor1_telecine(position)
         position += 1
-        IiyamaMonitor2_telecine(numbo)
+        IiyamaMonitor2_telecine(position)
         position += 1
         tvlogic_broadcast_telecine(position)
         position += 1
