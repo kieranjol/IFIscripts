@@ -109,190 +109,190 @@ else:
         add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:duration', duration, revtmd_xmlfile)
         add_to_revtmd('//revtmd:track[@id="1" and @type="video"]//revtmd:dataRate', video_bitrate , revtmd_xmlfile)
         
-    def ffmpeg_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
+    def ffmpeg_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Transcode to FFv1 in Matroska wrapper', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
 
-    def avid_capture_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoBitDepth', "10", revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:audioBitDepth', "abc123", revtmd_xmlfile)
-    def control_room_capture_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Control Room', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)   
-    def telecine_mac_pro_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mac Pro', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    def avid_capture_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoBitDepth', "10", revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:audioBitDepth', "abc123", revtmd_xmlfile)
+    def control_room_capture_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Control Room', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)   
+    def telecine_mac_pro_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Provides computing environment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Mac Pro', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
 
-    def telecine_mac_pro_os_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Provides computing environment operating system', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mavericks', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-    def win7_hp_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Windows', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', '7 Professional', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'Service pack X', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-    def avid_export_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
-    def bmd_us4k_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI signal', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '10.5', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1955795', revtmd_xmlfile)
-    def bmd_miniconverter_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to digital converter', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Mini-Converter Analog to SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '334080', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
-    def avid_consolidate_revtmd(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'File Editing', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
-    def avid_post_processing(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Post Processing', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    def telecine_mac_pro_os_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Provides computing environment operating system', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Mavericks', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'dunno', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    def win7_hp_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Windows', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', '7 Professional', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'Service pack X', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    def avid_export_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
+    def bmd_us4k_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Capture SDI signal', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '10.5', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1955795', revtmd_xmlfile)
+    def bmd_miniconverter_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Analog to digital converter', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Mini-Converter Analog to SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '334080', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
+    def avid_consolidate_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'File Editing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+    def avid_post_processing(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Post Processing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
                 
     '''
     to do - add in bmd a2d, and add aja kona as a capture card.
     '''
-    def aja_analog2digital(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to Digital Converter', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
-    def aja_kona_capture_ingest1(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI Signal', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '00T59106', revtmd_xmlfile)
-    def aja_kona_capture_ingest2(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Capture SDI Signal', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '00T59109', revtmd_xmlfile)
-    def IiyamaMonitor_ingest1(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11183M4504454', revtmd_xmlfile)
-    def IiyamaMonitor_ingest2(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11183M4504437', revtmd_xmlfile)
-    def IiyamaMonitor1_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504428', revtmd_xmlfile)
-    def IiyamaMonitor2_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504434', revtmd_xmlfile)
-    def bmd_ultrascopes_ingest1(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Digital Scopes', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1969088', revtmd_xmlfile)        
-    def bmd_ultrascopes_ingest2(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Digital Scopes', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1968794', revtmd_xmlfile)        
-    def bmd_ultrascopes_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Digital Scopes', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1969171', revtmd_xmlfile)        
-    def tvlogic_broadcast_ingest1(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Ingest 1 Broadcast Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'LV245N0047', revtmd_xmlfile)        
-    def tvlogic_broadcast_ingest2(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Ingest 2 Broadcast Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'LV245N0157', revtmd_xmlfile)    
-    def tvlogic_broadcast_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine Broadcast Monitor', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'LV245N0048', revtmd_xmlfile)
-    def philips_headphones_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Audio Monitoring Headphones', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'TBD', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-    def maudio_left_speaker_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131071', revtmd_xmlfile)   
-    def maudio_right_speaker_telecine(numbo):
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
+    def aja_analog2digital(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Analog to Digital Converter', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    def aja_kona_capture_ingest1(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Capture SDI Signal', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '00T59106', revtmd_xmlfile)
+    def aja_kona_capture_ingest2(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Capture SDI Signal', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'KONA LHe Plus', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '00T59109', revtmd_xmlfile)
+    def IiyamaMonitor_ingest1(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '11183M4504454', revtmd_xmlfile)
+    def IiyamaMonitor_ingest2(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '11183M4504437', revtmd_xmlfile)
+    def IiyamaMonitor1_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1183M4504428', revtmd_xmlfile)
+    def IiyamaMonitor2_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1183M4504434', revtmd_xmlfile)
+    def bmd_ultrascopes_ingest1(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Digital Scopes', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1969088', revtmd_xmlfile)        
+    def bmd_ultrascopes_ingest2(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Digital Scopes', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1968794', revtmd_xmlfile)        
+    def bmd_ultrascopes_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Digital Scopes', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '1969171', revtmd_xmlfile)        
+    def tvlogic_broadcast_ingest1(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Ingest 1 Broadcast Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'LV245N0047', revtmd_xmlfile)        
+    def tvlogic_broadcast_ingest2(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Ingest 2 Broadcast Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'LV245N0157', revtmd_xmlfile)    
+    def tvlogic_broadcast_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Telecine Broadcast Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'LV245N0048', revtmd_xmlfile)
+    def philips_headphones_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Monitoring Headphones', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
+    def maudio_left_speaker_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '(21)CL1404140131071', revtmd_xmlfile)   
+    def maudio_right_speaker_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
    
     def revtmd_blank_audio_fields():   
         global audio_track_number		
@@ -333,19 +333,19 @@ else:
     
     def prep_data_entry():
         if post_processing != None:
-            numbo2 = 1
+            number2 = 1
             for post in post_processing:
-                add_to_revtmd("//revtmd:codingProcessHistory[revtmd:role = 'Post Processing']" + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
-                numbo2 += 1    
+                add_to_revtmd("//revtmd:codingProcessHistory[revtmd:role = 'Post Processing']" + '/revtmd:settings' + '[' + str(number2) + ']' , post, revtmd_xmlfile)
+                number2 += 1    
     def capture_interventions_func():           
         if capture_interventions != None:
-            numbo2 = 2
+            number2 = 2
             for interventions in capture_interventions:
-                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , interventions, revtmd_xmlfile)
-                numbo2 += 1    
+                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(number2) + ']' , interventions, revtmd_xmlfile)
+                number2 += 1    
             for settings in flashtransfer_settings:
-                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , settings, revtmd_xmlfile)
-                numbo2 += 1    
+                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(number2) + ']' , settings, revtmd_xmlfile)
+                number2 += 1    
         else:
             print 'all is well'
 
@@ -364,69 +364,69 @@ else:
         deck = choicebox(msg, title, choices)
         print deck
         if deck == "DVW-A500P":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A500P', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '10317', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', 'Timecode = Auto', revtmd_xmlfile)  
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'DVW-A500P', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '10317', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', 'Timecode = Auto', revtmd_xmlfile)  
         if deck == "DVW-510P":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'DVW-A510p', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11414', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', 'Timecode = Auto', revtmd_xmlfile)   
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'DVW-A510p', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '11414', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', 'Timecode = Auto', revtmd_xmlfile)   
         elif deck == "J-30":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-30', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'J-30', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
         elif deck == "J-H3":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'J-H3', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11482', revtmd_xmlfile)    
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'J-H3', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '11482', revtmd_xmlfile)    
         elif deck == "UVW-1400AP":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'UVW-1400AP', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile) 
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', 'Component out = Y-R,B', revtmd_xmlfile)   
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[2]', 'Timecode = LTC', revtmd_xmlfile)    
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'UVW-1400AP', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile) 
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', 'Component out = Y-R,B', revtmd_xmlfile)   
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[2]', 'Timecode = LTC', revtmd_xmlfile)    
                   
         elif deck == "UVW-1200P":
-            def deck_func(numbo):
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'UVW-1200P', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', 'Component out = Y-R,B', revtmd_xmlfile)   
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[2]', 'Timecode = LTC', revtmd_xmlfile)                  
+            def deck_func(number):
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Playback', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Sony', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'UVW-1200P', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'Component', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '13697', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', 'Component out = Y-R,B', revtmd_xmlfile)   
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[2]', 'Timecode = LTC', revtmd_xmlfile)                  
     if workflow == "Tape Ingest 1":
-        def workstation(numbo):
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Hewlett Packard', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+        def workstation(number):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett Packard', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
         no_of_emptyfields = 6
     elif workflow == "Tape Ingest 2":
-        def workstation(numbo):
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Hewlett Packard2', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+        def workstation(number):
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett Packard2', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
     # Currently unused, but I'll get around to it :[
     else:
         no_of_emptyfields = 18
@@ -452,21 +452,21 @@ else:
             scanner = choicebox(msg, title, choices)
         
         if scanner == "Flashtransfer":
-            def scanner(numbo):            
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
+            def scanner(number):            
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '16mm Film Digitisation', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Flashtransfer', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
         if scanner == "Flashscan":
-            def scanner(numbo):            
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
+            def scanner(number):            
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Telecine', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '8mm Film Digitisation', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'MWA', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
                 
         # Preparation History        
         msg ="Preperation?"
@@ -517,22 +517,22 @@ else:
         audio_choices = choicebox(msg, title, choices)
 
         if audio_choices == "Philips Headphones":
-            def audio_capture_telecine(numbo):
-                philips_headphones_telecine(numbo)
+            def audio_capture_telecine(number):
+                philips_headphones_telecine(number)
         elif audio_choices == "M-Audio Speakers":
-            def audio_capture_telecine(numbo):
-                maudio_left_speaker_telecine(numbo)
-                numbo += 1
-                maudio_right_speaker_telecine(numbo)
+            def audio_capture_telecine(number):
+                maudio_left_speaker_telecine(number)
+                number += 1
+                maudio_right_speaker_telecine(number)
 
         elif audio_choices == "Both":
-            def audio_capture_telecine(numbo):        
-                philips_headphones_telecine(numbo) 
-                numbo += 1
+            def audio_capture_telecine(number):        
+                philips_headphones_telecine(number) 
+                number += 1
                 
-                maudio_left_speaker_telecine(numbo)
-                numbo += 1
-                maudio_right_speaker_telecine(numbo)
+                maudio_left_speaker_telecine(number)
+                number += 1
+                maudio_right_speaker_telecine(number)
         elif audio_choices == "None": 
             print "No audio selected"        
         print audio_choices       
