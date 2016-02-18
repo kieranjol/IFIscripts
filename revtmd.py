@@ -73,7 +73,6 @@ else:
         fo.write('<revtmd:modelName/>\n')
         fo.write('<revtmd:version/>\n')
         fo.write('<revtmd:serialNumber/>\n')
-        fo.write('<revtmd:serialNumber/>\n')
         fo.write('<revtmd:signal/>\n')
         fo.write('<revtmd:settings/>\n')
         fo.write('<revtmd:settings/>\n')
@@ -280,14 +279,18 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'TBD', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-    def maudio_speaker_telecine(numbo):
+    def maudio_left_speaker_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left and Right Speakers', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131071', revtmd_xmlfile)   
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)   
-      
+    def maudio_right_speaker_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
    
     def revtmd_blank_audio_fields():   
         global audio_track_number		
@@ -500,14 +503,18 @@ else:
                 philips_headphones_telecine(numbo)
         elif audio_choices == "M-Audio Speakers":
             def audio_capture_telecine(numbo):
-                maudio_speaker_telecine(numbo)
+                maudio_left_speaker_telecine(numbo)
+                numbo += 1
+                maudio_right_speaker_telecine(numbo)
 
         elif audio_choices == "Both":
             def audio_capture_telecine(numbo):        
                 philips_headphones_telecine(numbo) 
                 numbo += 1
                 
-                maudio_speaker_telecine(numbo)
+                maudio_left_speaker_telecine(numbo)
+                numbo += 1
+                maudio_right_speaker_telecine(numbo)
         elif audio_choices == "None": 
             print "No audio selected"        
         print audio_choices       
@@ -692,10 +699,12 @@ else:
         if not audio_choices == "None":         
             audio_capture_telecine(position)
             
-            if not audio_choices == "Both":
+            if audio_choices == "Philips Headphones":
                 position += 1
-            else:
+            elif audio_choices == "M-Audio Speakers":
                 position += 2
+            elif audio_choices == "Both":
+                position += 3
         bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
         position += 1
