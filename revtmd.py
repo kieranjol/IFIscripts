@@ -73,7 +73,6 @@ else:
         fo.write('<revtmd:modelName/>\n')
         fo.write('<revtmd:version/>\n')
         fo.write('<revtmd:serialNumber/>\n')
-        fo.write('<revtmd:serialNumber/>\n')
         fo.write('<revtmd:signal/>\n')
         fo.write('<revtmd:settings/>\n')
         fo.write('<revtmd:settings/>\n')
@@ -167,6 +166,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Ultrastudio 4k', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:version', '10.5', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', "SDI", revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1955795', revtmd_xmlfile)
     def bmd_miniconverter_revtmd(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Analog to digital converter', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic', revtmd_xmlfile)
@@ -223,13 +223,20 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '11183M4504437', revtmd_xmlfile)
-    def IiyamaMonitor_telecine(numbo):
+    def IiyamaMonitor1_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504428', revtmd_xmlfile)
+    def IiyamaMonitor2_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Host Computer Monitor', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', '', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Iiyama', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'ProLite B2480HS/B1', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'DVI', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1183M4504434', revtmd_xmlfile)
     def bmd_ultrascopes_ingest1(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Digital Scopes', revtmd_xmlfile)
@@ -248,7 +255,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Blackmagic Design', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'Smartscope Duo 4K', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)        
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '1969171', revtmd_xmlfile)        
     def tvlogic_broadcast_ingest1(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Ingest 1 Broadcast Monitor', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
@@ -266,20 +273,24 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'TV Logic', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'LVM-245W', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'LV245N0048', revtmd_xmlfile)
     def philips_headphones_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Audio Monitoring Headphones', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'Philips', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'TBD', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-    def maudio_speaker_telecine(numbo):
+    def maudio_left_speaker_telecine(numbo):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left and Right Speakers', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'TBD', revtmd_xmlfile)   
-      
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131071', revtmd_xmlfile)   
+    def maudio_right_speaker_telecine(numbo):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
    
     def revtmd_blank_audio_fields():   
         global audio_track_number		
@@ -322,13 +333,16 @@ else:
         if post_processing != None:
             numbo2 = 1
             for post in post_processing:
-                add_to_revtmd('//revtmd:codingProcessHistory[11]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
+                add_to_revtmd("//revtmd:codingProcessHistory[revtmd:role = 'Post Processing']" + '/revtmd:settings' + '[' + str(numbo2) + ']' , post, revtmd_xmlfile)
                 numbo2 += 1    
     def capture_interventions_func():           
         if capture_interventions != None:
             numbo2 = 2
             for interventions in capture_interventions:
                 add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , interventions, revtmd_xmlfile)
+                numbo2 += 1    
+            for settings in flashtransfer_settings:
+                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , settings, revtmd_xmlfile)
                 numbo2 += 1    
         else:
             print 'all is well'
@@ -413,7 +427,7 @@ else:
             add_to_revtmd('//revtmd:codingProcessHistory' + str([numbo]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
     # Currently unused, but I'll get around to it :[
     else:
-        no_of_emptyfields = 13
+        no_of_emptyfields = 18
         if workflow == "Telecine Grade":
             msg = "Interventions post capture"
             title = "Interventions post capture?"
@@ -464,6 +478,20 @@ else:
         preparation = multchoicebox(msg, title, choices)
         print preparation
         # End preperation history
+        # Flashtransfer settings      
+        msg ="Flashtransfer settings?"
+        title = "Workflows"
+        choices = ["Gamma Curve - Linear",
+                   "Gamma Curve - Low",
+                   "Gamma Curve - Standard", 
+                   "Gamma Curve - High",
+                   "Contrast - Low",
+                   "Contrast - Medium",
+                   "Contrast - High",
+                   "None",]
+        flashtransfer_settings = multchoicebox(msg, title, choices)
+        print flashtransfer_settings
+        # End preperation history
         
         # Interventions during capture
         msg ="Interventions at point of capture"
@@ -492,14 +520,18 @@ else:
                 philips_headphones_telecine(numbo)
         elif audio_choices == "M-Audio Speakers":
             def audio_capture_telecine(numbo):
-                maudio_speaker_telecine(numbo)
+                maudio_left_speaker_telecine(numbo)
+                numbo += 1
+                maudio_right_speaker_telecine(numbo)
 
         elif audio_choices == "Both":
             def audio_capture_telecine(numbo):        
                 philips_headphones_telecine(numbo) 
                 numbo += 1
                 
-                maudio_speaker_telecine(numbo)
+                maudio_left_speaker_telecine(numbo)
+                numbo += 1
+                maudio_right_speaker_telecine(numbo)
         elif audio_choices == "None": 
             print "No audio selected"        
         print audio_choices       
@@ -675,17 +707,21 @@ else:
         position += 1
         telecine_mac_pro_os_revtmd(position)
         position += 1
-        IiyamaMonitor_telecine(position)
+        IiyamaMonitor1_telecine(position)
+        position += 1
+        IiyamaMonitor2_telecine(position)
         position += 1
         tvlogic_broadcast_telecine(position)
         position += 1
         if not audio_choices == "None":         
             audio_capture_telecine(position)
             
-            if not audio_choices == "Both":
+            if audio_choices == "Philips Headphones":
                 position += 1
-            else:
+            elif audio_choices == "M-Audio Speakers":
                 position += 2
+            elif audio_choices == "Both":
+                position += 3
         bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
         position += 1
