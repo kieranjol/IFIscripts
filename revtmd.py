@@ -341,6 +341,9 @@ else:
             for interventions in capture_interventions:
                 add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , interventions, revtmd_xmlfile)
                 numbo2 += 1    
+            for settings in flashtransfer_settings:
+                add_to_revtmd('//revtmd:codingProcessHistory[2]' + '/revtmd:settings' + '[' + str(numbo2) + ']' , settings, revtmd_xmlfile)
+                numbo2 += 1    
         else:
             print 'all is well'
 
@@ -474,6 +477,20 @@ else:
                    "Film reversed during transfer"    ]
         preparation = multchoicebox(msg, title, choices)
         print preparation
+        # End preperation history
+        # Flashtransfer settings      
+        msg ="Flashtransfer settings?"
+        title = "Workflows"
+        choices = ["Gamma Curve - Linear",
+                   "Gamma Curve - Low",
+                   "Gamma Curve - Standard", 
+                   "Gamma Curve - High",
+                   "Contrast - Low",
+                   "Contrast - Medium",
+                   "Contrast - High",
+                   "None",]
+        flashtransfer_settings = multchoicebox(msg, title, choices)
+        print flashtransfer_settings
         # End preperation history
         
         # Interventions during capture
