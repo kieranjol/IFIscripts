@@ -121,7 +121,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'SDI bitstream capture', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.5.0', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
@@ -159,7 +159,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Transcode to v210 in quicktime wrapper', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.5.0', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
     def bmd_us4k_revtmd(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Card', revtmd_xmlfile)
@@ -180,12 +180,12 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Add plate, consolidate multiple clips', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.5.0', revtmd_xmlfile)
     def avid_post_processing(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Post Processing', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.3.0', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.5.0', revtmd_xmlfile)
                 
     '''
     to do - add in bmd a2d, and add aja kona as a capture card.
@@ -562,7 +562,7 @@ else:
     msg = "Fill out these things please"
     title = "blablablabl"
     fieldNames = ["Source Accession Number",
-                  "Notes","Filmographic Reference Number", 
+                  "Filmographic Reference Number", 
                   "Identifier-Object Entry/Accession Number:"]
       # we start with blanks for the values
     fieldValues = multenterbox(msg,title, fieldNames)
@@ -626,8 +626,8 @@ else:
         fo.write('<revtmd:name>Irish Film Archive</revtmd:name>\n')
         fo.write('</revtmd:organization_division>\n')
         fo.write('</revtmd:organization>\n')
-        fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[3])
-        fo.write('<revtmd:identifier type="Inmagic DB Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[2])
+        fo.write('<revtmd:identifier type="Object Entry">%s</revtmd:identifier>\n' % fieldValues[2])
+        fo.write('<revtmd:identifier type="Inmagic DB Textworks Filmographic Reference Number">%s</revtmd:identifier>\n' % fieldValues[1])
         
         fo.write('<revtmd:duration>%s</revtmd:duration>\n' % container_duration)
         fo.write('<revtmd:language/>\n')
