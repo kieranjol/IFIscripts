@@ -15,7 +15,7 @@ if len(sys.argv) < 2:
     sys.exit()
 else:
     # Store the filename for the reVTMD XML sidecar.
-    revtmd_xmlfile = sys.argv[1] + '.xml'
+    revtmd_xmlfile = sys.argv[1] + 'revtmd.xml'
     
     # Store the filename for the mediainfo sidecar.
     mediaxml = sys.argv[1] + '_mediainfo.xml'
@@ -122,11 +122,8 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Media Composer', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '8.5.0', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "Avid 1:1 10-bit", revtmd_xmlfile) #bot sure of 4cc right now, maybe AVup?
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:audioEncoding', "PCM", revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoBitDepth', "10", revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:audioBitDepth', "abc123", revtmd_xmlfile)
+
     def control_room_capture_revtmd(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'AJA', revtmd_xmlfile)
