@@ -292,7 +292,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
    
     def revtmd_blank_audio_fields():   
-        global audio_track_number		
+        global audio_track_number        
         audio_track_number = 1
         while audio_track_number <= audio_tracks:
             if audio_tracks == 1:
@@ -582,29 +582,75 @@ else:
     print 'generating md5 checksum, this may take some time'
     md5 = subprocess.check_output(['md5deep', '-e', sys.argv[1]])
     
-    duration =  get_mediainfo('duration', '--inform=Video;%Duration_String4%', sys.argv[1] )
-    par =  get_mediainfo('par', '--inform=Video;%PixelAspectRatio%', sys.argv[1] )
-    dar =  get_mediainfo('dar', '--inform=Video;%DisplayAspectRatio%', sys.argv[1] )
-    width =  get_mediainfo('width', '--inform=Video;%Width%', sys.argv[1] )
-    height =  get_mediainfo('height', '--inform=Video;%Height%', sys.argv[1] )
-    vcodec =  get_mediainfo('dar', '--inform=Video;%Codec%', sys.argv[1] )
-    size =  get_mediainfo('size', '--inform=Video;%StreamSize%', sys.argv[1] )
-    chromasubsampling =  get_mediainfo('chromasubsampling', '--inform=Video;%ChromaSubsampling%', sys.argv[1] )
-    codec_id =  get_mediainfo('codecid', '--inform=Video;%CodecID%', sys.argv[1] )
-    scantype =  get_mediainfo('scantype', '--inform=Video;%ScanType%', sys.argv[1] )
-    scanorder =  get_mediainfo('scanorder', '--inform=Video;%ScanOrder%', sys.argv[1] )
-    bitspersample =  get_mediainfo('bitspersample', '--inform=Video;%BitDepth%', sys.argv[1] )
-    quality =  get_mediainfo('quality', '--inform=Video;%Compression_Mode%', sys.argv[1] )
-    container_duration =  get_mediainfo('container_duration', '--inform=General;%Duration_String4%', sys.argv[1] )
-    container_size =  get_mediainfo('container_size', '--inform=General;%FileSize%', sys.argv[1] )
-    overall_bitrate =  get_mediainfo('overall_bitrate', '--inform=General;%OverallBitRate%', sys.argv[1] )
-    video_bitrate =  get_mediainfo('video_bitrate', '--inform=Video;%BitRate%', sys.argv[1] )
-    container_mime =  get_mediainfo('container_mime', '--inform=General;%InternetMediaType%', sys.argv[1] )
-    frame_rate =  get_mediainfo('frame_rate', '--inform=Video;%FrameRate%', sys.argv[1] )
-    container_frame_rate =  get_mediainfo('container_frame_rate', '--inform=General;%FrameRate%', sys.argv[1] )
-    container_name =  get_mediainfo('container_frame_rate', '--inform=General;%Format%', sys.argv[1] )
-    container_profile =  get_mediainfo('container_profile', '--inform=General;%Format_Profile%', sys.argv[1] )
-    frame_count =  get_mediainfo('frame_count', '--inform=Video;%FrameCount%', sys.argv[1] )
+    duration             = get_mediainfo('duration',
+                                         '--inform=Video;%Duration_String4%', 
+                                         sys.argv[1] )
+    par                  = get_mediainfo('par',
+                                         '--inform=Video;%PixelAspectRatio%',
+                                         sys.argv[1] )
+    dar                  = get_mediainfo('dar', 
+                                         '--inform=Video;%DisplayAspectRatio%',
+                                         sys.argv[1] )
+    width                = get_mediainfo('width', 
+                                         '--inform=Video;%Width%',
+                                         sys.argv[1] )
+    height               = get_mediainfo('height',
+                                         '--inform=Video;%Height%',
+                                         sys.argv[1] )
+    vcodec               = get_mediainfo('dar',
+                                         '--inform=Video;%Codec%',
+                                         sys.argv[1] )
+    size                 = get_mediainfo('size',
+                                         '--inform=Video;%StreamSize%', 
+                                         sys.argv[1] )
+    chromasubsampling    = get_mediainfo('chromasubsampling',
+                                         '--inform=Video;%ChromaSubsampling%', 
+                                         sys.argv[1] )
+    codec_id             = get_mediainfo('codecid', 
+                                         '--inform=Video;%CodecID%',
+                                         sys.argv[1] )
+    scantype             = get_mediainfo('scantype',
+                                         '--inform=Video;%ScanType%', 
+                                         sys.argv[1] )
+    scanorder            = get_mediainfo('scanorder', 
+                                         '--inform=Video;%ScanOrder%', 
+                                         sys.argv[1] )
+    bitspersample        = get_mediainfo('bitspersample', 
+                                         '--inform=Video;%BitDepth%', 
+                                         sys.argv[1] )
+    quality              = get_mediainfo('quality', 
+                                         '--inform=Video;%Compression_Mode%',
+                                         sys.argv[1] )
+    container_duration   = get_mediainfo('container_duration',
+                                         '--inform=General;%Duration_String4%',
+                                         sys.argv[1] )
+    container_size       = get_mediainfo('container_size',
+                                         '--inform=General;%FileSize%', 
+                                         sys.argv[1] )
+    overall_bitrate      = get_mediainfo('overall_bitrate', 
+                                         '--inform=General;%OverallBitRate%',
+                                         sys.argv[1] )
+    video_bitrate        = get_mediainfo('video_bitrate',
+                                         '--inform=Video;%BitRate%',
+                                         sys.argv[1] )
+    container_mime       = get_mediainfo('container_mime',
+                                         '--inform=General;%InternetMediaType%',
+                                         sys.argv[1] )
+    frame_rate           = get_mediainfo('frame_rate', 
+                                         '--inform=Video;%FrameRate%',
+                                         sys.argv[1] )
+    container_frame_rate = get_mediainfo('container_frame_rate',
+                                         '--inform=General;%FrameRate%',
+                                         sys.argv[1] )
+    container_name       = get_mediainfo('container_frame_rate',
+                                         '--inform=General;%Format%',
+                                         sys.argv[1] )
+    container_profile    = get_mediainfo('container_profile',
+                                         '--inform=General;%Format_Profile%',
+                                         sys.argv[1] )
+    frame_count          = get_mediainfo('frame_count', 
+                                         '--inform=Video;%FrameCount%',
+                                         sys.argv[1] )
 
     # Create mostly blank reVTMD template which we'll gradually fill up with info.
     with open(revtmd_xmlfile, "w+") as fo:
