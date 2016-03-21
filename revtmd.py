@@ -413,17 +413,17 @@ else:
         def workstation(number):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett Packard', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Z420 Workstation', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'CZC4310HNZ', revtmd_xmlfile)
         no_of_emptyfields = 6
     elif workflow == "Tape Ingest 2":
         def workstation(number):
             add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett Packard2', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett Packard', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Z420 Workstation', revtmd_xmlfile)
             add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'ABC123', revtmd_xmlfile)
-            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+            add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'CZC4310HP8', revtmd_xmlfile)
     # Currently unused, but I'll get around to it :[
     else:
         no_of_emptyfields = 18
