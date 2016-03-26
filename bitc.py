@@ -114,12 +114,20 @@ else:
         fixed_framerate = get_framerate.rstrip()
 
         #all these prints are just for testing. Will be removed later.
-        print fixed_framerate	
-        drawtext_options = ("drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:\
-        rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2,\
-        drawtext=%s:fontcolor=white:text='INSERT WATERMARK TEXT HERE':\
-        x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4" % 
-        (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size))
+        print fixed_framerate
+        if _platform == "darwin" or _platform == "linux2":        
+            drawtext_options = ("drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:\
+            rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2,\
+            drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':\
+            x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4" % 
+            (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size))
+        
+        elif _platform == "win32":
+            drawtext_options = ("drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:\
+                rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2',\
+                drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':\
+                x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4" % 
+                (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size))
         print drawtext_options
         print timecode_test
         print get_framerate
