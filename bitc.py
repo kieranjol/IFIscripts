@@ -136,5 +136,6 @@ else:
                         '-i', filename,
                         '-c:v', 'libx264',
                         '-crf', '22',
+                        '-preset', 'veryfast',
                         '-pix_fmt', 'yuv420p',
                         '-vf',drawtext_options, output])
