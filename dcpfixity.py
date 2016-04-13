@@ -53,14 +53,14 @@ for xmls in xml_files:
     with open(xmls) as f:   # open file
                 for line in f:       # process line by line
                     if "http://www.smpte-ra.org/schemas/429-7/2006/CPL" in line:    
-                        print 'found CPL in file %s' %xmls
+                        #print 'found CPL in file %s' %xmls
                         bla = subprocess.check_output(['openssl', 'sha1', '-binary', xmls])
                         b64hash =  base64.b64encode(bla)    
-                        xml_uuid = get_cpl('xml_uuid', "x:CompositionPlaylist", "x:Id", xmls)
-                        print xml_uuid
+                        xml_uuid = get_cpl('xml_uuid', "x:CompositionPlaylist", "x:Id", xmls).replace('\n', '').replace('\r', '')
+                        #print xml_uuid
 
-                        mxfhashes[xml_uuid] = [xmls,b64hash]
-print mxfhashes
+                        mxfhashes[xml_uuid[-36:]] = [xmls,b64hash]
+#print mxfhashes
 xml_files =  glob('*.xml')
 
 
@@ -94,8 +94,14 @@ while counter <= int(count):
     
     counter += 1
     urn = urn.replace('\n', '').replace('\r', '')
-    dict[urn[-36:]] = [picture_files]
+    dict[urn[-36:]] = picture_files
 
 print dict
 
-
+for key in dict:
+    if mxfhashes[key][1] == dict[key]:
+       print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
+    else:
+       print mxfhashes[key][0] + ' HASH MISMATCH - EITHER THE SCRIPT IS BROKEN OR YOUR FILES ARE'
+    
+    
