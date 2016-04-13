@@ -11,13 +11,14 @@ import base64
 import csv
 
 filename = sys.argv[1]
-csvfile  = os.path.expanduser("~/Desktop/myfile.csv")
+filename_without_path = os.path.basename(filename)
+csvfile  = os.path.expanduser("~/Desktop/%s.csv") % filename_without_path
 print csvfile
 
 f = open(csvfile, 'wt')
 try:
     writer = csv.writer(f)
-    writer.writerow( ('Title 1', 'Title 2', 'Title 3') )
+    writer.writerow( ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT') )
    
 finally:
     f.close()
@@ -68,13 +69,7 @@ for mxfs in video_files:
     bla = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
     b64hash =  base64.b64encode(bla)                  
     mxfhashes[mxf_uuid] = [mxfs,b64hash]
-    f = open(csvfile, 'a')
-    try:
-        writer = csv.writer(f)
-        writer.writerow( (b64hash, 'Title 2', 'Title 3') )
-   
-    finally:
-        f.close()
+ 
 
 for xmls in xml_files:
     with open(xmls) as f:   # open file
@@ -119,9 +114,25 @@ while counter <= int(count):
 #print dict
 
 for key in dict:
+    
     if mxfhashes[key][1] == dict[key]:
        print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
+       f = open(csvfile, 'a')
+       try:
+           writer = csv.writer(f)
+           writer.writerow((mxfhashes[key][1], dict[key], mxfhashes[key][0],'HASH MATCH'))
+   
+       finally:
+           f.close()
+       
     else:
        print mxfhashes[key][0] + ' HASH MISMATCH - EITHER THE SCRIPT IS BROKEN OR YOUR FILES ARE'
+       f = open(csvfile, 'a')
+       try:
+           writer = csv.writer(f)
+           writer.writerow((mxfhashes[key][1], dict[key], mxfhashes[key][0], 'HASH MISMATCH' ))
+   
+       finally:
+           f.close()
     
     
