@@ -26,7 +26,15 @@ def getffprobe(variable, streamvalue, which_file):
                                                 which_file])
     return variable
 
-                
+def get_cpl(variable,typee,element,xml_file):
+    
+        
+        variable = subprocess.check_output(['xml', 'sel', 
+                                                 '-N', 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL',
+                                                 '-t', '-m', typee,
+                                                 '-v', element,
+                                                 '-n', xml_file ])
+        return variable                 
 # Find all video files to transcode
 video_files =  glob('*.mxf')
 xml_files  = glob('*.xml')
@@ -44,9 +52,14 @@ for mxfs in video_files:
 for xmls in xml_files:
     with open(xmls) as f:   # open file
                 for line in f:       # process line by line
-                    if "http://www.smpte-ra.org/schemas/429-8/2007/PKL" in line:    
-                        print 'found PKL in file %s' %xmls
-                        break
+                    if "http://www.smpte-ra.org/schemas/429-7/2006/CPL" in line:    
+                        print 'found CPL in file %s' %xmls
+                        bla = subprocess.check_output(['openssl', 'sha1', '-binary', xmls])
+                        b64hash =  base64.b64encode(bla)    
+                        xml_uuid = get_cpl('xml_uuid', "x:CompositionPlaylist", "x:Id", xmls)
+                        print xml_uuid
+
+                        mxfhashes[xml_uuid] = [xmls,b64hash]
 print mxfhashes
 xml_files =  glob('*.xml')
 
@@ -70,7 +83,8 @@ def get_hash(variable,typee,element):
                                                  '-v', element,
                                                  '-n', filename ])
         return variable
-    
+ 
+
 counter = 1    
 while counter <= int(count):
     
