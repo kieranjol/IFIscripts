@@ -8,10 +8,19 @@ import pdb
 from glob import glob
 import hashlib
 import base64
+import csv
 
 filename = sys.argv[1]
+csvfile  = os.path.expanduser("~/Desktop/myfile.csv")
+print csvfile
 
-
+f = open(csvfile, 'wt')
+try:
+    writer = csv.writer(f)
+    writer.writerow( ('Title 1', 'Title 2', 'Title 3') )
+   
+finally:
+    f.close()
 #pdb.set_trace()
 
 wd = os.path.dirname(filename)
@@ -59,6 +68,13 @@ for mxfs in video_files:
     bla = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
     b64hash =  base64.b64encode(bla)                  
     mxfhashes[mxf_uuid] = [mxfs,b64hash]
+    f = open(csvfile, 'a')
+    try:
+        writer = csv.writer(f)
+        writer.writerow( (b64hash, 'Title 2', 'Title 3') )
+   
+    finally:
+        f.close()
 
 for xmls in xml_files:
     with open(xmls) as f:   # open file
