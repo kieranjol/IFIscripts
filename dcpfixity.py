@@ -17,6 +17,16 @@ filename = sys.argv[1]
 wd = os.path.dirname(filename)
 
 os.chdir(wd)
+def get_count(variable,typee):
+       
+    variable = subprocess.check_output(['xml', 'sel', 
+                                             '-N', 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL',
+                                             '-t', '-v', typee,
+                                             filename ])
+    return variable
+count = get_count('count',"count(//x:Asset)")
+
+print '\n%s MXFs found - Generating fresh hashes and comparing them against hashes stored in the PKL.XML\n' % count
 def getffprobe(variable, streamvalue, which_file):
     variable = subprocess.check_output(['ffprobe',
                                                 '-v', 'error',
@@ -43,7 +53,8 @@ for mxfs in video_files:
     
     mxf_uuid = (getffprobe('mxf_uuid','stream_tags=file_package_umid', mxfs)).replace('\n', '').replace('\r', '')
     mxf_uuid =  mxf_uuid[-32:].lower ()
-    mxf_uuid  = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32] 
+    mxf_uuid  = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32]
+    print 'Generating fresh hash for the file %s' % mxfs     
     
     bla = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
     b64hash =  base64.b64encode(bla)                  
@@ -65,14 +76,7 @@ xml_files =  glob('*.xml')
 
 
 dict = {}
-def get_count(variable,typee):
-       
-    variable = subprocess.check_output(['xml', 'sel', 
-                                             '-N', 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL',
-                                             '-t', '-v', typee,
-                                             filename ])
-    return variable
-count = get_count('count',"count(//x:Asset)")
+
 
 def get_hash(variable,typee,element):
     
@@ -96,7 +100,7 @@ while counter <= int(count):
     urn = urn.replace('\n', '').replace('\r', '')
     dict[urn[-36:]] = picture_files
 
-print dict
+#print dict
 
 for key in dict:
     if mxfhashes[key][1] == dict[key]:
