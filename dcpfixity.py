@@ -5,10 +5,51 @@ import subprocess
 import sys
 import os
 import pdb
+from glob import glob
+import hashlib
+import base64
 
 filename = sys.argv[1]
 
+
 #pdb.set_trace()
+
+wd = os.path.dirname(filename)
+
+os.chdir(wd)
+def getffprobe(variable, streamvalue, which_file):
+    variable = subprocess.check_output(['ffprobe',
+                                                '-v', 'error',
+                                                '-show_entries', 
+                                                streamvalue,
+                                                '-of', 'default=noprint_wrappers=1:nokey=1',
+                                                which_file])
+    return variable
+
+                
+# Find all video files to transcode
+video_files =  glob('*.mxf')
+xml_files  = glob('*.xml')
+mxfhashes = {}
+for mxfs in video_files:
+    
+    mxf_uuid = (getffprobe('mxf_uuid','stream_tags=file_package_umid', mxfs)).replace('\n', '').replace('\r', '')
+    mxf_uuid =  mxf_uuid[-32:].lower ()
+    mxf_uuid  = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32] 
+    
+    bla = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
+    b64hash =  base64.b64encode(bla)                  
+    mxfhashes[mxf_uuid] = [mxfs,b64hash]
+
+for xmls in xml_files:
+    with open(xmls) as f:   # open file
+                for line in f:       # process line by line
+                    if "http://www.smpte-ra.org/schemas/429-8/2007/PKL" in line:    
+                        print 'found PKL in file %s' %xmls
+                        break
+print mxfhashes
+xml_files =  glob('*.xml')
+
 
 dict = {}
 def get_count(variable,typee):
@@ -22,7 +63,7 @@ count = get_count('count',"count(//x:Asset)")
 
 def get_hash(variable,typee,element):
     
-    
+        
         variable = subprocess.check_output(['xml', 'sel', 
                                                  '-N', 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL',
                                                  '-t', '-m', typee,
@@ -32,14 +73,15 @@ def get_hash(variable,typee,element):
     
 counter = 1    
 while counter <= int(count):
+    
     picture_files = get_hash('picture_files',"//x:Asset" + "[" + str(counter) + "]" , "x:Hash").replace('\n', '').replace('\r', '')
-    print picture_files
+    
     urn = get_hash('picture_files',"//x:Asset" + "[" + str(counter) + "]" , "x:Id")
-    print urn
+    
     counter += 1
     urn = urn.replace('\n', '').replace('\r', '')
     dict[urn[-36:]] = [picture_files]
 
 print dict
 
-                   
+
