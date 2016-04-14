@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 WORK IN PROGRESS - BROKEN RIGHT NOW
 '''
@@ -36,7 +37,7 @@ def get_count(variable,typee):
     return variable
 count = get_count('count',"count(//x:Asset)")
 
-print '\n%s MXFs found - Generating fresh hashes and comparing them against hashes stored in the PKL.XML\n' % count
+print '\n%s hashes found - Generating fresh hashes and comparing them against hashes stored in the PKL.XML\n' % count
 def getffprobe(variable, streamvalue, which_file):
     variable = subprocess.check_output(['ffprobe',
                                                 '-v', 'error',
