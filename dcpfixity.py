@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 '''
 WORK IN PROGRESS - Only works for non subtitled SMPTE right now
+
+if standard = SMPTE:
+   pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
+   cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
+   am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
+elif standard = INTEROP:
+   pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
+   cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
+   am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
+
 '''
 import subprocess
 import sys
