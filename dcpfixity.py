@@ -21,7 +21,7 @@ import hashlib
 import base64
 import csv
 
-print ' Only works for non subtitled SMPTE DCPs. Interop support to follow'
+print '\nOnly works for non subtitled SMPTE DCPs. Interop support to follow.'
 filename              = sys.argv[1]
 filename_without_path = os.path.basename(filename)
 csvfile               = os.path.expanduser("~/Desktop/%s.csv") % filename_without_path
