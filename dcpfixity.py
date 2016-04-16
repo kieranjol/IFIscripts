@@ -1,17 +1,9 @@
 #!/usr/bin/env python
-'''
-WORK IN PROGRESS - Only works for non subtitled SMPTE right now
-
-if standard = SMPTE:
-   pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
-   cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
-   am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
-elif standard = INTEROP:
-   pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
-   cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-   am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
 
 '''
+WORK IN PROGRESS - Only works for non subtitled SMPTE/Interop right now.
+'''
+
 import subprocess
 import sys
 import os
@@ -21,11 +13,26 @@ import hashlib
 import base64
 import csv
 
-print '\nOnly works for non subtitled SMPTE DCPs. Interop support to follow.'
+print '\nOnly works for non subtitled SMPTE & Interop DCPs.'
 filename              = sys.argv[1]
 filename_without_path = os.path.basename(filename)
 csvfile               = os.path.expanduser("~/Desktop/%s.csv") % filename_without_path
 
+with open(filename, 'r') as f:
+    namespace = f.readlines()[1].rstrip()
+    print namespace
+if 'smpte' in namespace:
+    print 'SMPTE'
+    pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
+    cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
+    am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
+    regular_cpl_namespace = 'http://www.smpte-ra.org/schemas/429-7/2006/CPL'
+elif 'digicine' in namespace:
+    print 'Interop'
+    pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
+    cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
+    am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
+    regular_cpl_namespace = 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
 
 f = open(csvfile, 'wt')
 try:
@@ -40,8 +47,8 @@ wd = os.path.dirname(filename)
 
 os.chdir(wd)
 def get_count(variable,typee):
-    variable = subprocess.check_output(['xml', 'sel', 
-                                        '-N', 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL',
+    variable = subprocess.check_output(['xmlstarlet', 'sel', 
+                                        '-N', pkl_namespace,
                                         '-t', '-v', typee,
                                          filename ])
     return variable
@@ -60,8 +67,8 @@ def getffprobe(variable, streamvalue, which_file):
 def get_cpl(variable,typee,element,xml_file):
     
         
-        variable = subprocess.check_output(['xml', 'sel', 
-                                                 '-N', 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL',
+        variable = subprocess.check_output(['xmlstarlet', 'sel', 
+                                                 '-N', cpl_namespace,
                                                  '-t', '-m', typee,
                                                  '-v', element,
                                                  '-n', xml_file ])
@@ -78,15 +85,16 @@ for mxfs in video_files:
     print 'Generating fresh hash for the file %s' % mxfs     
     
     openssl_hash        = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
-    b64hash             = base64.b64encode(openssl_hash)                  
+    b64hash             = base64.b64encode(openssl_hash)   
+    print b64hash               
     mxfhashes[mxf_uuid] = [mxfs,b64hash]
  
 
 for xmls in xml_files:
     with open(xmls) as f:   # open file
                 for line in f:       # process line by line
-                    if "http://www.smpte-ra.org/schemas/429-7/2006/CPL" in line:    
-                        #print 'found CPL in file %s' %xmls
+                    if regular_cpl_namespace in line:    
+                        print 'found CPL in file %s' %xmls
                         openssl_hash = subprocess.check_output(['openssl', 'sha1', '-binary', xmls])
                         b64hash =  base64.b64encode(openssl_hash)    
                         xml_uuid = get_cpl('xml_uuid', "x:CompositionPlaylist", "x:Id", xmls).replace('\n', '').replace('\r', '')
@@ -98,8 +106,8 @@ for xmls in xml_files:
 dict = {}
 
 def get_hash(variable,typee,element):
-        variable = subprocess.check_output(['xml', 'sel', 
-                                                 '-N', 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL',
+        variable = subprocess.check_output(['xmlstarlet', 'sel', 
+                                                 '-N', pkl_namespace,
                                                  '-t', '-m', typee,
                                                  '-v', element,
                                                  '-n', filename ])
