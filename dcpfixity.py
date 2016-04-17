@@ -14,28 +14,30 @@ import base64
 import csv
 from progress.bar import Bar
 
-print '\nOnly works for non subtitled SMPTE & Interop DCPs.'
+print '\nProcesses MXFS/CPLs and subtitles. Fonts are not yet analysed.'
 filename              = sys.argv[1]
 filename_without_path = os.path.basename(filename)
 csvfile               = os.path.expanduser("~/Desktop/%s.csv") % filename_without_path
 
-with open(filename, 'r') as f:
-    namespace = f.readlines()[1].rstrip()
-    print namespace
-if 'smpte' in namespace:
-    print 'SMPTE'
-    pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
-    cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
-    am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
-    regular_cpl_namespace = 'http://www.smpte-ra.org/schemas/429-7/2006/CPL'
-elif 'digicine' in namespace:
-    print 'Interop'
-    pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
-    cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-    am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
-    regular_cpl_namespace = 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-elif 'DCSubtitle' in namespace:
-    print 'Subtitle file'
+with open(filename) as myfile:
+    namespace = [next(myfile) for x in xrange(3)]
+
+for i in namespace:
+
+    if 'smpte' in i:
+        #print 'SMPTE'
+        pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
+        cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
+        am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
+        regular_cpl_namespace = 'http://www.smpte-ra.org/schemas/429-7/2006/CPL'
+    elif 'digicine' in i:
+        #print 'Interop'
+        pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
+        cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
+        am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
+        regular_cpl_namespace = 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
+    elif 'DCSubtitle' in i:
+        print 'Subtitle file'
   
 f = open(csvfile, 'wt')
 try:
@@ -123,8 +125,7 @@ for subbos in subs:
     b64hash             = base64.b64encode(openssl_hash)   
     #print b64hash               
     mxfhashes[xml_uuid] = [subbos,b64hash] 
-print 'MXFHASHES DICT'
-print mxfhashes
+
 
 for xmls in xml_files:
     with open(xmls) as f:   # open file
@@ -162,7 +163,7 @@ while counter <= int(count):
 
         dict[urn[-36:]] = [picture_files,Type]
 
-print dict
+
 
 for key in dict:
     
