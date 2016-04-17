@@ -12,6 +12,7 @@ from glob import glob
 import hashlib
 import base64
 import csv
+from progress.bar import Bar
 
 print '\nOnly works for non subtitled SMPTE & Interop DCPs.'
 filename              = sys.argv[1]
@@ -33,7 +34,9 @@ elif 'digicine' in namespace:
     cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
     am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
     regular_cpl_namespace = 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-
+elif 'DCSubtitle' in namespace:
+    print 'Subtitle file'
+  
 f = open(csvfile, 'wt')
 try:
     writer = csv.writer(f)
@@ -74,21 +77,54 @@ def get_cpl(variable,typee,element,xml_file):
                                                  '-n', xml_file ])
         return variable                 
 # Find all video files to transcode
+
 video_files =  glob('*.mxf')
+
 xml_files   = glob('*.xml')
+paths = glob('*/')
+
+#if not will produce FALSE if empty list
+#if not paths:
+    #print 'heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+subs = []
+for subdir in paths:
+    #print 'heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+    os.chdir(subdir)
+    sub_dirs   = glob('*.xml')
+    for i in sub_dirs:
+        subpath_var =  os.path.join(subdir,i)
+        subs.append(subpath_var)
+    #print sub_dirs
+#print subs    
+#print paths
+os.chdir(wd)
 mxfhashes   = {}
+
 for mxfs in video_files:
-    
-    mxf_uuid = (getffprobe('mxf_uuid','stream_tags=file_package_umid', mxfs)).replace('\n', '').replace('\r', '')
-    mxf_uuid =  mxf_uuid[-32:].lower ()
-    mxf_uuid = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32]
+    substest =  subprocess.check_output(['exiftool','-u','-b', '-MIMEMediaType', mxfs]) 
+    #print substest
+    if substest == 'application/x-font-opentype':
+        mxf_uuid = subprocess.check_output(['exiftool','-u','-b', '-PackageID', mxfs])
+        mxf_uuid =  mxf_uuid[-36:].lower ()
+    else:
+        mxf_uuid = (getffprobe('mxf_uuid','stream_tags=file_package_umid', mxfs)).replace('\n', '').replace('\r', '')
+        mxf_uuid =  mxf_uuid[-32:].lower ()
+        mxf_uuid = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32]
     print 'Generating fresh hash for the file %s' % mxfs     
     
     openssl_hash        = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
     b64hash             = base64.b64encode(openssl_hash)   
-    print b64hash               
+    #print b64hash               
     mxfhashes[mxf_uuid] = [mxfs,b64hash]
- 
+for subbos in subs:
+    print 'Generating fresh hash for the file %s' % subbos  
+    xml_uuid = subprocess.check_output(['xmlstarlet','sel','-t', '-v', 'DCSubtitle/SubtitleID', subbos])
+    openssl_hash        = subprocess.check_output(['openssl', 'sha1', '-binary', subbos])
+    b64hash             = base64.b64encode(openssl_hash)   
+    #print b64hash               
+    mxfhashes[xml_uuid] = [subbos,b64hash] 
+print 'MXFHASHES DICT'
+print mxfhashes
 
 for xmls in xml_files:
     with open(xmls) as f:   # open file
@@ -118,21 +154,24 @@ counter = 1
 while counter <= int(count):
     
     picture_files = get_hash('picture_files',"//x:Asset" + "[" + str(counter) + "]" , "x:Hash").replace('\n', '').replace('\r', '')
-    urn = get_hash('picture_files',"//x:Asset" + "[" + str(counter) + "]" , "x:Id")
+    urn = get_hash('urn',"//x:Asset" + "[" + str(counter) + "]" , "x:Id")
+    Type = get_hash('Type',"//x:Asset" + "[" + str(counter) + "]" , "x:Type").rstrip()
     counter += 1
     urn = urn.replace('\n', '').replace('\r', '')
-    dict[urn[-36:]] = picture_files
+    if not (Type == "application/ttf"):
 
-#print dict
+        dict[urn[-36:]] = [picture_files,Type]
+
+print dict
 
 for key in dict:
     
-    if mxfhashes[key][1] == dict[key]:
+    if mxfhashes[key][1] == dict[key][0]:
        print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
        f = open(csvfile, 'a')
        try:
            writer = csv.writer(f)
-           writer.writerow((mxfhashes[key][1], dict[key], mxfhashes[key][0],'HASH MATCH'))
+           writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0],'HASH MATCH'))
    
        finally:
            f.close()
@@ -142,7 +181,7 @@ for key in dict:
        f = open(csvfile, 'a')
        try:
            writer = csv.writer(f)
-           writer.writerow((mxfhashes[key][1], dict[key], mxfhashes[key][0], 'HASH MISMATCH' ))
+           writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0], 'HASH MISMATCH' ))
    
        finally:
            f.close()
