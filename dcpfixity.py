@@ -3,6 +3,7 @@
 '''
 WORK IN PROGRESS - Only works for non subtitled SMPTE/Interop right now.
 Inefficient code - Lots of functions to be written.
+Usage - dcpfixity.py pkl.xml
 '''
 # Check how many files in PKL,then check if they're all present.
 
