@@ -2,7 +2,9 @@
 
 '''
 WORK IN PROGRESS - Only works for non subtitled SMPTE/Interop right now.
+Inefficient code - Lots of functions to be written.
 '''
+# Check how many files in PKL,then check if they're all present.
 
 import subprocess
 import sys
@@ -31,7 +33,7 @@ for i in namespace:
         am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
         regular_cpl_namespace = 'http://www.smpte-ra.org/schemas/429-7/2006/CPL'
     elif 'digicine' in i:
-        #print 'Interop'
+        print 'Interop'
         pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
         cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
         am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
@@ -102,6 +104,9 @@ for subdir in paths:
 os.chdir(wd)
 mxfhashes   = {}
 
+'''
+Rewrite all these checks as functions!!!
+'''
 for mxfs in video_files:
     substest =  subprocess.check_output(['exiftool','-u','-b', '-MIMEMediaType', mxfs]) 
     #print substest
@@ -164,27 +169,51 @@ while counter <= int(count):
         dict[urn[-36:]] = [picture_files,Type]
 
 
-
+'''
+WRITE A CSV WRITING FUNCTION!!!
+'''      
+major_error = 'all is well'        
 for key in dict:
-    
-    if mxfhashes[key][1] == dict[key][0]:
-       print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
-       f = open(csvfile, 'a')
-       try:
-           writer = csv.writer(f)
-           writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0],'HASH MATCH'))
-   
-       finally:
-           f.close()
+        #print key
+        #print dict.keys()
+        if not key in mxfhashes.keys():
+           
+           print key + ' was listed in the PKL but it is not in your DCP'
+           major_error = '1'
+           
+           f = open(csvfile, 'a')
+           try:
+               writer = csv.writer(f)
+               writer.writerow(('FILE MISSING FROM DCP', dict[key][0], 'FILE MISSING FROM DCP','FILE MISSING FROM DCP'))
        
-    else:
-       print mxfhashes[key][0] + ' HASH MISMATCH - EITHER THE SCRIPT IS BROKEN OR YOUR FILES ARE'
-       f = open(csvfile, 'a')
-       try:
-           writer = csv.writer(f)
-           writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0], 'HASH MISMATCH' ))
-   
-       finally:
-           f.close()
-    
-    
+           finally:
+               f.close()
+        
+        elif mxfhashes[key][1] == dict[key][0]:
+           print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
+           f = open(csvfile, 'a')
+           try:
+               writer = csv.writer(f)
+               writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0],'HASH MATCH'))
+       
+           finally:
+               f.close()
+           
+        else:
+           print mxfhashes[key][0] + ' HASH MISMATCH - EITHER THE SCRIPT IS BROKEN OR YOUR FILES ARE'
+           major_error = '2'
+           f = open(csvfile, 'a')
+           try:
+               writer = csv.writer(f)
+               writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0], 'HASH MISMATCH' ))
+       
+           finally:
+               f.close()
+
+print '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'
+if major_error == '1':
+    print '\n\n** MAJOR ERROR - YOU ARE MISSING SOME FILES FROM THE DCP... OR MY SCRIPT IS BROKEN!** ' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n' 
+elif major_error == '2':
+    print '\n\n** MAJOR ERROR - ONE OR MORE OF YOUR FILES HAS BECOME CORRUPT**' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'  
+else:
+    print '\n\n** Everything seems to be fine. This script does not verify font integrity, so please check manually **' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'           
