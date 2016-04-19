@@ -102,12 +102,11 @@ for filename in video_files:
                         optio += (' scale=%s' % width_height)
                     
                     
-            optio = optio.split()
-            print optio
-            for item in optio:
-            
-                ffmpeg_args.append(item)    
+                optio = optio.split()
+                print optio
+                for item in optio:
+                
+                    ffmpeg_args.append(item)    
             ffmpeg_args.append(output)
             print ffmpeg_args
             subprocess.call(ffmpeg_args)
-
