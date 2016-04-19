@@ -7,12 +7,23 @@ import os
 from glob import glob
 import pdb
 
-parser = argparse.ArgumentParser(description="IFI Apple Pro Res 4:2:2 ffmpeg Encoder. Written by Kieran O'Leary.")
-parser.add_argument('Filename to process one file, or foldername to process a batch. ')
-parser.add_argument('-hq', action='store_true',help='-profile:v 3 aka Prores HQ')
-parser.add_argument('-yadif', action='store_true',help='Yet Another DeInterlace Filter')
-parser.add_argument('-scale',help='Rescale video. Usage: -scale 1920x1080 or -scale 720x576')
-parser.add_argument('-md5', action='store_true',help='Get md5 sidecar for your output file')
+parser = argparse.ArgumentParser(description='IFI Pro Res 4:2:2 ffmpeg Encoder.'
+                                 ' Written by Kieran O\'Leary.')
+parser.add_argument('input')
+parser.add_argument(
+                    '-hq', 
+                    action='store_true',help='-profile:v 3 aka Prores HQ')
+parser.add_argument(
+                    '-yadif', 
+                    action='store_true',help='Yet Another DeInterlace Filter')
+parser.add_argument(
+                    '-scale',
+                    help='Rescale video.'
+                    ' Usage: -scale 1920x1080 or -scale 720x576 etc')
+parser.add_argument(
+                    '-md5',
+                    action='store_true',
+                    help='Get md5 sidecar for your output file')
 
 args = parser.parse_args()
 prores_options = []
@@ -47,7 +58,13 @@ if os.path.isfile(file_without_path):
 # Check if input is a directory. 
 elif os.path.isdir(file_without_path):  
     os.chdir(file_without_path)
-    video_files =  glob('*.mov') + glob('*.mp4') + glob('*.mxf') + glob('*.mkv')+ glob('*.avi')
+    video_files = (
+        glob('*.mov') +
+        glob('*.mp4') +
+        glob('*.mxf') +
+        glob('*.mkv') +
+        glob('*.avi')
+    )
 
 # Prints some stuff if input isn't a file or directory.
 else: 
