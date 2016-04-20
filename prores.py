@@ -71,33 +71,33 @@ else:
     print "Your input isn't a file or a directory."
                      
 for filename in video_files:
-            #pdb.set_trace()
-            output = filename + "_prores.mov"
+    #pdb.set_trace()
+    output = filename + "_prores.mov"
+    
+    ffmpeg_args =   ['ffmpeg',
+            '-i', filename,
+            '-c:v', 'prores',]
+    if args.hq:
+        ffmpeg_args.append('-profile:v')
+        ffmpeg_args.append('3')
+        
+    if args.yadif or args.scale:
+        
+        filter_options = '-vf'
+        
+        if args.yadif:
+            print 'YADIF'
+            filter_options += ' yadif'         
+              
+        if args.scale:
+            print 'scale'
+            if number_of_effects > 1:
+                filter_options += (',scale=%s' % width_height)                        
+            else:
+                filter_options += (' scale=%s' % width_height)
             
-            ffmpeg_args =   ['ffmpeg',
-                    '-i', filename,
-                    '-c:v', 'prores',]
-            if args.hq:
-                ffmpeg_args.append('-profile:v')
-                ffmpeg_args.append('3')
-                
-            if args.yadif or args.scale:
-                
-                filter_options = '-vf'
-                
-                if args.yadif:
-                    print 'YADIF'
-                    filter_options += ' yadif'         
-                      
-                if args.scale:
-                    print 'scale'
-                    if number_of_effects > 1:
-                        filter_options += (',scale=%s' % width_height)                        
-                    else:
-                        filter_options += (' scale=%s' % width_height)
-                    
-                filter_options = filter_options.split()
-                for item in filter_options:
-                    ffmpeg_args.append(item)    
-            ffmpeg_args.append(output)
-            subprocess.call(ffmpeg_args)
+        filter_options = filter_options.split()
+        for item in filter_options:
+            ffmpeg_args.append(item)    
+    ffmpeg_args.append(output)
+    subprocess.call(ffmpeg_args)
