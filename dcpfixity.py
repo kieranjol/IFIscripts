@@ -15,7 +15,7 @@ from glob import glob
 import hashlib
 import base64
 import csv
-from progress.bar import Bar
+
 
 print '\nProcesses MXFS/CPLs and subtitles. Fonts are not yet analysed.'
 filename              = sys.argv[1]
