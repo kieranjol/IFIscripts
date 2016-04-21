@@ -24,7 +24,10 @@ parser.add_argument(
                     '-md5',
                     action='store_true',
                     help='Get md5 sidecar for your output file')
-
+parser.add_argument(
+                    '-map',
+                    action='store_true',
+                    help='Force default mapping, eg. 1 audio/video stream')
 args = parser.parse_args()
 prores_options = []
     
@@ -69,14 +72,23 @@ elif os.path.isdir(file_without_path):
 # Prints some stuff if input isn't a file or directory.
 else: 
     print "Your input isn't a file or a directory."
-                     
+    
+                      
 for filename in video_files:
     #pdb.set_trace()
     output = filename + "_prores.mov"
     
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
+            '-c:a', 'copy',
             '-c:v', 'prores',]
+    if not args.map:
+        ffmpeg_args.append('-map')
+        ffmpeg_args.append('0:a')
+        ffmpeg_args.append('-map')
+        ffmpeg_args.append('0:v')
+        
+                
     if args.hq:
         ffmpeg_args.append('-profile:v')
         ffmpeg_args.append('3')
@@ -100,4 +112,5 @@ for filename in video_files:
         for item in filter_options:
             ffmpeg_args.append(item)    
     ffmpeg_args.append(output)
+    print ffmpeg_args
     subprocess.call(ffmpeg_args)
