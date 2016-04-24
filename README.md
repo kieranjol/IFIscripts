@@ -8,4 +8,10 @@ Dcpfixity works well as long as there is one CPL. It currently can't verify font
 python scriptname.py filename<br>
 <br>
 <b>EXCEPT:</b> <br>
-python dcpfixity.py PKL.XML
+
+Some scripts, such as bitc.py or prores.py also accept a directory as input in order to batch process files.<br>
+<br>
+As for  dcpfixity.py, it accepts the DCP directory as input <br>
+python dcpfixity.py dcp_directory
+<br><br>
+dcpfixity requires openssl and lxml. The latter can be installed with pip.
