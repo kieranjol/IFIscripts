@@ -11,6 +11,7 @@ import base64
 import time
 
 dcp_dir = sys.argv[1]
+print listdir(dcp_dir)
 filename_without_path = os.path.basename(dcp_dir)
 csv_filename = filename_without_path + time.strftime("_%Y_%m_%dT%H_%M_%S")
 
@@ -98,16 +99,32 @@ print  keys_to_remove
 for i in keys_to_remove:
     del file_paths[i]       
 print len(file_paths)
+
+missing_files = []
+for i in file_paths:
+    if not os.path.isfile(file_paths[i][0]):
+    
+        print file_paths[i][0] + 'is missing'
+        missing_files.append(i)
+        append_csv(csvfile,('MISSING FILE', pkl_hashes[i], file_paths[i][0],'MISSING FILE'))
+ 
+print  missing_files
+for i in missing_files:
+    del file_paths[i]
+    del pkl_hashes[i]       
 for i in file_paths:
     
-    #print file_paths[i][0]
+    
+    if os.path.isfile(file_paths[i][0]):
+    
+        openssl_hash = subprocess.check_output(['openssl', 'sha1', '-binary', file_paths[i][0]])
+        b64hash =  base64.b64encode(openssl_hash)
+        #print b64hash  
+        file_paths[i].append(b64hash)
+    else:
+        print file_paths[i][0] + 'is missing'
 
-    openssl_hash = subprocess.check_output(['openssl', 'sha1', '-binary', file_paths[i][0]])
-    b64hash =  base64.b64encode(openssl_hash)
-    #print b64hash  
-    file_paths[i].append(b64hash)
-
-
+        
 for i in file_paths:
     if file_paths[i][1] == pkl_hashes[i]:
         print file_paths[i][0] + ' is ok'
