@@ -1,13 +1,20 @@
 from lxml import etree
 import sys
 from glob import glob
+import csv
 import os
 from os import listdir
 from os.path import isfile, join
 import subprocess
 import base64
 
+import time
+
 dcp_dir = sys.argv[1]
+filename_without_path = os.path.basename(dcp_dir)
+csv_filename = filename_without_path + time.strftime("_%Y_%m_%dT%H_%M_%S")
+
+csvfile               = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
 os.chdir(dcp_dir)
 dcp_files = [f for f in listdir(dcp_dir) if isfile(join(dcp_dir, f))]
 if 'ASSETMAP' in dcp_files:
@@ -20,6 +27,24 @@ assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')
 root = assetmap_xml.getroot()   
 #print dcp_files
 xmlfiles = glob('*.xml')
+
+def create_csv(csv_file, *args):
+    f = open(csv_file, 'wt')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
+        
+def append_csv(csv_file, *args):
+    f = open(csv_file, 'a')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
+        
+create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
 #print xmlfiles
 pkl_list = []
 for i in xmlfiles:
@@ -86,6 +111,7 @@ for i in file_paths:
 for i in file_paths:
     if file_paths[i][1] == pkl_hashes[i]:
         print file_paths[i][0] + ' is ok'
+        append_csv(csvfile,(file_paths[i][1], pkl_hashes[i], file_paths[i][0],'HASH MATCH'))
     else:
         print file_paths[i][0] + ' mismatch'
 
