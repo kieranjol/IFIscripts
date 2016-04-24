@@ -1,220 +1,153 @@
-#!/usr/bin/env python
-
-'''
-WORK IN PROGRESS - Only works for non subtitled SMPTE/Interop right now.
-Inefficient code - Lots of functions to be written.
-Usage - dcpfixity.py pkl.xml
-'''
-# Check how many files in PKL,then check if they're all present.
-
-import subprocess
+from lxml import etree
 import sys
-import os
-import pdb
 from glob import glob
-import hashlib
-import base64
 import csv
+import os
+from os import listdir
+from os.path import isfile, join
+import subprocess
+import base64
+import time
 
+dcp_dir = sys.argv[1]
 
-print '\nProcesses MXFS/CPLs and subtitles. Fonts are not yet analysed.'
-filename              = sys.argv[1]
-filename_without_path = os.path.basename(filename)
-csvfile               = os.path.expanduser("~/Desktop/%s.csv") % filename_without_path
+# CSV filename will be DCp directory name + time/date.
+csv_filename = os.path.basename(dcp_dir) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+# CSV will be saved to your Desktop.
+csvfile = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
 
-with open(filename) as myfile:
-    namespace = [next(myfile) for x in xrange(3)]
+# Changing directory makes globbing easier (from my experience anyhow).
+os.chdir(dcp_dir)
 
-for i in namespace:
+# Scan the main DCP directory for an assetmap.
+dcp_files = [f for f in listdir(dcp_dir) if isfile(join(dcp_dir, f))]
+if 'ASSETMAP' in dcp_files:
+    assetmap = 'ASSETMAP'
+elif 'ASSETMAP.xml' in dcp_files:
+    assetmap = 'ASSETMAP.xml'
 
-    if 'smpte' in i:
-        #print 'SMPTE'
-        pkl_namespace = 'x=http://www.smpte-ra.org/schemas/429-8/2007/PKL'
-        cpl_namespace = 'x=http://www.smpte-ra.org/schemas/429-7/2006/CPL'
-        am_namespace  = 'x=http://www.smpte-ra.org/schemas/429-9/2007/AM'
-        regular_cpl_namespace = 'http://www.smpte-ra.org/schemas/429-7/2006/CPL'
-    elif 'digicine' in i:
-        print 'Interop'
-        pkl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-PKL-20040311#'
-        cpl_namespace = 'x=http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-        am_namespace  = 'x=http://www.digicine.com/PROTO-ASDCP-AM-20040311#'
-        regular_cpl_namespace = 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#'
-    elif 'DCSubtitle' in i:
-        print 'Subtitle file'
-  
-f = open(csvfile, 'wt')
-try:
-    writer = csv.writer(f)
-    writer.writerow( ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT') )
-   
-finally:
-    f.close()
-#pdb.set_trace()
+# Parse the assetmap in order to find the namespace.    
+assetmap_xml = etree.parse(assetmap)
+assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')
 
-wd = os.path.dirname(filename)
-
-os.chdir(wd)
-def get_count(variable,typee):
-    variable = subprocess.check_output(['xmlstarlet', 'sel', 
-                                        '-N', pkl_namespace,
-                                        '-t', '-v', typee,
-                                         filename ])
-    return variable
-count = get_count('count',"count(//x:Asset)")
-
-print '\n%s hashes found - Generating fresh hashes and comparing them against hashes stored in the PKL.XML\n' % count
-def getffprobe(variable, streamvalue, which_file):
-    variable = subprocess.check_output(['ffprobe',
-                                                '-v', 'error',
-                                                '-show_entries', 
-                                                streamvalue,
-                                                '-of', 'default=noprint_wrappers=1:nokey=1',
-                                                which_file])
-    return variable
-
-def get_cpl(variable,typee,element,xml_file):
-    
+# Two csv functions. One to create a csv, the other to add info to.
+def create_csv(csv_file, *args):
+    f = open(csv_file, 'wt')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
         
-        variable = subprocess.check_output(['xmlstarlet', 'sel', 
-                                                 '-N', cpl_namespace,
-                                                 '-t', '-m', typee,
-                                                 '-v', element,
-                                                 '-n', xml_file ])
-        return variable                 
-# Find all video files to transcode
+def append_csv(csv_file, *args):
+    f = open(csv_file, 'a')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
 
-video_files =  glob('*.mxf')
+# Create a new .csv file with headings.        
+create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
 
-xml_files   = glob('*.xml')
-paths = glob('*/')
+# Get a list of all XML files in the main DCP directory.
+xmlfiles = glob('*.xml')
 
-#if not will produce FALSE if empty list
-#if not paths:
-    #print 'heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-subs = []
-for subdir in paths:
-    #print 'heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-    os.chdir(subdir)
-    sub_dirs   = glob('*.xml')
-    for i in sub_dirs:
-        subpath_var =  os.path.join(subdir,i)
-        subs.append(subpath_var)
-    #print sub_dirs
-#print subs    
-#print paths
-os.chdir(wd)
-mxfhashes   = {}
+# Generate an empty list as there may be multiple PKLs.
+pkl_list = []
 
-'''
-Rewrite all these checks as functions!!!
-'''
-for mxfs in video_files:
-    substest =  subprocess.check_output(['exiftool','-u','-b', '-MIMEMediaType', mxfs]) 
-    #print substest
-    if substest == 'application/x-font-opentype':
-        mxf_uuid = subprocess.check_output(['exiftool','-u','-b', '-PackageID', mxfs])
-        mxf_uuid =  mxf_uuid[-36:].lower ()
+# Loop through xmlfiles in order to find any PKL files.
+for i in xmlfiles:
+
+    xmlname = etree.parse(i)
+    is_pkl = xmlname.xpath('namespace-uri(.)')
+    if 'PKL' in is_pkl:
+        pkl_list.append(i)
+
+# Generate an empty dictionary that will link the PKL hashes to each UUID.        
+pkl_hashes = {}
+
+# Loop through the PKLs and link each hash to a UUID.
+for i in pkl_list: 
+    pkl_parse = etree.parse(i)
+    pkl_namespace = pkl_parse.xpath('namespace-uri(.)') 
+    hashes =  pkl_parse.findall('//ns:Hash',namespaces={'ns': pkl_namespace})
+    xmluuid =  pkl_parse.findall('//ns:Asset/ns:Id',namespaces={'ns': pkl_namespace})
+
+    counter = 0
+    
+    while counter <= len(hashes) -1 : # The -1 is there because of lxml's zero indexing.
+        pkl_hashes[xmluuid[counter].text] = hashes[counter].text # {pkl_uuid:pkl_hash}
+        counter +=1
+        
+# Begin analysis of assetmap xml.
+
+assetmap_paths =  assetmap_xml.findall('//ns:Path',namespaces={'ns': assetmap_namespace})
+assetmap_uuids =  assetmap_xml.findall('//ns:Asset/ns:Id',namespaces={'ns': assetmap_namespace})
+
+counter = 0
+
+file_paths = {}
+
+while counter <= len(assetmap_paths) -1 :
+    file_paths[assetmap_uuids[counter].text] = [assetmap_paths[counter].text] # {assetmapuuid:assetmapfilename}
+    counter +=1
+
+# Removes PKLs from list of files to hash, as these files are not in manifest.
+keys_to_remove = [] 
+
+for i in file_paths:
+    if file_paths[i][0] in pkl_list:
+        keys_to_remove.append(i)
+# PKL files are deleted from the file_paths dictionary. 
+for i in keys_to_remove:
+    del file_paths[i]       
+
+# Check if there are any files missing from the DCP.
+
+missing_files = []
+for i in file_paths:
+    if not os.path.isfile(file_paths[i][0]): # This checks if the file exists.
+        print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - **********' + file_paths[i][0] + ' is missing **********'
+        missing_files.append(i)
+        # Add missing file info to the csv.
+        append_csv(csvfile,('MISSING FILE', pkl_hashes[i], file_paths[i][0],'MISSING FILE'))
+
+# This removes the missing files from the hashable list. 
+for i in missing_files:
+    del file_paths[i]
+    del pkl_hashes[i]
+
+# Generate fresh hashes on the actual files in the DCP.           
+for i in file_paths:  
+    print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - Generating fresh hash for ' + file_paths[i][0]
+    # Create SHA-1 binary hashes with OPENSSL.
+    
+    openssl_hash = subprocess.check_output(['openssl',
+                                            'sha1',
+                                            '-binary',
+                                             file_paths[i][0]])
+    # Encode the hashes as base64.
+    b64hash =  base64.b64encode(openssl_hash)
+    # Append hashes to the list within the file_paths dictionary. 
+    file_paths[i].append(b64hash)
+
+# Compare the hashes in the PKL manifest to the fresh hashes. 
+hash_mismatches = []       
+for i in file_paths:
+    if file_paths[i][1] == pkl_hashes[i]:
+        print file_paths[i][0] + ' is ok'
+        append_csv(csvfile,(file_paths[i][1], pkl_hashes[i], file_paths[i][0],'HASH MATCH'))
     else:
-        mxf_uuid = (getffprobe('mxf_uuid','stream_tags=file_package_umid', mxfs)).replace('\n', '').replace('\r', '')
-        mxf_uuid =  mxf_uuid[-32:].lower ()
-        mxf_uuid = mxf_uuid[:8] + '-' + mxf_uuid[8:12] + '-' +  mxf_uuid[12:16] + '-' + mxf_uuid[16:20] + '-' + mxf_uuid[20:32]
-    print 'Generating fresh hash for the file %s' % mxfs     
-    
-    openssl_hash        = subprocess.check_output(['openssl', 'sha1', '-binary', mxfs])
-    b64hash             = base64.b64encode(openssl_hash)   
-    #print b64hash               
-    mxfhashes[mxf_uuid] = [mxfs,b64hash]
-for subbos in subs:
-    print 'Generating fresh hash for the file %s' % subbos  
-    xml_uuid = subprocess.check_output(['xmlstarlet','sel','-t', '-v', 'DCSubtitle/SubtitleID', subbos])
-    openssl_hash        = subprocess.check_output(['openssl', 'sha1', '-binary', subbos])
-    b64hash             = base64.b64encode(openssl_hash)   
-    #print b64hash               
-    mxfhashes[xml_uuid] = [subbos,b64hash] 
-
-
-for xmls in xml_files:
-    with open(xmls) as f:   # open file
-                for line in f:       # process line by line
-                    if regular_cpl_namespace in line:    
-                        print 'found CPL in file %s' %xmls
-                        openssl_hash = subprocess.check_output(['openssl', 'sha1', '-binary', xmls])
-                        b64hash =  base64.b64encode(openssl_hash)    
-                        xml_uuid = get_cpl('xml_uuid', "x:CompositionPlaylist", "x:Id", xmls).replace('\n', '').replace('\r', '')
-                        #print xml_uuid
-
-                        mxfhashes[xml_uuid[-36:]] = [xmls,b64hash]
-#print mxfhashes
-
-dict = {}
-
-def get_hash(variable,typee,element):
-        variable = subprocess.check_output(['xmlstarlet', 'sel', 
-                                                 '-N', pkl_namespace,
-                                                 '-t', '-m', typee,
-                                                 '-v', element,
-                                                 '-n', filename ])
-        return variable
- 
-
-counter = 1    
-while counter <= int(count):
-    
-    picture_files = get_hash('picture_files',"//x:Asset" + "[" + str(counter) + "]" , "x:Hash").replace('\n', '').replace('\r', '')
-    urn = get_hash('urn',"//x:Asset" + "[" + str(counter) + "]" , "x:Id")
-    Type = get_hash('Type',"//x:Asset" + "[" + str(counter) + "]" , "x:Type").rstrip()
-    counter += 1
-    urn = urn.replace('\n', '').replace('\r', '')
-    if not (Type == "application/ttf"):
-
-        dict[urn[-36:]] = [picture_files,Type]
-
-
-'''
-WRITE A CSV WRITING FUNCTION!!!
-'''      
-major_error = 'all is well'        
-for key in dict:
-        #print key
-        #print dict.keys()
-        if not key in mxfhashes.keys():
-           
-           print key + ' was listed in the PKL but it is not in your DCP'
-           major_error = '1'
-           
-           f = open(csvfile, 'a')
-           try:
-               writer = csv.writer(f)
-               writer.writerow(('FILE MISSING FROM DCP', dict[key][0], 'FILE MISSING FROM DCP','FILE MISSING FROM DCP'))
-       
-           finally:
-               f.close()
+        print file_paths[i][0] + ' mismatch'
+        file_paths[i][0].append(hash_mismatches)
         
-        elif mxfhashes[key][1] == dict[key][0]:
-           print mxfhashes[key][0] + ' HASH MATCH - GO ABOUT YOUR DAY'
-           f = open(csvfile, 'a')
-           try:
-               writer = csv.writer(f)
-               writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0],'HASH MATCH'))
-       
-           finally:
-               f.close()
-           
-        else:
-           print mxfhashes[key][0] + ' HASH MISMATCH - EITHER THE SCRIPT IS BROKEN OR YOUR FILES ARE'
-           major_error = '2'
-           f = open(csvfile, 'a')
-           try:
-               writer = csv.writer(f)
-               writer.writerow((mxfhashes[key][1], dict[key][0], mxfhashes[key][0], 'HASH MISMATCH' ))
-       
-           finally:
-               f.close()
-
-print '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'
-if major_error == '1':
-    print '\n\n** MAJOR ERROR - YOU ARE MISSING SOME FILES FROM THE DCP... OR MY SCRIPT IS BROKEN!** ' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n' 
-elif major_error == '2':
-    print '\n\n** MAJOR ERROR - ONE OR MORE OF YOUR FILES HAS BECOME CORRUPT**' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'  
+if len(hash_mismatches) > 0:
+    report = ' but THERE ARE HASH MISMATCHES. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
 else:
-    print '\n\n** Everything seems to be fine. This script does not verify font integrity, so please check manually **' + '\nCSV spreadsheet was written to your desktop as ' + csvfile + '\n'           
+    report = ' and all hashes match.'
+
+if len(missing_files) > 0:
+    print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - WARNING - THERE ARE FILES MISSING FROM THIS DCP. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
+else: 
+    print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - All files are present in your DCP' + report
