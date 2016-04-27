@@ -26,14 +26,22 @@ parser.add_argument('input')
 parser.add_argument(
                     '-bag', 
                     action='store_true',help='bag the dcp_dir if it passes the hash check')
-
+parser.add_argument(
+                    '-m', 
+                    action='store_true',help='send email report')
 args = parser.parse_args()
 
 if args.bag:
     bagging = 'enabled'
+    bagit =  os.path.abspath('bagit.py') 
 else:
     bagging = 'disabled'
-bagit =  os.path.abspath('bagit.py') 
+    
+if args.m:
+    email = 'enabled'
+else:
+    email = 'disabled'
+
 dcp_dir = args.input
 # Two csv functions. One to create a csv, the other to add info to.
 def create_csv(csv_file, *args):
@@ -236,57 +244,58 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
                 subprocess.call(['python',bagit, dir])  
 
+if email == 'enabled':
  
-emailfrom = ""
-emailto = ['', '']
-#emailto = ", ".join(emailto)
-fileToSend = csv_report
-username = ""
-password = ""
+    emailfrom = ""
+    emailto = ['', '']
+    #emailto = ", ".join(emailto)
+    fileToSend = csv_report
+    username = ""
+    password = ""
 
-msg = MIMEMultipart()
-msg["From"] = emailfrom
-msg["To"] = ", ".join(emailto)
-msg["Subject"] = "Hash check complete"
-msg.preamble = "testtesttest"
-body = MIMEText("example email body")
-msg.attach(body)
+    msg = MIMEMultipart()
+    msg["From"] = emailfrom
+    msg["To"] = ", ".join(emailto)
+    msg["Subject"] = "Hash check complete"
+    msg.preamble = "testtesttest"
+    body = MIMEText("example email body")
+    msg.attach(body)
 
-ctype, encoding = mimetypes.guess_type(fileToSend)
-if ctype is None or encoding is not None:
-    ctype = "application/octet-stream"
+    ctype, encoding = mimetypes.guess_type(fileToSend)
+    if ctype is None or encoding is not None:
+        ctype = "application/octet-stream"
 
-maintype, subtype = ctype.split("/", 1)
+    maintype, subtype = ctype.split("/", 1)
 
-if maintype == "text":
-    fp = open(fileToSend)
-    # Note: we should handle calculating the charset
-    attachment = MIMEText(fp.read(), _subtype=subtype)
-    fp.close()
-elif maintype == "image":
-    fp = open(fileToSend, "rb")
-    attachment = MIMEImage(fp.read(), _subtype=subtype)
-    fp.close()
-elif maintype == "audio":
-    fp = open(fileToSend, "rb")
-    attachment = MIMEAudio(fp.read(), _subtype=subtype)
-    fp.close()
-else:
-    fp = open(fileToSend, "rb")
-    attachment = MIMEBase(maintype, subtype)
-    attachment.set_payload(fp.read())
-    fp.close()
-    encoders.encode_base64(attachment)
-attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)
-msg.attach(attachment)
+    if maintype == "text":
+        fp = open(fileToSend)
+        # Note: we should handle calculating the charset
+        attachment = MIMEText(fp.read(), _subtype=subtype)
+        fp.close()
+    elif maintype == "image":
+        fp = open(fileToSend, "rb")
+        attachment = MIMEImage(fp.read(), _subtype=subtype)
+        fp.close()
+    elif maintype == "audio":
+        fp = open(fileToSend, "rb")
+        attachment = MIMEAudio(fp.read(), _subtype=subtype)
+        fp.close()
+    else:
+        fp = open(fileToSend, "rb")
+        attachment = MIMEBase(maintype, subtype)
+        attachment.set_payload(fp.read())
+        fp.close()
+        encoders.encode_base64(attachment)
+    attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)
+    msg.attach(attachment)
 
 
-server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-server_ssl.ehlo() # optional, called by login()
-server_ssl.login(username, password)  
-# ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
-server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-print msg.as_string()
-#server_ssl.quit()
-server_ssl.close()
-print 'successfully sent the mail'    
+    server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server_ssl.ehlo() # optional, called by login()
+    server_ssl.login(username, password)  
+    # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
+    server_ssl.sendmail(emailfrom, emailto, msg.as_string())
+    print msg.as_string()
+    #server_ssl.quit()
+    server_ssl.close()
+    print 'successfully sent the mail'    
