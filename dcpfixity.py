@@ -1,5 +1,6 @@
 from lxml import etree
 import sys
+import pdb
 from glob import glob
 import csv
 import os
@@ -19,8 +20,9 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
+import bagit
 
-parser = argparse.ArgumentParser(description='IFI Pro Res 4:2:2 ffmpeg Encoder.'
+parser = argparse.ArgumentParser(description='DCP FIXITY checker/bagging tool.'
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('input')
 parser.add_argument(
@@ -33,15 +35,16 @@ args = parser.parse_args()
 
 if args.bag:
     bagging = 'enabled'
-    bagit =  os.path.abspath('bagit.py') 
 else:
     bagging = 'disabled'
-    
+
 if args.m:
     email = 'enabled'
 else:
     email = 'disabled'
-
+#bagrm =  os.path.abspath('bag-rm.py') 
+#bagit =  os.path.abspath('bagit.py') 
+#print bagrm
 dcp_dir = args.input
 # Two csv functions. One to create a csv, the other to add info to.
 def create_csv(csv_file, *args):
@@ -62,18 +65,32 @@ def append_csv(csv_file, *args):
 
 # Create a new .csv file with headings.  
 # CSV filename will be DCp directory name + time/date.
-csv_filename = os.path.basename(dcp_dir) +  '_item_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+
 # CSV will be saved to your Desktop.
-csvfile = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
+
 
 csv_report_filename = os.path.basename(dcp_dir) + '_dcp_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 # CSV will be saved to your Desktop.
 csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename        
-create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
 create_csv(csv_report, ('DCP NAME', 'DIRECTORY NAME', 'JUDGEMENT'))
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
+        #print os.path.basename(os.path.dirname(root)) 
+        filenoext = os.path.splitext(os.path.dirname(root))[0]
+        #print filenoext + 'dfsdfjkljoewuiljkdfs'
+        # Change directory to directory with video files
+
+
+        #print filenoext
+        # Generate new directory names in AIP
+        fixity_dir   = "%s/fixity" % filenoext
+        os.makedirs(fixity_dir)
+        csvfile = fixity_dir + '/' + os.path.basename(os.path.dirname(root)) + '_item_level' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+        print 'csvfile is ', csvfile
+        #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
+        create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
+        
         
         # Changing directory makes globbing easier (from my experience anyhow).
         os.chdir(dir)
@@ -235,17 +252,24 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         if len(missing_files) > 0:
             print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - WARNING - THERE ARE FILES MISSING FROM THIS DCP. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
-            append_csv(csv_report,(os.path.basename(dir), dir, 'FILES MISSING - CHECK REPORT'))
+            append_csv(csv_report,(os.path.dirname(root), dir, 'FILES MISSING - CHECK REPORT'))
         else: 
             print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - All files are present in your DCP' + report
-            append_csv(csv_report,(os.path.basename(dir), dir,'All files present ' + report))
+            append_csv(csv_report,(os.path.dirname(root), dir,'All files present ' + report))
+            
         if bagging == 'enabled':
             if baggable == 'y':
+                #pdb.set_trace()
+                if os.path.dirname(root) != args.input:
                 
-                subprocess.call(['python',bagit, dir])  
-
-if email == 'enabled':
- 
+                    print 1
+                    dir = os.path.dirname(root)
+                    print dir
+                    print args.input
+                    bag = bagit.make_bag(dir)
+                else:
+                     print 'bagging not supported for this folder structure right now'
+if email == 'enabled': 
     emailfrom = ""
     emailto = ['', '']
     #emailto = ", ".join(emailto)
