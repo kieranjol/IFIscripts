@@ -185,17 +185,25 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             entry_audio=  pkl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': pkl_namespace})
             counter +=1
         count = pkl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
-            
+        
+        audio_delay = {}
         def get_delays(xmlvalue, list_type):
             count = pkl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
             
             counter = 1
             while counter <= count:
                 
-            
+                audio_delay_values = []
                 print count
-                xmlvalue =  pkl_parse.xpath('//ns:MainPicture[%s]/ns:%s '% (counter, list_type),namespaces={'ns': pkl_namespace})  
+                xmluuid =  pkl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
+                print xmluuid[0].text
+                
+                xmlvalue =  pkl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace})  
+                dur =  pkl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
                 print xmlvalue[0].text  
+                audio_delay_values.append(xmlvalue[0].text)
+                audio_delay_values.append(dur[0].text)
+                audio_delay[xmluuid[0].text] = audio_delay_values
                 counter += 1  
                 '''
                     for xmlvalue in list_type:
@@ -211,8 +219,8 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                             print 'no delay'
                 '''
         get_delays('dudu','EntryPoint')    
-        get_delays('dudu', 'Duration')    
-
+        get_delays('dudu', 'Duration')
+        print audio_delay
         # Begin analysis of assetmap xml.
         '''''
         for thingygy in entry_audio:
@@ -249,6 +257,9 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for blabla in file_paths[yes.text]:    
         
                 pic_mxfs.append(blabla)
+                 
+        print pic_mxfs
+                
         aud_mxfs = []   
         for yes in xmluuid_audio:
             for blabla in file_paths[yes.text]:    
