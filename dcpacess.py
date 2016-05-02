@@ -21,6 +21,8 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import bagit
+from decimal import *
+getcontext().prec = 4
 
 
 '''
@@ -94,6 +96,7 @@ audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strft
 audio_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % audio_concat_filename
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 output= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+
 # Two csv functions. One to create a csv, the other to add info to.
 
 
@@ -172,40 +175,61 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         # Loop through the PKLs and link each hash to a UUID.
         counter = 0
         for i in pkl_list: 
-            pkl_parse = etree.parse(i)
-            pkl_namespace = pkl_parse.xpath('namespace-uri(.)') 
+            cpl_parse = etree.parse(i)
+            pkl_namespace = cpl_parse.xpath('namespace-uri(.)') 
 
-            xmluuid =  pkl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': pkl_namespace})
-            xmluuid_audio =  pkl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': pkl_namespace})
-            duration_image =  pkl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': pkl_namespace})
-            duration_audio =  pkl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': pkl_namespace})
-            intrinsic_image=  pkl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
-            intrinsic_audio=  pkl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
-            entry_image=  pkl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': pkl_namespace})
-            entry_audio=  pkl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': pkl_namespace})
+            xmluuid =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': pkl_namespace})
+            xmluuid_audio =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': pkl_namespace})
+            duration_image =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': pkl_namespace})
+            duration_audio =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': pkl_namespace})
+            intrinsic_image=  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
+            intrinsic_audio=  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
+            entry_image=  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': pkl_namespace})
+            entry_audio=  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': pkl_namespace})
             counter +=1
-        count = pkl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
+        count = cpl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
         audio_delay = {}
         def get_delays(xmlvalue, list_type):
-            count = pkl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
+            count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
             
             counter = 1
             while counter <= count:
                 
                 audio_delay_values = []
-                print count
-                xmluuid =  pkl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
-                print xmluuid[0].text
                 
-                xmlvalue =  pkl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace})  
-                dur =  pkl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
-                print xmlvalue[0].text  
-                audio_delay_values.append(xmlvalue[0].text)
-                audio_delay_values.append(dur[0].text)
+                xmluuid =  cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
+                
+                
+                xmlvalue =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace}) 
+                entrypoint_audio = float(xmlvalue[0].text)
+                if xmlvalue[0].text != '0':
+                    entrypoint_audio = float(xmlvalue[0].text) 
+                    entrypoint_audio = float(entrypoint_audio) / 24.000
+                    entrypoint_audio = round(entrypoint_audio, 3)
+                audio_delay_values.append(entrypoint_audio) 
+                dur =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
+                dur_intrinsic =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': pkl_namespace})
+                 
+                tail_test = int(dur_intrinsic[0].text) - int(dur[0].text)
+                
+                
+                print int(dur[0].text)
+                tail_delay = int(dur[0].text) - int(xmlvalue[0].text)
+                print tail_delay
+                tail_delay = float(tail_delay) / 24.000
+                tail_delay = round(tail_delay, 3)
+             
+                audio_delay_values.append(tail_delay)
+                audio_delay_values.append(file_paths[xmluuid[0].text][0])
+                print 'ooops' , tail_delay
+                #audio_delay_values.append(dur[0].text)
                 audio_delay[xmluuid[0].text] = audio_delay_values
-                counter += 1  
-                '''
+                counter += 1
+            
+            return audio_delay
+            
+            '''
                     for xmlvalue in list_type:
                         if not xmlvalue.text == '0':
                          
@@ -217,10 +241,9 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
             
                             print 'no delay'
-                '''
-        get_delays('dudu','EntryPoint')    
-        get_delays('dudu', 'Duration')
-        print audio_delay
+            '''
+       
+        
         # Begin analysis of assetmap xml.
         '''''
         for thingygy in entry_audio:
@@ -258,14 +281,18 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
                 pic_mxfs.append(blabla)
                  
-        print pic_mxfs
+        #print pic_mxfs
                 
         aud_mxfs = []   
         for yes in xmluuid_audio:
             for blabla in file_paths[yes.text]:    
         
                 aud_mxfs.append(blabla)
+        print file_paths   
+        get_delays('dudu','EntryPoint')  
+        print audio_delay
             
+         
         #print pic_mxfs
         #print aud_mxfs
         dir_append = args.input + '/'
@@ -275,11 +302,19 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         # http://stackoverflow.com/a/2050721/2188572
         picture_files_fix2 = [concat_string + x for x in picture_files_fix1]
         finalpic = [x + concat_append for x in picture_files_fix2]
-        audio_files_fix1 = [dir_append + x for x in aud_mxfs]
+        audio_files_fix1 = [dir_append + x + '.mkv' for x in aud_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
         audio_files_fix2 = [concat_string + x for x in audio_files_fix1]
         finalaudio = [x + concat_append for x in audio_files_fix2]
-
+        print finalaudio
+    
+        for i in audio_delay:
+            print audio_delay[i][2]
+            print audio_delay[i][1]
+            
+            subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),'-c:a','copy', audio_delay[i][2] + '.mkv'])
+    
+        
         # Write the list of filenames containing picture to a textfile. 
         # http://www.pythonforbeginners.com/files/reading-and-writing-files-in-python
         def write_textfile(textfile, list_type):
@@ -290,6 +325,8 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio)
+        subprocess.call(['ffmpeg','-f','concat','-i',audio_concat_textfile,'-c:a','aac', output ])
+        
 '''''
         subprocess.call(['ffmpeg','-f','concat','-i',video_concat_textfile,'-f','concat','-i',audio_concat_textfile,'-c:v','libx264','-c:a','aac', '-pix_fmt', 'yuv420p', '-crf','23','-vf','scale=1920:1088', output ])
 '''
