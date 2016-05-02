@@ -92,10 +92,12 @@ dcp_dir = args.input
 
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 video_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % video_concat_filename
+video_concat_textfile = video_concat_textfile
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 audio_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % audio_concat_filename
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-output= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+outputmkv= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+
 
 # Two csv functions. One to create a csv, the other to add info to.
 
@@ -215,7 +217,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
                 
                 print int(dur[0].text)
-                tail_delay = int(dur[0].text) - int(xmlvalue[0].text)
+                tail_delay = int(dur[0].text)
                 print tail_delay
                 tail_delay = float(tail_delay) / 24.000
                 tail_delay = round(tail_delay, 3)
@@ -325,11 +327,17 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio)
-        subprocess.call(['ffmpeg','-f','concat','-i',audio_concat_textfile,'-c:a','aac', output ])
+        print video_concat_textfile
+        print audio_concat_textfile
+        command = ['ffmpeg','-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:a','copy', audio_concat_textfile + '___.mkv' ]
+        print command
+        subprocess.call(command)
         
-'''''
-        subprocess.call(['ffmpeg','-f','concat','-i',video_concat_textfile,'-f','concat','-i',audio_concat_textfile,'-c:v','libx264','-c:a','aac', '-pix_fmt', 'yuv420p', '-crf','23','-vf','scale=1920:1088', output ])
-'''
+        '''
+        command = ['ffmpeg','-f','concat','-safe', '0', '-i',video_concat_textfile,'-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:v','libx264','-c:a','aac', '-pix_fmt', 'yuv420p', '-crf','21','-vf','scale=1920:1088', audio_delay[i][2] + '___.mkv' ]
+        print command
+        subprocess.call(command)
+        '''
         # Removes PKLs from list of files to hash, as these files are not in manifest.
 
 
