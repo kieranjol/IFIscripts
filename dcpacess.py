@@ -22,6 +22,7 @@ from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import bagit
 from decimal import *
+from sys import platform as _platform
 getcontext().prec = 4
 
 
@@ -91,10 +92,16 @@ else:
 dcp_dir = args.input
 
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-video_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
-video_concat_textfile = video_concat_textfile
+#video_concat_textfile = video_concat_textfile
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-audio_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
+if _platform == "win32":
+    video_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
+    audio_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
+else:
+    video_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % video_concat_filename
+    audio_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % audio_concat_filename
+
+
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 outputmkv= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 
@@ -297,9 +304,15 @@ for root,dirnames,filenames in os.walk(dcp_dir):
          
         #print pic_mxfs
         #print aud_mxfs
-        dir_append = args.input + '\\'
-        concat_string = 'file \'' 
-        concat_append = '\''
+        if _platform == "win32":
+            print 'windows'
+            dir_append = args.input + '\\'
+            concat_string = 'file \'' 
+            concat_append = '\''
+        else:
+            dir_append = args.input + '/'
+            concat_string = 'file \'' 
+            concat_append = '\''
         picture_files_fix1 = [dir_append + x for x in pic_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
         picture_files_fix2 = [concat_string + x for x in picture_files_fix1]
