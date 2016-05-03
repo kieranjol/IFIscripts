@@ -29,6 +29,9 @@ parser.add_argument(
                     '-bag', 
                     action='store_true',help='bag the dcp_dir if it passes the hash check')
 parser.add_argument(
+                    '-csv', 
+                    action='store_true',help='File level csv is stored as sidecar to dcp directory')
+parser.add_argument(
                     '-m', 
                     action='store_true',help='send email report')
 args = parser.parse_args()
@@ -71,8 +74,19 @@ def append_csv(csv_file, *args):
 
 csv_report_filename = os.path.basename(dcp_dir) + '_dcp_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 # CSV will be saved to your Desktop.
+
 csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename        
 create_csv(csv_report, ('DCP NAME', 'DIRECTORY NAME', 'JUDGEMENT'))
+
+if args.csv:
+    csv = 'enabled'
+    
+else:
+    csv_filename = os.path.basename(dcp_dir) + '_file_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+    csvfile = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
+    print 'csvfile is ', csvfile
+    #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
+    create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -81,15 +95,16 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         #print filenoext + 'dfsdfjkljoewuiljkdfs'
         # Change directory to directory with video files
 
-
-        #print filenoext
-        # Generate new directory names in AIP
-        fixity_dir   = "%s/fixity" % filenoext
-        os.makedirs(fixity_dir)
-        csvfile = fixity_dir + '/' + os.path.basename(os.path.dirname(root)) + '_item_level' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-        print 'csvfile is ', csvfile
-        #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
-        create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
+        if csv == 'enabled': 
+            print 'enableeeeeeed'
+            #print filenoext
+            # Generate new directory names in AIP
+            fixity_dir   = "%s/fixity" % filenoext
+            os.makedirs(fixity_dir)
+            csvfile = fixity_dir + '/' + os.path.basename(os.path.dirname(root)) + '_item_level' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+            print 'csvfile is ', csvfile
+            #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
+            create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
         
         
         # Changing directory makes globbing easier (from my experience anyhow).
