@@ -26,7 +26,7 @@ from sys import platform as _platform
 getcontext().prec = 4
 
 
-parser = argparse.ArgumentParser(description='DCP FIXITY checker/bagging tool.'
+parser = argparse.ArgumentParser(description='Unencrypted DCP to H264 transcoder.'
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('input')
 '''
@@ -82,14 +82,10 @@ outputmkv= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
-        #print os.path.basename(os.path.dirname(root)) 
+
         filenoext = os.path.splitext(os.path.dirname(root))[0]
-        #print filenoext + 'dfsdfjkljoewuiljkdfs'
-        # Change directory to directory with video files
 
-
-        
-        
+        # Change directory to directory with video files.
         # Changing directory makes globbing easier (from my experience anyhow).
         os.chdir(dir)
 
@@ -108,9 +104,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print 'not an assetmap!!!!'
             continue
            
-        assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')
-
-        
+        assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')     
 
         # Get a list of all XML files in the main DCP directory.
         xmlfiles = glob('*.xml')
@@ -123,11 +117,9 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             try:  
                 xmlname = etree.parse(i)
             except SyntaxError:
-
                 print 'not a valid PKL!!!!'
                 continue
             except KeyError:
-
                 print 'Missing PKL!!!!'
                 continue
             
@@ -137,15 +129,13 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 pkl_list.append(i)
             
         if len(pkl_list) == 0:
-
             continue
-        
               
         # Generate an empty dictionary that will link the PKL hashes to each UUID.        
         pkl_hashes = {}
 
         # Loop through the PKLs and link each hash to a UUID.
-        counter = 0
+
         for i in pkl_list: 
             cpl_parse = etree.parse(i)
             pkl_namespace = cpl_parse.xpath('namespace-uri(.)') 
@@ -158,52 +148,13 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             intrinsic_audio=  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
             entry_image=  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': pkl_namespace})
             entry_audio=  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': pkl_namespace})
-            counter +=1
+
         count = cpl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
         audio_delay = {}
-        def get_delays(xmlvalue, list_type):
-            count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
-            
-            counter = 1
-            while counter <= count:
-                
-                audio_delay_values = []
-                
-                xmluuid =  cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
-                
-                
-                xmlvalue =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace}) 
-                entrypoint_audio = float(xmlvalue[0].text)
-                if xmlvalue[0].text != '0':
-                    entrypoint_audio = float(xmlvalue[0].text) 
-                    entrypoint_audio = float(entrypoint_audio) / 24.000
-                    entrypoint_audio = round(entrypoint_audio, 3)
-                audio_delay_values.append(entrypoint_audio) 
-                dur =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
-                dur_intrinsic =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': pkl_namespace})
-                 
-                tail_test = int(dur_intrinsic[0].text) - int(dur[0].text)
-                
-                
-                print int(dur[0].text)
-                tail_delay = int(dur[0].text)
-                print tail_delay
-                tail_delay = float(tail_delay) / 24.000
-                tail_delay = round(tail_delay, 3)
-             
-                audio_delay_values.append(tail_delay)
-                audio_delay_values.append(file_paths[xmluuid[0].text][0])
-                print 'ooops' , tail_delay
-                #audio_delay_values.append(dur[0].text)
-                audio_delay[xmluuid[0].text] = audio_delay_values
-                counter += 1
-            
-            return audio_delay
-            
 
-       
-        
+
+ 
         # Begin analysis of assetmap xml.
 
         counter = 0
@@ -246,7 +197,38 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
                 aud_mxfs.append(blabla)
         print file_paths   
-        get_delays('dudu','EntryPoint')  
+        count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
+        
+        counter = 1
+        while counter <= count:
+            
+            audio_delay_values = []
+            
+            xmluuid =  cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
+                      
+            EntryPoint =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace}) 
+            entrypoint_audio = float(EntryPoint[0].text)
+            if EntryPoint[0].text != '0':
+                entrypoint_audio = float(EntryPoint[0].text) 
+                entrypoint_audio = float(entrypoint_audio) / 24.000
+                entrypoint_audio = round(entrypoint_audio, 3)
+            audio_delay_values.append(entrypoint_audio) 
+            dur =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
+            dur_intrinsic =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': pkl_namespace})
+             
+            tail_test = int(dur_intrinsic[0].text) - int(dur[0].text)
+            
+            
+            print int(dur[0].text)
+            tail_delay = int(dur[0].text)
+            tail_delay = float(tail_delay) / 24.000
+            tail_delay = round(tail_delay, 3)
+         
+            audio_delay_values.append(tail_delay)
+            audio_delay_values.append(file_paths[xmluuid[0].text][0])
+            #audio_delay_values.append(dur[0].text)
+            audio_delay[xmluuid[0].text] = audio_delay_values
+            counter += 1 
         print audio_delay
             
          
@@ -296,7 +278,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         subprocess.call(command)
         '''
         
-        command = ['ffmpeg','-f','concat','-safe', '0', '-i',video_concat_textfile,'-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:v','libx264', '-pix_fmt', 'yuv420p', '-crf','21', '-c:a','aac',audio_concat_textfile + '___.mkv' ]
+        command = ['ffmpeg','-f','concat','-safe', '0',
+                   '-i',video_concat_textfile,'-f','concat','-safe', '0',
+                   '-i',audio_concat_textfile,'-c:v','libx264', 
+                   '-pix_fmt', 'yuv420p', '-crf','21',
+                   '-c:a','aac',outputmkv ]
         print command
         subprocess.call(command)
         
