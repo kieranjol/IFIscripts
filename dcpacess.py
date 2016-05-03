@@ -296,7 +296,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         subprocess.call(command)
         '''
         
-        command = ['ffmpeg','-f','concat','-safe', '0', '-i',video_concat_textfile,'-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:v','libx264', '-pix_fmt', 'yuv420p', '-crf','21','-vf','scale=1920:1088', '-c:a','aac',audio_concat_textfile + '___.mkv' ]
+        command = ['ffmpeg','-f','concat','-safe', '0', '-i',video_concat_textfile,'-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:v','libx264', '-pix_fmt', 'yuv420p', '-crf','21', '-c:a','aac',audio_concat_textfile + '___.mkv' ]
         print command
         subprocess.call(command)
         
