@@ -124,7 +124,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 continue
             
             is_pkl = xmlname.xpath('namespace-uri(.)')
-            print is_pkl
             if 'CPL' in is_pkl:
                 pkl_list.append(i)
             
@@ -167,7 +166,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         file_paths = {}
         
         while counter <= len(assetmap_paths) -1 :
-            #print assetmap_paths[counter].text
+
             if 'file:///' in assetmap_paths[counter].text:
                 remove_this = 'file:///'
                 assetmap_paths[counter].text =  assetmap_paths[counter].text.replace(remove_this,"")
@@ -189,17 +188,16 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
                 pic_mxfs.append(blabla)
                  
-        #print pic_mxfs
-                
         aud_mxfs = []   
         for yes in xmluuid_audio:
             for blabla in file_paths[yes.text]:    
         
                 aud_mxfs.append(blabla)
-        print file_paths   
+
         count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
         counter = 1
+        delays = 0
         while counter <= count:
             
             audio_delay_values = []
@@ -209,6 +207,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             EntryPoint =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace}) 
             entrypoint_audio = float(EntryPoint[0].text)
             if EntryPoint[0].text != '0':
+                delays += 1
                 entrypoint_audio = float(EntryPoint[0].text) 
                 entrypoint_audio = float(entrypoint_audio) / 24.000
                 entrypoint_audio = round(entrypoint_audio, 3)
@@ -217,9 +216,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             dur_intrinsic =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': pkl_namespace})
              
             tail_test = int(dur_intrinsic[0].text) - int(dur[0].text)
-            
-            
-            print int(dur[0].text)
+
+            if tail_test > 0:
+                delays +=1
+
+
             tail_delay = int(dur[0].text)
             tail_delay = float(tail_delay) / 24.000
             tail_delay = round(tail_delay, 3)
@@ -229,11 +230,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             #audio_delay_values.append(dur[0].text)
             audio_delay[xmluuid[0].text] = audio_delay_values
             counter += 1 
-        print audio_delay
-            
-         
-        #print pic_mxfs
-        #print aud_mxfs
+
         if _platform == "win32":
             print 'windows'
             dir_append = args.input + '\\'
@@ -247,17 +244,23 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         # http://stackoverflow.com/a/2050721/2188572
         picture_files_fix2 = [concat_string + x for x in picture_files_fix1]
         finalpic = [x + concat_append for x in picture_files_fix2]
-        audio_files_fix1 = [dir_append + x + '.mkv' for x in aud_mxfs]
+        if delays == 0:
+
+            audio_files_fix1 = [dir_append + x  for x in aud_mxfs]
+        else:
+            audio_files_fix1 = [dir_append + x + '.mkv' for x in aud_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
         audio_files_fix2 = [concat_string + x for x in audio_files_fix1]
         finalaudio = [x + concat_append for x in audio_files_fix2]
         print finalaudio
-    
-        for i in audio_delay:
-            print audio_delay[i][2]
-            print audio_delay[i][1]
-            
-            subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),'-c:a','copy', audio_delay[i][2] + '.mkv'])
+        if delays == 0:
+            print 'there were no delays'
+        else:
+            for i in audio_delay:
+                print audio_delay[i][2]
+                print audio_delay[i][1]
+                
+                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),'-c:a','copy', audio_delay[i][2] + '.mkv'])
     
         
         # Write the list of filenames containing picture to a textfile. 
@@ -270,20 +273,14 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio)
-        print video_concat_textfile
-        print audio_concat_textfile
-        '''
-        command = ['ffmpeg','-f','concat','-safe', '0', '-i',audio_concat_textfile,'-c:a','copy', audio_concat_textfile + '___.mkv' ]
-        print command
-        subprocess.call(command)
-        '''
+
         
         command = ['ffmpeg','-f','concat','-safe', '0',
                    '-i',video_concat_textfile,'-f','concat','-safe', '0',
                    '-i',audio_concat_textfile,'-c:v','libx264', 
                    '-pix_fmt', 'yuv420p', '-crf','21',
                    '-c:a','aac',outputmkv ]
-        print command
+
         subprocess.call(command)
         
         # Removes PKLs from list of files to hash, as these files are not in manifest.
