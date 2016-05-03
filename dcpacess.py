@@ -26,61 +26,24 @@ from sys import platform as _platform
 getcontext().prec = 4
 
 
-'''
-frame=109303 fps=2.9 q=28.0 size= 1443037kB time=01:15:52.12 bitrate=2596.9kbitsframe=109305 fps=2.9 q=28.0 size= 1443057kB time=01:15:52.20 bitrate=2596.9kbits[mxf @ 0x7f8a46ebc600] "OPAtom" with 2 ECs - assuming OP1a
-frame=109307 fps=2.9 q=28.0 size= 1443079kB time=01:15:52.29 bitrate=2596.9kbitsframe=109309 fps=2.9 q=28.0 size= 1443101kB time=01:15:52.37 bitrate=2596.9kbitsframe=109312 fps=2.9 q=28.0 size= 1443124kB time=01:15:52.49 bitrate=2596.8kbitsframe=109313 fps=2.9 q=28.0 size= 1443145kB time=01:15:52.54 bitrate=2596.8kbits
-
-
-[libopenjpeg @ 0x7fb6fa97ce00] tile 1 of 1
-[libopenjpeg @ 0x7fb6fa97a600] - tiers-1 took 1.943089 s
-[libopenjpeg @ 0x7fb6fa808000] - tile decoded in 4.447464 s
-[libopenjpeg @ 0x7fb6fa866a00] - dwt took 1.394640 s
-[libx264 @ 0x7fb6f881e800] scene cut at 101028 Icost:2007889 Pcost:1996795 ratio:0.0055 bias:0.3097 gop:182 (imb:7956 pmb:162)
-[libx264 @ 0x7fb6f881e800] frame=101019 QP=23.64 NAL=2 Slice:P Poc:346 I:425  P:4729 SKIP:3346 size=26488 bytes
-frame=101070 fps=3.1 q=27.0 size= 1523853kB time=01:10:09.08 bitrate=2965.8kbit[concat @ 0x7fb6f880da00] file:4 stream:0 pts:15349 pts_time:639.542 dts:15349 dts_time:639.542 -> pts:101074 pts_time:4211.42 dts:101074 dts_time:4211.42
-[libopenjpeg @ 0x7fb6fa97f600] Main Header decoded.
-[libopenjpeg @ 0x7fb6fa97f600] tile 1 of 1
-[libopenjpeg @ 0x7fb6fa866a00] - tile decoded in 4.322053 s
-[libopenjpeg @ 0x7fb6fa97ce00] - tiers-1 took 1.971779 s
-[libopenjpeg @ 0x7fb6fa97a600] - dwt took 1.428356 s
-[libx264 @ 0x7fb6f881e800] frame=101020 QP=23.49 NAL=2 Slice:P Poc:348 I:472  P:4878 SKIP:3150 size=29134 bytes
-[concat @ 0x7fb6f880da00] file:4 stream:0 pts:15350 pts_time:639.583 dts:15350 dts_time:639.583 -> pts:101075 pts_time:4211.46 dts:101075 dts_time:4211.46
-[libopenjpeg @ 0x7fb6fa808000] Main Header decoded.
-[libopenjpeg @ 0x7fb6fa808000] tile 1 of 1
-[libopenjpeg @ 0x7fb6fa97a600] - tile decoded in 4.335439 s
-[libopenjpeg @ 0x7fb6fa97f600] - tiers-1 took 2.057853 s
-[libopenjpeg @ 0x7fb6fa97ce00] - dwt took 1.365693 s
-[libx264 @ 0x7fb6f881e800] frame=101021 QP=23.33 NAL=2 Slice:P Poc:350 I:470  P:4861 SKIP:3169 size=31182 bytes
-frame=101072 fps=3.1 q=27.0 size= 1523912kB time=01:10:09.16 bitrate=2965.9kbit[concat @ 0x7fb6f880da00] file:4 stream:0 pts:15351 pts_time:639.625 dts:15351 dts_time:639.625 -> pts:101076 pts_time:4211.5 dts:101076 dts_time:4211.5
-[libopenjpeg @ 0x7fb6fa866a00] Main Header decoded.
-[libopenjpeg @ 0x7fb6fa866a00] tile 1 of 1
-[libopenjpeg @ 0x7fb6fa97ce00] - tile decoded in 4.260260 s
-[libopenjpeg @ 0x7fb6fa808000] - tiers-1 took 2.025132 s
-[libx264 @ 0x7fb6f881e800] frame=101022 QP=23.34 NAL=2 Slice:P Poc:354 I:453  P:5067 SKIP:2980 size=37946 bytes
-[concat @ 0x7fb6f880da00] file:4 stream:0 pts:15352 pts_time:639.667 dts:15352 dts_time:639.667 -> pts:101077 pts_time:4211.54 dts:101077 dts_time:4211.54
-[libopenjpeg @ 0x7fb6fa97a600] Main Header decoded.
-[libopenjpeg @ 0x7fb6fa97a600] tile 1 of 1
-[libopenjpeg @ 0x7fb6fa97f600] - dwt took 1.448195 s
-[libopenjpeg @ 0x7fb6fa866a00] - tiers-1 took 2.002616 s
-[libopenjpeg @ 0x7fb6fa97f600] - tile decoded in 4.360533 s
-[libx264 @ 0x7fb6f881e800] frame=101023 QP=24.51 NAL=0 Slice:B Poc:352 I:17   P:4568 SKIP:3808 size=11994 bytes
-frame=101074 fps=3.1 q=24.0 size= 1523961kB time=01:10:09.25 bitrate=2965.9kbit
-'''
 parser = argparse.ArgumentParser(description='DCP FIXITY checker/bagging tool.'
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('input')
+'''
 parser.add_argument(
                     '-bag', 
                     action='store_true',help='bag the dcp_dir if it passes the hash check')
+'''
 parser.add_argument(
                     '-m', 
                     action='store_true',help='send email report')
 args = parser.parse_args()
-
+'''
 if args.bag:
     bagging = 'enabled'
 else:
     bagging = 'disabled'
+'''
 
 if args.m:
     email = 'enabled'
@@ -238,26 +201,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             
             return audio_delay
             
-            '''
-                    for xmlvalue in list_type:
-                        if not xmlvalue.text == '0':
-                         
-                            print xmlvalue.text 
-                        
-                            print xmlvalue.getparent()
-                        
-                        else:
-        
-            
-                            print 'no delay'
-            '''
+
        
         
         # Begin analysis of assetmap xml.
-        '''''
-        for thingygy in entry_audio:
-            print thingygy.text
-        '''
+
         counter = 0
         assetmap_paths =  assetmap_xml.findall('//ns:Path',namespaces={'ns': assetmap_namespace})
         assetmap_uuids =  assetmap_xml.findall('//ns:Asset/ns:Id',namespaces={'ns': assetmap_namespace})
