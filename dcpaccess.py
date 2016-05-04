@@ -37,6 +37,10 @@ parser.add_argument(
 parser.add_argument(
                     '-m', 
                     action='store_true',help='send email report')
+
+parser.add_argument(
+                    '-s', 
+                    action='store_true',help='Burn in subtitles')
 args = parser.parse_args()
 '''
 if args.bag:
@@ -49,6 +53,7 @@ if args.m:
     email = 'enabled'
 else:
     email = 'disabled'
+    
 #bagrm =  os.path.abspath('bag-rm.py') 
 #bagit =  os.path.abspath('bagit.py') 
 #print bagrm
@@ -141,6 +146,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
             xmluuid =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': pkl_namespace})
             xmluuid_audio =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': pkl_namespace})
+            xmluuid_subs =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': pkl_namespace})
             duration_image =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': pkl_namespace})
             duration_audio =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': pkl_namespace})
             intrinsic_image=  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
@@ -194,6 +200,18 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
                 aud_mxfs.append(blabla)
 
+
+        subs = []   
+        for yes in xmluuid_subs:
+            for blabla in file_paths[yes.text]:    
+        
+                subs.append(blabla)
+        
+        if args.s:
+            print pic_mxfs
+            print subs
+            print xmluuid_subs
+            sys.exit()
         count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
         counter = 1
@@ -274,14 +292,16 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio)
 
-        
-        command = ['ffmpeg','-f','concat','-safe', '0',
-                   '-i',video_concat_textfile,'-f','concat','-safe', '0',
-                   '-i',audio_concat_textfile,'-c:v','libx264', 
-                   '-pix_fmt', 'yuv420p', '-crf','21',
-                   '-c:a','aac',outputmkv ]
+        if args.s:
+            print 'subs placeholder'
+        else:    
+            command = ['ffmpeg','-f','concat','-safe', '0',
+                       '-i',video_concat_textfile,'-f','concat','-safe', '0',
+                       '-i',audio_concat_textfile,'-c:v','libx264', 
+                       '-pix_fmt', 'yuv420p', '-crf','21',
+                       '-c:a','aac',outputmkv ]
 
-        subprocess.call(command)
+            subprocess.call(command)
         
         # Removes PKLs from list of files to hash, as these files are not in manifest.
 
