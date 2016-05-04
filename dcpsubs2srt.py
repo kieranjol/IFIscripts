@@ -9,7 +9,7 @@ count = int(xmlo.xpath('count(//Subtitle)'))
 counter = 0
 
 with open(srt_file, "w") as myfile:
-       print 'file created'
+       print 'Transforming ', count, 'subtitles'
 
 while counter < count:
     counter2 = counter +1
@@ -25,5 +25,7 @@ while counter < count:
         for i in bla:
                 myfile.write(i + '\n')
         myfile.write('\n')
-        
+
+        print 'Transforming ' + str(counter) + ' of' + str(count) + ' subtitles\r' ,
+          
     counter +=1 
