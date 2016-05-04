@@ -147,6 +147,12 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             xmluuid =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': pkl_namespace})
             xmluuid_audio =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': pkl_namespace})
             xmluuid_subs =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': pkl_namespace})
+            # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
+            if len(xmluuid_subs) == 0:
+                xmluuid_subs = cpl_parse.xpath('//proto2007:MainClosedCaption/proto2004:Id', namespaces={
+                    'proto2004': 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#',
+                    'proto2007': 'http://www.digicine.com/PROTO-ASDCP-CC-CPL-20070926#',
+                })
             duration_image =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': pkl_namespace})
             duration_audio =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': pkl_namespace})
             intrinsic_image=  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
@@ -206,11 +212,18 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for blabla in file_paths[yes.text]:    
         
                 subs.append(blabla)
-        
+       
         if args.s:
             print pic_mxfs
             print subs
-            print xmluuid_subs
+            print subs
+            counter = 0
+            count = len(subs)
+            while counter <= count:
+                command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],'-c:a','copy', '-c:v', 'libx264', '-vf', 'subtitle=%s' % subs[counter]  + '.mkv' ]
+                print command
+                subprocess.call(command)
+                counter +=1 
             sys.exit()
         count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
