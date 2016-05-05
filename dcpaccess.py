@@ -248,11 +248,14 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                           
                     counter +=1 
                 counter = 0
+                
                 count = len(subs)
-                command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],'-c:a','copy', '-c:v', 'libx264', '-vf', 'subtitles=%s' % srt_file, 'output.mkv' ]
-                print command
-                subprocess.call(command)
-                counter +=1 
+                while counter < count:
+                    
+                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],'-c:a','copy', '-c:v', 'libx264','-pix_fmt','yuv420p', '-vf', 'subtitles=%s' % srt_file, 'output.mkv' ]
+                    print command
+                    subprocess.call(command)
+                    counter +=1 
             sys.exit()
         count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
         
