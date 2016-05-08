@@ -54,14 +54,11 @@ if args.m:
 else:
     email = 'disabled'
     
-#bagrm =  os.path.abspath('bag-rm.py') 
-#bagit =  os.path.abspath('bagit.py') 
-#print bagrm
 dcp_dir = args.input
 
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-#video_concat_textfile = video_concat_textfile
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+
 if _platform == "win32":
     video_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
     audio_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
@@ -69,32 +66,21 @@ else:
     video_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % video_concat_filename
     audio_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % audio_concat_filename
 
-
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-outputmkv= os.path.expanduser("~/Desktop/%s.mkv") % output_filename
-
-
-# Two csv functions. One to create a csv, the other to add info to.
-
-
-# Create a new .csv file with headings.  
-# CSV filename will be DCp directory name + time/date.
-
-# CSV will be saved to your Desktop.
-
-
+outputmkv       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
+        print root, 'root'
+        print dirnames ,'dirnames'
+        print filenames, 'filenames'
         dir = root
-
-        filenoext = os.path.splitext(os.path.dirname(root))[0]
 
         # Change directory to directory with video files.
         # Changing directory makes globbing easier (from my experience anyhow).
         os.chdir(dir)
 
-        # Scan the main DCP directory for an assetmap.
+        # Scan the main DCP directory for an assetmap. 
         dcp_files = [f for f in listdir(dir) if isfile(join(dir, f))]
         if 'ASSETMAP' in dcp_files:
             assetmap = 'ASSETMAP'
@@ -106,7 +92,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             assetmap_xml = etree.parse(assetmap)
         except SyntaxError:
 
-            print 'not an assetmap!!!!'
+            print 'Not a valid ASSETMAP!'
             continue
            
         assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')     
@@ -115,62 +101,56 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         xmlfiles = glob('*.xml')
 
         # Generate an empty list as there may be multiple PKLs.
-        pkl_list = []
+        cpl_list = []
 
         # Loop through xmlfiles in order to find any PKL files.
         for i in xmlfiles:
             try:  
                 xmlname = etree.parse(i)
             except SyntaxError:
-                print 'not a valid PKL!!!!'
+                print 'not a valid CPL!'
                 continue
             except KeyError:
-                print 'Missing PKL!!!!'
+                print 'Missing CPL!'
                 continue
             
-            is_pkl = xmlname.xpath('namespace-uri(.)')
-            if 'CPL' in is_pkl:
-                pkl_list.append(i)
+            xml_namespace = xmlname.xpath('namespace-uri(.)')
+            if 'CPL' in xml_namespace:
+                cpl_list.append(i)
             
-        if len(pkl_list) == 0:
+        if len(cpl_list) == 0:
             continue
-              
-        # Generate an empty dictionary that will link the PKL hashes to each UUID.        
-        pkl_hashes = {}
-
-        # Loop through the PKLs and link each hash to a UUID.
-
-        for i in pkl_list: 
+             
+        for i in cpl_list: 
             cpl_parse = etree.parse(i)
-            pkl_namespace = cpl_parse.xpath('namespace-uri(.)') 
+            cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
 
-            xmluuid =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': pkl_namespace})
-            xmluuid_audio =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': pkl_namespace})
-            xmluuid_subs =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': pkl_namespace})
-            duration_image =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': pkl_namespace})
-            duration_audio =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': pkl_namespace})
-            intrinsic_image=  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
-            intrinsic_audio=  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': pkl_namespace})
-            entry_image=  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': pkl_namespace})
-            entry_audio=  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': pkl_namespace})
-
-        count = cpl_parse.xpath('count(//ns:MainPicture/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
+            xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
+            xmluuid_audio   =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
+            xmluuid_subs    =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
+            duration_image  =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': cpl_namespace})
+            duration_audio  =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
+            intrinsic_image =  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+            intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+            entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+            entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+            
+            # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
+            # Some DCPS use a specific namespace for closed captions.
+            if len(xmluuid_subs) == 0:
+                xmluuid_subs = cpl_parse.xpath('//proto2007:MainClosedCaption/proto2004:Id', namespaces={
+                    'proto2004': 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#',
+                    'proto2007': 'http://www.digicine.com/PROTO-ASDCP-CC-CPL-20070926#',
+                })
         
         audio_delay = {}
-
-
- 
+        file_paths  = {} 
         # Begin analysis of assetmap xml.
 
-        counter = 0
         assetmap_paths =  assetmap_xml.findall('//ns:Path',namespaces={'ns': assetmap_namespace})
         assetmap_uuids =  assetmap_xml.findall('//ns:Asset/ns:Id',namespaces={'ns': assetmap_namespace})
-        #while counter <= len(assetmap_paths) -1 :
             
-        counter = 0
-
-        file_paths = {}
-        
+        counter = 0 
         while counter <= len(assetmap_paths) -1 :
 
             if 'file:///' in assetmap_paths[counter].text:
@@ -182,58 +162,95 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
             elif 'file:/' in assetmap_paths[counter].text:
                 remove_this = 'file:/'
-                assetmap_paths[counter].text =  assetmap_paths[counter].text.replace(remove_this,"")
-            
+                assetmap_paths[counter].text =  assetmap_paths[counter].text.replace(remove_this,"")           
 
             file_paths[assetmap_uuids[counter].text] = [assetmap_paths[counter].text] # {assetmapuuid:assetmapfilename}
-            counter +=1
+            counter += 1
         pic_mxfs = [] 
           
-        for yes in xmluuid:
-            for blabla in file_paths[yes.text]:    
-        
-                pic_mxfs.append(blabla)
+        for pic_uuid_object in xmluuid:
+            for pic_uuid in file_paths[pic_uuid_object.text]:            
+                pic_mxfs.append(pic_uuid)
                  
         aud_mxfs = []   
-        for yes in xmluuid_audio:
-            for blabla in file_paths[yes.text]:    
-        
-                aud_mxfs.append(blabla)
+        for aud_uuid_object in xmluuid_audio:
+            for aud_uuid in file_paths[aud_uuid_object.text]:            
+                aud_mxfs.append(aud_uuid)
 
 
         subs = []   
-        for yes in xmluuid_subs:
-            for blabla in file_paths[yes.text]:    
-        
-                subs.append(blabla)
-        
+        for sub_uuid_object in xmluuid_subs:
+            for sub_uuid in file_paths[sub_uuid_object.text]:            
+                subs.append(sub_uuid)
+       
         if args.s:
             print pic_mxfs
             print subs
-            print xmluuid_subs
+            print subs
+            counter = 0
+            count = len(subs)
+            while counter <= count:
+                srt_file = subs[counter] +'.srt'
+
+                xmlo = etree.parse(subs[counter])
+                count = int(xmlo.xpath('count(//Subtitle)'))
+                
+
+                with open(srt_file, "w") as myfile:
+                       print 'Transforming ', count, 'subtitles'
+
+                while counter < count:
+                    counter2 = counter +1
+                    in_point = xmlo.xpath('//Subtitle')[counter].attrib['TimeIn']
+                    out      = xmlo.xpath('//Subtitle')[counter].attrib['TimeOut']
+                    in_point = in_point[:8] + '.' + in_point[9:]
+                    out      = out[:8] + '.' + out[9:]
+
+                    with open(srt_file, "a") as myfile:
+                        myfile.write(str(counter + 1) + '\n')
+                        myfile.write(in_point + ' --> ' + out + '\n')
+                        bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]/Text' % int(counter2) ) ]
+                        for i in bla:
+                                myfile.write(i + '\n')
+                        myfile.write('\n')
+
+                        print 'Transforming ' + str(counter) + ' of' + str(count) + ' subtitles\r' ,
+                          
+                    counter +=1 
+                counter = 0
+                
+                count = len(subs)
+                while counter < count:
+                    
+                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+                    '-c:a','copy', '-c:v', 'libx264','-pix_fmt','yuv420p',
+                    '-vf', 'subtitles=%s' % srt_file, 'output.mkv' ]
+                    print command
+                    subprocess.call(command)
+                    counter +=1 
             sys.exit()
-        count = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': pkl_namespace} )
-        
+            
+        # Check if there is an intended audio delay.    
+        count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )        
         counter = 1
-        delays = 0
+        delays  = 0
+        
         while counter <= count:
-            
-            audio_delay_values = []
-            
-            xmluuid =  cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': pkl_namespace})
-                      
-            EntryPoint =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': pkl_namespace}) 
-            entrypoint_audio = float(EntryPoint[0].text)
+           
+            audio_delay_values = []            
+            xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
+            EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
+            entrypoint_audio      = float(EntryPoint[0].text)
             if EntryPoint[0].text != '0':
                 delays += 1
-                entrypoint_audio = float(EntryPoint[0].text) 
-                entrypoint_audio = float(entrypoint_audio) / 24.000
-                entrypoint_audio = round(entrypoint_audio, 3)
+                # EntryPoint is in frames. The following converts to seconds.
+                entrypoint_audio  = float(EntryPoint[0].text) 
+                entrypoint_audio  = float(entrypoint_audio) / 24.000 # Change to EditRate variable.
+                entrypoint_audio  = round(entrypoint_audio, 3)
             audio_delay_values.append(entrypoint_audio) 
-            dur =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': pkl_namespace})
-            dur_intrinsic =  cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': pkl_namespace})
-             
-            tail_test = int(dur_intrinsic[0].text) - int(dur[0].text)
+            dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
+            dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
+            tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
 
             if tail_test > 0:
                 delays +=1
@@ -245,40 +262,39 @@ for root,dirnames,filenames in os.walk(dcp_dir):
          
             audio_delay_values.append(tail_delay)
             audio_delay_values.append(file_paths[xmluuid[0].text][0])
-            #audio_delay_values.append(dur[0].text)
             audio_delay[xmluuid[0].text] = audio_delay_values
             counter += 1 
 
+        # Create concat file
         if _platform == "win32":
-            print 'windows'
-            dir_append = args.input + '\\'
+            dir_append    = dir + '\\'
             concat_string = 'file \'' 
             concat_append = '\''
         else:
-            dir_append = args.input + '/'
+            dir_append    = dir + '/'
             concat_string = 'file \'' 
             concat_append = '\''
         picture_files_fix1 = [dir_append + x for x in pic_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
         picture_files_fix2 = [concat_string + x for x in picture_files_fix1]
-        finalpic = [x + concat_append for x in picture_files_fix2]
+        finalpic           = [x + concat_append for x in picture_files_fix2]
         if delays == 0:
 
             audio_files_fix1 = [dir_append + x  for x in aud_mxfs]
         else:
             audio_files_fix1 = [dir_append + x + '.mkv' for x in aud_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
-        audio_files_fix2 = [concat_string + x for x in audio_files_fix1]
-        finalaudio = [x + concat_append for x in audio_files_fix2]
-        print finalaudio
+        audio_files_fix2     = [concat_string + x for x in audio_files_fix1]
+        finalaudio           = [x + concat_append for x in audio_files_fix2]
+
         if delays == 0:
-            print 'there were no delays'
+            print 'There were no audio delays.'
         else:
             for i in audio_delay:
-                print audio_delay[i][2]
-                print audio_delay[i][1]
-                
-                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),'-c:a','copy', audio_delay[i][2] + '.mkv'])
+                # Wrapping PCM in matroska as WAV has 4 gig limit.
+                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
+                '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
+                '-c:a','copy', audio_delay[i][2] + '.mkv'])
     
         
         # Write the list of filenames containing picture to a textfile. 
@@ -305,7 +321,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
         # Removes PKLs from list of files to hash, as these files are not in manifest.
 
-
+print pic_mxfs
 if email == 'enabled': 
     emailfrom = ""
     emailto = ['', '']
