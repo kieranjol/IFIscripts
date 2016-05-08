@@ -120,28 +120,40 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             
         if len(cpl_list) == 0:
             continue
-             
-        for i in cpl_list: 
-            cpl_parse = etree.parse(i)
-            cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
-
-            xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
-            xmluuid_audio   =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
-            xmluuid_subs    =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
-            duration_image  =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': cpl_namespace})
-            duration_audio  =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
-            intrinsic_image =  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
-            intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
-            entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
-            entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        elif len(cpl_list) > 1:
+            cpl_no = 1
+            print 'multiple cpl files found'
+            for i in cpl_list:
+                
+                print cpl_no,  i
+                cpl_no += 1
+                
+            print 'Please select which CPL youd like to process'
+            chosen_cpl = raw_input()
             
-            # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
-            # Some DCPS use a specific namespace for closed captions.
-            if len(xmluuid_subs) == 0:
-                xmluuid_subs = cpl_parse.xpath('//proto2007:MainClosedCaption/proto2004:Id', namespaces={
-                    'proto2004': 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#',
-                    'proto2007': 'http://www.digicine.com/PROTO-ASDCP-CC-CPL-20070926#',
-                })
+            
+                 
+        
+        cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
+        cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
+
+        xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
+        xmluuid_audio   =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
+        xmluuid_subs    =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
+        duration_image  =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': cpl_namespace})
+        duration_audio  =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
+        intrinsic_image =  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+        intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+        entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        
+        # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
+        # Some DCPS use a specific namespace for closed captions.
+        if len(xmluuid_subs) == 0:
+            xmluuid_subs = cpl_parse.xpath('//proto2007:MainClosedCaption/proto2004:Id', namespaces={
+                'proto2004': 'http://www.digicine.com/PROTO-ASDCP-CPL-20040511#',
+                'proto2007': 'http://www.digicine.com/PROTO-ASDCP-CC-CPL-20070926#',
+            })
         
         audio_delay = {}
         file_paths  = {} 
@@ -166,6 +178,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
             file_paths[assetmap_uuids[counter].text] = [assetmap_paths[counter].text] # {assetmapuuid:assetmapfilename}
             counter += 1
+            
         pic_mxfs = [] 
           
         for pic_uuid_object in xmluuid:
@@ -189,17 +202,32 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print subs
             counter = 0
             count = len(subs)
-            while counter <= count:
+            
+            while counter < count:
                 srt_file = subs[counter] +'.srt'
-
-                xmlo = etree.parse(subs[counter])
-                count = int(xmlo.xpath('count(//Subtitle)'))
+                try:  
+                    xmlo = etree.parse(subs[counter])
+                except SyntaxError:
+                    if 'mxf' in srt_file:
+                        print 'Subtitle file is most likely an SMPTE MXF which is not currently supported.'
+                        
+                    else:
+                        print 'not a valid CPL!'
+                        
+                    counter +=1
+                    continue
+                except KeyError:
+                    print 'Missing CPL!'
+                    counter +=1
+                    continue
+                print counter
+                sub_count = int(xmlo.xpath('count(//Subtitle)'))
                 
 
                 with open(srt_file, "w") as myfile:
-                       print 'Transforming ', count, 'subtitles'
+                       print 'Transforming ', sub_count, 'subtitles'
 
-                while counter < count:
+                while counter < sub_count:
                     counter2 = counter +1
                     in_point = xmlo.xpath('//Subtitle')[counter].attrib['TimeIn']
                     out      = xmlo.xpath('//Subtitle')[counter].attrib['TimeOut']
@@ -209,7 +237,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                     with open(srt_file, "a") as myfile:
                         myfile.write(str(counter + 1) + '\n')
                         myfile.write(in_point + ' --> ' + out + '\n')
-                        bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]/Text' % int(counter2) ) ]
+                        bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]//Text' % int(counter2) ) ]
                         for i in bla:
                                 myfile.write(i + '\n')
                         myfile.write('\n')
