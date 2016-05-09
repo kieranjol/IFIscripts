@@ -21,6 +21,7 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import bagit
+import tempfile
 from decimal import *
 from sys import platform as _platform
 getcontext().prec = 4
@@ -40,7 +41,10 @@ parser.add_argument(
 
 parser.add_argument(
                     '-s', 
-                    action='store_true',help='Burn in subtitles')
+                    action='store_true',help='Burn in subtitles. This will take a long time. It makes more sense to make a clean copy first, then make subtitled surrogates from that new copy. Jpeg2000 decoding is slow, prores or h264 is significantly faster.')
+parser.add_argument(
+                    '-p', 
+                    action='store_true',help='Use Apple ProRes 4:2:2 HQ instead of H264')
 args = parser.parse_args()
 '''
 if args.bag:
@@ -54,8 +58,19 @@ if args.m:
 else:
     email = 'disabled'
     
+if args.p:
+   codec = ['prores','-profile:v','3']
+else:   
+   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '21']
+    
+if args.s:
+    print '***********************************************'
+    print 'You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. '
+    print '***********************************************'
+    time.sleep(5)
+    
 dcp_dir = args.input
-
+temp_dir = tempfile.gettempdir()
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 
@@ -63,9 +78,9 @@ if _platform == "win32":
     video_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
     audio_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
 else:
-    video_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % video_concat_filename
-    audio_concat_textfile= os.path.expanduser("~/Desktop/%s.txt") % audio_concat_filename
-
+    video_concat_textfile= temp_dir + "/%s.txt" % video_concat_filename
+    audio_concat_textfile= temp_dir + "/%s.txt" % audio_concat_filename
+    print video_concat_textfile
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 outputmkv       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 
@@ -119,7 +134,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 cpl_list.append(i)
             
         if len(cpl_list) == 0:
+            
+            print cpl_parse
             continue
+        elif len(cpl_list) == 1:
+            cpl_parse = etree.parse(cpl_list[0])    
         elif len(cpl_list) > 1:
             cpl_no = 1
             print 'multiple cpl files found'
@@ -130,11 +149,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
             print 'Please select which CPL youd like to process'
             chosen_cpl = raw_input()
-            
+            cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
             
                  
         
-        cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
+        print cpl_parse
         cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
 
         xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
@@ -146,7 +165,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
         entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
         entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
-        
+        video_fps       =  cpl_parse.xpath('//ns:MainPicture/ns:EditRate',namespaces={'ns': cpl_namespace})
+        for i in video_fps:
+            print i, 'hjkhjkyuiyukhukhjkhj'
+            fps = i.text[:-1]
         # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
         # Some DCPS use a specific namespace for closed captions.
         if len(xmluuid_subs) == 0:
@@ -196,6 +218,44 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for sub_uuid in file_paths[sub_uuid_object.text]:            
                 subs.append(sub_uuid)
        
+        
+        # Check if there is an intended audio delay.    
+        count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )        
+        counter = 1
+        delays  = 0
+        print counter, count, 'hjkhjkhjkhjkh'
+        while counter <= count:
+            print 'oncee'
+            audio_delay_values = []            
+            xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
+            EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
+            entrypoint_audio      = float(EntryPoint[0].text)
+            if EntryPoint[0].text != '0':
+                delays += 1
+                # EntryPoint is in frames. The following converts to seconds.
+                entrypoint_audio  = float(EntryPoint[0].text) 
+                entrypoint_audio  = float(entrypoint_audio) / float(fps) # Change to EditRate variable.
+                entrypoint_audio  = round(entrypoint_audio, 3)
+            audio_delay_values.append(entrypoint_audio) 
+            dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
+            dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
+            tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
+            print tail_test, '000000000'
+            print counter, count
+            print dur_intrinsic[0].text
+            print dur[0].text
+            if tail_test > 0:
+                delays +=1
+
+            tail_delay = int(dur[0].text)
+            tail_delay = float(tail_delay) / float(fps)
+            tail_delay = round(tail_delay, 3)
+         
+            audio_delay_values.append(tail_delay)
+            audio_delay_values.append(file_paths[xmluuid[0].text][0])
+            audio_delay[xmluuid[0].text] = audio_delay_values
+            counter += 1 
+            
         if args.s:
             print pic_mxfs
             print subs
@@ -251,47 +311,13 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 while counter < count:
                     
                     command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
-                    '-c:a','copy', '-c:v', 'libx264','-pix_fmt','yuv420p',
-                    '-vf', 'subtitles=%s' % srt_file, 'output.mkv' ]
+                    '-c:a','copy', '-c:v', 'libx264',
+                    '-vf', 'format=yuv420p,subtitles=%s' % srt_file, outputmkv ]
                     print command
                     subprocess.call(command)
                     counter +=1 
             sys.exit()
-            
-        # Check if there is an intended audio delay.    
-        count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )        
-        counter = 1
-        delays  = 0
-        
-        while counter <= count:
-           
-            audio_delay_values = []            
-            xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
-            EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
-            entrypoint_audio      = float(EntryPoint[0].text)
-            if EntryPoint[0].text != '0':
-                delays += 1
-                # EntryPoint is in frames. The following converts to seconds.
-                entrypoint_audio  = float(EntryPoint[0].text) 
-                entrypoint_audio  = float(entrypoint_audio) / 24.000 # Change to EditRate variable.
-                entrypoint_audio  = round(entrypoint_audio, 3)
-            audio_delay_values.append(entrypoint_audio) 
-            dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
-            dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
-            tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
-
-            if tail_test > 0:
-                delays +=1
-
-
-            tail_delay = int(dur[0].text)
-            tail_delay = float(tail_delay) / 24.000
-            tail_delay = round(tail_delay, 3)
-         
-            audio_delay_values.append(tail_delay)
-            audio_delay_values.append(file_paths[xmluuid[0].text][0])
-            audio_delay[xmluuid[0].text] = audio_delay_values
-            counter += 1 
+                
 
         # Create concat file
         if _platform == "win32":
@@ -310,7 +336,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
             audio_files_fix1 = [dir_append + x  for x in aud_mxfs]
         else:
-            audio_files_fix1 = [dir_append + x + '.mkv' for x in aud_mxfs]
+            audio_files_fix1 = [temp_dir + '/' + x + '.mkv' for x in aud_mxfs]
         # http://stackoverflow.com/a/2050721/2188572
         audio_files_fix2     = [concat_string + x for x in audio_files_fix1]
         finalaudio           = [x + concat_append for x in audio_files_fix2]
@@ -322,7 +348,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 # Wrapping PCM in matroska as WAV has 4 gig limit.
                 subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
                 '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
-                '-c:a','copy', audio_delay[i][2] + '.mkv'])
+                '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])
     
         
         # Write the list of filenames containing picture to a textfile. 
@@ -341,10 +367,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         else:    
             command = ['ffmpeg','-f','concat','-safe', '0',
                        '-i',video_concat_textfile,'-f','concat','-safe', '0',
-                       '-i',audio_concat_textfile,'-c:v','libx264', 
-                       '-pix_fmt', 'yuv420p', '-crf','21',
-                       '-c:a','aac',outputmkv ]
-
+                       '-i',audio_concat_textfile,'-c:v']
+            command += codec          
+            command +=           ['-c:a','aac',outputmkv ]
+            print command
+            
             subprocess.call(command)
         
         # Removes PKLs from list of files to hash, as these files are not in manifest.
