@@ -264,7 +264,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             count = len(subs)
             
             while counter < count:
-                srt_file = subs[counter] +'.srt'
+                srt_file = temp_dir + '/' + os.path.basename(subs[counter]) +'.srt'
                 try:  
                     xmlo = etree.parse(subs[counter])
                 except SyntaxError:
@@ -283,7 +283,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 print counter
                 sub_count = int(xmlo.xpath('count(//Subtitle)'))
                 
-
+                
                 with open(srt_file, "w") as myfile:
                        print 'Transforming ', sub_count, 'subtitles'
 
