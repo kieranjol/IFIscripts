@@ -275,12 +275,19 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             if baggable == 'y':
                 #pdb.set_trace()
                 if os.path.dirname(root) != args.input:
-                
+                   
 
                     dir = os.path.dirname(root)
-                    os.chdir(dir)
-                    bag = bagit.make_bag(dir)
+                    
+                    if args.input == os.path.dirname(dir):
+                        os.chdir(dir)
+
+                        bag = bagit.make_bag(dir)
+                        
+                    else:
+                        print 'bagging not supported for this folder structure right now'
                 else:
+                     
                      print 'bagging not supported for this folder structure right now'
 if email == 'enabled': 
     emailfrom = ""
