@@ -496,7 +496,7 @@ else:
         title = "capture interventions"
         choices = ["Exposure compensation",
                    "Contrast adjustment",
-                   "Positive to negative", 
+                   "Negative to positive", 
                    "Spacing between reels not captured",
                     ]
         capture_interventions = multchoicebox(msg, title, choices)
@@ -543,7 +543,7 @@ else:
                    "Audio normalised to -20db", 
                    "Broadcast Safe Filter",
                    "Desaturate Filter",
-                   "Positive to Negative",
+                   "Negative to positive",
                    "Avid Motion Editing"
                    ]
         post_processing = multchoicebox(msg, title, choices)
