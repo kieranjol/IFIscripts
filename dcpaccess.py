@@ -265,6 +265,8 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             
             while counter < count:
                 srt_file = temp_dir + '/' + os.path.basename(subs[counter]) +'.srt'
+                output_filename = os.path.basename(dcp_dir) + '_subs_reel' + str(counter + 1) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+                output_subs_mkv = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
                 try:  
                     xmlo = etree.parse(subs[counter])
                 except SyntaxError:
@@ -281,41 +283,42 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                     counter +=1
                     continue
                 print counter
-                sub_count = int(xmlo.xpath('count(//Subtitle)'))
                 
+                sub_count = int(xmlo.xpath('count(//Subtitle)'))
+                current_sub_counter = 0
                 
                 with open(srt_file, "w") as myfile:
                        print 'Transforming ', sub_count, 'subtitles'
 
-                while counter < sub_count:
-                    counter2 = counter +1
-                    in_point = xmlo.xpath('//Subtitle')[counter].attrib['TimeIn']
-                    out      = xmlo.xpath('//Subtitle')[counter].attrib['TimeOut']
+                while current_sub_counter < sub_count:
+                    counter2 = current_sub_counter +1
+                    in_point = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeIn']
+                    out      = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeOut']
                     in_point = in_point[:8] + '.' + in_point[9:]
                     out      = out[:8] + '.' + out[9:]
 
                     with open(srt_file, "a") as myfile:
-                        myfile.write(str(counter + 1) + '\n')
+                        myfile.write(str(current_sub_counter + 1) + '\n')
                         myfile.write(in_point + ' --> ' + out + '\n')
                         bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]//Text' % int(counter2) ) ]
                         for i in bla:
                                 myfile.write(i + '\n')
                         myfile.write('\n')
 
-                        print 'Transforming ' + str(counter) + ' of' + str(count) + ' subtitles\r' ,
+                        print 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r' ,
                           
-                    counter +=1 
-                counter = 0
+                    current_sub_counter +=1 
+                current_sub_counter= 0
                 
-                count = len(subs)
-                while counter < count:
+                #count = len(subs)
+                
                     
-                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
-                    '-c:a','copy', '-c:v', 'libx264',
-                    '-vf', 'format=yuv420p,subtitles=%s' % srt_file, outputmkv ]
-                    print command
-                    subprocess.call(command)
-                    counter +=1 
+                command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+                '-c:a','copy', '-c:v', 'libx264',
+                '-vf', 'format=yuv420p,subtitles=%s' % srt_file, output_subs_mkv ]
+                print command
+                subprocess.call(command)
+                counter +=1 
             sys.exit()
                 
 
