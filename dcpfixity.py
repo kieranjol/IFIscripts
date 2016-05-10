@@ -79,9 +79,12 @@ csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename
 create_csv(csv_report, ('DCP NAME', 'DIRECTORY NAME', 'JUDGEMENT'))
 
 if args.csv:
-    csv = 'enabled'
+    csv_setting = 'enabled'
+
+    
     
 else:
+    csv_setting = 'disabled'
     csv_filename = os.path.basename(dcp_dir) + '_file_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
     csvfile = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
     print 'csvfile is ', csvfile
@@ -95,7 +98,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         #print filenoext + 'dfsdfjkljoewuiljkdfs'
         # Change directory to directory with video files
 
-        if csv == 'enabled': 
+        if csv_setting == 'enabled': 
             print 'enableeeeeeed'
             #print filenoext
             # Generate new directory names in AIP
@@ -261,6 +264,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         if len(hash_mismatches) > 0:
             report = ' but THERE ARE HASH MISMATCHES. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
             baggable = 'n'
+            print 'This DCP will not be bagged as it could not pass a fixity check'
         else:
             report = ' and all hashes match.'
             baggable = 'y'
@@ -268,6 +272,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         if len(missing_files) > 0:
             print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - WARNING - THERE ARE FILES MISSING FROM THIS DCP. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
             append_csv(csv_report,(os.path.dirname(root), dir, 'FILES MISSING - CHECK REPORT'))
+            print 'This DCP will not be bagged as it could not pass a fixity check'
         else: 
             print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - All files are present in your DCP' + report
             append_csv(csv_report,(os.path.dirname(root), dir,'All files present ' + report))
@@ -279,6 +284,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
                     print 1
                     dir = os.path.dirname(root)
+                    os.chdir(dir)
                     print dir
                     print args.input
                     bag = bagit.make_bag(dir)
