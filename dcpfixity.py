@@ -87,7 +87,6 @@ else:
     csv_setting = 'disabled'
     csv_filename = os.path.basename(dcp_dir) + '_file_level' + time.strftime("_%Y_%m_%dT%H_%M_%S")
     csvfile = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
-    print 'csvfile is ', csvfile
     #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
     create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
 for root,dirnames,filenames in os.walk(dcp_dir):
@@ -99,13 +98,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         # Change directory to directory with video files
 
         if csv_setting == 'enabled': 
-            print 'enableeeeeeed'
             #print filenoext
             # Generate new directory names in AIP
             fixity_dir   = "%s/fixity" % filenoext
             os.makedirs(fixity_dir)
             csvfile = fixity_dir + '/' + os.path.basename(os.path.dirname(root)) + '_item_level' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-            print 'csvfile is ', csvfile
             #csv_file = os.path.expanduser("~/Desktop/%s.csv") % csv_filename
             create_csv(csvfile, ('MXF HASH', 'STORED HASH', 'FILENAME', 'JUDGEMENT'))
         
@@ -129,7 +126,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print 'not an assetmap!!!!'
             continue
            
-        print assetmap_xml
         assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')
 
         
@@ -156,7 +152,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 continue
             
             is_pkl = xmlname.xpath('namespace-uri(.)')
-            print is_pkl
             if 'PKL' in is_pkl:
                 pkl_list.append(i)
             
@@ -194,7 +189,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         file_paths = {}
         
         while counter <= len(assetmap_paths) -1 :
-            print assetmap_paths[counter].text
             if 'file:///' in assetmap_paths[counter].text:
                 remove_this = 'file:///'
                 assetmap_paths[counter].text =  assetmap_paths[counter].text.replace(remove_this,"")
@@ -282,11 +276,9 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 #pdb.set_trace()
                 if os.path.dirname(root) != args.input:
                 
-                    print 1
+
                     dir = os.path.dirname(root)
-                    os.chdir(dir) # bagit will try to chdir to a dir that no longer exists. this bypasses that issue which is fatal on windows.
-                    print dir
-                    print args.input
+                    os.chdir(dir)
                     bag = bagit.make_bag(dir)
                 else:
                      print 'bagging not supported for this folder structure right now'
