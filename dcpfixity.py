@@ -284,7 +284,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
                     print 1
                     dir = os.path.dirname(root)
-                    os.chdir(dir)
+                    os.chdir(dir) # bagit will try to chdir to a dir that no longer exists. this bypasses that issue which is fatal on windows.
                     print dir
                     print args.input
                     bag = bagit.make_bag(dir)
