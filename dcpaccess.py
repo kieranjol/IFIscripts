@@ -61,13 +61,13 @@ else:
 if args.p:
    codec = ['prores','-profile:v','3']
 else:   
-   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '21']
+   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' '-veryfast']
     
 if args.s:
     print '***********************************************'
     print 'You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. '
     print '***********************************************'
-    time.sleep(5)
+    time.sleep(1)
     
 dcp_dir = args.input
 temp_dir = tempfile.gettempdir()
@@ -150,12 +150,19 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print 'Please select which CPL youd like to process'
             chosen_cpl = raw_input()
             cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
-            
+            if args.s:
+                cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
+                subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
+                print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?' 
+                subs_confirmation = raw_input('Y/N')
+                if subs_confirmation not in ['Y','y']:
+                    print 'please run script again and choose different CPL' # use a while loop with a function to return to the cpl choice.
+                    sys.exit()
+                
                  
-        
         print cpl_parse
         cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
-
+        subtitle_language    =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})  
         xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
         xmluuid_audio   =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
         xmluuid_subs    =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
@@ -165,6 +172,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
         entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
         entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        
         video_fps       =  cpl_parse.xpath('//ns:MainPicture/ns:EditRate',namespaces={'ns': cpl_namespace})
         for i in video_fps:
             print i, 'hjkhjkyuiyukhukhjkhj'
@@ -262,7 +270,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print subs
             counter = 0
             count = len(subs)
-            
+            if not len(subs) == len(pic_mxfs):
+                print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
+                sys.exit() 
+                
             while counter < count:
                 srt_file = temp_dir + '/' + os.path.basename(subs[counter]) +'.srt'
                 output_filename = os.path.basename(dcp_dir) + '_subs_reel' + str(counter + 1) + time.strftime("_%Y_%m_%dT%H_%M_%S")
@@ -302,7 +313,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                         myfile.write(in_point + ' --> ' + out + '\n')
                         bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]//Text' % int(counter2) ) ]
                         for i in bla:
-                                myfile.write(i + '\n')
+                                myfile.write(i.encode("utf-8") + '\n')
                         myfile.write('\n')
 
                         print 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r' ,
@@ -379,7 +390,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
         # Removes PKLs from list of files to hash, as these files are not in manifest.
 
-print pic_mxfs
+
 if email == 'enabled': 
     emailfrom = ""
     emailto = ['', '']
