@@ -58,16 +58,16 @@ if args.m:
 else:
     email = 'disabled'
     
-if args.p:
-   codec = ['prores','-profile:v','3']
+
 else:   
-   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' '-veryfast']
+   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' '-veryfast' '-c:a', 'aac']
     
 if args.s:
     print '***********************************************'
     print 'You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. '
     print '***********************************************'
     time.sleep(1)
+    
     
 dcp_dir = args.input
 temp_dir = tempfile.gettempdir()
@@ -82,7 +82,10 @@ else:
     audio_concat_textfile= temp_dir + "/%s.txt" % audio_concat_filename
     print video_concat_textfile
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-outputmkv       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+output       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+if args.p:
+   codec = ['prores','-profile:v','3', '-c:a', 'copy']
+   output      = os.path.expanduser("~/Desktop/%s.mov") % output_filename
 
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
@@ -383,7 +386,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                        '-i',video_concat_textfile,'-f','concat','-safe', '0',
                        '-i',audio_concat_textfile,'-c:v']
             command += codec          
-            command +=           ['-c:a','aac',outputmkv ]
+            command +=           [output]
             print command
             
             subprocess.call(command)
