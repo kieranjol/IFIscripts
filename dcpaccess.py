@@ -271,11 +271,12 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             print subs
             counter = 0
             count = len(subs)
-            sub_delay = 0
+            sub_delay = 1
             if not len(subs) == len(pic_mxfs):
                 print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
+                sub_delay = 0
                 # This assumes that if there are less subtitles than video files, it's because there's an extra AV reel at the head.A more robust option will be added later. Right now this fixes the one use case I've seen.
-                sys.exit() 
+
                 
             while counter < count:
                 srt_file = temp_dir + '/' + os.path.basename(subs[counter]) +'.srt'
@@ -330,14 +331,14 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
                 '-c:a','copy', '-c:v', 'libx264',]    
                 subs =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
-                while sub_delay != 0:
+                if sub_delay != 0:
                     subs += command
-                    
+                    sub_delay += 1
                 command += [output_subs_mkv ]
                 print command
                 subprocess.call(command)
                 counter += 1 
-                sub_delay += 1
+                
             sys.exit()
                 
 
