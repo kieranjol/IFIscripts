@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Written by Kieran O'Leary, with a major review and overhaul/cleanup by Zach Kelling aka @Zeekay
 # Makes a single ffv1.mkv
 
