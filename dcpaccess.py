@@ -77,7 +77,7 @@ if _platform == "win32":
 else:
     video_concat_textfile= temp_dir + "/%s.txt" % video_concat_filename
     audio_concat_textfile= temp_dir + "/%s.txt" % audio_concat_filename
-    print video_concat_textfile
+    
 output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 output       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 if args.p:
@@ -87,9 +87,6 @@ else:
    codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' ,'-preset','veryfast', '-c:a', 'aac']
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
-        print root, 'root'
-        print dirnames ,'dirnames'
-        print filenames, 'filenames'
         dir = root
 
         # Change directory to directory with video files.
@@ -136,7 +133,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             
         if len(cpl_list) == 0:
             
-            print cpl_parse
             continue
         elif len(cpl_list) == 1:
             cpl_parse = etree.parse(cpl_list[0])    
@@ -144,11 +140,12 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             cpl_no = 1
             print 'multiple cpl files found'
             for i in cpl_list:
-                
                 print cpl_no,  i
+                
+                
                 cpl_no += 1
                 
-            print 'Please select which CPL youd like to process'
+            print 'Please select which CPL you would like to process'
             chosen_cpl = raw_input()
             cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
             if args.s:
@@ -161,7 +158,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                     sys.exit()
                 
                  
-        print cpl_parse
         cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
         subtitle_language    =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})  
         xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
@@ -176,7 +172,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         
         video_fps       =  cpl_parse.xpath('//ns:MainPicture/ns:EditRate',namespaces={'ns': cpl_namespace})
         for i in video_fps:
-            print i, 'hjkhjkyuiyukhukhjkhj'
             fps = i.text[:-1]
         # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
         # Some DCPS use a specific namespace for closed captions.
@@ -232,9 +227,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )        
         counter = 1
         delays  = 0
-        print counter, count, 'hjkhjkhjkhjkh'
         while counter <= count:
-            print 'oncee'
             audio_delay_values = []            
             xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
             EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
@@ -249,10 +242,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
             dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
             tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
-            print tail_test, '000000000'
-            print counter, count
-            print dur_intrinsic[0].text
-            print dur[0].text
+
             if tail_test > 0:
                 delays +=1
 
@@ -266,24 +256,29 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             counter += 1 
             
         if args.s:
-            print pic_mxfs
-            print subs
-            print subs
+
             counter = 0
+            subs_counter = 0
             count = len(subs)
             sub_delay = 1
             if not len(subs) == len(pic_mxfs):
                 print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
                 sub_delay = 0
                 # This assumes that if there are less subtitles than video files, it's because there's an extra AV reel at the head.A more robust option will be added later. Right now this fixes the one use case I've seen.
-
+            if delays != 0:
                 
+                for i in audio_delay:
+                
+                    # Wrapping PCM in matroska as WAV has 4 gig limit.
+                    subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
+                    '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
+                    '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])    
             while counter < count:
-                srt_file = temp_dir + '/' + os.path.basename(subs[counter]) +'.srt'
+                srt_file = temp_dir + '/' + os.path.basename(subs[subs_counter]) +'.srt'
                 output_filename = os.path.basename(dcp_dir) + '_subs_reel' + str(counter + 1) + time.strftime("_%Y_%m_%dT%H_%M_%S")
                 output_subs_mkv = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
                 try:  
-                    xmlo = etree.parse(subs[counter])
+                    xmlo = etree.parse(subs[subs_counter])
                 except SyntaxError:
                     if 'mxf' in srt_file:
                         print 'Subtitle file is most likely an SMPTE MXF which is not currently supported.'
@@ -297,7 +292,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                     print 'Missing CPL!'
                     counter +=1
                     continue
-                print counter
                 
                 sub_count = int(xmlo.xpath('count(//Subtitle)'))
                 current_sub_counter = 0
@@ -327,12 +321,24 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 
                 #count = len(subs)
                 
+                if delays == 0:
+                    print 'There were no audio delays.'
+                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+                    '-c:a','copy', '-c:v', 'libx264',]
+                else:
+                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
+                    '-c:a','copy', '-c:v', 'libx264',]
                     
-                command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
-                '-c:a','copy', '-c:v', 'libx264',]    
-                subs =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
-                if sub_delay != 0:
-                    subs += command
+                
+                pix_fmt = ['-pix_fmt','yuv420p']   
+                subs_command =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
+                if sub_delay > 0:
+                    command += subs_command
+                    sub_delay += 1
+                    subs_counter +=1
+                elif sub_delay == 0:
+                    command += pix_fmt
+                    subs_counter = 0
                     sub_delay += 1
                 command += [output_subs_mkv ]
                 print command
