@@ -26,7 +26,7 @@ from decimal import *
 from sys import platform as _platform
 getcontext().prec = 4
 
-
+# Use argparse for command line options.
 parser = argparse.ArgumentParser(description='Unencrypted DCP to H264 transcoder.'
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('input')
@@ -41,7 +41,7 @@ parser.add_argument(
 
 parser.add_argument(
                     '-s', 
-                    action='store_true',help='Burn in subtitles. This will take a long time. It makes more sense to make a clean copy first, then make subtitled surrogates from that new copy. Jpeg2000 decoding is slow, prores or h264 is significantly faster.')
+                    action='store_true',help='Burn in subtitles. This will take a long time. It makes more sense to make a clean copy first, then make subtitled surrogates from that new copy. Jpeg2000 decoding is slow, ProRes or h264 is significantly faster.')
 parser.add_argument(
                     '-p', 
                     action='store_true',help='Use Apple ProRes 4:2:2 HQ instead of H264')
@@ -57,34 +57,38 @@ if args.m:
     email = 'enabled'
 else:
     email = 'disabled'
-    
-    
+        
 if args.s:
     print '***********************************************'
     print 'You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. '
     print '***********************************************'
     time.sleep(1)
     
-    
-dcp_dir = args.input
-temp_dir = tempfile.gettempdir()
+# Set a bunch of variables for filenaming.    
+dcp_dir               = args.input
+# This temp directory should work on all operating systems. 
+temp_dir              = tempfile.gettempdir()
+output_filename       = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+output                = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 
+# Slashes are significant for ffmpeg concat files.
 if _platform == "win32":
-    video_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
-    audio_concat_textfile= os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
+    video_concat_textfile = os.path.expanduser("~\Desktop\%s.txt") % video_concat_filename
+    audio_concat_textfile = os.path.expanduser("~\Desktop\%s.txt") % audio_concat_filename
 else:
-    video_concat_textfile= temp_dir + "/%s.txt" % video_concat_filename
-    audio_concat_textfile= temp_dir + "/%s.txt" % audio_concat_filename
+    video_concat_textfile = temp_dir + "/%s.txt" % video_concat_filename
+    audio_concat_textfile = temp_dir + "/%s.txt" % audio_concat_filename
     
-output_filename = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-output       = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+
 if args.p:
    codec = ['prores','-profile:v','3', '-c:a', 'copy']
    output      = os.path.expanduser("~/Desktop/%s.mov") % output_filename
 else:   
    codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' ,'-preset','veryfast', '-c:a', 'aac']
+
+# Begin recursive search through sub-directories for DCPs.   
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -113,10 +117,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         # Get a list of all XML files in the main DCP directory.
         xmlfiles = glob('*.xml')
 
-        # Generate an empty list as there may be multiple PKLs.
+        # Generate an empty list as there may be multiple CPLs.
         cpl_list = []
 
-        # Loop through xmlfiles in order to find any PKL files.
+        # Loop through xmlfiles in order to find any CPLL files.
         for i in xmlfiles:
             try:  
                 xmlname = etree.parse(i)
@@ -128,35 +132,44 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 continue
             
             xml_namespace = xmlname.xpath('namespace-uri(.)')
+            # Create list of CPLs.
             if 'CPL' in xml_namespace:
-                cpl_list.append(i)
+                cpl_list.append(i) 
+            if len(cpl_list) == 0:  
+                continue
+            elif len(cpl_list) == 1:
+                cpl_parse = etree.parse(cpl_list[0]) 
+                   
+
+   
+        def choose_cpl(): 
+            # This allows the search to continue if no DCP is in a directory. 
+  
+            # Some DCPs have multiple CPLs!       
             
-        if len(cpl_list) == 0:
-            
-            continue
-        elif len(cpl_list) == 1:
-            cpl_parse = etree.parse(cpl_list[0])    
-        elif len(cpl_list) > 1:
-            cpl_no = 1
-            print 'multiple cpl files found'
+            cpl_number = 1
+            print 'Multiple CPL files found'
             for i in cpl_list:
-                print cpl_no,  i
-                
-                
-                cpl_no += 1
-                
+                print cpl_number,  i
+                cpl_number += 1   
             print 'Please select which CPL you would like to process'
             chosen_cpl = raw_input()
-            cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1])
+            cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
             if args.s:
-                cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
+                cpl_namespace      = cpl_parse.xpath('namespace-uri(.)') 
                 subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
                 print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?' 
-                subs_confirmation = raw_input('Y/N')
-                if subs_confirmation not in ['Y','y']:
-                    print 'please run script again and choose different CPL' # use a while loop with a function to return to the cpl choice.
-                    sys.exit()
                 
+            return cpl_parse
+        if len(cpl_list) > 1:        
+            cpl_parse = choose_cpl() 
+                # As there can be multiple subtitles, This options gives some info/choice.
+            subs_confirmation  = raw_input('Y/N')       
+            while subs_confirmation not in ['Y','y']:
+
+                cpl_parse = choose_cpl()
+                subs_confirmation  = raw_input('Y/N')
+            
                  
         cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
         subtitle_language    =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})  
