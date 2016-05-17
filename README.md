@@ -13,9 +13,10 @@ Current scripts that are useful:
 
 <b>prores.py</b> - Transcode to prores.mov for single/multiple files. Type `prores.py -h` for instructions.
 
+
 Experimental scripts: 
 
-<b>reVTMD.py<b/> is in beta. and is very much geared around one specific workflow.<br><br>
+<b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.<br><br>
 
 <b>makeffv1.py</b> needs more options and needs batch functionality built in.
 
