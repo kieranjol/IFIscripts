@@ -7,17 +7,13 @@ Current scripts that are useful:
 
 <b>dcpaccess.py</b> - Create h264 or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop.
 
-<b>Usage</b>
-
-`dcpaccess.py dcp_directory`
+<b>Usage:</b> `dcpaccess.py dcp_directory`
 
 Further options can be viewed with `dcpaccess.py -h`
 
 <b>dcpfixity.py</b> - Verify internal hashes in a DCP and write report to CSV. Optional (experimental) bagging if hashes validate. The script will search for all DCPs in subdirectories, process them one at a time and generate a CSV report.
 
-<b>Usage</b>
-
-`dcpfixity.py dcp_directory`
+<b>Usage:</b> `dcpfixity.py dcp_directory`
 
 Further options can be viewed with `dcpfixity.py -h`
 
