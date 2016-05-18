@@ -8,6 +8,7 @@ import sys
 import filecmp
 from glob import glob
 import os
+import shutil
 
 
 if len(sys.argv) < 2:
@@ -64,7 +65,7 @@ else:
         print filenoext
         # Generate new directory names in AIP
         metadata_dir   = "%s/metadata" % filenoext
-
+        log_dir = "%s/logs" % filenoext
         data_dir   = "%s/data" % filenoext
         provenance_dir   = "%s/provenance" % filenoext
 
@@ -72,6 +73,7 @@ else:
         os.makedirs(metadata_dir)
         os.makedirs(data_dir)
         os.makedirs(provenance_dir)
+        os.makedirs(log_dir)
 
         #Generate filenames for new files in AIP.
         inputxml  = "%s/%s.xml" % (metadata_dir,os.path.basename(filename) )
@@ -93,16 +95,22 @@ else:
                         '-c:a','copy',         # Copy and paste audio bitsream with no transcoding
                         '-map','0',
                         '-dn',
+                        '-report',
                         '-slicecrc', '1',
                         '-slices', '16',
                         output,	
                         '-f','framemd5','-an'  # Create decoded md5 checksums for every frame of the input. -an ignores audio
-                        , fmd5 ])
+                        , fmd5  ])
+        
+        
         subprocess.call(['ffmpeg',     # Create decoded md5 checksums for every frame of the ffv1 output
                         '-i',output,
+                        '-report',
                         '-f','framemd5','-an',
                         fmd5ffv1 ])
-
+        log_files =  glob('*.log')                
+        for i in log_files:
+            shutil.move(i, '%s/%s' % (log_dir,i))
         # Verify that the video really is lossless by comparing the fixity of the two framemd5 files. 
         if filecmp.cmp(fmd5, fmd5ffv1, shallow=False): 
         	print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
