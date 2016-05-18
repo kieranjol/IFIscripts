@@ -23,12 +23,12 @@ Further options can be viewed with `dcpfixity.py -h`
 
 <b>prores.py</b> - Transcode to prores.mov for single/multiple files. Type `prores.py -h` for instructions.
 
+<b>makeffv1.py</b> Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). 
+
 
 Experimental scripts: 
 
 <b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.<br><br>
-
-<b>makeffv1.py</b> needs more options and needs batch functionality built in.
 
 <b>as11fixity.py</b> - Work in progress that we are working on as a training exercise. There is a bash script in a different repository that works quite well for this purpose.
 
