@@ -87,8 +87,34 @@ if args.p:
    output      = os.path.expanduser("~/Desktop/%s.mov") % output_filename
 else:   
    codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' ,'-preset','veryfast', '-c:a', 'aac']
+def find_assetmap():
+    
+        if 'ASSETMAP' in dcp_files:
+            assetmap = 'ASSETMAP'
+        elif 'ASSETMAP.xml' in dcp_files:
+            assetmap = 'ASSETMAP.xml'
+        return assetmap
+# Begin recursive search through sub-directories for DCPs.  
+def choose_cpl(): 
+    global cpl_list
+    # This allows the search to continue if no DCP is in a directory. 
 
-# Begin recursive search through sub-directories for DCPs.   
+    # Some DCPs have multiple CPLs!       
+    
+    cpl_number = 1
+    print 'Multiple CPL files found'
+    for i in cpl_list:
+        print cpl_number,  i
+        cpl_number += 1   
+    print 'Please select which CPL you would like to process'
+    chosen_cpl = raw_input()
+    cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
+    if args.s:
+        cpl_namespace      = cpl_parse.xpath('namespace-uri(.)') 
+        subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
+        print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?' 
+        
+    return cpl_parse 
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -99,10 +125,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         # Scan the main DCP directory for an assetmap. 
         dcp_files = [f for f in listdir(dir) if isfile(join(dir, f))]
-        if 'ASSETMAP' in dcp_files:
-            assetmap = 'ASSETMAP'
-        elif 'ASSETMAP.xml' in dcp_files:
-            assetmap = 'ASSETMAP.xml'
+        assetmap  = find_assetmap()
 
         # Parse the assetmap in order to find the namespace.  
         try:  
@@ -114,76 +137,72 @@ for root,dirnames,filenames in os.walk(dcp_dir):
            
         assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')     
 
-        # Get a list of all XML files in the main DCP directory.
-        xmlfiles = glob('*.xml')
 
-        # Generate an empty list as there may be multiple CPLs.
+
+        
         cpl_list = []
+        def find_cpl():
 
-        # Loop through xmlfiles in order to find any CPLL files.
-        for i in xmlfiles:
-            try:  
-                xmlname = etree.parse(i)
-            except SyntaxError:
-                print 'not a valid CPL!'
-                continue
-            except KeyError:
-                print 'Missing CPL!'
-                continue
+            # Generate an empty list as there may be multiple CPLs.
             
-            xml_namespace = xmlname.xpath('namespace-uri(.)')
-            # Create list of CPLs.
-            if 'CPL' in xml_namespace:
-                cpl_list.append(i) 
-            if len(cpl_list) == 0:  
-                continue
-            elif len(cpl_list) == 1:
-                cpl_parse = etree.parse(cpl_list[0]) 
-                   
-
-   
-        def choose_cpl(): 
-            # This allows the search to continue if no DCP is in a directory. 
-  
-            # Some DCPs have multiple CPLs!       
-            
-            cpl_number = 1
-            print 'Multiple CPL files found'
-            for i in cpl_list:
-                print cpl_number,  i
-                cpl_number += 1   
-            print 'Please select which CPL you would like to process'
-            chosen_cpl = raw_input()
-            cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
-            if args.s:
-                cpl_namespace      = cpl_parse.xpath('namespace-uri(.)') 
-                subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
-                print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?' 
+            # Get a list of all XML files in the main DCP directory.
+            xmlfiles = glob('*.xml')
+            print xmlfiles
+            # Loop through xmlfiles in order to find any CPLL files.
+            for i in xmlfiles:
+                print i
+                try:  
+                    xmlname = etree.parse(i)
+                except SyntaxError:
+                    print 'not a valid CPL!'
+                    continue
+                except KeyError:
+                    print 'Missing CPL!'
+                    continue
                 
-            return cpl_parse
-        if len(cpl_list) > 1:        
-            cpl_parse = choose_cpl() 
+                xml_namespace = xmlname.xpath('namespace-uri(.)')
+                # Create list of CPLs.
+                if 'CPL' in xml_namespace:
+                    cpl_list.append(i) 
+                    print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                if len(cpl_list) == 0:  
+                    continue
+                elif len(cpl_list) == 1:
+                    cpl_parse = etree.parse(cpl_list[0])
+            if len(cpl_list) > 1:
+                print 'yesssssss'
+                global cpl_list
+                cpl_parse = choose_cpl() 
                 # As there can be multiple subtitles, This options gives some info/choice.
-            subs_confirmation  = raw_input('Y/N')       
-            while subs_confirmation not in ['Y','y']:
+                subs_confirmation  = raw_input('Y/N')       
+                while subs_confirmation not in ['Y','y']:
 
-                cpl_parse = choose_cpl()
-                subs_confirmation  = raw_input('Y/N')
-            
-                 
+                    cpl_parse = choose_cpl()
+                    
+                    subs_confirmation  = raw_input('Y/N')    
+                    return cpl_parse
+                return cpl_parse    
+            else:
+                
+                return cpl_parse      
+        
+          
+
+        cpl_parse = find_cpl() 
+    
         cpl_namespace = cpl_parse.xpath('namespace-uri(.)') 
         subtitle_language    =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})  
-        xmluuid         =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
-        xmluuid_audio   =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
-        xmluuid_subs    =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
-        duration_image  =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': cpl_namespace})
-        duration_audio  =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
-        intrinsic_image =  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
-        intrinsic_audio =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
-        entry_image     =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
-        entry_audio     =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        xmluuid              =  cpl_parse.findall('//ns:MainPicture/ns:Id',namespaces={'ns': cpl_namespace})
+        xmluuid_audio        =  cpl_parse.findall('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
+        xmluuid_subs         =  cpl_parse.findall('//ns:MainSubtitle/ns:Id',namespaces={'ns': cpl_namespace})
+        duration_image       =  cpl_parse.findall('//ns:MainPicture/ns:Duration',namespaces={'ns': cpl_namespace})
+        duration_audio       =  cpl_parse.findall('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
+        intrinsic_image      =  cpl_parse.findall('//ns:MainPicture/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+        intrinsic_audio      =  cpl_parse.findall('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})
+        entry_image          =  cpl_parse.findall('//ns:MainPicture/ns:EntryPoint',namespaces={'ns': cpl_namespace})
+        entry_audio          =  cpl_parse.findall('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
         
-        video_fps       =  cpl_parse.xpath('//ns:MainPicture/ns:EditRate',namespaces={'ns': cpl_namespace})
+        video_fps            =  cpl_parse.xpath('//ns:MainPicture/ns:EditRate',namespaces={'ns': cpl_namespace})
         for i in video_fps:
             fps = i.text[:-1]
         # http://stackoverflow.com/questions/37038148/extract-value-from-element-when-second-namespace-is-used-in-lxml/37038309
