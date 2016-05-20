@@ -94,6 +94,7 @@ def find_assetmap():
         elif 'ASSETMAP.xml' in dcp_files:
             assetmap = 'ASSETMAP.xml'
         return assetmap
+        
 # Begin recursive search through sub-directories for DCPs.  
 def choose_cpl(): 
     global cpl_list
@@ -122,10 +123,8 @@ def find_cpl():
     
     # Get a list of all XML files in the main DCP directory.
     xmlfiles = glob('*.xml')
-    print xmlfiles
     # Loop through xmlfiles in order to find any CPLL files.
     for i in xmlfiles:
-        print i
         try:  
             xmlname = etree.parse(i)
         except SyntaxError:
@@ -139,13 +138,11 @@ def find_cpl():
         # Create list of CPLs.
         if 'CPL' in xml_namespace:
             cpl_list.append(i) 
-            print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         if len(cpl_list) == 0:  
             continue
         elif len(cpl_list) == 1:
             cpl_parse = etree.parse(cpl_list[0])
     if len(cpl_list) > 1:
-        print 'yesssssss'
         
         cpl_parse = choose_cpl() 
         # As there can be multiple subtitles, This options gives some info/choice.
@@ -163,8 +160,7 @@ def find_cpl():
         
 def audio_delay_check(cpl_parse, cpl_namespace ):
             # Check if there is an intended audio delay.    
-            count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )    
-            print count, 'uiodsfuiofdui'    
+            count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )     
             counter = 1
             delays  = 0
             while counter <= count:
@@ -196,9 +192,100 @@ def audio_delay_check(cpl_parse, cpl_namespace ):
                 counter += 1 
             test_list = []
             test_list.append(audio_delay)
-            test_list.append(delays)
-            print test_list    
+            test_list.append(delays)   
             return test_list
+            
+def burn_subs():
+    counter = 0
+    subs_counter = 0
+    count = len(subs)
+    sub_delay = 1
+    if not len(subs) == len(pic_mxfs):
+        print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
+        sub_delay = 0
+        # This assumes that if there are less subtitles than video files, it's because there's an extra AV reel at the head.A more robust option will be added later. Right now this fixes the one use case I've seen.
+    if delays != 0:
+
+        for i in audio_delay:
+
+            # Wrapping PCM in matroska as WAV has 4 gig limit.
+            subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
+            '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
+            '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])    
+    while counter < count:
+        srt_file = temp_dir + '/' + os.path.basename(subs[subs_counter]) +'.srt'
+        output_filename = os.path.basename(dcp_dir) + '_subs_reel' + str(counter + 1) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+        output_subs_mkv = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+        try:  
+            xmlo = etree.parse(subs[subs_counter])
+        except SyntaxError:
+            if 'mxf' in srt_file:
+                print 'Subtitle file is most likely an SMPTE MXF which is not currently supported.'
+    
+            else:
+                print 'not a valid CPL!'
+    
+            counter +=1
+            continue
+        except KeyError:
+            print 'Missing CPL!'
+            counter +=1
+            continue
+
+        sub_count = int(xmlo.xpath('count(//Subtitle)'))
+        current_sub_counter = 0
+
+        with open(srt_file, "w") as myfile:
+               print 'Transforming ', sub_count, 'subtitles'
+
+        while current_sub_counter < sub_count:
+            counter2 = current_sub_counter +1
+            in_point = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeIn']
+            out      = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeOut']
+            in_point = in_point[:8] + '.' + in_point[9:]
+            out      = out[:8] + '.' + out[9:]
+
+            with open(srt_file, "a") as myfile:
+                myfile.write(str(current_sub_counter + 1) + '\n')
+                myfile.write(in_point + ' --> ' + out + '\n')
+                bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]//Text' % int(counter2) ) ]
+                for i in bla:
+                        myfile.write(i.encode("utf-8") + '\n')
+                myfile.write('\n')
+
+                print 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r' ,
+      
+            current_sub_counter +=1 
+        current_sub_counter= 0
+
+        #count = len(subs)
+
+        if delays == 0:
+            print 'There were no audio delays.'
+            command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+            '-c:a','copy', '-c:v', 'libx264',]
+        else:
+            command = ['ffmpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
+            '-c:a','copy', '-c:v', 'libx264',]
+
+
+        pix_fmt = ['-pix_fmt','yuv420p']   
+        subs_command =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
+        if sub_delay > 0:
+            command += subs_command
+            sub_delay += 1
+            subs_counter +=1
+        elif sub_delay == 0:
+            command += pix_fmt
+            subs_counter = 0
+            sub_delay += 1
+        command += [output_subs_mkv ]
+        print command
+        subprocess.call(command)
+        counter += 1 
+
+    sys.exit()
+        
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -294,102 +381,13 @@ for root,dirnames,filenames in os.walk(dcp_dir):
        
         
         audio_delay_info = audio_delay_check(cpl_parse, cpl_namespace)
-        audio_delay = audio_delay_info[0]
-        delays = audio_delay_info[1]
-        print audio_delay
+        audio_delay      = audio_delay_info[0]
+        delays           = audio_delay_info[1]
+        
+        
+        
         if args.s:
-
-            counter = 0
-            subs_counter = 0
-            count = len(subs)
-            sub_delay = 1
-            if not len(subs) == len(pic_mxfs):
-                print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
-                sub_delay = 0
-                # This assumes that if there are less subtitles than video files, it's because there's an extra AV reel at the head.A more robust option will be added later. Right now this fixes the one use case I've seen.
-            if delays != 0:
-                
-                for i in audio_delay:
-                
-                    # Wrapping PCM in matroska as WAV has 4 gig limit.
-                    subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
-                    '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
-                    '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])    
-            while counter < count:
-                srt_file = temp_dir + '/' + os.path.basename(subs[subs_counter]) +'.srt'
-                output_filename = os.path.basename(dcp_dir) + '_subs_reel' + str(counter + 1) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-                output_subs_mkv = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
-                try:  
-                    xmlo = etree.parse(subs[subs_counter])
-                except SyntaxError:
-                    if 'mxf' in srt_file:
-                        print 'Subtitle file is most likely an SMPTE MXF which is not currently supported.'
-                        
-                    else:
-                        print 'not a valid CPL!'
-                        
-                    counter +=1
-                    continue
-                except KeyError:
-                    print 'Missing CPL!'
-                    counter +=1
-                    continue
-                
-                sub_count = int(xmlo.xpath('count(//Subtitle)'))
-                current_sub_counter = 0
-                
-                with open(srt_file, "w") as myfile:
-                       print 'Transforming ', sub_count, 'subtitles'
-
-                while current_sub_counter < sub_count:
-                    counter2 = current_sub_counter +1
-                    in_point = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeIn']
-                    out      = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeOut']
-                    in_point = in_point[:8] + '.' + in_point[9:]
-                    out      = out[:8] + '.' + out[9:]
-
-                    with open(srt_file, "a") as myfile:
-                        myfile.write(str(current_sub_counter + 1) + '\n')
-                        myfile.write(in_point + ' --> ' + out + '\n')
-                        bla =  [bla.text for bla in xmlo.iterfind('.//Subtitle[%s]//Text' % int(counter2) ) ]
-                        for i in bla:
-                                myfile.write(i.encode("utf-8") + '\n')
-                        myfile.write('\n')
-
-                        print 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r' ,
-                          
-                    current_sub_counter +=1 
-                current_sub_counter= 0
-                
-                #count = len(subs)
-                
-                if delays == 0:
-                    print 'There were no audio delays.'
-                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
-                    '-c:a','copy', '-c:v', 'libx264',]
-                else:
-                    command = ['ffmpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
-                    '-c:a','copy', '-c:v', 'libx264',]
-                    
-                
-                pix_fmt = ['-pix_fmt','yuv420p']   
-                subs_command =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
-                if sub_delay > 0:
-                    command += subs_command
-                    sub_delay += 1
-                    subs_counter +=1
-                elif sub_delay == 0:
-                    command += pix_fmt
-                    subs_counter = 0
-                    sub_delay += 1
-                command += [output_subs_mkv ]
-                print command
-                subprocess.call(command)
-                counter += 1 
-                
-            sys.exit()
-                
-
+            burn_subs()
         # Create concat file
         if _platform == "win32":
             dir_append    = dir + '\\'
@@ -502,3 +500,4 @@ if email == 'enabled':
     #server_ssl.quit()
     server_ssl.close()
     print 'successfully sent the mail'    
+
