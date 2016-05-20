@@ -284,7 +284,7 @@ def burn_subs():
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
-        output_filename       = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+        output_filename       = os.path.basename(dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
         output                = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
         if args.p:
            codec = ['prores','-profile:v','3', '-c:a', 'copy']
