@@ -115,6 +115,51 @@ def choose_cpl():
         print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?' 
         
     return cpl_parse 
+    
+def find_cpl():
+
+    # Generate an empty list as there may be multiple CPLs.
+    
+    # Get a list of all XML files in the main DCP directory.
+    xmlfiles = glob('*.xml')
+    print xmlfiles
+    # Loop through xmlfiles in order to find any CPLL files.
+    for i in xmlfiles:
+        print i
+        try:  
+            xmlname = etree.parse(i)
+        except SyntaxError:
+            print 'not a valid CPL!'
+            continue
+        except KeyError:
+            print 'Missing CPL!'
+            continue
+        
+        xml_namespace = xmlname.xpath('namespace-uri(.)')
+        # Create list of CPLs.
+        if 'CPL' in xml_namespace:
+            cpl_list.append(i) 
+            print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        if len(cpl_list) == 0:  
+            continue
+        elif len(cpl_list) == 1:
+            cpl_parse = etree.parse(cpl_list[0])
+    if len(cpl_list) > 1:
+        print 'yesssssss'
+        
+        cpl_parse = choose_cpl() 
+        # As there can be multiple subtitles, This options gives some info/choice.
+        subs_confirmation  = raw_input('Y/N')       
+        while subs_confirmation not in ['Y','y']:
+
+            cpl_parse = choose_cpl()
+            
+            subs_confirmation  = raw_input('Y/N')    
+            return cpl_parse
+        return cpl_parse    
+    else:
+        
+        return cpl_parse  
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -141,52 +186,6 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         
         cpl_list = []
-        def find_cpl():
-
-            # Generate an empty list as there may be multiple CPLs.
-            
-            # Get a list of all XML files in the main DCP directory.
-            xmlfiles = glob('*.xml')
-            print xmlfiles
-            # Loop through xmlfiles in order to find any CPLL files.
-            for i in xmlfiles:
-                print i
-                try:  
-                    xmlname = etree.parse(i)
-                except SyntaxError:
-                    print 'not a valid CPL!'
-                    continue
-                except KeyError:
-                    print 'Missing CPL!'
-                    continue
-                
-                xml_namespace = xmlname.xpath('namespace-uri(.)')
-                # Create list of CPLs.
-                if 'CPL' in xml_namespace:
-                    cpl_list.append(i) 
-                    print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-                if len(cpl_list) == 0:  
-                    continue
-                elif len(cpl_list) == 1:
-                    cpl_parse = etree.parse(cpl_list[0])
-            if len(cpl_list) > 1:
-                print 'yesssssss'
-                global cpl_list
-                cpl_parse = choose_cpl() 
-                # As there can be multiple subtitles, This options gives some info/choice.
-                subs_confirmation  = raw_input('Y/N')       
-                while subs_confirmation not in ['Y','y']:
-
-                    cpl_parse = choose_cpl()
-                    
-                    subs_confirmation  = raw_input('Y/N')    
-                    return cpl_parse
-                return cpl_parse    
-            else:
-                
-                return cpl_parse      
-        
-          
 
         cpl_parse = find_cpl() 
     
@@ -254,39 +253,48 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for sub_uuid in file_paths[sub_uuid_object.text]:            
                 subs.append(sub_uuid)
        
-        
-        # Check if there is an intended audio delay.    
-        count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )        
-        counter = 1
-        delays  = 0
-        while counter <= count:
-            audio_delay_values = []            
-            xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
-            EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
-            entrypoint_audio      = float(EntryPoint[0].text)
-            if EntryPoint[0].text != '0':
-                delays += 1
-                # EntryPoint is in frames. The following converts to seconds.
-                entrypoint_audio  = float(EntryPoint[0].text) 
-                entrypoint_audio  = float(entrypoint_audio) / float(fps) # Change to EditRate variable.
-                entrypoint_audio  = round(entrypoint_audio, 3)
-            audio_delay_values.append(entrypoint_audio) 
-            dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
-            dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
-            tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
+        def audio_delay_check(cpl_parse, cpl_namespace ):
+            # Check if there is an intended audio delay.    
+            count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )    
+            print count, 'uiodsfuiofdui'    
+            counter = 1
+            delays  = 0
+            while counter <= count:
+                audio_delay_values = []            
+                xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
+                EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
+                entrypoint_audio      = float(EntryPoint[0].text)
+                if EntryPoint[0].text != '0':
+                    delays += 1
+                    # EntryPoint is in frames. The following converts to seconds.
+                    entrypoint_audio  = float(EntryPoint[0].text) 
+                    entrypoint_audio  = float(entrypoint_audio) / float(fps) # Change to EditRate variable.
+                    entrypoint_audio  = round(entrypoint_audio, 3)
+                audio_delay_values.append(entrypoint_audio) 
+                dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
+                dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
+                tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
 
-            if tail_test > 0:
-                delays +=1
+                if tail_test > 0:
+                    delays +=1
 
-            tail_delay = int(dur[0].text)
-            tail_delay = float(tail_delay) / float(fps)
-            tail_delay = round(tail_delay, 3)
-         
-            audio_delay_values.append(tail_delay)
-            audio_delay_values.append(file_paths[xmluuid[0].text][0])
-            audio_delay[xmluuid[0].text] = audio_delay_values
-            counter += 1 
-            
+                tail_delay = int(dur[0].text)
+                tail_delay = float(tail_delay) / float(fps)
+                tail_delay = round(tail_delay, 3)
+             
+                audio_delay_values.append(tail_delay)
+                audio_delay_values.append(file_paths[xmluuid[0].text][0])
+                audio_delay[xmluuid[0].text] = audio_delay_values
+                counter += 1 
+            test_list = []
+            test_list.append(audio_delay)
+            test_list.append(delays)
+            print test_list    
+            return test_list
+        audio_delay_info = audio_delay_check(cpl_parse, cpl_namespace)
+        audio_delay = audio_delay_info[0]
+        delays = audio_delay_info[1]
+        print audio_delay
         if args.s:
 
             counter = 0
