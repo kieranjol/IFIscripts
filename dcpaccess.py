@@ -68,8 +68,7 @@ if args.s:
 dcp_dir               = args.input
 # This temp directory should work on all operating systems. 
 temp_dir              = tempfile.gettempdir()
-output_filename       = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-output                = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+
 video_concat_filename = os.path.basename(dcp_dir) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 audio_concat_filename = os.path.basename(dcp_dir) + '_audio_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
 
@@ -82,11 +81,7 @@ else:
     audio_concat_textfile = temp_dir + "/%s.txt" % audio_concat_filename
     
 
-if args.p:
-   codec = ['prores','-profile:v','3', '-c:a', 'copy']
-   output      = os.path.expanduser("~/Desktop/%s.mov") % output_filename
-else:   
-   codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' ,'-preset','veryfast', '-c:a', 'aac']
+
 def find_assetmap():
     
         if 'ASSETMAP' in dcp_files:
@@ -262,10 +257,10 @@ def burn_subs():
 
         if delays == 0:
             print 'There were no audio delays.'
-            command = ['ffmpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+            command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
             '-c:a','copy', '-c:v', 'libx264',]
         else:
-            command = ['ffmpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
+            command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
             '-c:a','copy', '-c:v', 'libx264',]
 
 
@@ -289,7 +284,13 @@ def burn_subs():
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
-
+        output_filename       = os.path.basename(dcp_dir) + '_muxed' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+        output                = os.path.expanduser("~/Desktop/%s.mkv") % output_filename
+        if args.p:
+           codec = ['prores','-profile:v','3', '-c:a', 'copy']
+           output      = os.path.expanduser("~/Desktop/%s.mov") % output_filename
+        else:   
+           codec = ['libx264','-pix_fmt','yuv420p', '-crf', '19' ,'-preset','veryfast', '-c:a', 'aac']
         # Change directory to directory with video files.
         # Changing directory makes globbing easier (from my experience anyhow).
         os.chdir(dir)
@@ -415,7 +416,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         else:
             for i in audio_delay:
                 # Wrapping PCM in matroska as WAV has 4 gig limit.
-                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),
+                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-c:v ','libopenjpeg',
                 '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
                 '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])
     
@@ -434,7 +435,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         if args.s:
             print 'subs placeholder'
         else:    
-            command = ['ffmpeg','-f','concat','-safe', '0',
+            command = ['ffmpeg','-f','concat','-safe', '0','-c:v ','libopenjpeg',
                        '-i',video_concat_textfile,'-f','concat','-safe', '0',
                        '-i',audio_concat_textfile,'-c:v']
             command += codec          
@@ -500,4 +501,3 @@ if email == 'enabled':
     #server_ssl.quit()
     server_ssl.close()
     print 'successfully sent the mail'    
-
