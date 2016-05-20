@@ -160,6 +160,45 @@ def find_cpl():
     else:
         
         return cpl_parse  
+        
+def audio_delay_check(cpl_parse, cpl_namespace ):
+            # Check if there is an intended audio delay.    
+            count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )    
+            print count, 'uiodsfuiofdui'    
+            counter = 1
+            delays  = 0
+            while counter <= count:
+                audio_delay_values = []            
+                xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
+                EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
+                entrypoint_audio      = float(EntryPoint[0].text)
+                if EntryPoint[0].text != '0':
+                    delays += 1
+                    # EntryPoint is in frames. The following converts to seconds.
+                    entrypoint_audio  = float(EntryPoint[0].text) 
+                    entrypoint_audio  = float(entrypoint_audio) / float(fps) # Change to EditRate variable.
+                    entrypoint_audio  = round(entrypoint_audio, 3)
+                audio_delay_values.append(entrypoint_audio) 
+                dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
+                dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
+                tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
+
+                if tail_test > 0:
+                    delays +=1
+
+                tail_delay = int(dur[0].text)
+                tail_delay = float(tail_delay) / float(fps)
+                tail_delay = round(tail_delay, 3)
+             
+                audio_delay_values.append(tail_delay)
+                audio_delay_values.append(file_paths[xmluuid[0].text][0])
+                audio_delay[xmluuid[0].text] = audio_delay_values
+                counter += 1 
+            test_list = []
+            test_list.append(audio_delay)
+            test_list.append(delays)
+            print test_list    
+            return test_list
 for root,dirnames,filenames in os.walk(dcp_dir):
     if ("ASSETMAP.xml"  in filenames) or ("ASSETMAP"  in filenames) :
         dir = root
@@ -253,44 +292,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for sub_uuid in file_paths[sub_uuid_object.text]:            
                 subs.append(sub_uuid)
        
-        def audio_delay_check(cpl_parse, cpl_namespace ):
-            # Check if there is an intended audio delay.    
-            count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )    
-            print count, 'uiodsfuiofdui'    
-            counter = 1
-            delays  = 0
-            while counter <= count:
-                audio_delay_values = []            
-                xmluuid               = cpl_parse.xpath('//ns:MainSound[%s]/ns:Id' % counter,namespaces={'ns': cpl_namespace})                     
-                EntryPoint            = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'EntryPoint'),namespaces={'ns': cpl_namespace}) 
-                entrypoint_audio      = float(EntryPoint[0].text)
-                if EntryPoint[0].text != '0':
-                    delays += 1
-                    # EntryPoint is in frames. The following converts to seconds.
-                    entrypoint_audio  = float(EntryPoint[0].text) 
-                    entrypoint_audio  = float(entrypoint_audio) / float(fps) # Change to EditRate variable.
-                    entrypoint_audio  = round(entrypoint_audio, 3)
-                audio_delay_values.append(entrypoint_audio) 
-                dur                   = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'Duration'),namespaces={'ns': cpl_namespace})
-                dur_intrinsic         = cpl_parse.xpath('//ns:MainSound[%s]/ns:%s '% (counter, 'IntrinsicDuration'),namespaces={'ns': cpl_namespace})
-                tail_test             = int(dur_intrinsic[0].text) - int(dur[0].text)
-
-                if tail_test > 0:
-                    delays +=1
-
-                tail_delay = int(dur[0].text)
-                tail_delay = float(tail_delay) / float(fps)
-                tail_delay = round(tail_delay, 3)
-             
-                audio_delay_values.append(tail_delay)
-                audio_delay_values.append(file_paths[xmluuid[0].text][0])
-                audio_delay[xmluuid[0].text] = audio_delay_values
-                counter += 1 
-            test_list = []
-            test_list.append(audio_delay)
-            test_list.append(delays)
-            print test_list    
-            return test_list
+        
         audio_delay_info = audio_delay_check(cpl_parse, cpl_namespace)
         audio_delay = audio_delay_info[0]
         delays = audio_delay_info[1]
