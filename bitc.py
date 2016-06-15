@@ -91,7 +91,7 @@ else:
                       
 for filename in video_files:
     #pdb.set_trace()
-    output = filename + "_prores.mov"
+    output = filename + "_h264.mov"
     
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
@@ -177,19 +177,10 @@ for filename in video_files:
                 drawtext_options = ["drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2,drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4"  % (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size)]
         
             elif _platform == "win32":
-                drawtext_options = (" drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:\
-                    rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2',\
-                    drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':\
-                    x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4" % 
-                    (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size))
-            print drawtext_options
-            print timecode_test
-            print get_framerate 
-            
-            print filter_options, 'ffffffffffff'
+                drawtext_options = ["drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2',drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4'"  % (font_path,font_size, timecode_test, fixed_framerate, font_path,watermark_size)]
+        
             
         if args.yadif:
-            print 'YADIF'
             if args.clean:
                 ffmpeg_args.append(' yadif')  
                 
@@ -197,23 +188,20 @@ for filename in video_files:
                 
                 drawtext_options[-1] += ',yadif' 
 
-                print drawtext_options[-1], '12121212dfhjsdfkhjkdfshjkfdshj'      
-        
         if args.scale:
-            print 'scale'
-            if number_of_effects > 1:
-                filter_options += ('scale=%s' % width_height)                        
+            if args.clean:
+                if number_of_effects > 1:
+                    ffmpeg_args[-1] += ((',scale=%s' % width_height)) 
+                else:
+                    ffmpeg_args.append('scale=%s' % width_height)
             else:
-                filter_options += (' scale=%s' % width_height)
+
+                drawtext_options[-1] += (',scale=%s' % width_height)
         for i in drawtext_options:
                 
             ffmpeg_args.append(i)
-        '''''          
-        filter_options = filter_options.split()
-        print filter_options, 'dhjkdsfhjkdsfhjksdfhjkdsf'
-        for item in filter_options:
-            ffmpeg_args.append(item) 
-        '''       
+
+     
     ffmpeg_args.append(output)
     print ffmpeg_args
     subprocess.call(ffmpeg_args)
