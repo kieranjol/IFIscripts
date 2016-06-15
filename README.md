@@ -28,6 +28,7 @@ Further options can be viewed with `dcpfixity.py -h`
 
 Experimental scripts: 
 
+<b>move.py</b> Usage - `move.py source destination`. Creates manifest before and after copying and diffs the two manifests.<br><br>
 <b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.<br><br>
 
 <b>as11fixity.py</b> - Work in progress that we are working on as a training exercise. There is a bash script in a different repository that works quite well for this purpose.
