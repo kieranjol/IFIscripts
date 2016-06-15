@@ -170,7 +170,6 @@ for filename in video_files:
             fixed_framerate = get_framerate.rstrip()
             filter_options = ''  
             #all these prints are just for testing. Will be removed later.
-            print fixed_framerate
             
             if _platform == "darwin" or _platform == "linux2":  
                 placeholder = ''      
@@ -182,25 +181,20 @@ for filename in video_files:
             
         if args.yadif:
             if args.clean:
-                ffmpeg_args.append(' yadif')  
-                
-            else:
-                
+                ffmpeg_args.append(' yadif')     
+            else:               
                 drawtext_options[-1] += ',yadif' 
 
         if args.scale:
             if args.clean:
                 if number_of_effects > 1:
-                    ffmpeg_args[-1] += ((',scale=%s' % width_height)) 
+                    ffmpeg_args[-1] += (',scale=%s' % width_height) 
                 else:
                     ffmpeg_args.append('scale=%s' % width_height)
             else:
-
                 drawtext_options[-1] += (',scale=%s' % width_height)
-        for i in drawtext_options:
-                
+        for i in drawtext_options:                
             ffmpeg_args.append(i)
-
      
     ffmpeg_args.append(output)
     print ffmpeg_args
