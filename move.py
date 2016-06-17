@@ -21,6 +21,7 @@ if os.path.isfile(source):
     print '\nFile transfer is not currently supported, only directories.\n'
     sys.exit()
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
+
     os.chdir(manifest_dir)
     
     #pdb.set_trace()
@@ -31,8 +32,11 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     with open(manifest_textfile,"wb") as fo:
         for i in bla:
             fo.write(i + '\n')
-                       
-make_manifest(parent_dir, relative_path,manifest)   
+try:                       
+    make_manifest(parent_dir, relative_path,manifest)  
+except OSError:
+        print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
+        sys.exit() 
 if _platform == "win32": 
     subprocess.call(['robocopy',sys.argv[1], destination, '/E'])
 else:
