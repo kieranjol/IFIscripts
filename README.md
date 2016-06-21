@@ -25,6 +25,9 @@ Further options can be viewed with `dcpfixity.py -h`
 
 <b>makeffv1.py</b> Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). 
 
+<b>seq.py</b> Transcodes a TIFF sequence to 24fps v210.mov Usage: ` seq.py first_file_00001.tiff` and output will be stored in the parent directory.
+
+<b>move.py</b> Copies a directory, creating a md5 manifest at source and destination and comparing the two. Usage: ` move.py source_dir destination_dir` 
 
 Experimental scripts: 
 
