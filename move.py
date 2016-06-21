@@ -29,26 +29,34 @@ destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
 manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
-'''
-file_list = []
+
+file_count = 0
 
 for root, directories, filenames in os.walk(source):
+    '''
     root_list = os.listdir(root)
     for i in root_list:
+        print i
         file_list.append(i)
-    for directory in directories:
-             os.chdir(root)
-             dirlist = os.listdir(directory)
-             for i in dirlist:
-                 file_list.append(i)
-'''
+    '''    
+    for files in filenames:
+             
+            file_count +=1 #works in windows at least
+
 
 def count_files(location):
-    file_count = 0
+    #file_count = 0
     for dirs,subdir,files in os.walk(location):
-        file_count += len(files)
+
+        for x in subdir:
+            print x
+            
+        '''    
         for subdirs in subdir:
+            print subdirs
             file_count +=len(files)
+            print files
+        '''
         return file_count
 
 def display_benchmark():
@@ -58,7 +66,9 @@ def display_benchmark():
 
 def test_write_capabilities(directory):
     if os.path.isdir(directory):
-        temp = tempfile.mkstemp(dir=directory)
+        temp = tempfile.mkstemp(dir=directory, suffix='.tmp')
+        print temp
+        os.close(temp[0]) # Needed for windows.
         os.remove(temp[1])
     elif os.path.isfile(directory):
         print '\nFile transfer is not currently supported, only directories.\n'
@@ -122,12 +132,14 @@ def check_overwrite_dir(dir2check):
             if overwrite_destination_dir not in ('Y','y','N','n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_dir
-
+'''
 try:
     test_write_capabilities(source)
 except OSError:
             print 'You cannot write to your source directory!'
             sys.exit()
+'''
+test_write_capabilities(source)            
 try:
     test_write_capabilities(destination)
 except OSError:
@@ -170,4 +182,3 @@ else:
 print ' There are: \n %s files in your destination manifest \n %s files in your destination \n %s files at source' % (files_in_manifest, files_in_destination, files_in_source)
 if args.b:
     display_benchmark()
-
