@@ -122,7 +122,14 @@ def check_overwrite(file2check):
             if overwrite_destination_manifest not in ('Y','y','N','n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_manifest
-
+def manifest_file_count(manifest2check):
+    if os.path.isfile(manifest2check):
+        print 'A manifest already exists'
+        with open(manifest2check, "r") as fo:
+            manifest_lines = [line.split(',') for line in fo.readlines()]
+            files_in_manifest =  len(manifest_lines)
+    return files_in_manifest    
+  
 def check_overwrite_dir(dir2check):
     if os.path.isdir(dir2check):
         print 'A directory already exists at your destination. Overwrite? Y/N?'
@@ -150,6 +157,10 @@ overwrite_destination_dir = check_overwrite_dir(destination_final_path)
 
 remove_bad_files(source)
 files_in_source = count_files(source) 
+files_in_manifest = manifest_file_count(manifest)  
+if files_in_source != files_in_manifest:
+    print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+    sys.exit()
 source_manifest_start_time = time.time()
 
 if not os.path.isfile(manifest):
