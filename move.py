@@ -29,28 +29,8 @@ destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
 manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
-'''
-file_list = []
 
-for root, directories, filenames in os.walk(source):
-    root_list = os.listdir(root)
-    for i in root_list:
-        file_list.append(i)
-    for directory in directories:
-             os.chdir(root)
-             dirlist = os.listdir(directory)
-             for i in dirlist:
-                 file_list.append(i)
-'''
-
-def count_files(location):
-    file_count = 0
-    for dirs,subdir,files in os.walk(location):
-        file_count += len(files)
-        for subdirs in subdir:
-            file_count +=len(files)
-        return file_count
-
+           
 def display_benchmark():
     print 'SOURCE MANIFEST TIME', source_manifest_time
     print 'COPY TIME', copy_time
@@ -58,7 +38,8 @@ def display_benchmark():
 
 def test_write_capabilities(directory):
     if os.path.isdir(directory):
-        temp = tempfile.mkstemp(dir=directory)
+        temp = tempfile.mkstemp(dir=directory, suffix='.tmp')
+        os.close(temp[0]) # Needed for windows.
         os.remove(temp[1])
     elif os.path.isfile(directory):
         print '\nFile transfer is not currently supported, only directories.\n'
@@ -97,10 +78,11 @@ def copy_dir():
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
+        
         subprocess.call(cmd)
     elif _platform == "linux2":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
-        cmd = [ 'cp','--preserve=mode,timestamps', '-nR',source, destination_final_path]
+        cmd = [ 'cp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
         subprocess.call(cmd)
 
 def check_overwrite(file2check):
@@ -112,7 +94,14 @@ def check_overwrite(file2check):
             if overwrite_destination_manifest not in ('Y','y','N','n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_manifest
-
+def manifest_file_count(manifest2check):
+    if os.path.isfile(manifest2check):
+        print 'A manifest already exists'
+        with open(manifest2check, "r") as fo:
+            manifest_lines = [line.split(',') for line in fo.readlines()]
+            count_in_manifest =  len(manifest_lines)
+    return count_in_manifest    
+  
 def check_overwrite_dir(dir2check):
     if os.path.isdir(dir2check):
         print 'A directory already exists at your destination. Overwrite? Y/N?'
@@ -124,10 +113,11 @@ def check_overwrite_dir(dir2check):
         return overwrite_destination_dir
 
 try:
-    test_write_capabilities(source)
+    test_write_capabilities(source_parent_dir)
 except OSError:
             print 'You cannot write to your source directory!'
             sys.exit()
+          
 try:
     test_write_capabilities(destination)
 except OSError:
@@ -137,7 +127,18 @@ overwrite_destination_manifest = check_overwrite(manifest_destination)
 overwrite_destination_dir = check_overwrite_dir(destination_final_path)
 
 remove_bad_files(source)
-files_in_source = count_files(source) 
+source_count = 0
+
+for root, directories, filenames in os.walk(source):   
+    for files in filenames:   
+            source_count +=1 #works in windows at least
+print source_count            
+
+if os.path.isfile(manifest):
+    count_in_manifest = manifest_file_count(manifest)  
+    if source_count != count_in_manifest:
+        print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+        sys.exit()
 source_manifest_start_time = time.time()
 
 if not os.path.isfile(manifest):
@@ -162,12 +163,22 @@ if overwrite_destination_manifest not in ('N','n'):
 remove_bad_files(destination_final_path)
 
 destination_manifest_time = time.time() - start_destination_manifest_time
-files_in_destination = count_files(destination_final_path)
+destination_count = 0
+
+for root, directories, filenames in os.walk(destination_final_path):  
+    for files in filenames: 
+            destination_count +=1 #works in windows at least
+print destination_count  
+
 if filecmp.cmp(manifest, manifest_destination, shallow=False):
 	print "Your files have reached their destination and the checksums match"
 else:
-	print "***********YOUR CHECKSUMS DO NOT MATCH*************"
-print ' There are: \n %s files in your destination manifest \n %s files in your destination \n %s files at source' % (files_in_manifest, files_in_destination, files_in_source)
+    print "***********YOUR CHECKSUMS DO NOT MATCH*************"
+    if overwrite_destination_manifest not in ('N','n'):
+        
+        print ' There are: \n %s files in your destination manifest \n' % files_in_manifest 
+        print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
+    else:
+        print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
 if args.b:
     display_benchmark()
-
