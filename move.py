@@ -136,12 +136,14 @@ try:
     test_write_capabilities(source_parent_dir)
 except OSError:
             print 'You cannot write to your source directory!'
+            generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to source directory.')      
             sys.exit()
           
 try:
     test_write_capabilities(destination)
 except OSError:
             print 'You cannot write to your destination!'
+            generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to destination directory.')  
             sys.exit()
 overwrite_destination_manifest = check_overwrite(manifest_destination)
 overwrite_destination_dir = check_overwrite_dir(destination_final_path)
@@ -158,6 +160,7 @@ if os.path.isfile(manifest):
     count_in_manifest = manifest_file_count(manifest)  
     if source_count != count_in_manifest:
         print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+        generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')  
         sys.exit()
 source_manifest_start_time = time.time()
 
@@ -173,13 +176,20 @@ source_manifest_time = time.time() - source_manifest_start_time
 
 copy_start_time = time.time()
 if overwrite_destination_dir not in ('N','n'):
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.')     
     copy_dir()
+else:
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')  
+    
 copy_time = time.time() - copy_start_time
 
 start_destination_manifest_time = time.time()
 if overwrite_destination_manifest not in ('N','n'):
+    generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
     print 'Generating destination manifest'
     files_in_manifest = make_manifest(destination,dirname, manifest_destination)
+else:
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')
 remove_bad_files(destination_final_path)
 
 destination_manifest_time = time.time() - start_destination_manifest_time
