@@ -95,7 +95,7 @@ for filename in video_files:
     
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
-            '-c:a', 'copy',
+            '-c:a', 'aac',
             '-c:v', 'libx264',
             '-pix_fmt', 'yuv420p',
             '-crf', crf_value]
