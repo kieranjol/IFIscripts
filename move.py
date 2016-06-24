@@ -23,7 +23,7 @@ args = parser.parse_args()
 source               = args.source
 source_parent_dir    = os.path.dirname(source)
 normpath             = os.path.normpath(source) 
-dirname              = os.path.splitext(os.path.basename(source))[0]
+dirname              = os.path.split(os.path.basename(source))[1]
 relative_path        = normpath.split(os.sep)[-1]
 
 destination                    = args.destination # or hardcode
@@ -32,6 +32,7 @@ destination_final_path         = destination + '/%s' % dirname
 manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
 log_name_source                = source_parent_dir + '/%s_ifi_events_log.log' % relative_path
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
+
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
@@ -42,7 +43,8 @@ def generate_log(log, what2log):
         
         
 generate_log(log_name_source, 'move.py started.') 
-generate_log(log_name_source, 'Source: %s - Destination: %s' % (source, destination))                       
+generate_log(log_name_source, 'Source: %s' % source)  
+generate_log(log_name_source, 'Destination: %s'  % destination)                       
 def display_benchmark():
     print 'SOURCE MANIFEST TIME', source_manifest_time
     print 'COPY TIME', copy_time
@@ -93,6 +95,7 @@ def copy_dir():
     if _platform == "win32":
         subprocess.call(['robocopy',source, destination_final_path, '/E'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
+        print destination_final_path
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
