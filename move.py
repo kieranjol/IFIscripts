@@ -23,7 +23,7 @@ args = parser.parse_args()
 source               = args.source
 source_parent_dir    = os.path.dirname(source)
 normpath             = os.path.normpath(source) 
-dirname              = os.path.splitext(os.path.basename(source))[0]
+dirname              = os.path.split(os.path.basename(source))[1]
 relative_path        = normpath.split(os.sep)[-1]
 
 destination                    = args.destination # or hardcode
@@ -32,6 +32,7 @@ destination_final_path         = destination + '/%s' % dirname
 manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
 log_name_source                = source_parent_dir + '/%s_ifi_events_log.log' % relative_path
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
+
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
@@ -42,7 +43,8 @@ def generate_log(log, what2log):
         
         
 generate_log(log_name_source, 'move.py started.') 
-generate_log(log_name_source, 'Source: %s - Destination: %s' % (source, destination))                       
+generate_log(log_name_source, 'Source: %s' % source)  
+generate_log(log_name_source, 'Destination: %s'  % destination)                       
 def display_benchmark():
     print 'SOURCE MANIFEST TIME', source_manifest_time
     print 'COPY TIME', copy_time
@@ -93,6 +95,7 @@ def copy_dir():
     if _platform == "win32":
         subprocess.call(['robocopy',source, destination_final_path, '/E'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
+        print destination_final_path
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
@@ -136,12 +139,14 @@ try:
     test_write_capabilities(source_parent_dir)
 except OSError:
             print 'You cannot write to your source directory!'
+            generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to source directory.')      
             sys.exit()
           
 try:
     test_write_capabilities(destination)
 except OSError:
             print 'You cannot write to your destination!'
+            generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to destination directory.')  
             sys.exit()
 overwrite_destination_manifest = check_overwrite(manifest_destination)
 overwrite_destination_dir = check_overwrite_dir(destination_final_path)
@@ -158,6 +163,7 @@ if os.path.isfile(manifest):
     count_in_manifest = manifest_file_count(manifest)  
     if source_count != count_in_manifest:
         print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+        generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')  
         sys.exit()
 source_manifest_start_time = time.time()
 
@@ -173,13 +179,20 @@ source_manifest_time = time.time() - source_manifest_start_time
 
 copy_start_time = time.time()
 if overwrite_destination_dir not in ('N','n'):
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.')     
     copy_dir()
+else:
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')  
+    
 copy_time = time.time() - copy_start_time
 
 start_destination_manifest_time = time.time()
 if overwrite_destination_manifest not in ('N','n'):
+    generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
     print 'Generating destination manifest'
     files_in_manifest = make_manifest(destination,dirname, manifest_destination)
+else:
+    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')
 remove_bad_files(destination_final_path)
 
 destination_manifest_time = time.time() - start_destination_manifest_time
