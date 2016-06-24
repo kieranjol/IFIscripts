@@ -9,6 +9,7 @@ from sys import platform as _platform
 import tempfile
 import time
 import argparse
+import getpass
 
 # Currently, destination manifest will be overwritten. user input should be required. source manifest will not be overwritten, it will be read.
 parser = argparse.ArgumentParser(description='Copy directory with checksum comparison and manifest generation.'
@@ -29,8 +30,19 @@ destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
 manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
-
-           
+log_name_source                = source_parent_dir + '/%s_ifi_events_log.log' % relative_path
+log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
+def generate_log(log, what2log):
+    if not os.path.isfile(log):
+        with open(log,"wb") as fo:
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+    else:
+        with open(log,"ab") as fo:
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+        
+        
+generate_log(log_name_source, 'move.py started.') 
+generate_log(log_name_source, 'Source: %s - Destination: %s' % (source, destination))                       
 def display_benchmark():
     print 'SOURCE MANIFEST TIME', source_manifest_time
     print 'COPY TIME', copy_time
@@ -43,9 +55,13 @@ def test_write_capabilities(directory):
         os.remove(temp[1])
     elif os.path.isfile(directory):
         print '\nFile transfer is not currently supported, only directories.\n'
+        generate_log(log_name_source, 'Error: Attempted file transfer. Source and Destination must be a directory')   
+        generate_log(log_name_source, 'move.py exit')   
         sys.exit()
     else:
         print ' %s is either not a directory or it does not exist' % directory
+        generate_log(log_name_source, ' %s is either not a directory or it does not exist' % directory)
+        generate_log(log_name_source, 'move.py exit')      
         sys.exit()
 
 def remove_bad_files(root_dir):
@@ -56,6 +72,7 @@ def remove_bad_files(root_dir):
             for i in rm_these:
                 if name == i:
                     print '***********************' + 'removing: ' + path
+                    generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
                     os.remove(path)
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
@@ -75,14 +92,17 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
 def copy_dir():
     if _platform == "win32":
         subprocess.call(['robocopy',source, destination_final_path, '/E'])
+        generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
+        generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')  
         
         subprocess.call(cmd)
     elif _platform == "linux2":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = [ 'cp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
+        generate_log(log_name_source, 'EVENT = File Transfer - Linux- Software=cp')  
         subprocess.call(cmd)
 
 def check_overwrite(file2check):
@@ -171,13 +191,15 @@ for root, directories, filenames in os.walk(destination_final_path):
 print destination_count  
 
 if filecmp.cmp(manifest, manifest_destination, shallow=False):
-	print "Your files have reached their destination and the checksums match"
+    print "Your files have reached their destination and the checksums match"
+    generate_log(log_name_source, 'EVENT = File Transfer Judgement - Success')  
 else:
     print "***********YOUR CHECKSUMS DO NOT MATCH*************"
     if overwrite_destination_manifest not in ('N','n'):
-        
+        generate_log(log_name_source, 'EVENT = File Transfer Outcome - Failure') 
         print ' There are: \n %s files in your destination manifest \n' % files_in_manifest 
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
+        generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination \n %s files at source' % (destination_count, source_count)) 
     else:
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
 if args.b:
