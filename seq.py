@@ -5,26 +5,23 @@ import sys
 import os
 from glob import glob
 
-first_file = sys.argv[1]
-os.chdir(first_file)
+source_directory = sys.argv[1]
+os.chdir(source_directory)
 images = (
         glob('*.tif') +
         glob('*.tiff') +
         glob('*.dpx') 
         )
 
-       
-rejigged_name = images[0].split("_")[0:-1]
-print rejigged_name
-test = ''
+numberless_filename = images[0].split("_")[0:-1]
+ffmpeg_friendly_name = ''
 counter = 0
-while  counter <len(rejigged_name) :
-    test += rejigged_name[counter] + '_'
+while  counter <len(numberless_filename) :
+    test += numberless_filename[counter] + '_'
     counter += 1
-dirname = os.path.dirname(first_file)    
-output = dirname + '/%s_consolidate.mov' % os.path.split(first_file)[-1]
-test += '%06d.tiff'
-cmd = ['ffmpeg','-f','image2','-framerate','24', '-i',test,'-c:v','v210',output]
+dirname = os.path.dirname(source_directory)    
+output = dirname + '/%s_consolidate.mov' % os.path.split(source_directory)[-1]
+ffmpeg_friendly_name += '%06d.tiff'
+cmd = ['ffmpeg','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-c:v','v210',output]
 print cmd
-
 subprocess.call(cmd)
