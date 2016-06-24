@@ -171,6 +171,8 @@ if not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
         make_manifest(source_parent_dir, relative_path,manifest)
+        generate_log(log_name_source, 'EVENT = Generating source manifest')  
+        
     except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
             sys.exit()
@@ -179,7 +181,8 @@ source_manifest_time = time.time() - source_manifest_start_time
 
 copy_start_time = time.time()
 if overwrite_destination_dir not in ('N','n'):
-    generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.')     
+    if overwrite_destination_dir != None:
+        generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.')         
     copy_dir()
 else:
     generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')  
@@ -188,7 +191,10 @@ copy_time = time.time() - copy_start_time
 
 start_destination_manifest_time = time.time()
 if overwrite_destination_manifest not in ('N','n'):
-    generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
+    if overwrite_destination_manifest == None:
+        generate_log(log_name_source, 'EVENT = Destination Manifest Generation') 
+    else:
+        generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
     print 'Generating destination manifest'
     files_in_manifest = make_manifest(destination,dirname, manifest_destination)
 else:
@@ -212,7 +218,7 @@ else:
         generate_log(log_name_source, 'EVENT = File Transfer Outcome - Failure') 
         print ' There are: \n %s files in your destination manifest \n' % files_in_manifest 
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
-        generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination \n %s files at source' % (destination_count, source_count)) 
+        generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination,  %s files at source' % (destination_count, source_count)) 
     else:
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
 if args.b:
