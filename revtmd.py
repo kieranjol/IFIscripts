@@ -289,8 +289,70 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'BX5D', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)      
-   
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '(21)CL1404140131072', revtmd_xmlfile)
+    def avid_audio_post_posprocessing(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Post Processing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Digital Audio Workstation', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Avid', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Pro Tools', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '12.5.1', revtmd_xmlfile)
+    def izotope_audio_post_processing(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Post Processing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Audio Cleaning Software', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'iZotope Inc', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'iZotope Rc5', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '5.01.184', revtmd_xmlfile)
+    def audacity_audio_post_processing(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Post Processing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Digital Audio Workstation', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Audacity', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Audacity', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '2.1.2', revtmd_xmlfile)
+    def aeolight_audio_post_processing(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Post Processing', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Extracts audio from combined film optical track', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'University of South Carolina', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'AEO-Light', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '1.0', revtmd_xmlfile)
+    def focusrite_audio_monitoring(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Sound Card', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Headphone monitoring', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Focusrite', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Scarlett', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '2i2', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'Stereo', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'S364098253417', revtmd_xmlfile)
+    def telecine_mac_mini(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Workstation for audio extraction and cleaning', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Mac Mini (Late 2012)', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '10.11.4', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'C07LW0YRDY3H', revtmd_xmlfile)  
+    def maudio_left_studiophile_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Studiophile AV 40', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '132A0602 109128', revtmd_xmlfile)   
+    def maudio_right_studiophile_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Studiophile AV 40', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '132A0602 109128', revtmd_xmlfile)
+    def beyer_headphones_telecine(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Audio Monitoring Headphones', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Beyer Dynamic', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Dt 100/400 ohms', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '421464', revtmd_xmlfile)
+    def telecine_mac_pro_os_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Mac Mini operating system', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'OSX El Capitan', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '10.11.4', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
     def revtmd_blank_audio_fields():   
         global audio_track_number        
         audio_track_number = 1
