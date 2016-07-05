@@ -545,7 +545,7 @@ else:
                    "Recanned",
                    "Cleaning",
                    "Mould removal"]
-        preparation = multchoicebox(msg, title, choices)
+        preparation = multchoicebox(msg, title, choices, preselect=None)
         print preparation
         # End preperation history
         # Flashtransfer settings      
@@ -559,7 +559,7 @@ else:
                    "Contrast - Off",
                    "Contrast - High",
                    "None",]
-        flashtransfer_settings = multchoicebox(msg, title, choices)
+        flashtransfer_settings = multchoicebox(msg, title, choices, preselect=None)
         print flashtransfer_settings
         # End preperation history
         
@@ -571,7 +571,7 @@ else:
                    "Negative to positive", 
                    "Spacing between reels not captured",
                     ]
-        capture_interventions = multchoicebox(msg, title, choices)
+        capture_interventions = multchoicebox(msg, title, choices, preselect=None)
         # End interventions during capture
         
         # Audio assesment during capture
@@ -618,7 +618,7 @@ else:
                    "Negative to positive",
                    "Avid Motion Editing"
                    ]
-        post_processing = multchoicebox(msg, title, choices)
+        post_processing = multchoicebox(msg, title, choices, preselect=None)
 
     #More interviews    
     msg ="User?"
