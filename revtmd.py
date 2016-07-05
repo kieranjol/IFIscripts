@@ -411,11 +411,11 @@ else:
     # Begin Interview using Easygui.
     msg ="Which Workflow?"
     title = "Workflows"
-    choices = ["Telecine One Light", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
+    choices = ["Telecine One Light", "Scanning", "Audio Extraction", "bestlight", "Telecine Grade", "Tape Ingest 1", "Tape Ingest 2", "Tape Edit Suite 1", "Tape Edit Suite 2"]
     workflow = choicebox(msg, title, choices)
 
     # Forking path in order to get more accurate info depending on workflow
-    if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade"):
+    if workflow not in ("Telecine One Light", "bestlight", "Telecine Grade", "Audio Extraction", "Scanning"):
         no_of_emptyfields = 16 #temp, this will be a variable.
         msg ="Tape Deck?"
         title = "Pick a name yo!"
@@ -500,14 +500,14 @@ else:
             
             msg = "Capture Frame Rate"
             title = "Capture Frame Rate"
-            fieldNames = ["15","16","18","20","22","25", "Multiple frame rates"]
+            fieldNames = ["15","16","18","20","22","24","25", "Multiple frame rates"]
             capture_frame_rate = []  # we start with blanks for the values
             capture_frame_rate = choicebox(msg,title, fieldNames)
             fps_string = 'Captured at %s fps' % capture_frame_rate
             
             msg ="Telecine Machine"
             title = "Choose the telecine machine"
-            choices = ["Flashtransfer", "Flashscan",]
+            choices = ["Flashtransfer", "Flashscan", "Scanner"]
             scanner = choicebox(msg, title, choices)
         
         if scanner == "Flashtransfer":
@@ -526,6 +526,14 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Flashscan', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'SDI', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
+        if scanner == "Scanner":
+            def scanner(number):            
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Scanning', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', '35mm Film Digitisation', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'P&S Techniks', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Steadyframe', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'Ethernet', revtmd_xmlfile)
+                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
                 
         # Preparation History        
         msg ="Preperation?"
@@ -534,7 +542,9 @@ else:
                    "Splice repairs",
                    "Leader added", 
                    "Perforation repairs",
-                   "Recanned",]
+                   "Recanned",
+                   "Cleaning",
+                   "Mould removal"]
         preparation = multchoicebox(msg, title, choices)
         print preparation
         # End preperation history
@@ -800,7 +810,45 @@ else:
 
     # Combine previous functions for the bestlight workflow  
     counter = 0
-    
+    def steadyframe(position):
+        add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
+        add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
+        position += 1
+        scanner(position)
+        position += 1
+        telecine_mac_pro_revtmd(position)
+        position += 1
+        telecine_mac_pro_os_revtmd(position)
+        position += 1
+        IiyamaMonitor1_telecine(position)
+        position += 1
+        IiyamaMonitor2_telecine(position)
+        position += 1
+        tvlogic_broadcast_telecine(position)
+        position += 1
+        if not audio_choices == "None":         
+            audio_capture_telecine(position)
+            
+            if audio_choices == "Philips Headphones":
+                position += 1
+            elif audio_choices == "M-Audio Speakers":
+                position += 2
+            elif audio_choices == "Both":
+                position += 3
+        bmd_ultrascopes_telecine(position)
+        tech_metadata_revtmd()
+        position += 1
+        avid_capture_revtmd(position)
+        position += 1
+        add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
+        avid_consolidate_revtmd(position)
+        position += 1
+        avid_post_processing(position)
+        position += 1
+        avid_export_revtmd(position)
+        #ffmpeg_revtmd(position)        
+        prep_data_entry()
+        capture_interventions_func()
     def bestlight(position):
         add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
         add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
@@ -870,7 +918,7 @@ else:
     # This launches the xml creation based on your selections  
     if workflow == "bestlight":
         bestlight(counter)
-    elif workflow =="Tape Ingest 1":
+    elif workflow == "Tape Ingest 1":
         if deck not in ("UVW-1400AP", "UVW-1200P"):
             ingest1()
         else:
@@ -887,9 +935,10 @@ else:
                 bmd_miniconverter_revtmd(4)
             betasp_ingest1()
             
-    elif workflow =="Tape Ingest 2":
+    elif workflow == "Tape Ingest 2":
         ingest2()
-
+    elif workflow == "Scanning":
+        steadyframe(counter)
     # Temporary, possibly permanent way to delete empty elements
     subprocess.call(['xml', 'ed', '--inplace','-d',
                     '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
