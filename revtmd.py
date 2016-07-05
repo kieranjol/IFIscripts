@@ -328,13 +328,13 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Apple', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Mac Mini (Late 2012)', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '10.11.4', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'C07LW0YRDY3H', revtmd_xmlfile)  
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'C07LW0YRDY3H', revtmd_xmlfile)
     def maudio_left_studiophile_telecine(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Left Speaker', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'M-AUDIO', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Studiophile AV 40', revtmd_xmlfile)
-        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '132A0602 109128', revtmd_xmlfile)   
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '132A0602 109128', revtmd_xmlfile)
     def maudio_right_studiophile_telecine(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Quality Assesment', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Right Speaker', revtmd_xmlfile)
@@ -615,7 +615,7 @@ else:
     title = "Pick a name yo!"
     choices = ["Kieran O'Leary", "Gavin Martin", 
                "Dean Kavanagh", "Raelene Casey", 
-           "Anja Mahler", "Eoin O'Donohoe", "Unknown"]
+           "Anja Mahler", "Eoin O'Donohoe", "Brian Cash","Unknown"]
     user = choicebox(msg, title, choices)
 
     msg = "Fill out these things please"
