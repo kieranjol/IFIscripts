@@ -360,7 +360,7 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Z800 Workstation', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'FF825AV', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'CZC2082R1Z', revtmd_xmlfile)
-	def basement_content_agent_pc_os_revtmd(number):
+    def basement_content_agent_pc_os_revtmd(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Content Agent PC operating system', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Microsoft', revtmd_xmlfile)
