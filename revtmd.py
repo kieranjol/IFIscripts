@@ -353,6 +353,26 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'OSX El Capitan', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', '10.11.4', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'ABC123', revtmd_xmlfile)
+    def basement_content_agent_pc(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Workstation for transcoding files from Steadyframe 2k scanner', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Hewlett-Packard Company', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Z800 Workstation', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'FF825AV', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', 'CZC2082R1Z', revtmd_xmlfile)
+    def basement_content_agent_pc_os_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer Operating System', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Content Agent PC operating system', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'Microsoft', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Windows', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:version', 'Windows 7 Professional', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '00371-OEM-8992671-00008', revtmd_xmlfile)
+    def basement_2k_scanner(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Host Computer', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Workstation for 35mm and 16mm film scanning', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'P+S Technik', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Steadyframe', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:serialNumber', '601-0101', revtmd_xmlfile)	
     def revtmd_blank_audio_fields():   
         global audio_track_number        
         audio_track_number = 1
