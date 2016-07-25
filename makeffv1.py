@@ -30,6 +30,7 @@ def append_csv(csv_file, *args):
     finally:
         f.close()
 
+
 # Write metadata for original video file - with open will auto close the file.
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     with open(xmlfilename, "w+") as fo:
@@ -39,6 +40,16 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
                         '--output=XML',
                         inputfilename])       #input filename
         fo.write(xmlvariable)
+
+def make_manifest(relative_manifest_path, manifest_textfile):
+    os.chdir(relative_manifest_path)
+    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
+    manifest_list = manifest_generator.splitlines()
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+    with open(manifest_textfile,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
 
 
 if len(sys.argv) < 2:
@@ -180,4 +191,9 @@ else:
 
         make_mediainfo(inputxml,'mediaxmlinput',filename)
         make_mediainfo(outputxml,'mediaxmloutput',output)
-
+        normpath = os.path.normpath(filename)
+        source_parent_dir = os.path.dirname(filename)
+        relative_path = normpath.split(os.sep)[-1]
+        manifest =  '%s_manifest.md5' % (relative_path)
+        make_manifest(filenoext,manifest)
+        os.chdir('..')
