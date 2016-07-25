@@ -23,7 +23,7 @@ Further options can be viewed with `dcpfixity.py -h`
 
 <b>prores.py</b> - Transcode to prores.mov for single/multiple files. Type `prores.py -h` for instructions.
 
-<b>makeffv1.py</b> Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). 
+<b>makeffv1.py</b> Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). CSV report is generate which gives details on losslessness. 
 
 <b>seq.py</b> Transcodes a TIFF sequence to 24fps v210.mov Usage: ` seq.py first_file_00001.tiff` and output will be stored in the parent directory.
 
