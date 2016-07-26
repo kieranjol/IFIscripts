@@ -84,7 +84,7 @@ for filename in video_files:
             '-c:v', 'prores',]
     if not args.map:
         ffmpeg_args.append('-map')
-        ffmpeg_args.append('0:a')
+        ffmpeg_args.append('0:a?')
         ffmpeg_args.append('-map')
         ffmpeg_args.append('0:v')
         
