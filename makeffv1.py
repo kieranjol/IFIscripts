@@ -14,6 +14,11 @@ import time
 import itertools
 import getpass
 
+def get_mediainfo(var_type, type, filename):
+    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    return var_type
+# example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
+
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
     try:
@@ -103,7 +108,7 @@ else:
     else: 
         print "Your input isn't a file or a directory."
         print "What was it? I'm curious."  
-    create_csv(csv_report_filename, ('FILENAME', 'Lossless?'))
+    create_csv(csv_report_filename, ('FILENAME', 'Lossless?', 'Source size in bits', 'FFV1 size in bits', ' Compression ratio'))
     for filename in video_files: #loop all files in directory
 
 
@@ -173,6 +178,9 @@ else:
             for lineno, line in enumerate(infile):
                 #if line[:1] != "#":
                     yield lineno, line
+        source_video_size =  get_mediainfo('source_video_size', "--inform=General;%FileSize%", filename)
+        ffv1_video_size =  get_mediainfo('ffv1_video_size', '--inform=General;%FileSize%', output)
+        compression_ratio = float(source_video_size) / float(ffv1_video_size)
         checksum_mismatches = []
         with open(fmd5) as f1:
             with open(fmd5ffv1) as f2:
@@ -185,16 +193,16 @@ else:
                             checksum_mismatches.append(1)
         if len(checksum_mismatches) == 0:
             print 'LOSSLESS'
-            append_csv(csv_report_filename, (output,'LOSSLESS'))
+            append_csv(csv_report_filename, (output,'LOSSLESS',source_video_size,ffv1_video_size,compression_ratio))
             generate_log(log, 'makeffv1.py Transcode was lossless') 
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
                 print 'Image content is lossless, Pixel Aspect Ratio has been altered'
-                append_csv(csv_report_filename, (output,'LOSSLESS - different PAR'))
+                append_csv(csv_report_filename, (output,'LOSSLESS - different PAR',source_video_size,ffv1_video_size,compression_ratio))
                 generate_log(log, 'makeffv1.py Image content is lossless, but Pixel Aspect Ratio has been altered')
         elif len(checksum_mismatches) > 1:
             print 'NOT LOSSLESS'     
-            append_csv(csv_report_filename, (output,'NOT LOSSLESS'))
+            append_csv(csv_report_filename, (output,'NOT LOSSLESS',source_video_size,ffv1_video_size,compression_ratio))
             generate_log(log, 'makeffv1.py Not Lossless.')
 
         if filecmp.cmp(fmd5, fmd5ffv1, shallow=False): 
@@ -210,8 +218,8 @@ else:
         source_parent_dir = os.path.dirname(filename)
         relative_path = normpath.split(os.sep)[-1]
         manifest =  '%s_manifest.md5' % (relative_path)
-        generate_log(log, 'makeffv1.py MD5 manifest generation')
+        generate_log(log, 'makeffv1.py MD5 manifest started')
         make_manifest(filenoext,manifest)
         os.chdir('..')
-        
+        generate_log(log, 'makeffv1.py MD5 manifest completed')
         
