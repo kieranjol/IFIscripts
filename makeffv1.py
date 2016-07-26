@@ -210,8 +210,8 @@ else:
         source_parent_dir = os.path.dirname(filename)
         relative_path = normpath.split(os.sep)[-1]
         manifest =  '%s_manifest.md5' % (relative_path)
-        generate_log(log, 'makeffv1.py MD5 manifest started')
+        generate_log(log, 'makeffv1.py MD5 manifest generation')
         make_manifest(filenoext,manifest)
         os.chdir('..')
-        generate_log(log, 'makeffv1.py MD5 manifest completed')
+        
         
