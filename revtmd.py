@@ -115,6 +115,13 @@ else:
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', '2.8.2', revtmd_xmlfile)
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "FFv1", revtmd_xmlfile)
+        
+    def ffmpeg_v210_machine_revtmd(number):
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Transcode', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:description', 'Transcode to v210', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'ffmpeg', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', '???', revtmd_xmlfile)
+        add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:videoEncoding', "v210", revtmd_xmlfile)
 
     def avid_capture_revtmd(number):
         add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:role', 'Capture Software', revtmd_xmlfile)
@@ -517,18 +524,20 @@ else:
             grade_interventions = multenterbox(msg,title, fieldNames)
         
         else:
+            if workflow == "Scanning":
+                scanner = 'Scanner'
+            else:    
+                msg = "Capture Frame Rate"
+                title = "Capture Frame Rate"
+                fieldNames = ["15","16","18","20","22","24","25", "Multiple frame rates"]
+                capture_frame_rate = []  # we start with blanks for the values
+                capture_frame_rate = choicebox(msg,title, fieldNames)
+                fps_string = 'Captured at %s fps' % capture_frame_rate
             
-            msg = "Capture Frame Rate"
-            title = "Capture Frame Rate"
-            fieldNames = ["15","16","18","20","22","24","25", "Multiple frame rates"]
-            capture_frame_rate = []  # we start with blanks for the values
-            capture_frame_rate = choicebox(msg,title, fieldNames)
-            fps_string = 'Captured at %s fps' % capture_frame_rate
-            
-            msg ="Telecine Machine"
-            title = "Choose the telecine machine"
-            choices = ["Flashtransfer", "Flashscan", "Scanner"]
-            scanner = choicebox(msg, title, choices)
+                msg ="Telecine Machine"
+                title = "Choose the telecine machine"
+                choices = ["Flashtransfer", "Flashscan", "Scanner"]
+                scanner = choicebox(msg, title, choices)
         
         if scanner == "Flashtransfer":
             def scanner(number):            
@@ -553,7 +562,7 @@ else:
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:manufacturer', 'P&S Techniks', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:modelName', 'Steadyframe', revtmd_xmlfile)
                 add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:signal', 'Ethernet', revtmd_xmlfile)
-                add_to_revtmd('//revtmd:codingProcessHistory' + str([number]) + '/revtmd:settings[1]', fps_string, revtmd_xmlfile)
+                
                 
         # Preparation History        
         msg ="Preperation?"
@@ -568,20 +577,22 @@ else:
         preparation = multchoicebox(msg, title, choices, preselect=None)
         print preparation
         # End preperation history
-        # Flashtransfer settings      
-        msg ="Flashtransfer settings?"
-        title = "Workflows"
-        choices = ["Gamma Curve - Linear",
-                   "Gamma Curve - Low",
-                   "Gamma Curve - Standard", 
-                   "Gamma Curve - High",
-                   "Contrast - Low",
-                   "Contrast - Off",
-                   "Contrast - High",
-                   "None",]
-        flashtransfer_settings = multchoicebox(msg, title, choices, preselect=None)
-        print flashtransfer_settings
-        # End preperation history
+        # Flashtransfer settings  
+        flashtransfer_settings = []   
+        if scanner == "Flashtransfer": 
+            msg ="Flashtransfer settings?"
+            title = "Workflows"
+            choices = ["Gamma Curve - Linear",
+                       "Gamma Curve - Low",
+                       "Gamma Curve - Standard", 
+                       "Gamma Curve - High",
+                       "Contrast - Low",
+                       "Contrast - Off",
+                       "Contrast - High",
+                       "None",]
+            flashtransfer_settings = multchoicebox(msg, title, choices, preselect=None)
+            print flashtransfer_settings
+            # End preperation history
         
         # Interventions during capture
         msg ="Interventions at point of capture"
@@ -590,41 +601,43 @@ else:
                    "Contrast adjustment",
                    "Negative to positive", 
                    "Spacing between reels not captured",
+                   "Monochrome setting enabled",
+                   "Overscanning of image to capture optical track"
                     ]
         capture_interventions = multchoicebox(msg, title, choices, preselect=None)
         # End interventions during capture
-        
-        # Audio assesment during capture
-        msg ="Headphones/speakers used during capture"
-        title = "capture audio assesment"
-        choices = ["Philips Headphones",
-                   "M-Audio Speakers",
-                   "Both",
-                   "None"                   
+        if not workflow == "Scanning":
+            # Audio assesment during capture
+            msg ="Headphones/speakers used during capture"
+            title = "capture audio assesment"
+            choices = ["Philips Headphones",
+                       "M-Audio Speakers",
+                       "Both",
+                       "None"                   
                    
-                    ]
-        audio_choices = choicebox(msg, title, choices)
+                        ]
+            audio_choices = choicebox(msg, title, choices)
 
-        if audio_choices == "Philips Headphones":
-            def audio_capture_telecine(number):
-                philips_headphones_telecine(number)
-        elif audio_choices == "M-Audio Speakers":
-            def audio_capture_telecine(number):
-                maudio_left_speaker_telecine(number)
-                number += 1
-                maudio_right_speaker_telecine(number)
+            if audio_choices == "Philips Headphones":
+                def audio_capture_telecine(number):
+                    philips_headphones_telecine(number)
+            elif audio_choices == "M-Audio Speakers":
+                def audio_capture_telecine(number):
+                    maudio_left_speaker_telecine(number)
+                    number += 1
+                    maudio_right_speaker_telecine(number)
 
-        elif audio_choices == "Both":
-            def audio_capture_telecine(number):        
-                philips_headphones_telecine(number) 
-                number += 1
+            elif audio_choices == "Both":
+                def audio_capture_telecine(number):        
+                    philips_headphones_telecine(number) 
+                    number += 1
                 
-                maudio_left_speaker_telecine(number)
-                number += 1
-                maudio_right_speaker_telecine(number)
-        elif audio_choices == "None": 
-            print "No audio selected"        
-        print audio_choices       
+                    maudio_left_speaker_telecine(number)
+                    number += 1
+                    maudio_right_speaker_telecine(number)
+            elif audio_choices == "None": 
+                print "No audio selected"        
+            print audio_choices       
               
         
         # End interventions during capture
@@ -636,7 +649,8 @@ else:
                    "Broadcast Safe Filter",
                    "Desaturate Filter",
                    "Negative to positive",
-                   "Avid Motion Editing"
+                   "Avid Motion Editing",
+                   "None"
                    ]
         post_processing = multchoicebox(msg, title, choices, preselect=None)
 
@@ -834,38 +848,17 @@ else:
         add_to_revtmd('//revtmd:filename', filename_without_path, revtmd_xmlfile)
         add_to_revtmd('//revtmd:source', fieldValues[0], revtmd_xmlfile)
         position += 1
+        basement_2k_scanner(position)
+        position += 1
         scanner(position)
         position += 1
-        telecine_mac_pro_revtmd(position)
+        basement_content_agent_pc(position)
         position += 1
-        telecine_mac_pro_os_revtmd(position)
+        basement_content_agent_pc_os_revtmd(position)
         position += 1
-        IiyamaMonitor1_telecine(position)
-        position += 1
-        IiyamaMonitor2_telecine(position)
-        position += 1
-        tvlogic_broadcast_telecine(position)
-        position += 1
-        if not audio_choices == "None":         
-            audio_capture_telecine(position)
-            
-            if audio_choices == "Philips Headphones":
-                position += 1
-            elif audio_choices == "M-Audio Speakers":
-                position += 2
-            elif audio_choices == "Both":
-                position += 3
-        bmd_ultrascopes_telecine(position)
         tech_metadata_revtmd()
         position += 1
-        avid_capture_revtmd(position)
-        position += 1
         add_to_revtmd('//revtmd:digitizationEngineer[1]', user, revtmd_xmlfile)
-        avid_consolidate_revtmd(position)
-        position += 1
-        avid_post_processing(position)
-        position += 1
-        avid_export_revtmd(position)
         #ffmpeg_revtmd(position)        
         prep_data_entry()
         capture_interventions_func()
@@ -959,6 +952,7 @@ else:
         ingest2()
     elif workflow == "Scanning":
         steadyframe(counter)
+
     # Temporary, possibly permanent way to delete empty elements
     subprocess.call(['xml', 'ed', '--inplace','-d',
                     '//*[not(./*) and (not(./text()) or normalize-space(./text())="")]',
