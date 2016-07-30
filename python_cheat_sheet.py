@@ -1,6 +1,6 @@
 '''
 Not actually code - I'm just calling it a .py script so that github   colours the text
-1gittestSome common commands!
+Some common commands!
 '''
 # Check if input is passed as argument
 if len(sys.argv) < 2:
