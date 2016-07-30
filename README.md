@@ -30,6 +30,7 @@ Further options can be viewed with `dcpfixity.py -h`
 <b>move.py</b> Copies a directory, creating a md5 manifest at source and destination and comparing the two. Usage: ` move.py source_dir destination_dir` 
 
 Experimental scripts: 
+<b>premis.py</b> Usage - `premis.py filename`. Work in progress PREMIS implementation. This PREMIS document will hopefully function as a growing log file as an asset makes its way through a workflow.<br><br>
 
 <b>move.py</b> Usage - `move.py source destination`. Creates manifest before and after copying and diffs the two manifests.<br><br>
 <b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.<br><br>
