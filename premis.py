@@ -1,7 +1,7 @@
-#http://stackoverflow.com/questions/7703018/how-to-write-namespaced-element-attributes-with-lxml
 '''
 Work in progress. I think this will just be a bunch of functions that other scripts can call on in order to use as a growing log file.
 '''
+#http://stackoverflow.com/questions/7703018/how-to-write-namespaced-element-attributes-with-lxml
 import lxml.etree as ET
 import lxml.builder as builder
 import uuid
@@ -9,6 +9,11 @@ import time
 import sys
 import subprocess
 
+def create_unit(parent, unitname):
+    unitname = ET.Element("{%s}%s" % (DCNS, unitname))
+    parent.insert(0,unitname)
+    return unitname
+    
 E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
                          nsmap={None: 'http://www.loc.gov/premis/v3',
                          'premis': 'http://www.loc.gov/premis/v3',
@@ -18,7 +23,7 @@ E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
                           })
 premis = E.premis(version="3.0")
 DCNS = "http://www.loc.gov/premis/v3"
-print(ET.tostring(premis, pretty_print=True))
+
 doc = ET.ElementTree(premis)
 #new_element = ET.Element('premis:object', namespaces={'ns': 'premis'})
 object_parent = ET.SubElement(premis, "{%s}object" % (DCNS))
@@ -38,12 +43,12 @@ object_parent.insert(2,objectCharacteristics)
 object_identifier_parent.insert(1,ET.Element("{%s}objectIdentifierValue" % (DCNS)))
 format_ = ET.Element("{%s}format" % (DCNS))
 objectCharacteristics.insert(0,format_)
-fixity = ET.Element("{%s}fixity" % (DCNS))
-objectCharacteristics.insert(0,fixity)
-messageDigestAlgorithm = ET.Element("{%s}messageDigestAlgorithm" % (DCNS))
-fixity.insert(0,messageDigestAlgorithm)
-messageDigest = ET.Element("{%s}messageDigest" % (DCNS))
-fixity.insert(1,messageDigest)
+
+
+
+fixity = create_unit(objectCharacteristics,'fixity')
+messageDigestAlgorithm = create_unit(fixity, 'messageDigestAlgorithm')
+messageDigest = create_unit(fixity, 'messageDigest')
 
 objectCategory = ET.Element("{%s}objectCategory" % (DCNS))
 
@@ -55,8 +60,9 @@ def make_event(event_type):
     
     event = ET.SubElement(premis, "{%s}event" % (DCNS))
     premis.insert(1,event)
-    event_Identifier = ET.Element("{%s}eventIdentifier" % (DCNS))
-    event.insert(1,event_Identifier)
+    #event_Identifier = ET.Element("{%s}eventIdentifier" % (DCNS))
+    #event.insert(1,event_Identifier)
+    event_Identifier = create_unit(event,'event_Identifier')
     event_id_type = ET.Element("{%s}eventIdentifierType" % (DCNS))
     event_Identifier.insert(0,event_id_type)
     event_id_value = ET.Element("{%s}eventIdentifierValue" % (DCNS))
@@ -126,3 +132,8 @@ E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
                           })
 premis = E.premis(version="3.0")
 print(ET.tostring(premis, pretty_print=True))
+
+
+
+
+'''
