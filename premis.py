@@ -8,12 +8,15 @@ import uuid
 import time
 import sys
 import subprocess
+import os
+
 
 def create_unit(parent, unitname):
     unitname = ET.Element("{%s}%s" % (DCNS, unitname))
     parent.insert(0,unitname)
     return unitname
     
+'''    
 E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
                          nsmap={None: 'http://www.loc.gov/premis/v3',
                          'premis': 'http://www.loc.gov/premis/v3',
@@ -21,8 +24,12 @@ E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
                          'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
                          'schemaLocation':'http://www.loc.gov/premis/v3'
                           })
-premis = E.premis(version="3.0")
+# premis = E.premis(version="3.0")
+'''
+namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
+premis = ET.fromstring(namespace)
 DCNS = "http://www.loc.gov/premis/v3"
+    
 
 doc = ET.ElementTree(premis)
 #new_element = ET.Element('premis:object', namespaces={'ns': 'premis'})
@@ -45,13 +52,21 @@ format_ = ET.Element("{%s}format" % (DCNS))
 objectCharacteristics.insert(0,format_)
 
 
-
+mediainfo = subprocess.check_output(['mediainfo', '-f', '--language=raw', '--Output=XML', sys.argv[1]])
+parser = ET.XMLParser(remove_blank_text=True)
+mediainfo_xml = ET.fromstring((mediainfo),parser=parser)
 fixity = create_unit(objectCharacteristics,'fixity')
+size = create_unit(objectCharacteristics,'size')
+size.text = str(os.path.getsize(sys.argv[1]))
+formatDesignation = create_unit(format_,'formatDesignation')
+formatName = create_unit(formatDesignation,'formatName')
+
 messageDigestAlgorithm = create_unit(fixity, 'messageDigestAlgorithm')
 messageDigest = create_unit(fixity, 'messageDigest')
 
 objectCategory = ET.Element("{%s}objectCategory" % (DCNS))
-
+objectCharacteristicsExtension = create_unit(objectCharacteristics,'objectCharacteristicsExtension')
+objectCharacteristicsExtension.insert(0, mediainfo_xml)
 object_parent.insert(1,objectCategory)
 objectCategory.text = 'file'
 
@@ -90,8 +105,15 @@ make_event('Compression')
 make_event('Message Digest Calculation')
 make_event('Capture')
 create_hash(sys.argv[1])
+'''
+>>> parser = etree.XMLParser(remove_blank_text=True)
+>>> tree = etree.parse(filename, parser)
+'''
+
+print(ET.tostring(doc, pretty_print=True))
 outFile = open('premis.xml','w')
 doc.write(outFile,pretty_print=True)
+
 
 '''
 from lxml import etree
