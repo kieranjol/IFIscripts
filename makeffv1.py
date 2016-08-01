@@ -13,6 +13,10 @@ import csv
 import time
 import itertools
 import getpass
+from premis import make_premis
+from premis import make_event
+from premis import write_premis
+
 
 def get_mediainfo(var_type, type, filename):
     var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
@@ -83,7 +87,7 @@ else:
     wd = os.path.dirname(input)
 
     # Change current working directory to the value stored as "wd"
-    os.chdir(wd)
+    os.chdir(os.path.abspath(wd))
 
     # Store the actual file/directory name without the full path.
     file_without_path = os.path.basename(input)
@@ -222,4 +226,11 @@ else:
         make_manifest(filenoext,manifest)
         os.chdir('..')
         generate_log(log, 'makeffv1.py MD5 manifest completed')
+
+        
+
+make_premis(output)
+make_event('whatever trevor')
+write_premis()
+    
         
