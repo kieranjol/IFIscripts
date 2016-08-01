@@ -66,27 +66,44 @@ def get_input(filename):
 def make_premis(source_file):
     main(source_file)    
 
-def make_event(event_type):
+def make_event(event_type, event_detail, *args):
         global event_Type
         
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
         #event_Identifier = ET.Element("{%s}eventIdentifier" % (premis_namespace))
         #event.insert(1,event_Identifier)
-        event_Identifier = create_unit(0,event,'event_Identifier')
+        event_Identifier = create_unit(1,event,'event_Identifier')
         event_id_type = ET.Element("{%s}eventIdentifierType" % (premis_namespace))
         event_Identifier.insert(0,event_id_type)
         event_id_value = ET.Element("{%s}eventIdentifierValue" % (premis_namespace))
         
         event_Identifier.insert(0,event_id_value)
         event_Type = ET.Element("{%s}eventType" % (premis_namespace))
-        event.insert(1,event_Type)
+        event.insert(2,event_Type)
         event_DateTime = ET.Element("{%s}eventDateTime" % (premis_namespace))
-        event.insert(1,event_DateTime)
+        event.insert(3,event_DateTime)
         event_DateTime.text = time.strftime("%Y-%m-%dT%H:%M:%S")
         event_Type.text = event_type
         event_id_value.text = str(uuid.uuid4())
         event_id_type.text = 'UUID'    
+        eventDetailInformation = create_unit(4,event,'event_DetailInformation')
+        eventDetail = create_unit(0,eventDetailInformation,'event_Detail')
+        eventDetail.text = event_detail
+        linkingObjectIdentifier = create_unit(5,event,'linkingObjectIdentifier')
+        linkingObjectIdentifierType = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
+        linkingObjectIdentifierValue = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
+        linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
+        linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
+        linkingObjectIdentifierValue.text = 'OE1234'
+        linkingObjectRole.text = 'source'  
+        if event_type == 'capture':
+            print 123123123123123
+            eventDetailExtension = create_unit(1, eventDetailInformation, 'event_DetailExtension')
+            eventDetailExtension.insert(0,*args)  
+            
+        
+
 def main(source_file):
     global premis_namespace
     global premis
@@ -185,7 +202,7 @@ def main(source_file):
         
     #make_event('Compression')
 
-    make_event('Message Digest Calculation')
+    make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"')
     #make_event('Capture')
 
     
