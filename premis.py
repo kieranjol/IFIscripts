@@ -17,8 +17,13 @@ import sys
 import subprocess
 import os
 from glob import glob
+import pg
 
 source_file = sys.argv[1]
+items = pg.main()
+print items,213890429843290
+def add_value(value, element):
+    element.text = value
 def write_premis():
     outFile = open('premis.xml','w')
     doc.write(outFile,pretty_print=True)
@@ -34,6 +39,7 @@ def create_hash(filename):
     return md5    
 
 def get_input(filename):
+    global video_files
     # Input, either file or firectory, that we want to process.
     input = filename
     # Store the directory containing the input file/directory.
@@ -67,6 +73,7 @@ def make_premis(source_file):
     main(source_file)    
 
 def make_event(event_type, event_detail, *args):
+        global linkingObjectIdentifierValue
         global event_Type
         
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
@@ -95,14 +102,14 @@ def make_event(event_type, event_detail, *args):
         linkingObjectIdentifierValue = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
         linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
-        linkingObjectIdentifierValue.text = 'OE1234'
+        
         linkingObjectRole.text = 'source'  
         if event_type == 'capture':
             print 123123123123123
             eventDetailExtension = create_unit(1, eventDetailInformation, 'event_DetailExtension')
             eventDetailExtension.insert(0,*args)  
             
-        
+        return doc
 
 def main(source_file):
     global premis_namespace
@@ -121,14 +128,20 @@ def main(source_file):
     print video_files
     object_parent = create_unit(0, premis, 'object')
     object_identifier_parent = create_unit(0,object_parent, 'objectIdentifier')
-
+    object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
+    object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+    object_identifier_uuid_type.text = 'UUID'
+    object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
+    representation_uuid = str(uuid.uuid4())
+    object_identifier_uuid_value.text = representation_uuid
     object_parent.insert(1,object_identifier_parent)
     ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
     ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
+    
     object_identifier_parent.insert(0,ob_id_type)  
     objectCategory = create_unit(1,object_parent, 'objectCategory')  
     objectCategory.text = 'representation'
-    relationship = create_unit(2,object_parent, 'relationship')
+    relationship = create_unit(3,object_parent, 'relationship')
     relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
     relatedObjectIdentifierType.text = 'Filename'
     relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
@@ -154,6 +167,12 @@ def main(source_file):
         objectCharacteristics = ET.Element("{%s}objectCharacteristics" % (premis_namespace))
         object_parent.insert(2,objectCharacteristics)
         objectIdentifierValue = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
+        object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
+        object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+        object_identifier_uuid_type.text = 'UUID'
+        object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
+        file_uuid = str(uuid.uuid4())
+        object_identifier_uuid_value.text = file_uuid
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
         filename_identifier = create_unit(1, object_parent, 'objectIdentifier')
