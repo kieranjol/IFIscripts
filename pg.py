@@ -65,6 +65,6 @@ def main():
     form = ExampleApp()  # We set the form to be our ExampleApp (design)
     form.show()  # Show the form
     app.exec_()  # and execute the app
-
+    return items
 if __name__ == '__main__':
     main()  # run the main function

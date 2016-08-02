@@ -21,6 +21,17 @@ import pg
 
 source_file = sys.argv[1]
 items = pg.main()
+
+def create_revtmd():
+    revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
+    revtmd_root = ET.fromstring(revtmd_namespace)
+    print revtmd_root
+    r_namespace = "http://nwtssite.nwts.nara/schema/"
+    revtmd_object = ET.ElementTree(revtmd_root)
+    #revtmd_first = create_unit(0, revtmd_object, 'revtmd')
+    return revtmd_object
+revtmd = create_revtmd()
+print(ET.tostring(revtmd, pretty_print=True))
 print items,213890429843290
 def add_value(value, element):
     element.text = value
@@ -28,6 +39,11 @@ def write_premis():
     outFile = open('premis.xml','w')
     doc.write(outFile,pretty_print=True)
 def create_unit(index,parent, unitname):
+    premis_namespace = "http://nwtssite.nwts.nara/schema/"
+    unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
+    parent.insert(index,unitname)
+    return unitname
+def create_revtmd_unit(index,parent, unitname):
     premis_namespace = "http://www.loc.gov/premis/v3"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
     parent.insert(index,unitname)
