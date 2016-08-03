@@ -46,18 +46,22 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
             interventions.append(str(i.text()))
         return interventions
     def encode(self):
+        global ifi_identifiersDict
+        ifi_identifiersDict = {}
         
         oe = self.oeTextBox.toPlainText()
         filmographic = self.FilmographicTextBox.toPlainText()
         sourceAccession = self.sourceAccessionTextBox.toPlainText()
-        print filmographic
-        print sourceAccession
-        
-        
-        print oe
+        #interventions = self.getInterventionList
         #items = self.getPrepList
-        print items
-        print interventions
+        
+        ifi_identifiersDict = {"oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items}
+        
+        return ifi_identifiersDict
+        
+        #items = self.getPrepList
+        
+        
         
 def main():
 
@@ -65,6 +69,8 @@ def main():
     form = ExampleApp()  # We set the form to be our ExampleApp (design)
     form.show()  # Show the form
     app.exec_()  # and execute the app
-    return items
+    
+    return ifi_identifiersDict
+    
 if __name__ == '__main__':
     main()  # run the main function

@@ -20,8 +20,9 @@ from glob import glob
 import pg
 
 source_file = sys.argv[1]
+global items
 items = pg.main()
-
+print items
 def create_revtmd():
     revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
     revtmd_root = ET.fromstring(revtmd_namespace)
@@ -38,12 +39,12 @@ def add_value(value, element):
 def write_premis():
     outFile = open('premis.xml','w')
     doc.write(outFile,pretty_print=True)
-def create_unit(index,parent, unitname):
+def create_revtmd_unit(index,parent, unitname):
     premis_namespace = "http://nwtssite.nwts.nara/schema/"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
     parent.insert(index,unitname)
     return unitname
-def create_revtmd_unit(index,parent, unitname):
+def create_unit(index,parent, unitname):
     premis_namespace = "http://www.loc.gov/premis/v3"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
     parent.insert(index,unitname)
@@ -78,6 +79,7 @@ def get_input(filename):
         os.chdir(file_without_path)
         video_files = (
             glob('*.tif') +
+            glob('*.tiff') +
             glob('*.dpx')
         )
 
