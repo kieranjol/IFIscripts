@@ -21,29 +21,47 @@ import pg
 
 source_file = sys.argv[1]
 global items
+global revtmd
 items = pg.main()
-print items
-def create_revtmd():
-    revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
-    revtmd_root = ET.fromstring(revtmd_namespace)
-    print revtmd_root
-    r_namespace = "http://nwtssite.nwts.nara/schema/"
-    revtmd_object = ET.ElementTree(revtmd_root)
-    #revtmd_first = create_unit(0, revtmd_object, 'revtmd')
-    return revtmd_object
-revtmd = create_revtmd()
-print(ET.tostring(revtmd, pretty_print=True))
-print items,213890429843290
-def add_value(value, element):
-    element.text = value
-def write_premis():
-    outFile = open('premis.xml','w')
-    doc.write(outFile,pretty_print=True)
+print items,'whatver'
 def create_revtmd_unit(index,parent, unitname):
     premis_namespace = "http://nwtssite.nwts.nara/schema/"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
     parent.insert(index,unitname)
     return unitname
+def create_revtmd():
+    revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
+    revtmd_root = ET.fromstring(revtmd_namespace)
+    
+    r_namespace = "http://nwtssite.nwts.nara/schema/"
+    revtmd_object = ET.ElementTree(revtmd_root)
+    revtmd_first = create_revtmd_unit(0, revtmd_root, 'object')
+    revtmd_filename = create_revtmd_unit(1, revtmd_first, 'filename')
+    revtmd_organisation = create_revtmd_unit(2, revtmd_first, 'organisation')
+    revtmd_organisation_main = create_revtmd_unit(0, revtmd_organisation, 'organisation_main')
+    revtmd_organisation_main_name = create_revtmd_unit(0, revtmd_organisation_main, 'name')
+    revtmd_organisation_main_role = create_revtmd_unit(0, revtmd_organisation_main, 'role')
+    revtmd_organisation_division = create_revtmd_unit(1, revtmd_organisation, 'organisation_divsion')
+    revtmd_organisation_division_name = create_revtmd_unit(0, revtmd_organisation_division, 'name')
+    revtmd_use = create_revtmd_unit(3, revtmd_first, 'use')
+    revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
+    revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
+    revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineers')
+    for i in items['prepList']:
+        counter = 3
+        x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
+        x.text = i
+        counter += 1
+    return revtmd_object
+revtmd = create_revtmd()
+rstring = ET.tostring(revtmd, pretty_print=True)
+
+def add_value(value, element):
+    element.text = value
+def write_premis():
+    outFile = open('premis.xml','w')
+    doc.write(outFile,pretty_print=True)
+
 def create_unit(index,parent, unitname):
     premis_namespace = "http://www.loc.gov/premis/v3"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
@@ -123,9 +141,12 @@ def make_event(event_type, event_detail, *args):
         
         linkingObjectRole.text = 'source'  
         if event_type == 'capture':
-            print 123123123123123
+            
             eventDetailExtension = create_unit(1, eventDetailInformation, 'event_DetailExtension')
-            eventDetailExtension.insert(0,*args)  
+            parser = ET.XMLParser(remove_blank_text=True)
+            blaa = ET.fromstring(*args, parser=parser)
+            
+            eventDetailExtension.insert(0,blaa)  
             
         return doc
 
@@ -240,7 +261,7 @@ def main(source_file):
     #make_event('Compression')
 
     make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"')
-    #make_event('Capture')
+    make_event('capture', '', rstring)
 
     
     '''
