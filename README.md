@@ -44,8 +44,8 @@ python scriptname.py filename<br>
 
 Some scripts, such as bitc.py or prores.py also accept a directory as input in order to batch process files.<br>
 <br>
-dcpfixity.py and dcpaccess.py accept the DCP directory as input <br>
+`dcpfixity.py` and `dcpaccess.py` accept the DCP directory as input <br>
 
-python dcpfixity.py dcp_directory
+`python dcpfixity.py dcp_directory`
 <br><br>
 dcpfixity requires openssl and lxml. The latter can be installed with pip.
