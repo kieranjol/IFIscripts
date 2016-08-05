@@ -17,7 +17,7 @@ numberless_filename = images[0].split("_")[0:-1]
 ffmpeg_friendly_name = ''
 counter = 0
 while  counter <len(numberless_filename) :
-    test += numberless_filename[counter] + '_'
+    ffmpeg_friendly_name += numberless_filename[counter] + '_'
     counter += 1
 dirname = os.path.dirname(source_directory)    
 output = dirname + '/%s_consolidate.mov' % os.path.split(source_directory)[-1]
