@@ -24,26 +24,33 @@ global items
 global revtmd
 items = pg.main()
 print items,'whatver'
+
+
 def create_revtmd_unit(index,parent, unitname):
-    premis_namespace = "http://nwtssite.nwts.nara/schema/"
-    unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
+    revtmd_namespace = "http://nwtssite.nwts.nara/schema/"
+    unitname = ET.Element("{%s}%s" % (revtmd_namespace, unitname))
     parent.insert(index,unitname)
     return unitname
+    
+'''    
 def create_revtmd():
     revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
     revtmd_root = ET.fromstring(revtmd_namespace)
     
     r_namespace = "http://nwtssite.nwts.nara/schema/"
-    revtmd_object = ET.ElementTree(revtmd_root)
+    #revtmd_object = ET.ElementTree(revtmd_root)
+    
     revtmd_first = create_revtmd_unit(0, revtmd_root, 'object')
     revtmd_filename = create_revtmd_unit(1, revtmd_first, 'filename')
     revtmd_organisation = create_revtmd_unit(2, revtmd_first, 'organisation')
     revtmd_organisation_main = create_revtmd_unit(0, revtmd_organisation, 'organisation_main')
     revtmd_organisation_main_name = create_revtmd_unit(0, revtmd_organisation_main, 'name')
     revtmd_organisation_main_role = create_revtmd_unit(0, revtmd_organisation_main, 'role')
+    
     revtmd_organisation_division = create_revtmd_unit(1, revtmd_organisation, 'organisation_divsion')
     revtmd_organisation_division_name = create_revtmd_unit(0, revtmd_organisation_division, 'name')
     revtmd_use = create_revtmd_unit(3, revtmd_first, 'use')
+    revtmd_use.text = 'Preservation Master'
     revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
     revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
     revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineers')
@@ -53,9 +60,9 @@ def create_revtmd():
         x.text = i
         counter += 1
     return revtmd_object
-revtmd = create_revtmd()
-rstring = ET.tostring(revtmd, pretty_print=True)
-
+#revtmd = create_revtmd()
+#rstring = ET.tostring(revtmd, pretty_print=True)
+'''
 def add_value(value, element):
     element.text = value
 def write_premis():
@@ -105,12 +112,14 @@ def get_input(filename):
     else: 
         print "Your input isn't a file or a directory."   
     return video_files
+    
 def make_premis(source_file):
     main(source_file)    
 
 def make_event(event_type, event_detail, *args):
         global linkingObjectIdentifierValue
         global event_Type
+        global revtmd_capture_history
         
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
@@ -138,25 +147,57 @@ def make_event(event_type, event_detail, *args):
         linkingObjectIdentifierValue = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
         linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
-        
         linkingObjectRole.text = 'source'  
         if event_type == 'capture':
             
             eventDetailExtension = create_unit(1, eventDetailInformation, 'event_DetailExtension')
+            revtmd_first = create_revtmd_unit(0, eventDetailExtension, 'object')
+            revtmd_filename = create_revtmd_unit(1, revtmd_first, 'filename')
+            revtmd_organisation = create_revtmd_unit(2, revtmd_first, 'organisation')
+            revtmd_organisation_main = create_revtmd_unit(0, revtmd_organisation, 'organisation_main')
+            revtmd_organisation_main_name = create_revtmd_unit(0, revtmd_organisation_main, 'name')
+            revtmd_organisation_main_role = create_revtmd_unit(0, revtmd_organisation_main, 'role')
+    
+            revtmd_organisation_division = create_revtmd_unit(1, revtmd_organisation, 'organisation_divsion')
+            revtmd_organisation_division_name = create_revtmd_unit(0, revtmd_organisation_division, 'name')
+            revtmd_use = create_revtmd_unit(3, revtmd_first, 'use')
+            revtmd_use.text = 'Preservation Master'
+            revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
+            revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
+            revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineer')
+            for i in items['prepList']:
+                counter = 3
+                x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
+                x.text = i
+                counter += 1
+            process_history(vtr)
+            process_history(vtr2)  
+            '''
             parser = ET.XMLParser(remove_blank_text=True)
             blaa = ET.fromstring(*args, parser=parser)
             
             eventDetailExtension.insert(0,blaa)  
-            
+            '''
         return doc
+global vtr        
+vtr = {'role':'playback', 'manufacturer':'Sony', 'signal':'composite', 'serialNumber':'abc123'}
 
+vtr2 = {'role':'playback', 'manufacturer':'Panasonic', 'signal':'composite', 'serialNumber':'abc123'}
+        
+def process_history(coding_dict):
+    counter = 1
+    process = create_revtmd_unit(counter, revtmd_capture_history, 'codingprocessHistory')
+    for i in coding_dict:
+        a = create_revtmd_unit(0, process, i)
+        a.text = coding_dict[i]
+  
 def main(source_file):
     global premis_namespace
     global premis
     global messageDigestAlgorithm
     global messageDigest
     global doc    
-    namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
+    namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
     premis = ET.fromstring(namespace)
     premis_namespace = "http://www.loc.gov/premis/v3"
     xsi_namespace = "http://www.w3.org/2001/XMLSchema-instance"
@@ -251,17 +292,10 @@ def main(source_file):
         create_hash(image)
         mediainfo_counter += 1
 
-    
-        
-        
-
-        
-        
-        
     #make_event('Compression')
 
     make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"')
-    make_event('capture', '', rstring)
+    make_event('capture', '')
 
     
     '''

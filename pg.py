@@ -23,8 +23,8 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         #self.oeTextBox.textChanged.connect(self.countup)
         #print text
         #items = []
-        self.filmPreparationListBox.itemClicked.connect(self.getPrepList)
-        self.filmCaptureInterventionsListBox.itemClicked.connect(self.getInterventionList)
+        self.filmPreparationListBox.itemSelectionChanged.connect(self.getPrepList)
+        self.filmCaptureInterventionsListBox.itemSelectionChanged.connect(self.getInterventionList)
         
         
 
