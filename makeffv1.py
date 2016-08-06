@@ -13,10 +13,11 @@ import csv
 import time
 import itertools
 import getpass
+'''
 from premis import make_premis
 from premis import make_event
 from premis import write_premis
-
+'''
 
 def get_mediainfo(var_type, type, filename):
     var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
@@ -218,6 +219,7 @@ else:
 
         make_mediainfo(inputxml,'mediaxmlinput',filename)
         make_mediainfo(outputxml,'mediaxmloutput',output)
+        
         normpath = os.path.normpath(filename)
         source_parent_dir = os.path.dirname(filename)
         relative_path = normpath.split(os.sep)[-1]
@@ -228,9 +230,9 @@ else:
         generate_log(log, 'makeffv1.py MD5 manifest completed')
 
         
-
+'''
 make_premis(output)
 make_event('whatever trevor')
 write_premis()
-    
+'''    
         
