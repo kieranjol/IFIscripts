@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>IFI Irish Film Archive Post Digitisation Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -166,7 +166,7 @@
      <attribute name="title">
       <string>Raw Audio</string>
      </attribute>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QListWidget" name="rawAudioInterventions">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -267,17 +267,32 @@
     </item>
     <item>
      <property name="text">
-      <string>Kieran</string>
+      <string>Kieran O'Leary</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Brian</string>
+      <string>Brian Cash</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>Gavin</string>
+      <string>Gavin Martin</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Raelene Casey</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Aaron Healy</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Dean Kavanagh</string>
      </property>
     </item>
    </widget>
@@ -392,7 +407,7 @@
      <x>0</x>
      <y>0</y>
      <width>701</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

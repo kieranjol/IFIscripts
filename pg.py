@@ -25,9 +25,16 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         #items = []
         self.filmPreparationListBox.itemSelectionChanged.connect(self.getPrepList)
         self.filmCaptureInterventionsListBox.itemSelectionChanged.connect(self.getInterventionList)
+        self.rawAudioInterventions.itemSelectionChanged.connect(self.getRawAudioInterventionsList)
+        self.userComboBox.activated[str].connect(self.getUser)
         
         
-
+        
+        
+    def getUser(self):
+        global user
+        user = self.userComboBox.currentText()
+        
     def getPrepList(self):
         global items
         items = []
@@ -45,6 +52,16 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         for i in interventionsObjects:
             interventions.append(str(i.text()))
         return interventions
+        
+    def getRawAudioInterventionsList(self):
+        global rawAudiointerventions
+        rawAudiointerventions = []
+        
+        rawAudiointerventionsObjects = self.rawAudioInterventions.selectedItems()
+        for i in rawAudiointerventionsObjects:
+            rawAudiointerventions.append(str(i.text()))
+        return rawAudiointerventions
+        
     def encode(self):
         global ifi_identifiersDict
         ifi_identifiersDict = {}
@@ -53,10 +70,10 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         filmographic = self.FilmographicTextBox.toPlainText()
         sourceAccession = self.sourceAccessionTextBox.toPlainText()
         #interventions = self.getInterventionList
-        #items = self.getPrepList
-        
+        #items = self.getPrepLists
+        print rawAudiointerventions
         ifi_identifiersDict = {"oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items}
-        
+        print user
         return ifi_identifiersDict
         
         #items = self.getPrepList
