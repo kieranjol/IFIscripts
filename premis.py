@@ -278,11 +278,17 @@ def main(source_file):
         object_parent.insert(1,object_identifier_parent)
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
-    
+        objectIdentifierValue = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
+        objectIdentifierValue.text = items['oe']
         object_identifier_parent.insert(0,ob_id_type)  
+        object_identifier_filmographic = create_unit(3,object_parent, 'objectIdentifier')
+        object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType') 
+        object_identifier_filmographic_reference_number.text = 'IFI Irish Film Archive Filmographic Reference Number'
+        object_identifier_filmographic_reference_value = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue') 
+        object_identifier_filmographic_reference_value.text = items['filmographic']
         objectCategory = create_unit(1,object_parent, 'objectCategory')  
         objectCategory.text = 'representation'
-        relationship = create_unit(3,object_parent, 'relationship')
+        relationship = create_unit(4,object_parent, 'relationship')
         relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
         relatedObjectIdentifierType.text = 'Filename'
         relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
@@ -300,15 +306,30 @@ def main(source_file):
 
         
         print image
-        object_parent = create_unit(mediainfo_counter,premis, 'object')
-        object_identifier_parent = create_unit(0,object_parent, 'objectIdentifier')
+        object_parent = create_unit(2,premis, 'object')
+        object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
         object_identifier_parent.insert(0,ob_id_type)
-        objectCharacteristics = ET.Element("{%s}objectCharacteristics" % (premis_namespace))
-        object_parent.insert(2,objectCharacteristics)
+        
+        object_identifier_filmographic = create_unit(3,object_parent, 'objectIdentifier')
+        object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType') 
+        object_identifier_filmographic_reference_number.text = 'IFI Irish Film Archive Filmographic Reference Number'
+        object_identifier_filmographic_reference_value = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue') 
+        object_identifier_filmographic_reference_value.text = items['filmographic']
+        filename_identifier = create_unit(4, object_parent, 'objectIdentifier')
+        filename_identifier_type = create_unit(1,filename_identifier, 'objectIdentifierType')
+        filename_identifier_type.text = 'Filename'
+        filename_identifier_value = create_unit(2,filename_identifier, 'objectIdentifierValue') 
+        filename_identifier_value.text = image
+        objectCategory = ET.Element("{%s}objectCategory" % (premis_namespace))
+        object_parent.insert(5,objectCategory)
+        objectCategory.text = 'file'
+        objectCharacteristics = create_unit(10,object_parent, 'objectCharacteristics')
+        
         objectIdentifierValue = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
-        object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
+        objectIdentifierValue.text = items['oe']
+        object_identifier_uuid = create_unit(2,object_parent, 'objectIdentifier')
         object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
         object_identifier_uuid_type.text = 'UUID'
         object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
@@ -316,11 +337,7 @@ def main(source_file):
         object_identifier_uuid_value.text = file_uuid
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
-        filename_identifier = create_unit(1, object_parent, 'objectIdentifier')
-        filename_identifier_type = create_unit(1,filename_identifier, 'objectIdentifierType')
-        filename_identifier_type.text = 'Filename'
-        filename_identifier_value = create_unit(2,filename_identifier, 'objectIdentifierValue') 
-        filename_identifier_value.text = image
+        
         mediainfo = subprocess.check_output(['mediainfo', '-f', '--language=raw', '--Output=XML', image])
         parser = ET.XMLParser(remove_blank_text=True)
         mediainfo_xml = ET.fromstring((mediainfo),parser=parser)
@@ -333,18 +350,17 @@ def main(source_file):
         messageDigestAlgorithm = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest = create_unit(1,fixity, 'messageDigest')
 
-        objectCategory = ET.Element("{%s}objectCategory" % (premis_namespace))
-        objectCharacteristicsExtension = create_unit(3,objectCharacteristics,'objectCharacteristicsExtension')
+        
+        objectCharacteristicsExtension = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
-        object_parent.insert(2,objectCategory)
-        objectCategory.text = 'file'
+        
         if os.path.isdir(source_file):
-            relationship = create_unit(2,object_parent, 'relationship')
+            relationship = create_unit(7,object_parent, 'relationship')
             relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
             relatedObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
             relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
-            relatedObjectIdentifierValue.text = 'OE1234'
+            relatedObjectIdentifierValue.text = items['oe']
             relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
             relatedObjectSequence.text = str(mediainfo_counter)
             relationshipType = create_unit(0,relationship, 'relationshipType')
