@@ -189,22 +189,40 @@ def make_event(event_type, event_detail, *args):
             revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
             revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
             revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineer')
-            for i in items['prepList']:
-                counter = 3
-                x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
-                x.text = i
-                counter += 1
-            process_history(revtd_basement_2k_scanner, 1)
-            process_history(revtd_basement_2k_scanner_host_computer, 2) 
-            process_history(revtd_basement_2k_scanner_host_computer_os, 3)
-            process_history(revtd_basement_2k_scanner_software, 4) 
-            process_history(revtmd_basement_content_agent_pc, 5) 
-            process_history(revtmd_basement_content_agent_os, 6) 
-            '''
-            parser = ET.XMLParser(remove_blank_text=True)
-            blaa = ET.fromstring(*args, parser=parser)
+            if items["workflow"] == 'Scanning':
+                for i in items['prepList']:
+                    counter = 3
+                    x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
+                    x.text = i
+                    counter += 1
+                process_history(revtd_basement_2k_scanner, 1)
+                process_history(revtd_basement_2k_scanner_host_computer, 2) 
+                process_history(revtd_basement_2k_scanner_host_computer_os, 3)
+                process_history(revtd_basement_2k_scanner_software, 4) 
+                process_history(revtmd_basement_content_agent_pc, 5) 
+                process_history(revtmd_basement_content_agent_os, 6) 
+                
+            if items["workflow"] == 'tape':
+                revtmd_edit_2_computer = (('role','Host Computer'), ('manufacturer','Apple'), ('modelName','Mac Pro'), ('serialNumber','???'))
+                revtmd_edit_2_computer_os = (('role','Host Computer Operating System'), ('manufacturer','Apple'), ('version','El Capitan'))
+                revtmd_edit_2_blackmagic_hardware = (('role','Capture Card'), ('manufacturer','Blackmagic'), ('modelName','Ultrastudio 4k'),('signal','SDI'), ('serialNumber','2965997'))
+                revtmd_edit_2_ffmpeg = (('role','Scanner'), ('manufacturer','P&S Techniks'), ('modelName','Steadyframe'),('signal','Ethernet'), ('serialNumber','601-0101'))
+                revtmd_edit_2_monitor = (('role','Host Computer Monitor'), ('manufacturer','LG'), ('modelName','???'),('signal','HDMI'), ('serialNumber','???'))
+                revtmd_edit_2_speakers = (('role','Scanner'), ('manufacturer','P&S Techniks'), ('modelName','Steadyframe'),('signal','Ethernet'), ('serialNumber','601-0101'))
+                revtmd_edit_2_headphones = (('role','Scanner'), ('manufacturer','P&S Techniks'), ('modelName','Steadyframe'),('signal','Ethernet'), ('serialNumber','601-0101'))
+                revtmd_edit_2_blackmagic_capture_software = (('role','Capture Software'), ('manufacturer','Blackmagic'), ('modelName','Media Express'),('signal','SDI'), ('serialNumber','???'))
+                
+                
+                process_history(OrderedDict(revtmd_edit_2_computer), 1)
+                process_history(OrderedDict(revtmd_edit_2_computer_os), 2)
+                process_history(OrderedDict(revtmd_edit_2_blackmagic_hardware), 3)
+                process_history(OrderedDict(revtmd_edit_2_monitor), 4)
+                process_history(OrderedDict(revtmd_edit_2_blackmagic_capture_software), 5)
+                '''
+                parser = ET.XMLParser(remove_blank_text=True)
+                blaa = ET.fromstring(*args, parser=parser)
             
-            eventDetailExtension.insert(0,blaa)  
+                eventDetailExtension.insert(0,blaa)  
             '''
         return doc
 global vtr        
@@ -218,6 +236,8 @@ revtd_basement_2k_scanner = OrderedDict(revtd_basement_2k_scanner)
 revtd_basement_2k_scanner_host_computer = {'role':'Scanner Host Computer', 'manufacturer':'???', 'modelName':'???', 'serialNumber':'???'}
 revtd_basement_2k_scanner_host_computer_os = {'role':'Scanner Host Computer Operating System', 'manufacturer':'Debian', 'modelName':'???', 'serialNumber':'???'}
 revtd_basement_2k_scanner_software = {'role':'Captures Image Sequence', 'manufacturer':'P&S Techniks', 'modelName':'???', 'serialNumber':'???'}
+
+
         
 def process_history(coding_dict, process_history_placement):
     
@@ -240,39 +260,42 @@ def main(source_file):
     premis_namespace = "http://www.loc.gov/premis/v3"
     xsi_namespace = "http://www.w3.org/2001/XMLSchema-instance"
     doc = ET.ElementTree(premis)
-    #new_element = ET.Element('premis:object', namespaces={'ns': 'premis'})
-
     video_files = get_input(source_file)
-    print video_files
-    object_parent = create_unit(0, premis, 'object')
-    object_identifier_parent = create_unit(0,object_parent, 'objectIdentifier')
-    object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
-    object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
-    object_identifier_uuid_type.text = 'UUID'
-    object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
-    representation_uuid = str(uuid.uuid4())
-    object_identifier_uuid_value.text = representation_uuid
-    object_parent.insert(1,object_identifier_parent)
-    ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
-    ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
-    
-    object_identifier_parent.insert(0,ob_id_type)  
-    objectCategory = create_unit(1,object_parent, 'objectCategory')  
-    objectCategory.text = 'representation'
-    relationship = create_unit(3,object_parent, 'relationship')
-    relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
-    relatedObjectIdentifierType.text = 'Filename'
-    relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
-    relatedObjectIdentifierValue.text = video_files[0]
-    relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
-    relatedObjectSequence.text = '1'
-    relationshipType = create_unit(0,relationship, 'relationshipType')
-    relationshipType.text = 'structural'
-    relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
-    relationshipSubType.text = 'has root'
-
-    print video_files 
     mediainfo_counter = 1
+    #new_element = ET.Element('premis:object', namespaces={'ns': 'premis'})
+    # Assuming that directory input means image sequence...
+    if os.path.isdir(source_file):
+        
+        print video_files
+        object_parent = create_unit(0, premis, 'object')
+        object_identifier_parent = create_unit(0,object_parent, 'objectIdentifier')
+        object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
+        object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+        object_identifier_uuid_type.text = 'UUID'
+        object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
+        representation_uuid = str(uuid.uuid4())
+        object_identifier_uuid_value.text = representation_uuid
+        object_parent.insert(1,object_identifier_parent)
+        ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
+        ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
+    
+        object_identifier_parent.insert(0,ob_id_type)  
+        objectCategory = create_unit(1,object_parent, 'objectCategory')  
+        objectCategory.text = 'representation'
+        relationship = create_unit(3,object_parent, 'relationship')
+        relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
+        relatedObjectIdentifierType.text = 'Filename'
+        relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relatedObjectIdentifierValue.text = video_files[0]
+        relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
+        relatedObjectSequence.text = '1'
+        relationshipType = create_unit(0,relationship, 'relationshipType')
+        relationshipType.text = 'structural'
+        relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
+        relationshipSubType.text = 'has root'
+
+        print video_files 
+        
     for image in video_files:
 
         
@@ -316,17 +339,18 @@ def main(source_file):
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
         object_parent.insert(2,objectCategory)
         objectCategory.text = 'file'
-        relationship = create_unit(2,object_parent, 'relationship')
-        relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
-        relatedObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
-        relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
-        relatedObjectIdentifierValue.text = 'OE1234'
-        relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
-        relatedObjectSequence.text = str(mediainfo_counter)
-        relationshipType = create_unit(0,relationship, 'relationshipType')
-        relationshipType.text = 'structural'
-        relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
-        relationshipSubType.text = 'is part of'
+        if os.path.isdir(source_file):
+            relationship = create_unit(2,object_parent, 'relationship')
+            relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
+            relatedObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
+            relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
+            relatedObjectIdentifierValue.text = 'OE1234'
+            relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
+            relatedObjectSequence.text = str(mediainfo_counter)
+            relationshipType = create_unit(0,relationship, 'relationshipType')
+            relationshipType.text = 'structural'
+            relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
+            relationshipSubType.text = 'is part of'
         #create_hash(image)
         hashlib_md5(image, manifest)
         mediainfo_counter += 1

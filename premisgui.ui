@@ -17,14 +17,14 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>6</x>
-      <y>-1</y>
+      <x>0</x>
+      <y>10</y>
       <width>301</width>
       <height>471</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="scanningTab">
      <attribute name="title">
@@ -161,6 +161,129 @@
      <attribute name="title">
       <string>Tape</string>
      </attribute>
+     <widget class="QListWidget" name="tapeDeckList">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>256</width>
+        <height>192</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Basement - DVW-500P</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Basement - UVW something</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Basement - J30</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Basement - JH3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Edit Suite - JH3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Edit Suite - UVW</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="tapeFormatComboBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>191</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Source Format</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Betacam SP</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Digital Betacam</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Mini DV</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="tapeWorkstationComboBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>191</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Select Workstation</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Edit Suite 1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Edit Suite 2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Edit suite 3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Ingest Station 1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Ingest Station 2</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QCheckBox" name="ffv1CheckBox">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>340</y>
+        <width>231</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Transcoded to FFV1/MKV?</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="rawAudioTab">
      <attribute name="title">
@@ -407,7 +530,7 @@
      <x>0</x>
      <y>0</y>
      <width>701</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
