@@ -18,19 +18,40 @@ import subprocess
 import os
 from glob import glob
 import pg
+import hashlib 
+from collections import OrderedDict
+
 
 source_file = sys.argv[1]
 global items
 global revtmd
 items = pg.main()
 print items,'whatver'
+global manifest
+manifest = os.path.dirname(source_file) + '/' + os.path.basename(source_file) + 'manifest.md5'
 
+def hashlib_md5(filename, manifest):
+   print filename
+   print manifest
+   m = hashlib.md5()
+   with open(str(filename), 'rb') as f:
+       while True:
+           buf = f.read(2**20)
+           if not buf:
+               break
+           m.update(buf)
+   md5_output = m.hexdigest()
+   messageDigestAlgorithm.text = 'md5'
+   messageDigest.text = md5_output
+   with open(manifest, "ab") as fo:
+       fo.write(md5_output + '  ' + source_file.split(os.sep)[-1] + '/' + filename +  '\n')
 
 def create_revtmd_unit(index,parent, unitname):
     revtmd_namespace = "http://nwtssite.nwts.nara/schema/"
     unitname = ET.Element("{%s}%s" % (revtmd_namespace, unitname))
     parent.insert(index,unitname)
     return unitname
+    
     
 '''    
 def create_revtmd():
@@ -63,8 +84,11 @@ def create_revtmd():
 #revtmd = create_revtmd()
 #rstring = ET.tostring(revtmd, pretty_print=True)
 '''
+
+    
 def add_value(value, element):
     element.text = value
+    
 def write_premis():
     outFile = open('premis.xml','w')
     doc.write(outFile,pretty_print=True)
@@ -170,8 +194,12 @@ def make_event(event_type, event_detail, *args):
                 x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
                 x.text = i
                 counter += 1
-            process_history(vtr)
-            process_history(vtr2)  
+            process_history(revtd_basement_2k_scanner, 1)
+            process_history(revtd_basement_2k_scanner_host_computer, 2) 
+            process_history(revtd_basement_2k_scanner_host_computer_os, 3)
+            process_history(revtd_basement_2k_scanner_software, 4) 
+            process_history(revtmd_basement_content_agent_pc, 5) 
+            process_history(revtmd_basement_content_agent_os, 6) 
             '''
             parser = ET.XMLParser(remove_blank_text=True)
             blaa = ET.fromstring(*args, parser=parser)
@@ -183,14 +211,24 @@ global vtr
 vtr = {'role':'playback', 'manufacturer':'Sony', 'signal':'composite', 'serialNumber':'abc123'}
 
 vtr2 = {'role':'playback', 'manufacturer':'Panasonic', 'signal':'composite', 'serialNumber':'abc123'}
+revtmd_basement_content_agent_pc = {'role':'Host Computer', 'manufacturer':'Hewlett-Packard Company', 'modelName':'Z800 Workstation', 'serialNumber':'CZC2082R1Z'}
+revtmd_basement_content_agent_os = {'role':'Host Computer Operating System', 'manufacturer':'Microsoft', 'version':'Windows 7 Professional'}
+revtd_basement_2k_scanner = (('role','Scanner'), ('manufacturer','P&S Techniks'), ('modelName','Steadyframe'),('signal','Ethernet'), ('serialNumber','601-0101'))
+revtd_basement_2k_scanner = OrderedDict(revtd_basement_2k_scanner)
+revtd_basement_2k_scanner_host_computer = {'role':'Scanner Host Computer', 'manufacturer':'???', 'modelName':'???', 'serialNumber':'???'}
+revtd_basement_2k_scanner_host_computer_os = {'role':'Scanner Host Computer Operating System', 'manufacturer':'Debian', 'modelName':'???', 'serialNumber':'???'}
+revtd_basement_2k_scanner_software = {'role':'Captures Image Sequence', 'manufacturer':'P&S Techniks', 'modelName':'???', 'serialNumber':'???'}
         
-def process_history(coding_dict):
-    counter = 1
-    process = create_revtmd_unit(counter, revtmd_capture_history, 'codingprocessHistory')
-    for i in coding_dict:
-        a = create_revtmd_unit(0, process, i)
+def process_history(coding_dict, process_history_placement):
+    
+    process = create_revtmd_unit(process_history_placement, revtmd_capture_history, 'codingprocessHistory')
+    counter1 = 1
+    for i in OrderedDict(coding_dict):
+        print i, coding_dict[i]
+        a = create_revtmd_unit(counter1, process, i)
+        
         a.text = coding_dict[i]
-  
+        counter1 += 1
 def main(source_file):
     global premis_namespace
     global premis
@@ -289,7 +327,8 @@ def main(source_file):
         relationshipType.text = 'structural'
         relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text = 'is part of'
-        create_hash(image)
+        #create_hash(image)
+        hashlib_md5(image, manifest)
         mediainfo_counter += 1
 
     #make_event('Compression')

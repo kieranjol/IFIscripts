@@ -71,9 +71,14 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         sourceAccession = self.sourceAccessionTextBox.toPlainText()
         #interventions = self.getInterventionList
         #items = self.getPrepLists
-        print rawAudiointerventions
-        ifi_identifiersDict = {"oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items}
-        print user
+        
+        
+        if self.tabWidget.currentIndex() == 0:
+            ifi_identifiersDict = {"oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items}
+            
+        elif self.tabWidget.currentIndex() == 2:
+            ifi_identifiersDict = {"oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "rawAudiointerventions":str(rawAudiointerventions)}
+              
         return ifi_identifiersDict
         
         #items = self.getPrepList
