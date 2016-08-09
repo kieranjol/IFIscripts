@@ -29,8 +29,10 @@ relative_path        = normpath.split(os.sep)[-1]
 destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
-manifest                       = source_parent_dir + '/%s_manifest.md5' % relative_path
-log_name_source                = source_parent_dir + '/%s_ifi_events_log.log' % relative_path
+manifest_ = os.path.basename(args.source) + '_source_manifest' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+manifest = os.path.expanduser("~/Desktop/%s.md5") % manifest_
+log_name_source_                = os.path.basename(args.source) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
 
 def generate_log(log, what2log):
