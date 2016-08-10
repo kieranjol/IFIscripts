@@ -28,7 +28,7 @@ global revtmd
 items = pg.main()
 print items,'whatver'
 global manifest
-manifest = os.path.dirname(source_file) + '/' + os.path.basename(source_file) + 'manifest.md5'
+manifest = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
 
 def hashlib_md5(filename, manifest):
    print filename
@@ -189,7 +189,7 @@ def make_event(event_type, event_detail, *args):
             revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
             revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
             revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineer')
-            if items["workflow"] == 'Scanning':
+            if items["workflow"] == 'scanning':
                 for i in items['prepList']:
                     counter = 3
                     x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
@@ -268,8 +268,8 @@ def main(source_file):
         
         print video_files
         object_parent = create_unit(0, premis, 'object')
-        object_identifier_parent = create_unit(0,object_parent, 'objectIdentifier')
-        object_identifier_uuid = create_unit(1,object_parent, 'objectIdentifier')
+        object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
+        object_identifier_uuid = create_unit(0,object_parent, 'objectIdentifier')
         object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
         object_identifier_uuid_type.text = 'UUID'
         object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 

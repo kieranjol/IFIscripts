@@ -227,7 +227,6 @@ else:
         generate_log(log, 'makeffv1.py MD5 manifest started')
         make_manifest(filenoext,manifest)
         os.chdir('..')
-        generate_log(log, 'makeffv1.py MD5 manifest completed')
 
         
 '''
