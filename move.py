@@ -26,11 +26,12 @@ normpath             = os.path.normpath(source)
 dirname              = os.path.split(os.path.basename(source))[1]
 relative_path        = normpath.split(os.sep)[-1]
 
+
 destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
-manifest_ = os.path.basename(args.source) + '_source_manifest' + time.strftime("_%Y_%m_%dT%H_%M_%S")
-manifest = os.path.expanduser("~/Desktop/%s.md5") % manifest_
+manifest_ =  '/%s_manifest.md5' % relative_path
+manifest = os.path.expanduser("~/Desktop/%s") % manifest_
 log_name_source_                = os.path.basename(args.source) + time.strftime("_%Y_%m_%dT%H_%M_%S")
 log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
