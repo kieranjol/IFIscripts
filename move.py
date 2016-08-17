@@ -87,7 +87,7 @@ def remove_bad_files(root_dir):
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
                     os.remove(path)
 
-def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, algorithm):
+def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'

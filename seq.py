@@ -22,6 +22,6 @@ while  counter <len(numberless_filename) :
 dirname = os.path.dirname(source_directory)    
 output = dirname + '/%s_consolidate.mov' % os.path.split(source_directory)[-1]
 ffmpeg_friendly_name += '%06d.tiff'
-cmd = ['ffmpeg','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-c:v','prores',output]
+cmd = ['ffmpeg','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-c:v','v210',output]
 print cmd
 subprocess.call(cmd)
