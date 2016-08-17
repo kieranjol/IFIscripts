@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Work in progress. I think this will just be a bunch of functions that other scripts can call on in order to use as a growing log file.
 Representation:

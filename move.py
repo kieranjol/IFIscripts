@@ -17,7 +17,14 @@ parser = argparse.ArgumentParser(description='Copy directory with checksum compa
 parser.add_argument('source', help='Input directory')
 parser.add_argument('destination', help='Destination directory')
 parser.add_argument('-b', '-benchmark', action='store_true', help='display benchmark')
-
+parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
+'''
+if args.sha:
+    crf_value = args.crf
+else:
+    crf_value = '23'
+openssl/ and use archivematica tests for verification
+'''
 args = parser.parse_args()
 
 source               = args.source
@@ -80,7 +87,7 @@ def remove_bad_files(root_dir):
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
                     os.remove(path)
 
-def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
+def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, algorithm):
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'

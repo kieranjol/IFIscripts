@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from PyQt4 import QtGui, QtCore
 import sys
 import subprocess
