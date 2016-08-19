@@ -5,6 +5,7 @@ from glob import glob
 import lxml.etree as ET
 import uuid
 import time
+import filecmp
 
 premis_xml = sys.argv[1] + '/premis.xml'
 
@@ -101,21 +102,35 @@ def hashlib_md5(filename, manifest):
        fo.write(md5_output + '  ' + source_file.split(os.sep)[-1] + '/' + filename +  '\n')
  
 def check_manifest():
-    global manifest
+    original_manifest_list = []
     new_list = []
-    manifest = os.path.dirname(input) + '/' + os.path.basename(input) + '_manifest.md5'
-    if os.path.isfile(manifest):
+    original_manifest = os.path.dirname(input) + '/' + os.path.basename(input) + '_manifest.md5'
+    if os.path.isfile(original_manifest):
+        with open(original_manifest, 'r') as fo:
+            b = fo.readlines()
+            for i in b:
+                original_manifest_list.append(i.replace('tiff_scans/', 'tiff_scans/%s' % accession_number))
+            for x in original_manifest_list:  
+                print x 
+                with open(original_manifest + '_altered_original_manifest.txt', 'a') as fo:      
+                        fo.write(x)
         print 'EXISTO'
         with open(manifest, 'r') as fo:
             a = fo.readlines()
-            print a
             for i in a:
-                 new_list.append(i.replace('tiff_scans/','tiff_scans/%s' % accession_number))
+                new_list.append(i.replace('\\','/'))
+            
         for x in new_list:  
             print x 
-            with open(manifest + '_newwww.txt', 'a') as fo:      
+            with open(manifest + '_altered_new_renamed_manifest.txt', 'a') as fo:      
                 if '.tif' in x:
                     fo.write(x)
+                    
+        if filecmp.cmp(manifest + '_altered_new_renamed_manifest.txt', original_manifest + '_altered_original_manifest.txt', shallow=False): 
+            print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+        else:
+            print "YOUR CHECKSUMS DO NOT MATCH, BACK TO THE DRAWING BOARD!!!"
+            sys.exit()                 # Script will exit the loop if transcode is not lossless.
         '''
         with open(manifest, "r") as fo:
             manifest_lines = [line.split(',') for line in fo.readlines()]
@@ -158,9 +173,9 @@ def rename_files():
 def make_manifest(relative_manifest_path, manifest_textfile):
     print relative_manifest_path
     os.chdir(relative_manifest_path)
-    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
+    manifest_generator = subprocess.check_output(['md5deep', '-ler', '*'])
     manifest_list = manifest_generator.splitlines()
-    
+    '''
     for root, directories, filenames in os.walk(sys.argv[1]):   
         for files in filenames:
             print files  
@@ -172,7 +187,8 @@ def make_manifest(relative_manifest_path, manifest_textfile):
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
-    '''
+
+            
 def main():
     
     global input
@@ -184,7 +200,7 @@ def main():
     relative_path = normpath.split(os.sep)[-1]
     print relative_path
     accession_number = ask_user()
-    #rename_files()
+    rename_files()
     manifest =  '%s_newmanifest.md5' % (relative_path)
     
     make_manifest(os.path.dirname(input),manifest) 
