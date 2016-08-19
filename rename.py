@@ -14,6 +14,16 @@ def create_unit(index,parent, unitname):
     parent.insert(index,unitname)
     return unitname
     
+    
+def manifest_file_count(manifest2check):
+    if os.path.isfile(manifest2check):
+        print 'A manifest already exists'
+        with open(manifest2check, "r") as fo:
+            manifest_lines = [line.split(',') for line in fo.readlines()]
+            count_in_manifest =  len(manifest_lines)
+    return count_in_manifest  
+
+    
 def create_sibling(sibling, unitname):
     premis_namespace = "http://www.loc.gov/premis/v3"
     unitname = ET.Element("{%s}%s" % (premis_namespace, unitname))
@@ -73,13 +83,61 @@ def ask_user():
     accession_number = raw_input('--> Enter Accession Number, eg: DAA10001')
     print accession_number.upper() + '_' + sys.argv[1]
     return accession_number.upper() + '_'
-    
+ 
+def hashlib_md5(filename, manifest):
+   print filename
+   print manifest
+   m = hashlib.md5()
+   with open(str(filename), 'rb') as f:
+       while True:
+           buf = f.read(2**20)
+           if not buf:
+               break
+           m.update(buf)
+   md5_output = m.hexdigest()
+   messageDigestAlgorithm.text = 'md5'
+   messageDigest.text = md5_output
+   with open(manifest, "ab") as fo:
+       fo.write(md5_output + '  ' + source_file.split(os.sep)[-1] + '/' + filename +  '\n')
+ 
 def check_manifest():
     global manifest
+    new_list = []
     manifest = os.path.dirname(input) + '/' + os.path.basename(input) + '_manifest.md5'
     if os.path.isfile(manifest):
         print 'EXISTO'
-        return True
+        with open(manifest, 'r') as fo:
+            a = fo.readlines()
+            print a
+            for i in a:
+                 new_list.append(i.replace('tiff_scans/','tiff_scans/%s' % accession_number))
+        for x in new_list:  
+            print x 
+            with open(manifest + '_newwww.txt', 'a') as fo:      
+                if '.tif' in x:
+                    fo.write(x)
+        '''
+        with open(manifest, "r") as fo:
+            manifest_lines = [line.split(',') for line in fo.readlines()]
+            for i in manifest_lines:
+                
+                
+                for a in i:
+                    b =  a.split('/')
+                    b[-1] =  accession_number + b[-1]
+                    for i in b:
+                        
+                        # print " ".join(i), '12312'
+                        
+                        new_list.append(i + '/')
+            #print new_list                   
+               
+                    
+                    
+                    
+            count_in_manifest =  len(manifest_lines)
+        return count_in_manifest  
+        '''
     else:
         return False
   
@@ -97,16 +155,45 @@ def rename_files():
         print new_filename
         os.rename(filename, new_filename)
 
+def make_manifest(relative_manifest_path, manifest_textfile):
+    print relative_manifest_path
+    os.chdir(relative_manifest_path)
+    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
+    manifest_list = manifest_generator.splitlines()
+    
+    for root, directories, filenames in os.walk(sys.argv[1]):   
+        for files in filenames:
+            print files  
+            print os.path.realpath(root)          
+    
+    '''
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+    with open(manifest_textfile,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
+    '''
 def main():
+    
     global input
-    global accession_number
-    make_event('rename', 'changed stuff', 'iuruio3')
-    accession_number = ask_user()
+    
     input = get_input()
-    rename_files()
+    global manifest
+    global accession_number
+    normpath = os.path.normpath(os.path.dirname(input))
+    relative_path = normpath.split(os.sep)[-1]
+    print relative_path
+    accession_number = ask_user()
+    #rename_files()
+    manifest =  '%s_newmanifest.md5' % (relative_path)
+    
+    make_manifest(os.path.dirname(input),manifest) 
     manifest_check = check_manifest()
-    if manifest_check == True:
-        print 'YRAHAHAH'
+    #make_event('rename', 'changed stuff', 'iuruio3')
+    
+    
+    
+    
     
     
 if __name__ == "__main__":
