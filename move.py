@@ -144,14 +144,14 @@ def check_overwrite_dir(dir2check):
             if overwrite_destination_dir not in ('Y','y','N','n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_dir
-
+'''
 try:
     test_write_capabilities(source_parent_dir)
 except OSError:
             print 'You cannot write to your source directory!'
             generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to source directory.')      
             sys.exit()
-          
+'''          
 try:
     test_write_capabilities(destination)
 except OSError:
