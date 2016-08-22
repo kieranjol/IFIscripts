@@ -1,7 +1,7 @@
 # IFIscripts
 Scripts for use in the IFI Irish Film Archive
 
-Scripts have been tested in OSX/Windows 7 and Ubuntu 14.04. The aim is to make cross-platform scripts, but please get in touch with any issues.
+Scripts have been tested in OSX/Windows 7 (sometimes windows 10)  and Ubuntu 14.04. The aim is to make cross-platform scripts, but please get in touch with any issues.
 
 Current scripts that are useful:
 
