@@ -19,6 +19,8 @@ Further options can be viewed with `dcpfixity.py -h`
 
 <b>dcpsubs2srt.py</b> - Super basic but functional DCP XML subtitle to SRT conversion. This code is also contained in dcpaccess.py
 
+<b>makedpx.py</b> - Transcode TIFFs losslessly to DPX. Framemd5s of source and output are created and verified for losslessness. Whole file manifest is created for all files.
+
 <b>bitc.py</b> - Create timecoded/watermarked h264s for single files or a batch process.
 
 <b>prores.py</b> - Transcode to prores.mov for single/multiple files. Type `prores.py -h` for instructions.
