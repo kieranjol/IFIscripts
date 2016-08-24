@@ -25,21 +25,29 @@ else:
     crf_value = '23'
 openssl/ and use archivematica tests for verification
 '''
+rootpos = ''
 args = parser.parse_args()
 
 source               = args.source
 source_parent_dir    = os.path.dirname(source)
+
 normpath             = os.path.normpath(source) 
 dirname              = os.path.split(os.path.basename(source))[1]
+if dirname == '':
+    global rootpos
+    rootpos = 'y'
+    dirname = raw_input('What do you want your destination folder to be called?\n')
 relative_path        = normpath.split(os.sep)[-1]
 
 
 destination                    = args.destination # or hardcode
 manifest_destination           = destination + '/%s_manifest.md5' % dirname
 destination_final_path         = destination + '/%s' % dirname
-manifest_ =  '/%s_manifest.md5' % relative_path
+manifest_ =  '/%s_manifest.md5' % dirname
 manifest = os.path.expanduser("~/Desktop/%s") % manifest_
-log_name_source_                = os.path.basename(args.source) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+log_name_source_                = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
+print log_name_source_
+
 log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
 
@@ -91,7 +99,12 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'
-    manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
+    if rootpos == 'y':
+        print os.getcwd()
+        manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
+    else:
+        print rootpos
+        manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
@@ -110,7 +123,7 @@ def copy_dir():
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
         generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')  
-        
+        print cmd
         subprocess.call(cmd)
     elif _platform == "linux2":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
@@ -180,7 +193,10 @@ source_manifest_start_time = time.time()
 if not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
-        make_manifest(source_parent_dir, relative_path,manifest)
+        if rootpos == 'y':
+            make_manifest(source, relative_path,manifest)
+        else:
+            make_manifest(source_parent_dir, relative_path,manifest)
         generate_log(log_name_source, 'EVENT = Generating source manifest')  
         
     except OSError:
@@ -206,7 +222,11 @@ if overwrite_destination_manifest not in ('N','n'):
     else:
         generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
     print 'Generating destination manifest'
-    files_in_manifest = make_manifest(destination,dirname, manifest_destination)
+    if rootpos == 'y':
+        files_in_manifest = make_manifest(destination_final_path,dirname, manifest_destination)
+    else:
+        files_in_manifest = make_manifest(destination,dirname, manifest_destination)
+
 else:
     generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')
 remove_bad_files(destination_final_path)
