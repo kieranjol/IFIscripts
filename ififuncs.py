@@ -6,6 +6,7 @@ import smtplib
 import mimetypes
 import getpass
 import os
+import filecmp
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -14,6 +15,13 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 
+def diff_textfiles(source_textfile, other_textfile):
+    if filecmp.cmp(source_textfile, other_textfile, shallow=False): 
+        print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+
+    else:
+    	print "YOUR CHECKSUMS DO NOT MATCH, BACK TO THE DRAWING BOARD!!!"
+    	sys.exit()                 # Script will exit the loop if transcode is not lossless.
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
   with open(xmlfilename, "w+") as fo:
   	xmlvariable = subprocess.check_output(['mediainfo',
