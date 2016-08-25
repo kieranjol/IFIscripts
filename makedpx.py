@@ -9,13 +9,33 @@ import os
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
-source_directory = sys.argv[1]
 
+def remove_bad_files(root_dir):
+    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
+    for root, dirs, files in os.walk(root_dir):
+        for name in files:
+            path = os.path.join(root, name)
+            for i in rm_these:
+                if name == i:
+                    print '***********************' + 'removing: ' + path   
+                    os.remove(path)
+
+source_directory = sys.argv[1]
+remove_bad_files(source_directory)
+source_parent_dir    = os.path.dirname(source_directory)
+normpath             = os.path.normpath(source_directory) 
+dirname              = os.path.split(os.path.basename(source_directory))[1]
+relative_path        = normpath.split(os.sep)[-1]
+
+
+source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
+
+make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
 def make_framemd5(directory, container):
     os.chdir(directory)
     images = glob('*.%s' % container)
     global dirname
-    #dirname = ''  intentionally commented out as this is hardcoded for now
+    #dirname = ''  fill in with local dir
     
     print images
     numberless_filename = images[0].split("_")[0:-1]
