@@ -35,23 +35,26 @@ def make_framemd5(directory, container):
     os.chdir(directory)
     images = glob('*.%s' % container)
     global dirname
-    #dirname = ''  fill in with local dir
-    
+    #dirname = ''
     print images
     numberless_filename = images[0].split("_")[0:-1]
-    
     ffmpeg_friendly_name = ''
     counter = 0
     while  counter <len(numberless_filename) :
         ffmpeg_friendly_name += numberless_filename[counter] + '_'
         counter += 1
-    output_dirname = dirname + '/' + ffmpeg_friendly_name + '_dpx_transcodes'
+    output_dirname = dirname + '/' + ffmpeg_friendly_name + 'dpx_transcodes'
     try:
-        os.makedirs(output_dirname + '/scans')
-        os.makedirs(output_dirname + '/framemd5')
+        os.makedirs(output_dirname + '/audio')
+        os.makedirs(output_dirname + '/image')
+        os.makedirs(output_dirname + '/image/logs')
+        os.makedirs(output_dirname + '/image/md5')
+        os.makedirs(output_dirname + '/image/dpx_files')
+        os.makedirs(output_dirname + '/image/xml_files')
+             
     except: OSError
     
-    output = output_dirname + '/framemd5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
+    output = output_dirname + '/image/md5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
     print output 
     ffmpeg_friendly_name += "%06d." + '%s' % container
     framemd5 = ['ffmpeg','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
@@ -62,20 +65,18 @@ def make_framemd5(directory, container):
         
 info = make_framemd5(source_directory, 'tiff')
 output_dirname = info[0]  
-
-
 source_textfile = info[1]
-  
-
 images = glob('*.tiff')
 for tiff in images:
-    cmd = ['ffmpegnometadata','-f','image2','-framerate','24', '-i', tiff ,output_dirname +  '/scans' '/' + tiff[:-4] + 'dpx']
+    cmd = ['ffmpegnometadata','-f','image2','-framerate','24', '-i', tiff ,output_dirname +  '/image/dpx_files' '/' + tiff[:-4] + 'dpx']
     print cmd
     subprocess.call(cmd)
-manifest_textfile = output_dirname + '/manifest.md5'    
-other = make_framemd5(output_dirname + '/scans', 'dpx')
+parent_basename =  os.path.basename(output_dirname)
+manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
+other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx')
 other_textfile = other[1]
 print source_textfile
 print other_textfile
 diff_textfiles(source_textfile, other_textfile)
 make_manifest(dirname, os.path.basename(output_dirname), manifest_textfile)
+
