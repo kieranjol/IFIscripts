@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import subprocess
 import sys
@@ -7,11 +9,11 @@ source_count = 0
 for root, directories, filenames in os.walk(source):   
     for files in filenames:   
             source_count +=1 
-counter2 = 0
+counter2 = 1
 manifest = os.path.dirname(source) + '/manifest_sha512.txt'
 for root, directories, filenames in os.walk(source):   
     for files in filenames:   
-            print 'processing %d of %d\r' % (counter2, source_count)
+            print 'processing %s - %d of %d\b' % (files, counter2, source_count)
             sha512 = subprocess.check_output(['openssl', 'sha512', '-r', os.path.join(root, files)])
             root2 = root.replace(os.path.dirname(source), '')
             
