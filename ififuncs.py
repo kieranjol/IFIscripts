@@ -14,14 +14,17 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
+import csv
 
 def diff_textfiles(source_textfile, other_textfile):
     if filecmp.cmp(source_textfile, other_textfile, shallow=False): 
         print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+        return 'lossless'
 
     else:
     	print "YOUR CHECKSUMS DO NOT MATCH, BACK TO THE DRAWING BOARD!!!"
-    	sys.exit()                 # Script will exit the loop if transcode is not lossless.
+        return 'lossy'
+    	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
   with open(xmlfilename, "w+") as fo:
   	xmlvariable = subprocess.check_output(['mediainfo',
@@ -93,6 +96,19 @@ def send_gmail(email_to, attachment, subject, email_body):
         fp = open(fileToSend, "rb")
         attachment = MIMEBase(maintype, subtype)
         attachment.set_payload(fp.read())
+    attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)
+    msg.attach(attachment)
+
+
+    server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server_ssl.ehlo() # optional, called by login()
+    server_ssl.login(username, password)  
+    # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
+    server_ssl.sendmail(emailfrom, emailto, msg.as_string())
+    print msg.as_string()
+    #server_ssl.quit()
+    server_ssl.close()
+    print 'successfully sent the mail'
         
 def frames_to_seconds(audio_entry_point):
     audio_frame_count  = float(audio_entry_point) 
@@ -136,3 +152,20 @@ def manifest_file_count(manifest2check):
             manifest_lines = [line.split(',') for line in fo.readlines()]
             count_in_manifest =  len(manifest_lines)
     return count_in_manifest
+    
+def create_csv(csv_file, *args):
+    f = open(csv_file, 'wb')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
+        
+        
+def append_csv(csv_file, *args):
+    f = open(csv_file, 'ab')
+    try:
+        writer = csv.writer(f)
+        writer.writerow(*args)
+    finally:
+        f.close()
