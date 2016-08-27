@@ -10,7 +10,13 @@ from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
 import datetime
+import time
+import csv
+from ififuncs import create_csv
+from ififuncs import append_csv
+from ififuncs import send_gmail
 
+csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
 print datetime.datetime.now()
 def remove_bad_files(root_dir):
@@ -24,14 +30,13 @@ def remove_bad_files(root_dir):
                     os.remove(path)
 
 source_directory = sys.argv[1]
-
+create_csv(csv_report_filename, ('Sequence Name', 'Lossless?'))
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
         print root
         source_directory = root + '/tiff_scans'
         
        
-        
         remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
         normpath             = os.path.normpath(source_directory) 
@@ -46,8 +51,8 @@ for root,dirnames,filenames in os.walk(source_directory):
             os.chdir(directory)
             images = glob('*.%s' % container)
             global dirname
-            #dirname = ''
-            print images
+            dirname = ''
+            
             numberless_filename = images[0].split("_")[0:-1]
             ffmpeg_friendly_name = ''
             counter = 0
@@ -84,10 +89,12 @@ for root,dirnames,filenames in os.walk(source_directory):
         parent_basename =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
         other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx')
+        
         other_textfile = other[1]
         print source_textfile
         print other_textfile
-        diff_textfiles(source_textfile, other_textfile)
+        judgement = diff_textfiles(source_textfile, other_textfile)
         make_manifest(dirname, os.path.basename(output_dirname), manifest_textfile)
-        print time
         print datetime.datetime.now()
+        append_csv(csv_report_filename, (parent_basename,judgement))
+#send_gmail([list_of_emails], csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT')
