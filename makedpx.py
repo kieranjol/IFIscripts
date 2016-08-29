@@ -16,7 +16,12 @@ from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 
+
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+dpxconfig = os.path.expanduser("~/Desktop/") + 'make_dpx_config.txt'
+with open(dpxconfig, 'r') as fo:
+    config = fo.readlines()
+emails = config[0].split(',')
 
 print datetime.datetime.now()
 def remove_bad_files(root_dir):
@@ -30,7 +35,7 @@ def remove_bad_files(root_dir):
                     os.remove(path)
 
 source_directory = sys.argv[1]
-create_csv(csv_report_filename, ('Sequence Name', 'Lossless?'))
+create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
         print root
@@ -43,7 +48,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         dirname              = os.path.split(os.path.basename(source_directory))[1]
         relative_path        = normpath.split(os.sep)[-1]
 
-
+        start = datetime.datetime.now()
         source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
 
         make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
@@ -51,7 +56,8 @@ for root,dirnames,filenames in os.walk(source_directory):
             os.chdir(directory)
             images = glob('*.%s' % container)
             global dirname
-            dirname = ''
+            dirname = config[1].rstrip()
+            
             
             numberless_filename = images[0].split("_")[0:-1]
             ffmpeg_friendly_name = ''
@@ -95,6 +101,6 @@ for root,dirnames,filenames in os.walk(source_directory):
         print other_textfile
         judgement = diff_textfiles(source_textfile, other_textfile)
         make_manifest(dirname, os.path.basename(output_dirname), manifest_textfile)
-        print datetime.datetime.now()
-        append_csv(csv_report_filename, (parent_basename,judgement))
-#send_gmail([list_of_emails], csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT')
+        finish = datetime.datetime.now()
+        append_csv(csv_report_filename, (parent_basename,judgement, start, finish))
+send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())

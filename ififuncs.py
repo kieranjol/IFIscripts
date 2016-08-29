@@ -57,13 +57,14 @@ def get_mediainfo(var_type, type, filename):
     return var_type
 # example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 
-def send_gmail(email_to, attachment, subject, email_body):
+def send_gmail(email_to, attachment, subject, email_body, email_address, password):
     emailfrom = ""
     emailto = email_to
     #emailto = ", ".join(emailto)
     fileToSend = attachment
-    username = ""
-    password = ""
+    username = email_address
+    password = password
+    
 
     msg = MIMEMultipart()
     msg["From"]    = emailfrom
