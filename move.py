@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-
+'''''
+ This kind of works - if it files a manifest within a dir, it uses that as source reference,
+ but it also generates a destination sidecar, so you end up with an outdated source manifest that exists within the folder, 
+and the enwer sidecar, which contains the md5 within the folder, in a weird recusrsive loop. 
+Also - copying all of a root drive on osx seems to be close to impossible, unless you ignore hidden folders. 
+The hidden folders automatically change upon movement, such as spotlight folders. So perhaps there should be a different script
+for a whole drive copy, which intentionally skips hidden folders. Ugh.
+'''''
 import sys
 import subprocess
 import os
@@ -17,7 +24,7 @@ parser = argparse.ArgumentParser(description='Copy directory with checksum compa
 parser.add_argument('source', help='Input directory')
 parser.add_argument('destination', help='Destination directory')
 parser.add_argument('-b', '-benchmark', action='store_true', help='display benchmark')
-parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
+#parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
 '''
 if args.sha:
     crf_value = args.crf
@@ -25,6 +32,7 @@ else:
     crf_value = '23'
 openssl/ and use archivematica tests for verification
 '''
+global rootpos
 rootpos = ''
 args = parser.parse_args()
 
@@ -34,19 +42,28 @@ source_parent_dir    = os.path.dirname(source)
 normpath             = os.path.normpath(source) 
 dirname              = os.path.split(os.path.basename(source))[1]
 if dirname == '':
-    global rootpos
+    
     rootpos = 'y'
     dirname = raw_input('What do you want your destination folder to be called?\n')
 relative_path        = normpath.split(os.sep)[-1]
 
 
 destination                    = args.destination # or hardcode
-manifest_destination           = destination + '/%s_manifest.md5' % dirname
+
+
+
 destination_final_path         = destination + '/%s' % dirname
+if rootpos == 'y':
+    # manifest will exist within the dir, mirroring what it's like at source. another manifest check needs to be carried out.
+    manifest_destination = destination_final_path + '/%s_manifest.md5' % dirname
+
+else:
+    manifest_destination           = destination + '/%s_manifest.md5' % dirname
 manifest_ =  '/%s_manifest.md5' % dirname
 manifest = os.path.expanduser("~/Desktop/%s") % manifest_
+manifest_sidecar                = source_parent_dir + '/%s_manifest.md5' % relative_path
+manifest_root = source + '/%s_manifest.md5' % os.path.basename(source)
 log_name_source_                = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
-print log_name_source_
 
 log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
@@ -100,10 +117,8 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'
     if rootpos == 'y':
-        print os.getcwd()
         manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
     else:
-        print rootpos
         manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
@@ -118,7 +133,6 @@ def copy_dir():
     if _platform == "win32":
         subprocess.call(['robocopy',source, destination_final_path, '/E'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
-        print destination_final_path
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
@@ -142,7 +156,7 @@ def check_overwrite(file2check):
         return overwrite_destination_manifest
 def manifest_file_count(manifest2check):
     if os.path.isfile(manifest2check):
-        print 'A manifest already exists'
+        print 'A manifest already exists - Checking if manifest is up to date'
         with open(manifest2check, "r") as fo:
             manifest_lines = [line.split(',') for line in fo.readlines()]
             count_in_manifest =  len(manifest_lines)
@@ -180,17 +194,35 @@ source_count = 0
 for root, directories, filenames in os.walk(source):   
     for files in filenames:   
             source_count +=1 #works in windows at least
-print source_count            
 
-if os.path.isfile(manifest):
-    count_in_manifest = manifest_file_count(manifest)  
+proceed = 'n'
+if os.path.isfile(manifest_root):
+    print '1'
+    proceed = 'y'
+    count_in_manifest = manifest_file_count(manifest_root)
+elif os.path.isfile(manifest_sidecar):
+    print '2'
+    count_in_manifest = manifest_file_count(manifest_sidecar)
+    proceed = 'y'
+elif os.path.isfile(manifest):
+    print '3'
+    count_in_manifest = manifest_file_count(manifest) 
+    proceed = 'y'
+if proceed == 'y':
+    print manifest
     if source_count != count_in_manifest:
+        print source_count, count_in_manifest
         print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
         generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')  
         sys.exit()
 source_manifest_start_time = time.time()
 
-if not os.path.isfile(manifest):
+if os.path.isfile(manifest_sidecar):
+    print 'Manifest Sidecar exists - Source manifest Generation will be skipped.'
+    sys.exit()
+elif os.path.isfile(manifest_sidecar):
+    print 'Manifest exists within your source directory- Source manifest generation will be skipped.'
+elif not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
         if rootpos == 'y':
