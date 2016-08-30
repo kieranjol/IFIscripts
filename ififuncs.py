@@ -136,7 +136,18 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         for i in manifest_list:
             fo.write(i + '\n')
     return files_in_manifest
-    
+
+def make_mediatrace(tracefilename, xmlvariable, inputfilename):
+    with open(tracefilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(['mediainfo',
+                        '-f',
+                        '--Details=1', # Use verbose output.
+                        '--output=XML',
+                        inputfilename])       #input filename
+        fo.write(xmlvariable)
+
+
+
 def check_overwrite(file2check):
     if os.path.isfile(file2check):
         print 'A manifest already exists at your destination. Overwrite? Y/N?'
