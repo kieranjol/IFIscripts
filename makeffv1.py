@@ -13,6 +13,11 @@ import csv
 import time
 import itertools
 import getpass
+try:
+    from ififuncs import make_mediatrace
+except ImportError:
+    print '*** ERROR - IFIFUNCS IS MISSING - *** \nMakeffv1 requires that ififuncs.py is located in the same directory as some functions are located in that script - https://github.com/kieranjol/IFIscripts/blob/master/ififuncs.py'
+    sys.exit()
 '''
 from premis import make_premis
 from premis import make_event
@@ -135,13 +140,15 @@ else:
         os.makedirs(log_dir)
 
         #Generate filenames for new files in AIP.
-        inputxml  = "%s/%s.xml" % (metadata_dir,os.path.basename(filename) )
+        inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(filename) )
+        inputtracexml  = "%s/%s_mediatrace.xml" % (metadata_dir,os.path.basename(filename) )
         output    = "%s/%s.mkv" % (data_dir, os.path.basename(filename))
 
         # Generate filename of ffv1.mkv without the path.
         outputfilename = os.path.basename(output)
 
-        outputxml = "%s/%s.xml" % (metadata_dir, outputfilename)
+        outputxml = "%s/%s_mediainfo.xml" % (metadata_dir, outputfilename)
+        outputtracexml = "%s/%s_mediatrace.xml" % (metadata_dir, outputfilename)
         fmd5      = "%s/%s.framemd5" % (provenance_dir, os.path.basename(filename))
         fmd5ffv1  = output + ".framemd5"
         log       = "%s/%s_log.log" %  (log_dir,filename)
@@ -217,8 +224,10 @@ else:
             print "The framemd5 text files are not completely identical. This may be because of a lossy transcode, or a change in metadata, most likely pixel aspect ratio. Please analyse the framemd5 files for source and output."
             #sys.exit()                 # Script will exit the loop if transcode is not lossless.
 
-        make_mediainfo(inputxml,'mediaxmlinput',filename)
-        make_mediainfo(outputxml,'mediaxmloutput',output)
+        make_mediainfo(inputxml, 'mediaxmlinput', filename)
+        make_mediainfo(outputxml, 'mediaxmloutput', output)
+        make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
+        make_mediatrace(outputtracexml, 'mediatracexmloutput', output)
         
         normpath = os.path.normpath(filename)
         source_parent_dir = os.path.dirname(filename)
