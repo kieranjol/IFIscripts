@@ -93,7 +93,7 @@ else:
     # Store the actual file/directory name without the full path.
     file_without_path = os.path.basename(input)
     print file_without_path
-    csv_report_filename = os.path.basename(input) + 'framehash_benchmark' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+    csv_report_filename = os.path.basename(input) + 'makeffv1_results' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
     # Check if input is a file.
     # AFAIK, os.path.isfile only works if full path isn't present.
@@ -214,8 +214,8 @@ else:
             print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
 
         else:
-        	print "YOUR CHECKSUMS DO NOT MATCH, BACK TO THE DRAWING BOARD!!!"
-        	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
+            print "The framemd5 text files are not completely identical. This may be because of a lossy transcode, or a change in metadata, most likely pixel aspect ratio. Please analyse the framemd5 files for source and output."
+            #sys.exit()                 # Script will exit the loop if transcode is not lossless.
 
         make_mediainfo(inputxml,'mediaxmlinput',filename)
         make_mediainfo(outputxml,'mediaxmloutput',output)
