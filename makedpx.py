@@ -13,6 +13,8 @@ from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 
+
+
 def make_framemd5(directory, container):
     os.chdir(directory)
     images = glob('*.%s' % container)
@@ -35,11 +37,12 @@ def make_framemd5(directory, container):
     except: OSError
 
     output = output_dirname + '/image/md5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
+    image_seq_without_container = ffmpeg_friendly_name
     ffmpeg_friendly_name += "%06d." + '%s' % container
     framemd5 = ['ffmpeg','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
     subprocess.call(framemd5)   
-    info = [output_dirname, output, ffmpeg_friendly_name]
+    info = [output_dirname, output, image_seq_without_container]
     return info
     
 def remove_bad_files(root_dir):
@@ -61,7 +64,6 @@ source_directory = sys.argv[1]
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
-        print root
         source_directory = root + '/tiff_scans'
         remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
@@ -74,11 +76,13 @@ for root,dirnames,filenames in os.walk(source_directory):
         info = make_framemd5(source_directory, 'tiff')
         output_dirname = info[0]  
         source_textfile = info[1]
+        image_seq_without_container = info[2]
         images = glob('*.tiff')
-        for tiff in images:
-            cmd = ['ffmpegnometadata','-f','image2','-framerate','24', '-i', tiff ,output_dirname +  '/image/dpx_files' '/' + tiff[:-4] + 'dpx']
-            print cmd
-            subprocess.call(cmd)
+        tiff_filename = image_seq_without_container + "%06d.tiff" 
+        dpx_filename = image_seq_without_container + "%06d.dpx" 
+        tiff2dpx = ['ffmpegnometadata','-f','image2','-framerate','24', '-i', tiff_filename ,output_dirname +  '/image/dpx_files' '/' + dpx_filename]
+        print tiff2dpx
+        subprocess.call(tiff2dpx)
         parent_basename =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
         other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx')
