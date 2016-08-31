@@ -14,9 +14,15 @@ from ififuncs import append_csv
 from ififuncs import send_gmail
 
 
-
-def make_framemd5(directory, container):
+def set_environment(logfile):
+    env_dict = os.environ.copy()
+    # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+    env_dict['FFREPORT'] = 'file={}:level=32'.format(logfile)
+    return env_dict
+    
+def make_framemd5(directory, container, log_filename_alteration):
     os.chdir(directory)
+    
     images = glob('*.%s' % container)
     global output_parent_directory
     output_parent_directory = config[1].rstrip()
@@ -37,11 +43,13 @@ def make_framemd5(directory, container):
     except: OSError
 
     output = output_dirname + '/image/md5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
+    logfile = output_dirname + '/image/logs/%s%s.log' % (ffmpeg_friendly_name, log_filename_alteration)
+    env_dict = set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
     ffmpeg_friendly_name += "%06d." + '%s' % container
-    framemd5 = ['ffmpeg','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
+    framemd5 = ['ffmpeg','-report','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
-    subprocess.call(framemd5)   
+    subprocess.call(framemd5, env=env_dict)   
     info = [output_dirname, output, image_seq_without_container]
     return info
     
@@ -61,6 +69,7 @@ with open(dpxconfig, 'r') as fo:
 emails = config[0].split(',')
 
 source_directory = sys.argv[1]
+
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
@@ -73,7 +82,8 @@ for root,dirnames,filenames in os.walk(source_directory):
         start = datetime.datetime.now()
         source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
         make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
-        info = make_framemd5(source_directory, 'tiff')
+        
+        info = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
         output_dirname = info[0]  
         source_textfile = info[1]
         image_seq_without_container = info[2]
@@ -85,7 +95,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         subprocess.call(tiff2dpx)
         parent_basename =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
-        other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx')
+        other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx', 'dpx_framemd5')
         other_textfile = other[1]
         judgement = diff_textfiles(source_textfile, other_textfile)
         make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
