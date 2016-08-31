@@ -82,17 +82,19 @@ for root,dirnames,filenames in os.walk(source_directory):
         start = datetime.datetime.now()
         source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
         make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
-        
         info = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
         output_dirname = info[0]  
         source_textfile = info[1]
         image_seq_without_container = info[2]
-        images = glob('*.tiff')
         tiff_filename = image_seq_without_container + "%06d.tiff" 
         dpx_filename = image_seq_without_container + "%06d.dpx" 
-        tiff2dpx = ['ffmpegnometadata','-f','image2','-framerate','24', '-i', tiff_filename ,output_dirname +  '/image/dpx_files' '/' + dpx_filename]
+
+        logfile = output_dirname + '/image/logs/%sdpx_transcode.log' % image_seq_without_container
+        env_dict = set_environment(logfile)
+        tiff2dpx = ['ffmpegnometadata','-report','-f','image2','-framerate','24', '-i', tiff_filename ,output_dirname +  '/image/dpx_files' '/' + dpx_filename]
         print tiff2dpx
-        subprocess.call(tiff2dpx)
+
+        subprocess.call(tiff2dpx,env=env_dict)
         parent_basename =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
         other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx', 'dpx_framemd5')
