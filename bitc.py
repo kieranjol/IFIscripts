@@ -201,5 +201,5 @@ for filename in video_files:
     env_dict = os.environ.copy()
     # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
     log_file  = filename + '_log.log'
-    env_dict['FFREPORT'] = 'file={}:level=32'.format(log_file)
+    env_dict['FFREPORT'] = 'file={}:level=48'.format(log_file)
     subprocess.call(ffmpeg_args, env=env_dict)

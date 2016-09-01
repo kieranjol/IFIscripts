@@ -17,7 +17,7 @@ from ififuncs import send_gmail
 def set_environment(logfile):
     env_dict = os.environ.copy()
     # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
-    env_dict['FFREPORT'] = 'file={}:level=32'.format(logfile)
+    env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
     return env_dict
     
 def make_framemd5(directory, container, log_filename_alteration):
