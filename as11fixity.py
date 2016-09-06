@@ -2,6 +2,8 @@
 WORK IN PROGRESS WORKSHOP SCRIPT!!!
 '''
 
+import hashlib
+from lxml import etree
 import sys
 import subprocess
 import os
@@ -21,6 +23,7 @@ print os.path.isfile(csv_report)
 checkfile = os.path.isfile(csv_report)
 #3
 
+
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
     try:
@@ -29,6 +32,7 @@ def create_csv(csv_file, *args):
     finally:
         f.close()
 #6   
+
 
 create_csv(csv_report, ('Filename' , 'Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
 #6
@@ -68,12 +72,29 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
             print 'No XML file exists.'
         #8.3
         
+        dpp_xml_parse = etree.parse(full_xml_path)
+        dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)') 
+        checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue',namespaces={'ns': dpp_xml_namespace})
+        #12
+        
+        print dpp_xml_parse
+        print dpp_xml_namespace
+        print "\n"
+        print checksum
+        
+       
+"""http://stackoverflow.com/questions/3431825"""
+def md5(full_path):
+    hash_md5 = hashlib.md5()
+    with open(full_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+print md5(full_path)
+        #13
+
         
         
-        
-
-
-
 
 """
 As-11 Fixity
