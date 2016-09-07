@@ -126,17 +126,20 @@ def generate_log(log, what2log):
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
-    
-    manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
-    manifest_list = manifest_generator.splitlines()
-    files_in_manifest = len(manifest_list)
-    # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
-    with open(manifest_textfile,"wb") as fo:
-        for i in manifest_list:
-            fo.write(i + '\n')
-    return files_in_manifest
-
+    if not os.path.isfile(manifest_textfile):
+        
+        manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
+        manifest_list = manifest_generator.splitlines()
+        files_in_manifest = len(manifest_list)
+        # http://stackoverflow.com/a/31306961/2188572
+        manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+        with open(manifest_textfile,"wb") as fo:
+            for i in manifest_list:
+                fo.write(i + '\n')
+        return files_in_manifest
+    else:
+        print 'Manifest already exists'
+        sys.exit()
 def make_mediatrace(tracefilename, xmlvariable, inputfilename):
     with open(tracefilename, "w+") as fo:
         xmlvariable = subprocess.check_output(['mediainfo',
