@@ -141,6 +141,6 @@ for root,dirnames,filenames in os.walk(source_directory):
         print total_size
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio =  float(total_size) / float(os.path.getsize(ffv1_path))
-        append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, fv1_size, comp_ratio))
+        append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
         
 #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
