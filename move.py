@@ -17,7 +17,21 @@ import tempfile
 import time
 import argparse
 import getpass
+import hashlib
 
+def hashlib_md5(filename, manifest):
+
+   m = hashlib.md5()
+   
+   with open(str(filename), 'rb') as f:
+       while True:
+           buf = f.read(2**20)
+           if not buf:
+               break
+           m.update(buf)
+   md5_output = m.hexdigest()
+  
+   return md5_output + '  ' + os.path.abspath(filename) +  '\n'
 # Currently, destination manifest will be overwritten. user input should be required. source manifest will not be overwritten, it will be read.
 parser = argparse.ArgumentParser(description='Copy directory with checksum comparison and manifest generation.'
                                  ' Written by Kieran O\'Leary.')
@@ -111,15 +125,37 @@ def remove_bad_files(root_dir):
                     print '***********************' + 'removing: ' + path
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
                     os.remove(path)
-
+manifest_generator = ''
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
+    global manifest_generator
+    source_count = 0
+    for root, directories, filenames in os.walk(source):   
+        for files in filenames:   
+                source_count +=1 
+    counter2 = 1
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'
     if rootpos == 'y':
         manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
     else:
-        manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
+        #manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
+        for root, directories, filenames in os.walk(manifest_dir):   
+            for files in filenames:   
+
+
+                    if files[0] == '.':
+                        print 'DOTFILE'
+                        continue
+                    print 'processing %s - %d of %d' % (files, counter2, source_count)
+                    md5 = hashlib_md5(os.path.join(root, files), manifest)
+                    root2 = root.replace(os.path.dirname(source), '')
+                    print root2
+                    print files
+                    print os.path.join(root2,files).replace("\\", "/")
+                    
+                    manifest_generator +=    md5[:32] + ' ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+                    counter2 += 1
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
@@ -131,11 +167,11 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
 
 def copy_dir():
     if _platform == "win32":
-        subprocess.call(['robocopy',source, destination_final_path, '/E'])
+        subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
-        cmd = ['gcp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
+        cmd = ['rsync','-rtv', '--stats','progess', source, destination_final_path]
         generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')  
         print cmd
         subprocess.call(cmd)
