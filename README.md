@@ -34,6 +34,8 @@ Further options can be viewed with `dcpfixity.py -h`
 Experimental scripts: 
 
 <b>seq2ffv1.py</b> Usage - `seq2ffv1.py directory`. Recursively batch process image sequence folders and transcode to a single ffv1.mkv. Framemd5 files are generated and validated for losslessness. Whole file manifests of the SIP are also created. Work in progress -more testing to be done. <br><br>
+
+<b>seq2prores.py</b> Usage - `seq2prores.py directory`. Recursively batch process image sequence folders with seperate WAV files and transcode to a single Apple Pro Res HQ file in a MOV container. It expects a specific directory path where an audio folder contains a WAV file. A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done. <br><br>
 <b>premis.py</b> Usage - `premis.py filename`. Work in progress PREMIS implementation. This PREMIS document will hopefully function as a growing log file as an asset makes its way through a workflow.<br><br>
 
 <b>move.py</b> Usage - `move.py source destination`. Creates manifest before and after copying and diffs the two manifests.<br><br>
