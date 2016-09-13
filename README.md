@@ -32,6 +32,7 @@ Further options can be viewed with `dcpfixity.py -h`
 <b>move.py</b> Copies a directory, creating a md5 manifest at source and destination and comparing the two. Usage: ` move.py source_dir destination_dir` 
 
 Experimental scripts: 
+<b>renumber.py</b> Usage - `renumber.py directory`. Renames TIFF files in an image sequence so that they start from ZERO (000000) <br><br>
 
 <b>seq2ffv1.py</b> Usage - `seq2ffv1.py directory`. Recursively batch process image sequence folders and transcode to a single ffv1.mkv. Framemd5 files are generated and validated for losslessness. Whole file manifests of the SIP are also created. Work in progress -more testing to be done. <br><br>
 
