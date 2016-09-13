@@ -1,12 +1,5 @@
 #!/usr/bin/env python
-'''''
- This kind of works - if it files a manifest within a dir, it uses that as source reference,
- but it also generates a destination sidecar, so you end up with an outdated source manifest that exists within the folder, 
-and the enwer sidecar, which contains the md5 within the folder, in a weird recusrsive loop. 
-Also - copying all of a root drive on osx seems to be close to impossible, unless you ignore hidden folders. 
-The hidden folders automatically change upon movement, such as spotlight folders. So perhaps there should be a different script
-for a whole drive copy, which intentionally skips hidden folders. Ugh.
-'''''
+
 import sys
 import subprocess
 import os
@@ -19,69 +12,6 @@ import argparse
 import getpass
 import hashlib
 
-def hashlib_md5(filename, manifest):
-
-   m = hashlib.md5()
-   
-   with open(str(filename), 'rb') as f:
-       while True:
-           buf = f.read(2**20)
-           if not buf:
-               break
-           m.update(buf)
-   md5_output = m.hexdigest()
-  
-   return md5_output + '  ' + os.path.abspath(filename) +  '\n'
-# Currently, destination manifest will be overwritten. user input should be required. source manifest will not be overwritten, it will be read.
-parser = argparse.ArgumentParser(description='Copy directory with checksum comparison and manifest generation.'
-                                 ' Written by Kieran O\'Leary.')
-parser.add_argument('source', help='Input directory')
-parser.add_argument('destination', help='Destination directory')
-parser.add_argument('-b', '-benchmark', action='store_true', help='display benchmark')
-#parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
-'''
-if args.sha:
-    crf_value = args.crf
-else:
-    crf_value = '23'
-openssl/ and use archivematica tests for verification
-'''
-global rootpos
-rootpos = ''
-args = parser.parse_args()
-
-source               = args.source
-source_parent_dir    = os.path.dirname(source)
-
-normpath             = os.path.normpath(source) 
-dirname              = os.path.split(os.path.basename(source))[1]
-if dirname == '':
-    
-    rootpos = 'y'
-    dirname = raw_input('What do you want your destination folder to be called?\n')
-relative_path        = normpath.split(os.sep)[-1]
-
-
-destination                    = args.destination # or hardcode
-
-
-
-destination_final_path         = destination + '/%s' % dirname
-if rootpos == 'y':
-    # manifest will exist within the dir, mirroring what it's like at source. another manifest check needs to be carried out.
-    manifest_destination = destination_final_path + '/%s_manifest.md5' % dirname
-
-else:
-    manifest_destination           = destination + '/%s_manifest.md5' % dirname
-manifest_ =  '/%s_manifest.md5' % dirname
-manifest = os.path.expanduser("~/Desktop/%s") % manifest_
-manifest_sidecar                = source_parent_dir + '/%s_manifest.md5' % relative_path
-manifest_root = source + '/%s_manifest.md5' % os.path.basename(source)
-log_name_source_                = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
-
-log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
-log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname
-
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
@@ -89,11 +19,18 @@ def generate_log(log, what2log):
     else:
         with open(log,"ab") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
-        
-        
-generate_log(log_name_source, 'move.py started.') 
-generate_log(log_name_source, 'Source: %s' % source)  
-generate_log(log_name_source, 'Destination: %s'  % destination)                       
+
+def hashlib_md5(filename, manifest):
+   m = hashlib.md5()
+   with open(str(filename), 'rb') as f:
+       while True:
+           buf = f.read(2**20)
+           if not buf:
+               break
+           m.update(buf)
+   md5_output = m.hexdigest()
+   return md5_output + '  ' + os.path.abspath(filename) +  '\n'
+ 
 def display_benchmark():
     print 'SOURCE MANIFEST TIME', source_manifest_time
     print 'COPY TIME', copy_time
@@ -124,37 +61,35 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
-                    os.remove(path)
-manifest_generator = ''
+                    os.remove(path) 
+
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_to_remove):
     global manifest_generator
     source_count = 0
-    for root, directories, filenames in os.walk(source):   
+    for root, directories, filenames in os.walk(source):  
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.'] 
         for files in filenames:   
                 source_count +=1 
     counter2 = 1
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
         print 'Destination manifest already exists'
-    if rootpos == 'y':
-        manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
-    else:
-        #manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
-        for root, directories, filenames in os.walk(manifest_dir):   
-            for files in filenames:   
-                    if files[0] == '.':
-                        print 'DOTFILE'
-                        continue
-                    print 'processing %s - %d of %d' % (files, counter2, source_count)
-                    md5 = hashlib_md5(os.path.join(root, files), manifest)
-                    root2 = root.replace(path_to_remove, '')
-                    print os.path.dirname(manifest_dir),909090909
-                    manifest_generator +=    md5[:32] + ' ' + os.path.join(root2,files).replace("\\", "/") + '\n'
-                    counter2 += 1
+
+    for root, directories, filenames in os.walk(manifest_dir):   
+            filenames = [f for f in filenames if not f[0] == '.']
+            directories[:] = [d for d in directories if not d[0] == '.']
+            for files in filenames:
+            
+                print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_count)
+                md5 = hashlib_md5(os.path.join(root, files), manifest)
+                root2 = root.replace(path_to_remove, '')
+                manifest_generator +=    md5[:32] + ' ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+                counter2 += 1
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
 
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
@@ -167,8 +102,13 @@ def copy_dir():
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
-        cmd = ['rsync','-rtv', '--stats','--progress', source, destination]
-        generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')  
+        if rootpos == 'y':
+            if not os.path.isdir(destination + '/' + dirname):
+                os.makedirs(destination + '/' + dirname)
+            cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination + '/' + dirname]
+        else:    
+            cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination]
+        generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=rsync')  
         print cmd
         subprocess.call(cmd)
     elif _platform == "linux2":
@@ -203,14 +143,41 @@ def check_overwrite_dir(dir2check):
             if overwrite_destination_dir not in ('Y','y','N','n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_dir
-'''
-try:
-    test_write_capabilities(source_parent_dir)
-except OSError:
-            print 'You cannot write to your source directory!'
-            generate_log(log_name_source, 'EVENT = I/O Test - Failure - No write access to source directory.')      
-            sys.exit()
-'''          
+# Currently, destination manifest will be overwritten. user input should be required. source manifest will not be overwritten, it will be read.
+parser = argparse.ArgumentParser(description='Copy directory with checksum comparison and manifest generation.'
+                                 ' Written by Kieran O\'Leary.')
+parser.add_argument('source', help='Input directory')
+parser.add_argument('destination', help='Destination directory')
+parser.add_argument('-b', '-benchmark', action='store_true', help='display benchmark')
+#parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
+
+global rootpos
+rootpos = ''
+args = parser.parse_args()
+source               = args.source
+source_parent_dir    = os.path.dirname(source)
+normpath             = os.path.normpath(source) 
+dirname              = os.path.split(os.path.basename(source))[1]
+if dirname == '':    
+    rootpos = 'y'
+    dirname = raw_input('What do you want your destination folder to be called?\n')
+relative_path        = normpath.split(os.sep)[-1]
+destination                    = args.destination # or hardcode
+destination_final_path         = destination + '/%s' % dirname
+manifest_destination = destination + '/%s_manifest.md5' % dirname
+manifest_ =  '/%s_manifest.md5' % dirname
+manifest = os.path.expanduser("~/Desktop/%s") % manifest_
+manifest_sidecar                = source_parent_dir + '/%s_manifest.md5' % relative_path
+manifest_root = source + '/%s_manifest.md5' % os.path.basename(source)
+log_name_source_                = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
+log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
+log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname        
+generate_log(log_name_source, 'move.py started.') 
+generate_log(log_name_source, 'Source: %s' % source)  
+generate_log(log_name_source, 'Destination: %s'  % destination)                       
+
+manifest_generator = ''
+         
 try:
     test_write_capabilities(destination)
 except OSError:
@@ -225,7 +192,7 @@ source_count = 0
 
 for root, directories, filenames in os.walk(source):   
     for files in filenames:   
-            source_count +=1 #works in windows at least
+            source_count +=1 
 
 proceed = 'n'
 if os.path.isfile(manifest_root):
@@ -241,7 +208,6 @@ elif os.path.isfile(manifest):
     count_in_manifest = manifest_file_count(manifest) 
     proceed = 'y'
 if proceed == 'y':
-    print manifest
     if source_count != count_in_manifest:
         print source_count, count_in_manifest
         print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
@@ -251,14 +217,12 @@ source_manifest_start_time = time.time()
 
 if os.path.isfile(manifest_sidecar):
     print 'Manifest Sidecar exists - Source manifest Generation will be skipped.'
-    sys.exit()
-elif os.path.isfile(manifest_sidecar):
-    print 'Manifest exists within your source directory- Source manifest generation will be skipped.'
+    manifest = manifest_sidecar
 elif not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
         if rootpos == 'y':
-            make_manifest(source, relative_path,manifest)
+            make_manifest(source, relative_path,manifest, source)
         else:
             make_manifest(source, relative_path,manifest, os.path.dirname(source))
         generate_log(log_name_source, 'EVENT = Generating source manifest')  
@@ -278,7 +242,6 @@ else:
     generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')  
     
 copy_time = time.time() - copy_start_time
-
 start_destination_manifest_time = time.time()
 if overwrite_destination_manifest not in ('N','n'):
     if overwrite_destination_manifest == None:
@@ -288,10 +251,9 @@ if overwrite_destination_manifest not in ('N','n'):
     print 'Generating destination manifest'
     manifest_generator = ''
     if rootpos == 'y':
-        files_in_manifest = make_manifest(destination_final_path,dirname, manifest_destination)
+        files_in_manifest = make_manifest(destination_final_path,dirname, manifest_destination, destination)
     else:
-        files_in_manifest = make_manifest(destination,dirname, manifest_destination, destination)
-
+        files_in_manifest = make_manifest(destination_final_path,dirname, manifest_destination, destination)
 else:
     generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')
 remove_bad_files(destination_final_path)
@@ -304,6 +266,16 @@ for root, directories, filenames in os.walk(destination_final_path):
             destination_count +=1 #works in windows at least
 print destination_count  
 
+if rootpos == 'y':
+    manifest_temp = tempfile.mkstemp(dir=os.path.expanduser("~/Desktop"), suffix='.md5')
+    os.close(manifest_temp[0]) # Needed for windows.
+    with open(manifest, 'r') as fo:
+        dest_manifest_list = fo.readlines()
+        with open(manifest_temp[1], 'w') as temp_object:
+            for i in dest_manifest_list:
+                temp_object.write(i[:33] + '/' + dirname + '/' + i[33:])
+        manifest = manifest_temp[1]
+           
 if filecmp.cmp(manifest, manifest_destination, shallow=False):
     print "Your files have reached their destination and the checksums match"
     generate_log(log_name_source, 'EVENT = File Transfer Judgement - Success')  
