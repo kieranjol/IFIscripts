@@ -126,7 +126,7 @@ def remove_bad_files(root_dir):
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)     
                     os.remove(path)
 manifest_generator = ''
-def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
+def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_to_remove):
     global manifest_generator
     source_count = 0
     for root, directories, filenames in os.walk(source):   
@@ -142,24 +142,20 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         #manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
         for root, directories, filenames in os.walk(manifest_dir):   
             for files in filenames:   
-
-
                     if files[0] == '.':
                         print 'DOTFILE'
                         continue
                     print 'processing %s - %d of %d' % (files, counter2, source_count)
                     md5 = hashlib_md5(os.path.join(root, files), manifest)
-                    root2 = root.replace(os.path.dirname(source), '')
-                    print root2
-                    print files
-                    print os.path.join(root2,files).replace("\\", "/")
-                    
+                    root2 = root.replace(path_to_remove, '')
+                    print os.path.dirname(manifest_dir),909090909
                     manifest_generator +=    md5[:32] + ' ' + os.path.join(root2,files).replace("\\", "/") + '\n'
                     counter2 += 1
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
@@ -171,7 +167,7 @@ def copy_dir():
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
-        cmd = ['rsync','-rtv', '--stats','progess', source, destination_final_path]
+        cmd = ['rsync','-rtv', '--stats','--progress', source, destination]
         generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')  
         print cmd
         subprocess.call(cmd)
@@ -264,7 +260,7 @@ elif not os.path.isfile(manifest):
         if rootpos == 'y':
             make_manifest(source, relative_path,manifest)
         else:
-            make_manifest(source_parent_dir, relative_path,manifest)
+            make_manifest(source, relative_path,manifest, os.path.dirname(source))
         generate_log(log_name_source, 'EVENT = Generating source manifest')  
         
     except OSError:
@@ -290,10 +286,11 @@ if overwrite_destination_manifest not in ('N','n'):
     else:
         generate_log(log_name_source, 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.') 
     print 'Generating destination manifest'
+    manifest_generator = ''
     if rootpos == 'y':
         files_in_manifest = make_manifest(destination_final_path,dirname, manifest_destination)
     else:
-        files_in_manifest = make_manifest(destination,dirname, manifest_destination)
+        files_in_manifest = make_manifest(destination,dirname, manifest_destination, destination)
 
 else:
     generate_log(log_name_source, 'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.')
