@@ -35,16 +35,24 @@ def make_framemd5(directory, log_filename_alteration):
         return 'none'
         
     images.sort()
+    global output_parent_directory
     if '864000' in images[0]:
         start_number = '864000'
-    else: 
+    elif len(images[0].split("_")[-1].split(".")) > 2:
+        start_number = images[0].split("_")[-1].split(".")[1]
+        
+    else:
+        
         start_number = images[0].split("_")[-1].split(".")[0]
-    global output_parent_directory
     container = images[0].split(".")[-1]
-    print container
-
     output_parent_directory = config[1].rstrip()
-    numberless_filename = images[0].split("_")[0:-1]
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0].split("_")
+        
+        
+    else:
+        numberless_filename = images[0].split("_")[0:-1]
+    
     ffmpeg_friendly_name = ''
     counter = 0
     while  counter <len(numberless_filename) :
@@ -70,11 +78,19 @@ def make_framemd5(directory, log_filename_alteration):
     logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
     env_dict = set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
-    ffmpeg_friendly_name += "%06d." + '%s' % container
+    start_number_length = len(start_number)
+    number_regex = "%0" + str(start_number_length) + 'd.'
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        image_seq_without_container = ffmpeg_friendly_name[:-1] + ffmpeg_friendly_name[-1].replace('_', '.')
+        ffmpeg_friendly_name = image_seq_without_container
+        
+    ffmpeg_friendly_name += number_regex + '%s' % container
+    
+    
     framemd5 = ['ffmpeg','-start_number', start_number, '-report','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
     subprocess.call(framemd5, env=env_dict)   
-    info = [output_dirname, output, image_seq_without_container, start_number, container]
+    info = [output_dirname, output, image_seq_without_container, start_number, container, ffmpeg_friendly_name, number_regex]
     return info
     
 def remove_bad_files(root_dir):
@@ -98,10 +114,7 @@ create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Fi
 for root,dirnames,filenames in os.walk(source_directory):
         #if "tiff_scans"  in dirnames:
         source_directory = root# + '/tiff_scans'
-        total_size = 0
-        
-            
-        
+        total_size = 0 
         remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
         normpath             = os.path.normpath(source_directory) 
@@ -120,7 +133,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         image_seq_without_container = info[2]
         start_number                = info[3]
         container                   = info[4]
-        dpx_filename                = image_seq_without_container + "%06d." + container
+        dpx_filename                = info[5] 
 
         logfile = output_dirname + '/logs/%s_dpx_transcode.log' % os.path.basename(root)
         env_dict = set_environment(logfile)
