@@ -221,11 +221,12 @@ if os.path.isfile(manifest_sidecar):
 elif not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
+        generate_log(log_name_source, 'EVENT = Generating source manifest')  
         if rootpos == 'y':
             make_manifest(source, relative_path,manifest, source)
         else:
             make_manifest(source, relative_path,manifest, os.path.dirname(source))
-        generate_log(log_name_source, 'EVENT = Generating source manifest')  
+        
         
     except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
@@ -264,14 +265,14 @@ destination_count = 0
 for root, directories, filenames in os.walk(destination_final_path):  
     for files in filenames: 
             destination_count +=1 #works in windows at least
-print destination_count  
+
 
 if rootpos == 'y':
     manifest_temp = tempfile.mkstemp(dir=os.path.expanduser("~/Desktop"), suffix='.md5')
     os.close(manifest_temp[0]) # Needed for windows.
     with open(manifest, 'r') as fo:
         dest_manifest_list = fo.readlines()
-        with open(manifest_temp[1], 'w') as temp_object:
+        with open(manifest_temp[1], 'wb') as temp_object:
             for i in dest_manifest_list:
                 temp_object.write(i[:33] + '/' + dirname + '/' + i[33:])
         manifest = manifest_temp[1]
