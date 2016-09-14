@@ -51,7 +51,6 @@ def get_filenames(directory, log_filename_alteration):
         
         start_number = images[0].split("_")[-1].split(".")[0]
     container = images[0].split(".")[-1]
-    output_parent_directory = config[1].rstrip()
     if len(images[0].split("_")[-1].split(".")) > 2:
         numberless_filename = images[0].split(".")[0].split("_")   
     else:
@@ -84,10 +83,7 @@ def remove_bad_files(root_dir):
                     
                     
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-dpxconfig = os.path.expanduser("~/Desktop/") + 'make_dpx_config.txt'
-with open(dpxconfig, 'r') as fo:
-    config = fo.readlines()
-emails = config[0].split(',')
+
 source_directory = sys.argv[1]
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Sequence Size', 'FFV1 Size', 'Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
