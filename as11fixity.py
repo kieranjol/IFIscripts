@@ -2,13 +2,13 @@
 WORK IN PROGRESS WORKSHOP SCRIPT!!!
 '''
 
-import hashlib
-from lxml import etree
 import sys
 import subprocess
 import os
 from glob import glob
 import csv
+from lxml import etree
+import hashlib
 #1
 
 starting_dir = sys.argv[1]
@@ -23,7 +23,6 @@ print os.path.isfile(csv_report)
 checkfile = os.path.isfile(csv_report)
 #3
 
-
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
     try:
@@ -32,7 +31,6 @@ def create_csv(csv_file, *args):
     finally:
         f.close()
 #6   
-
 
 create_csv(csv_report, ('Filename' , 'Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
 #6
@@ -73,17 +71,15 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
         #8.3
         
         dpp_xml_parse = etree.parse(full_xml_path)
-        dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)') 
-        checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue',namespaces={'ns': dpp_xml_namespace})
-        #12
-        
-        print dpp_xml_parse
-        print dpp_xml_namespace
-        print "\n"
+        print dpp_xml_parse, 'hahaha'
+        dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
+        print dpp_xml_namespace, 'lol'
+        checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
         print checksum
+        #12 
+     
         
-       
-"""http://stackoverflow.com/questions/3431825"""
+        
 def md5(full_path):
     hash_md5 = hashlib.md5()
     with open(full_path, "rb") as f:
@@ -91,10 +87,15 @@ def md5(full_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 print md5(full_path)
-        #13
+#13
 
-        
-        
+if md5(full_path)==checksum:
+    print 'Checksum matches!'
+else:
+    print 'CHECKSUM DONT MATCH'
+ #14
+
+
 
 """
 As-11 Fixity
@@ -102,21 +103,26 @@ As-11 Fixity
 1. Import all relevant modules x
 2. Define path to starting folder x
 3. Check if CSV report already exists x
-4. Allow option to overwrite
-5. Define name for CSv file
+4. Allow option to overwrite ?
+5. Define name for CSv file x
 6. Create CSV file with headings x
-7. Search through subfolders to verify mxf file exists
-8.1 harvest filname eg GAA.MXF, remove extension eg MXF
-8.2 store new filname eg GAA
-8.3 make new filename variable
+7. Search through subfolders to verify mxf file exists x
+8.1 harvest filname eg GAA.MXF, remove extension eg MXF x
+8.2 store new filname eg GAA x
+8.3 make new filename variable x
 8.4 check if GAA with .XML extension exists
 9. Check if same filename
 10. Check if folder is empty, note in CSV report 
 11. If only MXF, note in CSV report. MXF FILENAME + "No sidecar"
-12. Extract MD5 from xml file and store as variable
-13. Generate MD5 checksum on MXF file
-14. Compare the 2 MD5s
+12. Extract MD5 from xml file and store as variable x
+13. Generate MD5 checksum on MXF file x
+14. Compare the 2 MD5s x
 15. Write to CSV report
+15.1 xml parse title
+15.2 xml parse episode title/number
+15.3 xml parse programme title
+15.4 append list with all findings
+
 
 
 8.1 harvest filname eg GAA.MXF, - file_no_path = 
