@@ -31,7 +31,6 @@ def set_environment(logfile):
     
     
 def get_filenames(directory, log_filename_alteration):
-    global output_parent_directory
     os.chdir(directory)  
     tiff_check = glob('*.tiff')
     dpx_check = glob('*.dpx')
@@ -54,9 +53,7 @@ def get_filenames(directory, log_filename_alteration):
     container = images[0].split(".")[-1]
     output_parent_directory = config[1].rstrip()
     if len(images[0].split("_")[-1].split(".")) > 2:
-        numberless_filename = images[0].split(".")[0].split("_")
-        
-        
+        numberless_filename = images[0].split(".")[0].split("_")   
     else:
         numberless_filename = images[0].split("_")[0:-1]
     ffmpeg_friendly_name = ''
@@ -64,28 +61,14 @@ def get_filenames(directory, log_filename_alteration):
     while  counter <len(numberless_filename) :
         ffmpeg_friendly_name += numberless_filename[counter] + '_'
         counter += 1
-    
-    if start_number == '864000':
-        output_dirname = output_parent_directory + '/' + os.path.basename(directory) + 'dpx_transcodes'
-        basename = os.path.basename(directory)
-    else:        
-        output_dirname = output_parent_directory + '/' + ffmpeg_friendly_name + 'dpx_transcodes'
-        basename = ffmpeg_friendly_name
-    try:
-        os.makedirs(output_dirname)
-        os.makedirs(output_dirname + '/logs')
-        os.makedirs(output_dirname + '/video')
-    except: OSError
-    output = output_dirname + '/md5/%s.framemd5' % (basename)
-    logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
-    env_dict = set_environment(logfile)
+
     image_seq_without_container = ffmpeg_friendly_name
     if len(images[0].split("_")[-1].split(".")) > 2:
         image_seq_without_container = ffmpeg_friendly_name[:-1] + ffmpeg_friendly_name[-1].replace('_', '.')
     start_number_length = len(start_number)
     number_regex = "%0" + str(start_number_length) + 'd.'
     ffmpeg_friendly_name += number_regex + '%s' % container
-    info = [output_dirname, output, image_seq_without_container, start_number, container]
+    info = [image_seq_without_container, start_number, container]
     return info
     
     
@@ -124,11 +107,9 @@ for root,dirnames,filenames in os.walk(source_directory):
         for files in filenames:
             total_size += os.path.getsize(os.path.join(root,files))
         
-        output_dirname              = info[0]  
-        source_textfile             = info[1]
-        image_seq_without_container = info[2]
-        start_number                = info[3]
-        container                   = info[4]
+        image_seq_without_container = info[0]
+        start_number                = info[1]
+        container                   = info[2]
         start_number_length = len(start_number)
         number_regex = "%0" + str(start_number_length) + 'd.'
         audio_dir            = source_parent_dir + '/audio'
@@ -147,8 +128,6 @@ for root,dirnames,filenames in os.walk(source_directory):
         seq2prores= ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_dir + '/' + os.path.basename(os.path.dirname(root)) + '.mov']
         print seq2prores
         subprocess.call(seq2prores,env=env_dict)
-        parent_basename   =  os.path.basename(output_dirname)
-        manifest_textfile = os.path.dirname(output_dirname) + '/' +  os.path.basename(os.path.dirname(root)) + time.strftime("%Y-%m-%dT%H:%M:%S") + '_manifest.md5'
         make_manifest(source_parent_dir, source_manifest)
         finish = datetime.datetime.now()
         #append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
