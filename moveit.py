@@ -98,7 +98,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
 
 def copy_dir():
     if _platform == "win32":
-        subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH'])
+        subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH', '/XD', '.*'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')  
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
