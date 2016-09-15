@@ -65,7 +65,7 @@ def remove_bad_files(root_dir):
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_to_remove):
     global manifest_generator
-    source_count = 0
+    source_counter = 0
     for root, directories, filenames in os.walk(source):  
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.'] 
@@ -81,10 +81,10 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
             directories[:] = [d for d in directories if not d[0] == '.']
             for files in filenames:
             
-                print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_count)
+                print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_counter)
                 md5 = hashlib_md5(os.path.join(root, files), manifest)
                 root2 = root.replace(path_to_remove, '')
-                manifest_generator +=    md5[:32] + ' ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+                manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
                 counter2 += 1
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
@@ -190,7 +190,9 @@ overwrite_destination_dir = check_overwrite_dir(destination_final_path)
 remove_bad_files(source)
 source_count = 0
 
-for root, directories, filenames in os.walk(source):   
+for root, directories, filenames in os.walk(source):
+    filenames = [f for f in filenames if not f[0] == '.']
+    directories[:] = [d for d in directories if not d[0] == '.'] 
     for files in filenames:   
             source_count +=1 
 
