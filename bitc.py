@@ -22,6 +22,9 @@ def set_options(input):
                         '-crf', 
                         help='Set quality. Default is 23, lower number = large file/high quality, high number = small file/poor quality')
     parser.add_argument(
+                        '-o', 
+                        help='Set output directory. Default directory is the same directory as input.')
+    parser.add_argument(
                         '-scale',
                         help='Rescale video.'
                         ' Usage: -scale 1920x1080 or -scale 720x576 etc')
@@ -43,7 +46,7 @@ def set_options(input):
         crf_value = args.crf
     else:
         crf_value = '23'
-    print crf_value    
+         
     
     if args.scale:
         h264_options.append('-scale')
@@ -92,11 +95,11 @@ def set_options(input):
     info_to_pass = [video_files,crf_value, number_of_effects, args,bitc]    
     return info_to_pass
     
-def main():
+def main(sidecar):    
     info_to_pass = set_options(sys.argv[1])
-    get_bitc(info_to_pass)                      
+    get_bitc(info_to_pass, sidecar)                      
 
-def get_bitc(info_to_pass):
+def get_bitc(info_to_pass, sidecar):
     video_files = info_to_pass[0]
     crf_value =   info_to_pass[1]
     number_of_effects = info_to_pass[2]
@@ -106,7 +109,19 @@ def get_bitc(info_to_pass):
     print video_files
     for filename in video_files:
         #pdb.set_trace()
-        output = filename + "_h264.mov"
+        if args.o:
+            output = args.o + '/' + filename + "_h264.mov"
+        elif sidecar == 'proxy_folder':
+            proxy_folder = os.path.dirname(os.path.abspath(filename)) + '/proxy'
+            print proxy_folder
+
+            if not os.path.isdir(proxy_folder):
+                os.makedirs(proxy_folder)
+            output = proxy_folder + '/' + filename + "_h264.mov"
+        else:    
+            output = filename + "_h264.mov"
+            
+        
     
         ffmpeg_args =   ['ffmpeg',
                 '-i', filename,
@@ -217,4 +232,4 @@ def get_bitc(info_to_pass):
         subprocess.call(ffmpeg_args)
 
 if __name__ == "__main__":
-    main()
+    main('sidecar')
