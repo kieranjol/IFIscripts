@@ -24,6 +24,11 @@ from premis import make_event
 from premis import write_premis
 '''
 
+# Adapted from Andrew Dalke - http://stackoverflow.com/a/8304087/2188572
+def read_non_comment_lines(infile):
+    for lineno, line in enumerate(infile):
+        #if line[:1] != "#":
+            yield lineno, line
 def get_mediainfo(var_type, type, filename):
     var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
     return var_type
@@ -73,52 +78,57 @@ def make_manifest(relative_manifest_path, manifest_textfile):
         for i in manifest_list:
             fo.write(i + '\n')
 
-
-if len(sys.argv) < 2:
-    print 'IFI FFV1.MKV SCRIPT'
-    print 'USAGE: PYTHON makeffv1.py FILENAME'
-    print 'OR'
-    print 'USAGE: PYTHON makeffv1.py DirectoryNAME'
-    print 'If input is a directory, all files will be processed'
-    print 'If input is a file, only that file will be processed'
-    sys.exit()
+def get_input():
+    if len(sys.argv) < 2:
+        print 'IFI FFV1.MKV SCRIPT'
+        print 'USAGE: PYTHON makeffv1.py FILENAME'
+        print 'OR'
+        print 'USAGE: PYTHON makeffv1.py DirectoryNAME'
+        print 'If input is a directory, all files will be processed'
+        print 'If input is a file, only that file will be processed'
+        sys.exit()
     
     
-else:
-    # Input, either file or firectory, that we want to process.
-    input = sys.argv[1]
-    print input
+    else:
+        # Input, either file or firectory, that we want to process.
+        input = sys.argv[1]
+        print input
 
-    # Store the directory containing the input file/directory.
-    wd = os.path.dirname(input)
+        # Store the directory containing the input file/directory.
+        wd = os.path.dirname(input)
 
-    # Change current working directory to the value stored as "wd"
-    os.chdir(os.path.abspath(wd))
+        # Change current working directory to the value stored as "wd"
+        os.chdir(os.path.abspath(wd))
 
-    # Store the actual file/directory name without the full path.
-    file_without_path = os.path.basename(input)
-    print file_without_path
-    csv_report_filename = os.path.basename(input) + 'makeffv1_results' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+        # Store the actual file/directory name without the full path.
+        file_without_path = os.path.basename(input)
+        print file_without_path
+        csv_report_filename = os.path.basename(input) + 'makeffv1_results' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
-    # Check if input is a file.
-    # AFAIK, os.path.isfile only works if full path isn't present.
-    if os.path.isfile(file_without_path):      
-        print os.path.isfile(file_without_path)
-        print "single file found"
-        video_files = []                       # Create empty list 
-        video_files.append(file_without_path)  # Add filename to list
-        print video_files
+        # Check if input is a file.
+        # AFAIK, os.path.isfile only works if full path isn't present.
+        if os.path.isfile(file_without_path):      
+            print os.path.isfile(file_without_path)
+            print "single file found"
+            video_files = []                       # Create empty list 
+            video_files.append(file_without_path)  # Add filename to list
+            print video_files
 
-    # Check if input is a directory. 
-    elif os.path.isdir(file_without_path):  
-        os.chdir(file_without_path)
-        video_files =  glob('*.mov') + glob('*.mp4') + glob('*.mxf') + glob('*.mkv') + glob('*.avi') + glob('*.y4m')
+        # Check if input is a directory. 
+        elif os.path.isdir(file_without_path):  
+            os.chdir(file_without_path)
+            video_files =  glob('*.mov') + glob('*.mp4') + glob('*.mxf') + glob('*.mkv') + glob('*.avi') + glob('*.y4m')
 
-    # Prints some stuff if input isn't a file or directory.
-    else: 
-        print "Your input isn't a file or a directory."
-        print "What was it? I'm curious."  
-    create_csv(csv_report_filename, ('FILENAME', 'Lossless?', 'Source size in bits', 'FFV1 size in bits', ' Compression ratio'))
+        # Prints some stuff if input isn't a file or directory.
+        else: 
+            print "Your input isn't a file or a directory."
+            print "What was it? I'm curious."  
+        create_csv(csv_report_filename, ('FILENAME', 'Lossless?', 'Source size in bits', 'FFV1 size in bits', ' Compression ratio'))
+        info_to_pass = [video_files, csv_report_filename]
+        return info_to_pass
+def make_ffv1(info_to_pass):
+    video_files = info_to_pass[0]
+    csv_report_filename = info_to_pass[1]
     for filename in video_files: #loop all files in directory
 
 
@@ -185,11 +195,7 @@ else:
                 generate_log(log, 'makeffv1.py %s moved to log directory' % i)
         # Verify that the video really is lossless by comparing the fixity of the two framemd5 files. 
         
-        # Adapted from Andrew Dalke - http://stackoverflow.com/a/8304087/2188572
-        def read_non_comment_lines(infile):
-            for lineno, line in enumerate(infile):
-                #if line[:1] != "#":
-                    yield lineno, line
+
         source_video_size =  get_mediainfo('source_video_size', "--inform=General;%FileSize%", filename)
         ffv1_video_size =  get_mediainfo('ffv1_video_size', '--inform=General;%FileSize%', output)
         compression_ratio = float(source_video_size) / float(ffv1_video_size)
@@ -213,7 +219,7 @@ else:
                 append_csv(csv_report_filename, (output,'LOSSLESS - different PAR',source_video_size,ffv1_video_size,compression_ratio))
                 generate_log(log, 'makeffv1.py Image content is lossless, but Pixel Aspect Ratio has been altered')
         elif len(checksum_mismatches) > 1:
-            print 'NOT LOSSLESS'     
+            print 'NOT LOSSLESS'
             append_csv(csv_report_filename, (output,'NOT LOSSLESS',source_video_size,ffv1_video_size,compression_ratio))
             generate_log(log, 'makeffv1.py Not Lossless.')
 
@@ -237,7 +243,11 @@ else:
         make_manifest(filenoext,manifest)
         os.chdir('..')
 
-        
+def main():
+    info_to_pass = get_input()
+    make_ffv1(info_to_pass)
+if __name__ == "__main__":
+    main() 
 '''
 make_premis(output)
 make_event('whatever trevor')
