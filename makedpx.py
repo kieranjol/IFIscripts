@@ -52,7 +52,18 @@ def make_framemd5(directory, container, log_filename_alteration):
     subprocess.call(framemd5, env=env_dict)   
     info = [output_dirname, output, image_seq_without_container]
     return info
-    
+def file_check(dir2check):
+    os.chdir(dir2check)
+    tiff_check = glob('*.tiff')
+    dpx_check = glob('*.dpx')
+    if len(dpx_check) > 0:
+        print 'DPX sequence, not TIFF. Not processing'
+        return 'DPX'
+    elif len(tiff_check) > 0:
+        return 'TIFF'
+    else:
+        print 'no images found'
+        return 'none'    
 def remove_bad_files(root_dir):
     rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
     for root, dirs, files in os.walk(root_dir):
@@ -74,6 +85,9 @@ create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Fi
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
         source_directory = root + '/tiff_scans'
+        if not file_check(source_directory) == 'TIFF':
+            append_csv(csv_report_filename, (source_directory,'EMPTY DIRECTORY - SKIPPED', 'n/a', 'n/a'))
+            continue
         remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
         normpath             = os.path.normpath(source_directory) 
