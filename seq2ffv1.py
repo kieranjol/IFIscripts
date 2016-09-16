@@ -12,8 +12,12 @@ import csv
 from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
+import itertools
 
-
+def read_non_comment_lines(infile):
+    for lineno, line in enumerate(infile):
+        #if line[:1] != "#":
+            yield lineno, line
 def set_environment(logfile):
     env_dict = os.environ.copy()
     # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
@@ -146,14 +150,34 @@ for root,dirnames,filenames in os.walk(source_directory):
         ffv1_path         = output_dirname +  '/video/'  + os.path.basename(root) + '.mkv'
         ffv1_md5          = output_dirname +  '/md5/' + os.path.basename(root) + 'ffv1.framemd5'
         subprocess.call(['ffmpeg','-i', ffv1_path, '-pix_fmt', 'rgb48le','-f', 'framemd5', ffv1_md5])
-        #other_textfile = other[1]
-        judgement = diff_textfiles(source_textfile, ffv1_md5)
-        make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         finish = datetime.datetime.now()
-        
-        print total_size
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio =  float(total_size) / float(os.path.getsize(ffv1_path))
-        append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
+        judgement = diff_textfiles(source_textfile, ffv1_md5)
+        #other_textfile = other[1]
+        checksum_mismatches = []
+        with open(source_textfile) as f1:
+            with open(ffv1_md5) as f2:
+                for (lineno1, line1), (lineno2, line2) in itertools.izip(
+                               read_non_comment_lines(f1), read_non_comment_lines(f2)):
+                    if line1 != line2:
+                        if 'sar' in line1:
+                            checksum_mismatches = ['sar']
+                        else:
+                            checksum_mismatches.append(1)
+        if len(checksum_mismatches) == 0:
+            print 'LOSSLESS'
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
+
+        elif len(checksum_mismatches) == 1:
+            if checksum_mismatches[0] == 'sar':
+                print 'Image content is lossless, Pixel Aspect Ratio has been altered'
+                append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR', start, finish,total_size, ffv1_size, comp_ratio))
+        elif len(checksum_mismatches) > 1:
+            print 'NOT LOSSLESS'     
+            print csv_report_filename
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
+        make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
+        
         
 #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
