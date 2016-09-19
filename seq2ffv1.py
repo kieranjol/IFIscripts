@@ -23,7 +23,8 @@ def set_environment(logfile):
     # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
     env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
     return env_dict
-    
+
+
 def make_framemd5(directory, log_filename_alteration):
     os.chdir(directory)
     
@@ -52,8 +53,6 @@ def make_framemd5(directory, log_filename_alteration):
     output_parent_directory = config[1].rstrip()
     if len(images[0].split("_")[-1].split(".")) > 2:
         numberless_filename = images[0].split(".")[0].split("_")
-        
-        
     else:
         numberless_filename = images[0].split("_")[0:-1]
     
@@ -117,9 +116,9 @@ source_directory = sys.argv[1]
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Sequence Size', 'FFV1 Size', 'Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
         #if "tiff_scans"  in dirnames:
-        source_directory = root# + '/tiff_scans'
-        total_size = 0 
-        remove_bad_files(source_directory)
+        source_directory = root # + '/tiff_scans'
+        total_size = 0
+        #remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
         normpath             = os.path.normpath(source_directory) 
         relative_path        = normpath.split(os.sep)[-1]
@@ -141,7 +140,16 @@ for root,dirnames,filenames in os.walk(source_directory):
 
         logfile = output_dirname + '/logs/%s_dpx_transcode.log' % os.path.basename(root)
         env_dict = set_environment(logfile)
-        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-pix_fmt', 'rgb48le',output_dirname +  '/video/' + os.path.basename(root) + '.mkv']
+        pix_fmt = subprocess.check_output(['ffprobe',
+                                                '-start_number', start_number,
+                                                '-i', os.path.abspath(dpx_filename),
+                                                '-v', 'error',
+                                                '-select_streams', 'v:0',
+                                                '-show_entries',
+                                                'stream=pix_fmt',
+                                                '-of', 'default=noprint_wrappers=1:nokey=1',
+                                                ]).rstrip()
+        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-pix_fmt', pix_fmt ,output_dirname +  '/video/' + os.path.basename(root) + '.mkv']
         print ffv12dpx
 
         subprocess.call(ffv12dpx,env=env_dict)
@@ -149,7 +157,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
         ffv1_path         = output_dirname +  '/video/'  + os.path.basename(root) + '.mkv'
         ffv1_md5          = output_dirname +  '/md5/' + os.path.basename(root) + 'ffv1.framemd5'
-        subprocess.call(['ffmpeg','-i', ffv1_path, '-pix_fmt', 'rgb48le','-f', 'framemd5', ffv1_md5])
+        subprocess.call(['ffmpeg','-i', ffv1_path, '-pix_fmt', pix_fmt,'-f', 'framemd5', ffv1_md5])
         finish = datetime.datetime.now()
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio =  float(total_size) / float(os.path.getsize(ffv1_path))
@@ -177,7 +185,7 @@ for root,dirnames,filenames in os.walk(source_directory):
             print 'NOT LOSSLESS'     
             print csv_report_filename
             append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
-        make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
+        #make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         
         
 #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
