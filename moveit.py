@@ -70,7 +70,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.'] 
         for files in filenames:   
-                source_count +=1 
+                source_counter +=1 
     counter2 = 1
     os.chdir(manifest_dir)
     if os.path.isfile(manifest_destination):
@@ -276,7 +276,7 @@ if rootpos == 'y':
         dest_manifest_list = fo.readlines()
         with open(manifest_temp[1], 'wb') as temp_object:
             for i in dest_manifest_list:
-                temp_object.write(i[:33] + '/' + dirname + '/' + i[33:])
+                temp_object.write(i[:33] + ' /' + dirname + '/' +  i[34:])
         manifest = manifest_temp[1]
            
 if filecmp.cmp(manifest, manifest_destination, shallow=False):
