@@ -41,6 +41,7 @@ def make_framemd5(directory, log_filename_alteration):
         return 'none'
         
     images.sort()
+    sequence_length = len(images)
     global output_parent_directory
     if '864000' in images[0]:
         start_number = '864000'
@@ -64,10 +65,10 @@ def make_framemd5(directory, log_filename_alteration):
         counter += 1
     
     if start_number == '864000':
-        output_dirname = output_parent_directory + '/' + os.path.basename(directory) + 'dpx_transcodes'
+        output_dirname = output_parent_directory + '/' + os.path.basename(directory) + time.strftime("%Y_%m_%dT%H_%M_%S")
         basename = os.path.basename(directory)
     else:        
-        output_dirname = output_parent_directory + '/' + ffmpeg_friendly_name + 'dpx_transcodes'
+        output_dirname = output_parent_directory + '/' + ffmpeg_friendly_name + time.strftime("%Y_%m_%dT%H_%M_%S")
         basename = ffmpeg_friendly_name
     try:
         os.makedirs(output_dirname)
@@ -94,7 +95,7 @@ def make_framemd5(directory, log_filename_alteration):
     framemd5 = ['ffmpeg','-start_number', start_number, '-report','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
     subprocess.call(framemd5, env=env_dict)   
-    info = [output_dirname, output, image_seq_without_container, start_number, container, ffmpeg_friendly_name, number_regex]
+    info = [output_dirname, output, image_seq_without_container, start_number, container, ffmpeg_friendly_name, number_regex, sequence_length]
     return info
     
 def remove_bad_files(root_dir):
@@ -114,7 +115,7 @@ emails = config[0].split(',')
 
 source_directory = sys.argv[1]
 
-create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Transcode Start Time', 'Transcode Finish Time','Transcode Time', 'Sequence Size', 'FFV1 Size','Pixel Format', 'Sequence Type','Width','Height','Compression Ratio'))
+create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Transcode Start Time', 'Transcode Finish Time','Transcode Time', 'Frame Count', 'Encode FPS','Sequence Size', 'FFV1 Size','Pixel Format', 'Sequence Type','Width','Height','Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
         #if "tiff_scans"  in dirnames:
         source_directory = root # + '/tiff_scans'
@@ -138,6 +139,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         start_number                = info[3]
         container                   = info[4]
         dpx_filename                = info[5] 
+        sequence_length             = info[7]
         output_filename             = image_seq_without_container[:-1] 
         print output_filename
 
@@ -176,6 +178,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio =  float(total_size) / float(os.path.getsize(ffv1_path))
         judgement = diff_textfiles(source_textfile, ffv1_md5)
+        fps = float(sequence_length) / float(transcode_time)
         #other_textfile = other[1]
         checksum_mismatches = []
         with open(source_textfile) as f1:
@@ -189,16 +192,16 @@ for root,dirnames,filenames in os.walk(source_directory):
                             checksum_mismatches.append(1)
         if len(checksum_mismatches) == 0:
             print 'LOSSLESS'
-            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time, total_size, ffv1_size, pix_fmt, container, width, height,comp_ratio))
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time, sequence_length, fps, total_size, ffv1_size, pix_fmt, container, width, height,comp_ratio))
 
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
                 print 'Image content is lossless, Pixel Aspect Ratio has been altered'
-                append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR',start, finish,transcode_start, transcode_finish,transcode_time,total_size, ffv1_size, pix_fmt, container,width, height,comp_ratio))
+                append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR',start, finish,transcode_start, transcode_finish,transcode_time,sequence_length, fps,total_size, ffv1_size, pix_fmt, container,width, height,comp_ratio))
         elif len(checksum_mismatches) > 1:
             print 'NOT LOSSLESS'     
             print csv_report_filename
-            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time,total_size, ffv1_size, pix_fmt,container, width, height,comp_ratio))
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time,sequence_length, fps,total_size, ffv1_size, pix_fmt,container, width, height,comp_ratio))
         #make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         
         
