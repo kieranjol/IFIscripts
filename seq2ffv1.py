@@ -6,6 +6,7 @@ import os
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
+from ififuncs import get_mediainfo
 import datetime
 import time
 import csv
@@ -77,7 +78,7 @@ def make_framemd5(directory, log_filename_alteration):
      
     except: OSError
 
-    output = output_dirname + '/md5/%s.framemd5' % (basename)
+    output = output_dirname + '/md5/%ssource.framemd5' % (basename)
     logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
     env_dict = set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
@@ -113,7 +114,7 @@ emails = config[0].split(',')
 
 source_directory = sys.argv[1]
 
-create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Sequence Size', 'FFV1 Size', 'Compression Ratio'))
+create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Transcode Start Time', 'Transcode Finish Time','Transcode Time', 'Sequence Size', 'FFV1 Size','Pixel Format', 'Sequence Type','Width','Height','Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
         #if "tiff_scans"  in dirnames:
         source_directory = root # + '/tiff_scans'
@@ -137,8 +138,11 @@ for root,dirnames,filenames in os.walk(source_directory):
         start_number                = info[3]
         container                   = info[4]
         dpx_filename                = info[5] 
+        output_filename             = image_seq_without_container[:-1] 
+        print output_filename
 
-        logfile = output_dirname + '/logs/%s_dpx_transcode.log' % os.path.basename(root)
+
+        logfile = output_dirname + '/logs/%s_ffv1_transcode.log' % output_filename
         env_dict = set_environment(logfile)
         pix_fmt = subprocess.check_output(['ffprobe',
                                                 '-start_number', start_number,
@@ -149,15 +153,25 @@ for root,dirnames,filenames in os.walk(source_directory):
                                                 'stream=pix_fmt',
                                                 '-of', 'default=noprint_wrappers=1:nokey=1',
                                                 ]).rstrip()
-        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-pix_fmt', pix_fmt ,output_dirname +  '/video/' + os.path.basename(root) + '.mkv']
+        
+        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-pix_fmt', pix_fmt ,output_dirname +  '/video/' + output_filename + '.mkv']
         print ffv12dpx
-
+        transcode_start = datetime.datetime.now()
+        transcode_start_machine_readable = time.time()
         subprocess.call(ffv12dpx,env=env_dict)
+        transcode_finish = datetime.datetime.now()
+        transcode_finish_machine_readable = time.time()
+        transcode_time = transcode_finish_machine_readable - transcode_start_machine_readable
         parent_basename   =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
-        ffv1_path         = output_dirname +  '/video/'  + os.path.basename(root) + '.mkv'
-        ffv1_md5          = output_dirname +  '/md5/' + os.path.basename(root) + 'ffv1.framemd5'
-        subprocess.call(['ffmpeg','-i', ffv1_path, '-pix_fmt', pix_fmt,'-f', 'framemd5', ffv1_md5])
+        ffv1_path         = output_dirname +  '/video/'  + output_filename + '.mkv'
+        width =  get_mediainfo('duration', '--inform=Video;%Width%', ffv1_path)
+        height =  get_mediainfo('duration', '--inform=Video;%Height%', ffv1_path )
+        ffv1_md5          = output_dirname +  '/md5/' + image_seq_without_container + 'ffv1.framemd5'
+        ffv1_fmd5_cmd = ['ffmpeg','-i', ffv1_path, '-pix_fmt', pix_fmt,'-f', 'framemd5', ffv1_md5]
+        ffv1_fmd5_logfile = output_dirname + '/logs/%s_ffv1_framemd5.log' % output_filename
+        ffv1_fmd5_env_dict = set_environment(ffv1_fmd5_logfile)
+        subprocess.call(ffv1_fmd5_cmd,env=ffv1_fmd5_env_dict)
         finish = datetime.datetime.now()
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio =  float(total_size) / float(os.path.getsize(ffv1_path))
@@ -175,16 +189,16 @@ for root,dirnames,filenames in os.walk(source_directory):
                             checksum_mismatches.append(1)
         if len(checksum_mismatches) == 0:
             print 'LOSSLESS'
-            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time, total_size, ffv1_size, pix_fmt, container, width, height,comp_ratio))
 
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
                 print 'Image content is lossless, Pixel Aspect Ratio has been altered'
-                append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR', start, finish,total_size, ffv1_size, comp_ratio))
+                append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR',start, finish,transcode_start, transcode_finish,transcode_time,total_size, ffv1_size, pix_fmt, container,width, height,comp_ratio))
         elif len(checksum_mismatches) > 1:
             print 'NOT LOSSLESS'     
             print csv_report_filename
-            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,total_size, ffv1_size, comp_ratio))
+            append_csv(csv_report_filename, (parent_basename,judgement, start, finish,transcode_start, transcode_finish,transcode_time,total_size, ffv1_size, pix_fmt,container, width, height,comp_ratio))
         #make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         
         
