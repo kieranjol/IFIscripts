@@ -27,19 +27,16 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         self.filmPreparationListBox.itemSelectionChanged.connect(self.getPrepList)
         self.filmCaptureInterventionsListBox.itemSelectionChanged.connect(self.getInterventionList)
         self.rawAudioInterventions.itemSelectionChanged.connect(self.getRawAudioInterventionsList)
-        self.userComboBox.activated[str].connect(self.getUser)
         self.tapeWorkstationComboBox.activated[str].connect(self.getWorkstation)
+        self.processButton.clicked.connect(self.closeIt)
         
         
-        
-        
+    def closeIt(self): 
+            self.close()     
     def getWorkstation(self):
         global tapeWorkstation
         tapeWorkstation = self.tapeWorkstationComboBox.currentText()    
-    def getUser(self):
-        global user
-        user = self.userComboBox.currentText()
-        
+
     def getPrepList(self):
         global items
         items = []
@@ -70,7 +67,7 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
     def encode(self):
         global ifi_identifiersDict
         ifi_identifiersDict = {}
-        
+        user = self.userComboBox.currentText()
         oe = self.oeTextBox.toPlainText()
         filmographic = self.FilmographicTextBox.toPlainText()
         sourceAccession = self.sourceAccessionTextBox.toPlainText()
@@ -79,7 +76,7 @@ class ExampleApp(QtGui.QMainWindow, premisgui.Ui_MainWindow):
         
         
         if self.tabWidget.currentIndex() == 0:
-            ifi_identifiersDict = {"workflow":"scanning","oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items}
+            ifi_identifiersDict = {"workflow":"scanning","oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "interventions":interventions, "prepList":items, "user":str(user)}
             
         if self.tabWidget.currentIndex() == 1:
             ifi_identifiersDict = {"workflow":"tape", "oe":str(oe), "filmographic":str(filmographic), "sourceAccession":str(sourceAccession), "tapeWorkstation":str(tapeWorkstation)}

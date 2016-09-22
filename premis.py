@@ -141,9 +141,37 @@ def get_input(filename):
 def make_premis(source_file):
     main(source_file)    
 
-def make_event(event_type, event_detail, *args):
+def make_agent(agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value, linkingEventIdentifier_value ):
+    agent = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
+    premis.insert(-1, agent)
+    agentIdentifier = create_unit(1,agent,'agentIdentifier')
+    agentIdType = create_unit(2,agentIdentifier,'agentIdentifierType')
+    agentIdValue = create_unit(2,agentIdentifier,'agentIdentifierValue')
+    agentName = create_unit(2,agent,'agentName')
+    agentType = create_unit(3,agent,'agentType')
+    agentVersion = create_unit(4,agent,'agentVersion')
+    agentNote = create_unit(5,agent,'agentNote')
+    linkingEventIdentifier = create_unit(6,agent,'linkingEventIdentifier')
+    agentIdType.text = agentIdType_value
+    agentIdValue.text = agentIdValue_value
+    agentName.text = agentName_value
+    agentType.text = agentType_value
+    agentVersion.text = agentVersion_value
+    agentNote.text = agentNote_value
+    linkingEventIdentifier.text = linkingEventIdentifier_value
+    agent_info = [agentIdType_value,agentIdValue_value]
+    return agent_info
+    
+    
+def make_event(event_type, event_detail, agent1, agent2, *args):
+        print agent1, agent2
+        agent1type =agent1[0]
+        agent1value =agent1[1]
+        agent2type =agent2[0]
+        agent2value =agent2[1]
         global linkingObjectIdentifierValue
         global event_Type
+        
         global revtmd_capture_history
         
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
@@ -165,7 +193,7 @@ def make_event(event_type, event_detail, *args):
         event_id_value.text = str(uuid.uuid4())
         event_id_type.text = 'UUID'    
         eventDetailInformation = create_unit(4,event,'event_DetailInformation')
-        eventDetail = create_unit(0,eventDetailInformation,'event_Detail')
+        eventDetail = create_unit(0,eventDetailInformation,'eventDetail')
         eventDetail.text = event_detail
         linkingObjectIdentifier = create_unit(5,event,'linkingObjectIdentifier')
         linkingObjectIdentifierType = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
@@ -173,9 +201,27 @@ def make_event(event_type, event_detail, *args):
         linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
         linkingObjectRole.text = 'source'  
+        linkingAgentIdentifier = create_unit(6,event,'linkingAgentIdentifier')
+        linkingAgentIdentifierType = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
+        linkingAgentIdentifierValue = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
+        linkingAgentIdentifierRole= create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierRole')
+        linkingAgentIdentifierRole.text = 'implementer'
+        linkingAgentIdentifier2 = create_unit(7,event,'linkingAgentIdentifier')
+        linkingAgentIdentifierType2 = create_unit(0,linkingAgentIdentifier2,'linkingAgentIdentifierType')
+        linkingAgentIdentifierValue2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifierValue')
+        linkingAgentIdentifierRole2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifierRole')
+        linkingAgentIdentifierRole2.text = 'implementer'
+        linkingAgentIdentifierType.text = agent1type 
+        linkingAgentIdentifierValue.text = agent1value
+        linkingAgentIdentifierType2.text = agent2type 
+        linkingAgentIdentifierValue2.text = agent2value
+
+
+        
+        '''''
         if event_type == 'capture':
             
-            eventDetailExtension = create_unit(1, eventDetailInformation, 'event_DetailExtension')
+            eventDetailExtension = create_unit(1, eventDetailInformation, 'eventDetailExtension')
             revtmd_first = create_revtmd_unit(0, eventDetailExtension, 'object')
             revtmd_filename = create_revtmd_unit(1, revtmd_first, 'filename')
             revtmd_organisation = create_revtmd_unit(2, revtmd_first, 'organisation')
@@ -219,12 +265,13 @@ def make_event(event_type, event_detail, *args):
                 process_history(OrderedDict(revtmd_edit_2_blackmagic_hardware), 3)
                 process_history(OrderedDict(revtmd_edit_2_monitor), 4)
                 process_history(OrderedDict(revtmd_edit_2_blackmagic_capture_software), 5)
-                '''
+        '''
+        '''
                 parser = ET.XMLParser(remove_blank_text=True)
                 blaa = ET.fromstring(*args, parser=parser)
             
                 eventDetailExtension.insert(0,blaa)  
-            '''
+        '''
         return doc
 global vtr        
 vtr = {'role':'playback', 'manufacturer':'Sony', 'signal':'composite', 'serialNumber':'abc123'}
@@ -250,6 +297,8 @@ def process_history(coding_dict, process_history_placement):
         
         a.text = coding_dict[i]
         counter1 += 1
+        
+        
 def main(source_file):
     global premis_namespace
     global premis
@@ -367,16 +416,18 @@ def main(source_file):
             relationshipType = create_unit(0,relationship, 'relationshipType')
             relationshipType.text = 'structural'
             relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
-            relationshipSubType.text = 'is part of'
+            relationshipSubType.text = 'is included in'
         #create_hash(image)
         hashlib_md5(image, manifest)
         mediainfo_counter += 1
 
     #make_event('Compression')
 
-    make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"')
-    make_event('capture', '')
-
+    
+    scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', 'uuid-1234-1234')
+    operatorAgent = make_agent('locally defined identifier','agent_002', items['user'],'601-0101', 'person', 'stuff in here', 'uuid-1234-1234')
+    make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
+    make_event('capture', '', scannerAgent, operatorAgent)
     
     '''
     >>> parser = etree.XMLParser(remove_blank_text=True)
