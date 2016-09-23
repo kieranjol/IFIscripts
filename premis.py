@@ -47,45 +47,6 @@ def hashlib_md5(filename, manifest):
    with open(manifest, "ab") as fo:
        fo.write(md5_output + '  ' + source_file.split(os.sep)[-1] + '/' + filename +  '\n')
 
-def create_revtmd_unit(index,parent, unitname):
-    revtmd_namespace = "http://nwtssite.nwts.nara/schema/"
-    unitname = ET.Element("{%s}%s" % (revtmd_namespace, unitname))
-    parent.insert(index,unitname)
-    return unitname
-    
-    
-'''    
-def create_revtmd():
-    revtmd_namespace = '<revtmd:revtmd xmlns:revtmd="http://nwtssite.nwts.nara/schema/"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nwtssite.nwts.nara/schema/  http://www.archives.gov/preservation/products/reVTMD.xsd"></revtmd:revtmd>'
-    revtmd_root = ET.fromstring(revtmd_namespace)
-    
-    r_namespace = "http://nwtssite.nwts.nara/schema/"
-    #revtmd_object = ET.ElementTree(revtmd_root)
-    
-    revtmd_first = create_revtmd_unit(0, revtmd_root, 'object')
-    revtmd_filename = create_revtmd_unit(1, revtmd_first, 'filename')
-    revtmd_organisation = create_revtmd_unit(2, revtmd_first, 'organisation')
-    revtmd_organisation_main = create_revtmd_unit(0, revtmd_organisation, 'organisation_main')
-    revtmd_organisation_main_name = create_revtmd_unit(0, revtmd_organisation_main, 'name')
-    revtmd_organisation_main_role = create_revtmd_unit(0, revtmd_organisation_main, 'role')
-    
-    revtmd_organisation_division = create_revtmd_unit(1, revtmd_organisation, 'organisation_divsion')
-    revtmd_organisation_division_name = create_revtmd_unit(0, revtmd_organisation_division, 'name')
-    revtmd_use = create_revtmd_unit(3, revtmd_first, 'use')
-    revtmd_use.text = 'Preservation Master'
-    revtmd_capture_history = create_revtmd_unit(4, revtmd_first, 'captureHistory')
-    revtmd_digitizationDate = create_revtmd_unit(1, revtmd_capture_history, 'digitizationDate')
-    revtmd_digitizationEngineer = create_revtmd_unit(2, revtmd_capture_history, 'digitizationEngineers')
-    for i in items['prepList']:
-        counter = 3
-        x = create_revtmd_unit(counter, revtmd_capture_history, 'preparationActions')
-        x.text = i
-        counter += 1
-    return revtmd_object
-#revtmd = create_revtmd()
-#rstring = ET.tostring(revtmd, pretty_print=True)
-'''
-
     
 def add_value(value, element):
     element.text = value
@@ -163,7 +124,7 @@ def make_agent(agentIdType_value,agentIdValue_value,agentName_value,agentVersion
     return agent_info
     
     
-def make_event(event_type, event_detail, agent1, agent2, *args):
+def make_event(event_type, event_detail, agent1, agent2):
         print agent1, agent2
         agent1type =agent1[0]
         agent1value =agent1[1]
@@ -440,47 +401,3 @@ def main(source_file):
 if __name__ == "__main__":
         make_premis(source_file)
         write_premis()
-'''
-from lxml import etree
-
-
-PREMIS_NS   =  "http://www.loc.gov/premis/v3"
-NS_MAP = {'premis': PREMIS_NS}
-
-
-namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
-page = etree.fromstring(namespace)
-
-#page = etree.Element(ns)
-doc = etree.ElementTree(page)
-
-a = page.append(etree.Element("fixityEvent"))
-new_element = etree.Element('premis:object', type="premis:file", nsmap='premis')
-page.insert(0,new_element)
-
-premiso = etree.Element('premis')
-
-new_element.insert(0, premiso) 
-premiso.text = 'TESTSTSTSTSTST'
-outFile = open('premis.xml','w')
-doc.write(outFile)
-
-
-'''
-'''
-import lxml.etree as ET
-import lxml.builder as builder
-E = builder.ElementMaker(namespace='http://www.loc.gov/premis/v3',
-                         nsmap={None: 'http://www.loc.gov/premis/v3',
-                         'premis': 'http://www.loc.gov/premis/v3',
-                         'xlink': 'http://www.w3.org/1999/xlink',
-                         'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-                         
-                          })
-premis = E.premis(version="3.0")
-print(ET.tostring(premis, pretty_print=True))
-
-
-
-
-'''
