@@ -157,7 +157,7 @@ def make_environment(agentIdType_value,agentIdValue_value,agentName_value,agentV
     relationshipSubType.text = '???'
     
 '''    
-def make_event(event_type, event_detail, agent1, agent2):
+def make_event(event_type, event_detail, agent1, agent2, eventID ):
         print agent1, agent2
         agent1type =agent1[0]
         agent1value =agent1[1]
@@ -184,7 +184,7 @@ def make_event(event_type, event_detail, agent1, agent2):
         event.insert(3,event_DateTime)
         event_DateTime.text = time.strftime("%Y-%m-%dT%H:%M:%S")
         event_Type.text = event_type
-        event_id_value.text = str(uuid.uuid4())
+        event_id_value.text = eventID
         event_id_type.text = 'UUID'    
         eventDetailInformation = create_unit(4,event,'event_DetailInformation')
         eventDetail = create_unit(0,eventDetailInformation,'eventDetail')
@@ -424,11 +424,11 @@ def main(source_file):
                     user_info = lists
                     print user_info
                     
-        
-    scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', 'uuid-1234-1234')
-    operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', 'uuid-1234-1234')
+    capture_uuid = str(uuid.uuid4())
+    scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', capture_uuid )
+    operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
     #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
-    make_event('capture', '', scannerAgent, operatorAgent)
+    make_event('capture', '', scannerAgent, operatorAgent, capture_uuid)
     
     '''
     >>> parser = etree.XMLParser(remove_blank_text=True)
