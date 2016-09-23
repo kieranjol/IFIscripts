@@ -21,6 +21,7 @@ from glob import glob
 import pg
 import hashlib 
 from collections import OrderedDict
+import csv
 
 
 source_file = sys.argv[1]
@@ -29,7 +30,15 @@ global revtmd
 items = pg.main()
 print items,'whatver'
 global manifest
+global csv_file
 manifest = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
+csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
+if os.path.isfile(csv_file):
+                    read_object = open(csv_file)
+                    reader = csv.reader(read_object)
+                    csv_list = list(reader)
+                    read_object.close()
+
 
 def hashlib_md5(filename, manifest):
    print filename
@@ -122,8 +131,32 @@ def make_agent(agentIdType_value,agentIdValue_value,agentName_value,agentVersion
     linkingEventIdentifier.text = linkingEventIdentifier_value
     agent_info = [agentIdType_value,agentIdValue_value]
     return agent_info
+''''    
+def make_environment(agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value, linkingEventIdentifier_value ):
+    object_parent = create_unit(0, premis, 'object')
+    object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
+    object_identifier_uuid_type = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+    object_identifier_uuid_type.text = 'locally defined identifier'
+    object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
+    object_identifier_uuid_value.text = 'Environment 1'
+    objectCategory = create_unit(2, object_parent, 'objectCategory')
+    objectCategory.text = 'intellectual entity'
+    environmentFunction = create_unit(2,object_parent,'environmentFunction')
+    environmentFunctionType = create_unit(1,environmentFunction,'environmentFunctionType')
+    environmentFunctionLevel = create_unit(2,environmentFunction,'environmentFunctionLevel')
+    environmentDesignation = create_unit(3,object_parent,'environmentDesignation')
+    environmentName = create_unit(1,environmentDesignation,'environmentName')
+    environmentVersion = create_unit(2,environmentDesignation,'environmentVersion')
+    environmentOrigin = create_unit(3,environmentDesignation,'environmentOrigin')
+    environmentDesignationNote = create_unit(4,environmentDesignation,'DesignationNote')
+    environmentDesignationExtension = create_unit(5,environmentDesignation,'environmentDesignationExtension')
+    relationship = create_unit(4, object_parent, 'relationship')
+    relationshipType = create_unit(0,relationship, 'relationshipType')
+    relationshipType.text = 'structural'
+    relationshipSubType = create_unit(0,relationship, 'relationshipSubType')
+    relationshipSubType.text = '???'
     
-    
+'''    
 def make_event(event_type, event_detail, agent1, agent2):
         print agent1, agent2
         agent1type =agent1[0]
@@ -383,11 +416,18 @@ def main(source_file):
         mediainfo_counter += 1
 
     #make_event('Compression')
-
     
+    if items["workflow"] == 'scanning':
+        for lists in csv_list:
+            for item in lists:
+                if items['user'] == item:
+                    user_info = lists
+                    print user_info
+                    
+        
     scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', 'uuid-1234-1234')
-    operatorAgent = make_agent('locally defined identifier','agent_002', items['user'],'601-0101', 'person', 'stuff in here', 'uuid-1234-1234')
-    make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
+    operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', 'uuid-1234-1234')
+    #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
     make_event('capture', '', scannerAgent, operatorAgent)
     
     '''
