@@ -84,6 +84,10 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
                 print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_counter)
                 md5 = hashlib_md5(os.path.join(root, files), manifest)
                 root2 = root.replace(path_to_remove, '')
+                if root2[0] == '/':
+                    root2 = root2[1:]
+                if root2[0] == '\\':
+                    root2 = root2[1:]
                 manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
                 counter2 += 1
     manifest_list = manifest_generator.splitlines()
@@ -199,7 +203,6 @@ file_list = []
 for root, directories, filenames in os.walk(source):
     filenames = [f for f in filenames if not f[0] == '.']
     directories[:] = [d for d in directories if not d[0] == '.'] 
-
     for files in filenames:   
             source_count +=1 
             file_list.append(files)
@@ -226,7 +229,6 @@ if proceed == 'y':
     if source_count != count_in_manifest:
         print 'checking which files are different'
         for i in file_list:
-           
            if i not in manifest_files:
                print i, 'is present in your source directory but not in the source manifest'
         for i in manifest_files:
@@ -249,8 +251,6 @@ elif not os.path.isfile(manifest):
             make_manifest(source, relative_path,manifest, source)
         else:
             make_manifest(source, relative_path,manifest, os.path.dirname(source))
-        
-        
     except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
             sys.exit()
