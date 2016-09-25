@@ -130,9 +130,15 @@ def manifest_file_count(manifest2check):
     if os.path.isfile(manifest2check):
         print 'A manifest already exists - Checking if manifest is up to date'
         with open(manifest2check, "r") as fo:
+            manifest_files = []
             manifest_lines = [line.split(',') for line in fo.readlines()]
+            for line in manifest_lines:
+                for a in line:
+                    a = a.split('\\')
+                    manifest_files.append(a[-1].rsplit()[0])
             count_in_manifest =  len(manifest_lines)
-    return count_in_manifest    
+            manifest_info = [count_in_manifest, manifest_files]
+    return manifest_info
   
 def check_overwrite_dir(dir2check):
     if os.path.isdir(dir2check):
@@ -177,7 +183,7 @@ generate_log(log_name_source, 'Source: %s' % source)
 generate_log(log_name_source, 'Destination: %s'  % destination)                       
 
 manifest_generator = ''
-         
+
 try:
     test_write_capabilities(destination)
 except OSError:
@@ -189,30 +195,45 @@ overwrite_destination_dir = check_overwrite_dir(destination_final_path)
 
 remove_bad_files(source)
 source_count = 0
-
+file_list = []
 for root, directories, filenames in os.walk(source):
     filenames = [f for f in filenames if not f[0] == '.']
     directories[:] = [d for d in directories if not d[0] == '.'] 
+
     for files in filenames:   
             source_count +=1 
-
+            file_list.append(files)
 proceed = 'n'
 if os.path.isfile(manifest_root):
     print '1'
     proceed = 'y'
-    count_in_manifest = manifest_file_count(manifest_root)
+    manifest_info = manifest_file_count(manifest_root)
+    count_in_manifest = manifest_info[0]
+    manifest_files = manifest_info[1]
 elif os.path.isfile(manifest_sidecar):
     print '2'
-    count_in_manifest = manifest_file_count(manifest_sidecar)
+    manifest_info = manifest_file_count(manifest_sidecar)
     proceed = 'y'
+    count_in_manifest = manifest_info[0]
+    manifest_files = manifest_info[1]
 elif os.path.isfile(manifest):
     print '3'
-    count_in_manifest = manifest_file_count(manifest) 
+    manifest_info = manifest_file_count(manifest)
+    count_in_manifest = manifest_info[0]
+    manifest_files = manifest_info[1]
     proceed = 'y'
 if proceed == 'y':
     if source_count != count_in_manifest:
-        print source_count, count_in_manifest
+        print 'checking which files are different'
+        for i in file_list:
+           
+           if i not in manifest_files:
+               print i, 'is present in your source directory but not in the source manifest'
+        for i in manifest_files:
+            if i not in file_list:
+                print i, 'is present in manifest but is missing in your source files'
         print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+        print 'There are',source_count,'files in your source directory',  count_in_manifest, 'in the manifest'
         generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')  
         sys.exit()
 source_manifest_start_time = time.time()
