@@ -333,9 +333,8 @@ def main(source_file):
         objectCategory = create_unit(1,object_parent, 'objectCategory')  
         objectCategory.text = 'representation'
         relationship = create_unit(4,object_parent, 'relationship')
-        representationrelatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')q
+        representationrelatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
         representationrelatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
-
         relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
         relatedObjectSequence.text = '1'
         relationshipType = create_unit(0,relationship, 'relationshipType')
@@ -344,11 +343,10 @@ def main(source_file):
         relationshipSubType.text = 'has root'
         representationrelatedObjectIdentifierType.text = 'UUID'
         root_uuid = str(uuid.uuid4())
-        
         representationrelatedObjectIdentifierValue.text = root_uuid
     rep_counter = 0
     for image in video_files:
-        object_parent = create_unit(2,premis, 'object')
+        object_parent = create_unit(-1,premis, 'object')
         object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
