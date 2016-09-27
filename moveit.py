@@ -84,10 +84,12 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
                 print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_counter)
                 md5 = hashlib_md5(os.path.join(root, files), manifest)
                 root2 = root.replace(path_to_remove, '')
-                if root2[0] == '/':
-                    root2 = root2[1:]
-                if root2[0] == '\\':
-                    root2 = root2[1:]
+                try:
+                    if root2[0] == '/':
+                        root2 = root2[1:]
+                    if root2[0] == '\\':
+                        root2 = root2[1:]
+                except: IndexError
                 manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
                 counter2 += 1
     manifest_list = manifest_generator.splitlines()
@@ -297,7 +299,7 @@ if rootpos == 'y':
         dest_manifest_list = fo.readlines()
         with open(manifest_temp[1], 'wb') as temp_object:
             for i in dest_manifest_list:
-                temp_object.write(i[:33] + ' /' + dirname + '/' +  i[34:])
+                temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
         manifest = manifest_temp[1]
            
 if filecmp.cmp(manifest, manifest_destination, shallow=False):
