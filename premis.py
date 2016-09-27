@@ -109,7 +109,7 @@ def get_input(filename):
     return video_files
     
 def make_premis(source_file):
-    main(source_file)    
+    main(source_file)   
 
 def make_agent(agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value, linkingEventIdentifier_value ):
     agent = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
@@ -198,13 +198,13 @@ def make_event(event_type, event_detail, agent1, agent2, eventID ):
         linkingAgentIdentifier = create_unit(6,event,'linkingAgentIdentifier')
         linkingAgentIdentifierType = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
         linkingAgentIdentifierValue = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
-        linkingAgentIdentifierRole= create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierRole')
-        linkingAgentIdentifierRole.text = 'implementer'
+        linkingAgentIdentifier= create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifier')
+        linkingAgentIdentifier.text = 'implementer'
         linkingAgentIdentifier2 = create_unit(7,event,'linkingAgentIdentifier')
         linkingAgentIdentifierType2 = create_unit(0,linkingAgentIdentifier2,'linkingAgentIdentifierType')
         linkingAgentIdentifierValue2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifierValue')
-        linkingAgentIdentifierRole2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifierRole')
-        linkingAgentIdentifierRole2.text = 'implementer'
+        linkingAgentIdentifier2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifier')
+        linkingAgentIdentifier2.text = 'implementer'
         linkingAgentIdentifierType.text = agent1type 
         linkingAgentIdentifierValue.text = agent1value
         linkingAgentIdentifierType2.text = agent2type 
@@ -346,7 +346,7 @@ def main(source_file):
         representationrelatedObjectIdentifierValue.text = root_uuid
     rep_counter = 0
     for image in video_files:
-        object_parent = create_unit(-1,premis, 'object')
+        object_parent = create_unit(mediainfo_counter,premis, 'object')
         object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
@@ -422,11 +422,11 @@ def main(source_file):
                     user_info = lists
                     print user_info
                     
-    capture_uuid = str(uuid.uuid4())
-    scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', capture_uuid )
-    operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
-    #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
-    make_event('capture', '', scannerAgent, operatorAgent, capture_uuid)
+        capture_uuid = str(uuid.uuid4())
+        scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', capture_uuid )
+        operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
+        #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
+        make_event('capture', '', scannerAgent, operatorAgent, capture_uuid)
 
     '''
     >>> parser = etree.XMLParser(remove_blank_text=True)
