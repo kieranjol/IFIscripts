@@ -333,29 +333,26 @@ def main(source_file):
         objectCategory = create_unit(1,object_parent, 'objectCategory')  
         objectCategory.text = 'representation'
         relationship = create_unit(4,object_parent, 'relationship')
-        relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
-        relatedObjectIdentifierType.text = 'Filename'
-        relatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
-        relatedObjectIdentifierValue.text = video_files[0]
+        representationrelatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')q
+        representationrelatedObjectIdentifierValue = create_unit(3,relationship,'relatedObjectIdentifierValue')
+
         relatedObjectSequence = create_unit(4,relationship,'relatedObjectSequence')
         relatedObjectSequence.text = '1'
         relationshipType = create_unit(0,relationship, 'relationshipType')
         relationshipType.text = 'structural'
         relationshipSubType = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text = 'has root'
-
-        print video_files 
+        representationrelatedObjectIdentifierType.text = 'UUID'
+        root_uuid = str(uuid.uuid4())
         
+        representationrelatedObjectIdentifierValue.text = root_uuid
+    rep_counter = 0
     for image in video_files:
-
-        
-        print image
         object_parent = create_unit(2,premis, 'object')
         object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
         object_identifier_parent.insert(0,ob_id_type)
-        
         object_identifier_filmographic = create_unit(3,object_parent, 'objectIdentifier')
         object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType') 
         object_identifier_filmographic_reference_number.text = 'IFI Irish Film Archive Filmographic Reference Number'
@@ -370,7 +367,6 @@ def main(source_file):
         object_parent.insert(5,objectCategory)
         objectCategory.text = 'file'
         objectCharacteristics = create_unit(10,object_parent, 'objectCharacteristics')
-        
         objectIdentifierValue = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
         objectIdentifierValue.text = items['oe']
         object_identifier_uuid = create_unit(2,object_parent, 'objectIdentifier')
@@ -378,7 +374,11 @@ def main(source_file):
         object_identifier_uuid_type.text = 'UUID'
         object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
         file_uuid = str(uuid.uuid4())
-        object_identifier_uuid_value.text = file_uuid
+        if rep_counter == 0:
+            object_identifier_uuid_value.text = root_uuid
+        else:
+            object_identifier_uuid_value.text = file_uuid
+        rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
         
@@ -429,7 +429,7 @@ def main(source_file):
     operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
     #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
     make_event('capture', '', scannerAgent, operatorAgent, capture_uuid)
-    
+
     '''
     >>> parser = etree.XMLParser(remove_blank_text=True)
     >>> tree = etree.parse(filename, parser)
