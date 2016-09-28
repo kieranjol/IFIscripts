@@ -40,6 +40,8 @@ if os.path.isfile(csv_file):
                     read_object.close()
 
 
+premisxml = os.path.dirname(os.path.dirname(sys.argv[1])) + '/' + os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))) + '_premis.xml'
+
 def hashlib_md5(filename, manifest):
    print filename
    print manifest
@@ -60,8 +62,8 @@ def hashlib_md5(filename, manifest):
 def add_value(value, element):
     element.text = value
     
-def write_premis():
-    outFile = open('premis.xml','w')
+def write_premis(premisxml):
+    outFile = open(premisxml,'w')
     doc.write(outFile,pretty_print=True)
 
 def create_unit(index,parent, unitname):
@@ -90,7 +92,7 @@ def get_input(filename):
 
     # Check if input is a file.
     # AFAIK, os.path.isfile only works if full path isn't present.
-    if os.path.isfile(file_without_path):      
+    if os.path.isfile(input):      
         video_files = []                       # Create empty list 
         video_files.append(file_without_path)  # Add filename to list
 
@@ -100,7 +102,9 @@ def get_input(filename):
         video_files = (
             glob('*.tif') +
             glob('*.tiff') +
-            glob('*.dpx')
+            glob('*.dpx') + 
+            glob('*.wav')
+            
         )
 
     # Prints some stuff if input isn't a file or directory.
@@ -308,8 +312,19 @@ def main(source_file):
     mediainfo_counter = 1
     #new_element = ET.Element('premis:object', namespaces={'ns': 'premis'})
     # Assuming that directory input means image sequence...
-    if os.path.isdir(source_file):
-        
+    
+
+    if video_files[0].endswith('wav'):
+            if os.path.isfile(premisxml):
+                print 'looks like premis already exists?'
+                parser = ET.XMLParser(remove_blank_text=True)
+
+                doc = ET.parse(premisxml,parser=parser)
+                premis = doc.getroot()
+                filetype = 'audio'
+
+    else:
+        filetype = 'image'
         print video_files
         object_parent = create_unit(0, premis, 'object')
         object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
@@ -346,7 +361,7 @@ def main(source_file):
         representationrelatedObjectIdentifierValue.text = root_uuid
     rep_counter = 0
     for image in video_files:
-        object_parent = create_unit(mediainfo_counter,premis, 'object')
+        object_parent = create_unit(-1,premis, 'object')
         object_identifier_parent = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text = 'IFI Irish Film Archive Object Entry Number'
@@ -372,10 +387,11 @@ def main(source_file):
         object_identifier_uuid_type.text = 'UUID'
         object_identifier_uuid_value = create_unit(2,object_identifier_uuid, 'objectIdentifierValue') 
         file_uuid = str(uuid.uuid4())
-        if rep_counter == 0:
-            object_identifier_uuid_value.text = root_uuid
-        else:
-            object_identifier_uuid_value.text = file_uuid
+        if not filetype == 'audio':
+            if rep_counter == 0:
+                object_identifier_uuid_value.text = root_uuid
+            else:
+                object_identifier_uuid_value.text = file_uuid
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
@@ -421,9 +437,11 @@ def main(source_file):
                 if items['user'] == item:
                     user_info = lists
                     print user_info
+                if item == 'agentaa00004':
+                    scanner_info = lists
                     
         capture_uuid = str(uuid.uuid4())
-        scannerAgent  = make_agent('locally defined identifier','agent_001','P&S Technicks Steadyframe','601-0101', 'hardware', 'stuff in here', capture_uuid )
+        scannerAgent  = make_agent(scanner_info[0],scanner_info[1], scanner_info[2], scanner_info[3], scanner_info[4],scanner_info[5],capture_uuid )
         operatorAgent = make_agent(user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
         #make_event('Message Digest Calculation', 'Program="md5deep" Version="4.4"', scannerAgent,operatorAgent)
         make_event('capture', '', scannerAgent, operatorAgent, capture_uuid)
@@ -438,4 +456,4 @@ def main(source_file):
     
 if __name__ == "__main__":
         make_premis(source_file)
-        write_premis()
+        write_premis(premisxml)
