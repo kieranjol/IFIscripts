@@ -81,6 +81,7 @@ def get_input(filename):
 def make_premis(source_file):
     xml_info = write_objects(source_file)   
     return xml_info
+    
 def make_agent(premis,linkingEventIdentifier_value, agentId ):
     csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
     if os.path.isfile(csv_file):
@@ -92,7 +93,7 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
         for item in lists:
             if item == agentId:
                 agent_info = lists
-    agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value = agent_info
+    agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value = agent_info
     premis_namespace = "http://www.loc.gov/premis/v3"
     agent = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
     premis.insert(-1, agent)
@@ -114,12 +115,7 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     agent_info = [agentIdType_value,agentIdValue_value]
     return agent_info
     
-def make_event(premis,event_type, event_detail, agent1, agent2, eventID ):
-        print agent1, agent2
-        agent1type =agent1[0]
-        agent1value =agent1[1]
-        agent2type =agent2[0]
-        agent2value =agent2[1]
+def make_event(premis,event_type, event_detail, agentlist, eventID ):
         premis_namespace = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
@@ -127,7 +123,6 @@ def make_event(premis,event_type, event_detail, agent1, agent2, eventID ):
         event_id_type = ET.Element("{%s}eventIdentifierType" % (premis_namespace))
         event_Identifier.insert(0,event_id_type)
         event_id_value = ET.Element("{%s}eventIdentifierValue" % (premis_namespace))
-        
         event_Identifier.insert(0,event_id_value)
         event_Type = ET.Element("{%s}eventType" % (premis_namespace))
         event.insert(2,event_Type)
@@ -146,20 +141,16 @@ def make_event(premis,event_type, event_detail, agent1, agent2, eventID ):
         linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
         linkingObjectRole.text = 'source'  
-        linkingAgentIdentifier = create_unit(6,event,'linkingAgentIdentifier')
-        linkingAgentIdentifierType = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
-        linkingAgentIdentifierValue = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
-        linkingAgentIdentifier= create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifier')
-        linkingAgentIdentifier.text = 'implementer'
-        linkingAgentIdentifier2 = create_unit(7,event,'linkingAgentIdentifier')
-        linkingAgentIdentifierType2 = create_unit(0,linkingAgentIdentifier2,'linkingAgentIdentifierType')
-        linkingAgentIdentifierValue2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifierValue')
-        linkingAgentIdentifier2 = create_unit(1,linkingAgentIdentifier2,'linkingAgentIdentifier')
-        linkingAgentIdentifier2.text = 'implementer'
-        linkingAgentIdentifierType.text = agent1type 
-        linkingAgentIdentifierValue.text = agent1value
-        linkingAgentIdentifierType2.text = agent2type 
-        linkingAgentIdentifierValue2.text = agent2value
+        for i in agentList:
+            
+            linkingAgentIdentifier = create_unit(-1,event,'linkingAgentIdentifier')
+            linkingAgentIdentifierType = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
+            linkingAgentIdentifierValue = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
+            linkingAgentIdentifier= create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifier')
+            linkingAgentIdentifier.text = 'implementer'
+            linkingAgentIdentifierType.text = i[0]
+            linkingAgentIdentifierValue.text = i[1]
+
 
         
 def process_history(coding_dict, process_history_placement):
@@ -176,20 +167,11 @@ def process_history(coding_dict, process_history_placement):
 def main():
         source_file = sys.argv[1]
         xml_info    = make_premis(source_file)
-        print xml_info
-        
         doc         = xml_info[0]
         premisxml   = xml_info[1]
-        print premisxml
         write_premis(doc, premisxml)    
 def write_objects(source_file):
-    '''''
-    global premis_namespace
-    global premis
-    global messageDigestAlgorithm
-    global messageDigest
-    global doc   
-    ''' 
+
     manifest = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
     items = pg.main()
     premisxml = os.path.dirname(os.path.dirname(sys.argv[1])) + '/' + os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))) + '_premis.xml'
@@ -315,11 +297,14 @@ def write_objects(source_file):
         md5_output = hashlib_md5(source_file, image, manifest)
         messageDigest.text = md5_output
         mediainfo_counter += 1
-        capture_uuid = str(uuid.uuid4())
-        capture_received_uuid = str(uuid.uuid4())
-        scannerAgent  = make_agent(premis,capture_uuid, 'agentaa00004'  )
-        operatorAgent = make_agent(premis,capture_uuid,items['user'] )
-        make_event(premis, 'creation', '', scannerAgent, operatorAgent, capture_uuid)
+    capture_uuid = str(uuid.uuid4())
+    capture_received_uuid = str(uuid.uuid4())
+    scannerAgent  = make_agent(premis,capture_uuid, 'agentaa00004')
+    scannerPCAgent  = make_agent(premis,capture_uuid, 'agentaa00020')
+    scannerLinuxAgent  = make_agent(premis,capture_uuid, 'agentaa00009')
+    operatorAgent = make_agent(premis,capture_uuid,items['user'])
+    make_event(premis, 'creation', '', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
+    make_event(premis, 'creation', '', scannerAgent, operatorAgent, capture_received_uuid)
     xml_info = [doc, premisxml]
     return xml_info
     
