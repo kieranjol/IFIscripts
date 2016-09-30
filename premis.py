@@ -141,7 +141,7 @@ def make_event(premis,event_type, event_detail, agentlist, eventID ):
         linkingObjectRole = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text = 'IFI Irish Film Archive Object Entry Number'
         linkingObjectRole.text = 'source'  
-        for i in agentList:
+        for i in agentlist:
             
             linkingAgentIdentifier = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
@@ -304,7 +304,7 @@ def write_objects(source_file):
     scannerLinuxAgent  = make_agent(premis,capture_uuid, 'agentaa00009')
     operatorAgent = make_agent(premis,capture_uuid,items['user'])
     make_event(premis, 'creation', '', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
-    make_event(premis, 'creation', '', scannerAgent, operatorAgent, capture_received_uuid)
+    make_event(premis, 'creation', '', [scannerAgent, operatorAgent], capture_received_uuid)
     xml_info = [doc, premisxml]
     return xml_info
     
