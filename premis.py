@@ -81,7 +81,18 @@ def get_input(filename):
 def make_premis(source_file):
     xml_info = write_objects(source_file)   
     return xml_info
-def make_agent(premis, agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value, linkingEventIdentifier_value ):
+def make_agent(premis,linkingEventIdentifier_value, agentId ):
+    csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
+    if os.path.isfile(csv_file):
+        read_object = open(csv_file)
+        reader = csv.reader(read_object)
+        csv_list = list(reader)
+        read_object.close()
+    for lists in csv_list:
+        for item in lists:
+            if item == agentId:
+                agent_info = lists
+    agentIdType_value,agentIdValue_value,agentName_value,agentVersion_value, agentType_value, agentNote_value = agent_info
     premis_namespace = "http://www.loc.gov/premis/v3"
     agent = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
     premis.insert(-1, agent)
@@ -284,15 +295,10 @@ def write_objects(source_file):
         size.text = str(os.path.getsize(image))
         formatDesignation = create_unit(0,format_,'formatDesignation')
         formatName = create_unit(1,formatDesignation,'formatName')
-
         messageDigestAlgorithm = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest = create_unit(1,fixity, 'messageDigest')
-
-        
         objectCharacteristicsExtension = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
-        
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
-        
         if os.path.isdir(source_file):
             relationship = create_unit(7,object_parent, 'relationship')
             relatedObjectIdentifierType = create_unit(2,relationship, 'relatedObjectIdentifierType')
@@ -308,29 +314,12 @@ def write_objects(source_file):
         messageDigestAlgorithm.text = 'md5'
         md5_output = hashlib_md5(source_file, image, manifest)
         messageDigest.text = md5_output
-        
         mediainfo_counter += 1
-
-
-    csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
-    if os.path.isfile(csv_file):
-                        read_object = open(csv_file)
-                        reader = csv.reader(read_object)
-                        csv_list = list(reader)
-                        read_object.close()
-    if items["workflow"] == 'scanning':
-        for lists in csv_list:
-            for item in lists:
-                if items['user'] == item:
-                    user_info = lists
-                    print user_info
-                if item == 'agentaa00004':
-                    scanner_info = lists
-                    
         capture_uuid = str(uuid.uuid4())
-        scannerAgent  = make_agent(premis,scanner_info[0],scanner_info[1], scanner_info[2], scanner_info[3], scanner_info[4],scanner_info[5],capture_uuid )
-        operatorAgent = make_agent(premis,user_info[0],user_info[1], user_info[2],'', user_info[3], '', capture_uuid )
-        make_event(premis, 'capture', '', scannerAgent, operatorAgent, capture_uuid)
+        capture_received_uuid = str(uuid.uuid4())
+        scannerAgent  = make_agent(premis,capture_uuid, 'agentaa00004'  )
+        operatorAgent = make_agent(premis,capture_uuid,items['user'] )
+        make_event(premis, 'creation', '', scannerAgent, operatorAgent, capture_uuid)
     xml_info = [doc, premisxml]
     return xml_info
     
