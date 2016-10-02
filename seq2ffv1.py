@@ -31,12 +31,16 @@ def make_framemd5(directory, log_filename_alteration):
     
     tiff_check = glob('*.tiff')
     dpx_check = glob('*.dpx')
+    tif_check = glob('*.tif')
     if len(dpx_check) > 0:
         images = dpx_check
         
     elif len(tiff_check) > 0:
         images = tiff_check
+    elif len(tif_check) > 0:
+        images = tif_check
     else:
+    
         print 'no images found'
         return 'none'
         
@@ -54,16 +58,24 @@ def make_framemd5(directory, log_filename_alteration):
     container = images[0].split(".")[-1]
     output_parent_directory = config[1].rstrip()
     if len(images[0].split("_")[-1].split(".")) > 2:
-        numberless_filename = images[0].split(".")[0].split("_")
+        numberless_filename = images[0].split(".")
+        
     else:
         numberless_filename = images[0].split("_")[0:-1]
     
     ffmpeg_friendly_name = ''
     counter = 0
-    while  counter <len(numberless_filename) :
-        ffmpeg_friendly_name += numberless_filename[counter] + '_'
-        counter += 1
-    
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+        print ffmpeg_friendly_name
+
+    else:
+        while  counter <len(numberless_filename) :
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
+    print ffmpeg_friendly_name
     if start_number == '864000':
         output_dirname = output_parent_directory + '/' + os.path.basename(directory) + time.strftime("%Y_%m_%dT%H_%M_%S")
         basename = os.path.basename(directory)
