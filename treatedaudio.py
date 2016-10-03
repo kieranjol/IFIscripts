@@ -35,11 +35,13 @@ TODO - check for spaces?
 
 input = sys.argv[1]
 
-parent_dir = os.path.dirname(os.path.dirname(input))
-md5_file = input + '.md5'
+parent_dir = os.path.dirname(input)
+md5_file = os.path.dirname(os.path.dirname(parent_dir)) +  'deliverable_audio_only.md5'
 metadata_dir = parent_dir + '/xml_files'
 md5_dir = parent_dir + '/md5'
-logs_dir = parent_dir + '/log'
+logs_dir = os.path.dirname(os.path.dirname(parent_dir)) + '/logs'
+treated_wav_log_dir = logs_dir + '/audio/treated_wav'
+deliverable_wav_dir = parent_dir + '/deliverable_wav'
 framemd5 = md5_dir + '/' + os.path.basename(input) +'.framemd5'
 normpath = os.path.normpath(parent_dir)
 relative_path = normpath.split(os.sep)[-1]
@@ -47,7 +49,8 @@ manifest =  '%s_manifest.md5' % (relative_path)
 filenoext = os.path.splitext(input)[0]
 os.makedirs(metadata_dir)
 os.makedirs(md5_dir)
-os.makedirs(logs_dir)
+os.makedirs(deliverable_wav_dir)
+
 
 inputxml =  "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input) )
 print inputxml
@@ -92,11 +95,14 @@ def remove_bad_files(root_dir):
                     os.remove(path)
                     
 remove_bad_files(parent_dir)  
+
 os.chdir(parent_dir)  
 log_files =  glob('*.txt')                
 for i in log_files:
    
-        shutil.move(i, '%s/%s' % (logs_dir,i))             
+        shutil.move(i, '%s/%s' % (logs_dir,i))   
+subprocess.call([ 'gcp','--preserve=mode,timestamps', '-nRv',input, treated_wav_log_dir])
+shutil.move(input,deliverable_wav_dir + '/' + os.path.basename(input))           
 def make_manifest(relative_manifest_path, manifest_textfile):
     print relative_manifest_path
     os.chdir(relative_manifest_path)
@@ -107,4 +113,4 @@ def make_manifest(relative_manifest_path, manifest_textfile):
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
-make_manifest(parent_dir,manifest)   
+make_manifest(os.path.dirname(os.path.dirname(parent_dir)),manifest)   
