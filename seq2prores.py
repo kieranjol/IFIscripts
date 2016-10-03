@@ -52,14 +52,23 @@ def get_filenames(directory, log_filename_alteration):
         start_number = images[0].split("_")[-1].split(".")[0]
     container = images[0].split(".")[-1]
     if len(images[0].split("_")[-1].split(".")) > 2:
-        numberless_filename = images[0].split(".")[0].split("_")   
+        numberless_filename = images[0].split(".")
+        
     else:
         numberless_filename = images[0].split("_")[0:-1]
+    
     ffmpeg_friendly_name = ''
     counter = 0
-    while  counter <len(numberless_filename) :
-        ffmpeg_friendly_name += numberless_filename[counter] + '_'
-        counter += 1
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+        print ffmpeg_friendly_name
+
+    else:
+        while  counter <len(numberless_filename) :
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
 
     image_seq_without_container = ffmpeg_friendly_name
     if len(images[0].split("_")[-1].split(".")) > 2:
@@ -108,7 +117,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         container                   = info[2]
         start_number_length = len(start_number)
         number_regex = "%0" + str(start_number_length) + 'd.'
-        audio_dir            = source_parent_dir + '/audio'
+        audio_dir            = source_parent_dir + '/wav'
         logs_dir            = source_parent_dir + '/logs'
         mezzanine_dir            = source_parent_dir + '/mezzanine'
         if not os.path.isdir(mezzanine_dir):
