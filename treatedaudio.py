@@ -46,6 +46,7 @@ framemd5 = md5_dir + '/' + os.path.basename(input) +'.framemd5'
 normpath = os.path.normpath(parent_dir)
 relative_path = normpath.split(os.sep)[-1]
 manifest =  '%s_manifest.md5' % (relative_path)
+logfile = logs_dir + '/audio/' + os.path.basename(input) + '_framemd5.log'
 filenoext = os.path.splitext(input)[0]
 os.makedirs(metadata_dir)
 os.makedirs(md5_dir)
@@ -55,7 +56,33 @@ os.makedirs(deliverable_wav_dir)
 inputxml =  "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input) )
 print inputxml
 tracexml =  "%s/%s_mediatrace.xml" % (metadata_dir,os.path.basename(input) )
-
+def set_environment(logfile):
+    env_dict = os.environ.copy()
+    # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+    env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
+    return env_dict
+    
+    
+def remove_bad_files(root_dir):
+    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
+    for root, dirs, files in os.walk(root_dir):
+        for name in files:
+            path = os.path.join(root, name)
+            for i in rm_these:
+                if name == i:
+                    print '***********************' + 'removing: ' + path
+                    os.remove(path)
+def make_manifest(relative_manifest_path, manifest_textfile):
+    print relative_manifest_path
+    os.chdir(relative_manifest_path)
+    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
+    manifest_list = manifest_generator.splitlines()
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+    with open(manifest_textfile,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')  
+            
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     with open(xmlfilename, "w+") as fo:
         xmlvariable = subprocess.check_output(['mediainfo',
@@ -75,42 +102,16 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
 make_mediainfo(inputxml,'mediaxmlinput',input)
 make_mediatrace(tracexml,'mediatracexmlinput',input)
 
+env_dict = set_environment(logfile)
+fmd5cmd = ['ffmpeg','-i',input,'-report','-f','framemd5', framemd5]
+subprocess.call(fmd5cmd, env=env_dict)   
 
-
-subprocess.call(['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
-                        '-i',input,
-                        '-report',
-                        '-f','framemd5',
-                        framemd5 ])   
-
-
-def remove_bad_files(root_dir):
-    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
-    for root, dirs, files in os.walk(root_dir):
-        for name in files:
-            path = os.path.join(root, name)
-            for i in rm_these:
-                if name == i:
-                    print '***********************' + 'removing: ' + path
-                    os.remove(path)
-                    
+                  
 remove_bad_files(parent_dir)  
 
 os.chdir(parent_dir)  
-log_files =  glob('*.txt')                
-for i in log_files:
-   
-        shutil.move(i, '%s/%s' % (logs_dir,i))   
+ 
 subprocess.call([ 'gcp','--preserve=mode,timestamps', '-nRv',input, treated_wav_log_dir])
 shutil.move(input,deliverable_wav_dir + '/' + os.path.basename(input))           
-def make_manifest(relative_manifest_path, manifest_textfile):
-    print relative_manifest_path
-    os.chdir(relative_manifest_path)
-    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
-    manifest_list = manifest_generator.splitlines()
-    # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
-    with open(manifest_textfile,"wb") as fo:
-        for i in manifest_list:
-            fo.write(i + '\n')
+
 make_manifest(os.path.dirname(os.path.dirname(parent_dir)),manifest)   
