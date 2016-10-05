@@ -117,7 +117,7 @@ for root,dirnames,filenames in os.walk(source_directory):
         container                   = info[2]
         start_number_length = len(start_number)
         number_regex = "%0" + str(start_number_length) + 'd.'
-        audio_dir            = source_parent_dir + '/wav'
+        audio_dir            = source_parent_dir + '/audio'
         logs_dir            = source_parent_dir + '/logs'
         mezzanine_dir            = source_parent_dir + '/mezzanine'
         if not os.path.isdir(mezzanine_dir):
@@ -129,8 +129,11 @@ for root,dirnames,filenames in os.walk(source_directory):
         audio_file = os.path.join(audio_dir,audio_file_list[0])
         dpx_filename                = image_seq_without_container + number_regex + container
         logfile = logs_dir + '/%s_prores.log' % os.path.basename(os.path.dirname(root))
-        env_dict = set_environment(logfile)
-        seq2prores= ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_dir + '/' + os.path.basename(os.path.dirname(root)) + '.mov']
+        env_dict = os.environ.copy()
+        # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+        logfile = "\'" + logfile + "\'" 
+        env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
+        seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_dir + '/' + os.path.basename(os.path.dirname(root)) + '.mov']
         print seq2prores
         subprocess.call(seq2prores,env=env_dict)
         make_manifest(source_parent_dir, source_manifest)
