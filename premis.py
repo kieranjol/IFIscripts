@@ -80,8 +80,8 @@ def get_input(filename):
     return video_files
 
 
-def make_premis(source_file):
-    xml_info = write_objects(source_file)   
+def make_premis(source_file, items):
+    xml_info = write_objects(source_file, items)   
     return xml_info
 
     
@@ -166,14 +166,14 @@ def process_history(coding_dict, process_history_placement):
         
 def main():
         source_file = sys.argv[1]
-        xml_info    = make_premis(source_file)
+        items       = pg.main()
+        xml_info    = make_premis(source_file, items)
         doc         = xml_info[0]
         premisxml   = xml_info[1]
         write_premis(doc, premisxml)    
-def write_objects(source_file):
+def write_objects(source_file, items):
 
     manifest            = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
-    items               = pg.main()
     premisxml           = os.path.dirname(os.path.dirname(sys.argv[1])) + '/' + os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))) + '_premis.xml'
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
     premis              = ET.fromstring(namespace)
