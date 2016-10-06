@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 
+'''
+Usage: seq2ffv1.py source_parent_directory output_directory
+The script will look through all subdirectories beneath the source_parent_directory for a DPX or image sequence. 
+The script will then:
+Create folder structure for each image sequence in your designated output_directory
+Create framemd5 values of the source sequence
+Transcode to a single FFV1 in Matroska file
+Create framemd5 values for the FFV1 in Matroska file
+Verify losslessness (There will most likely be a warning about pixel aspect ratio - https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
+Create md5 manifest of everything in your output directory
+Generate CSV log that will be saved to your desktop
+'''
 import subprocess
 import sys
 import os
