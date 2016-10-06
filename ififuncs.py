@@ -22,7 +22,7 @@ def diff_textfiles(source_textfile, other_textfile):
         return 'lossless'
 
     else:
-    	print "YOUR CHECKSUMS DO NOT MATCH, BACK TO THE DRAWING BOARD!!!"
+    	print "CHECKSUM MISMATCH - Further information on the next line!!!"
         return 'lossy'
     	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
