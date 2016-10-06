@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import os
+import argparse
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
@@ -56,7 +57,7 @@ def make_framemd5(directory, log_filename_alteration):
         
         start_number = images[0].split("_")[-1].split(".")[0]
     container = images[0].split(".")[-1]
-    output_parent_directory = config[1].rstrip()
+    output_parent_directory = args.destination
     if len(images[0].split("_")[-1].split(".")) > 2:
         numberless_filename = images[0].split(".")
         
@@ -120,13 +121,20 @@ def remove_bad_files(root_dir):
                     print '***********************' + 'removing: ' + path   
                     os.remove(path)
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+'''''
 dpxconfig = os.path.expanduser("~/Desktop/") + 'make_dpx_config.txt'
 with open(dpxconfig, 'r') as fo:
     config = fo.readlines()
 emails = config[0].split(',')
+'''
+parser = argparse.ArgumentParser(description='Transcode all DPX or TIFF image sequence in the subfolders of your source directory to FFV1 Version 3 in a Matroska Container. A CSV report is generated on your desktop.'
+                                 ' Written by Kieran O\'Leary.')
+parser.add_argument('source_directory', help='Input directory')
+parser.add_argument('destination', help='Destination directory')
 
-source_directory = sys.argv[1]
-
+args = parser.parse_args()
+source_directory               = args.source_directory
+destination          = args.destination # or hardcode
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Transcode Start Time', 'Transcode Finish Time','Transcode Time', 'Frame Count', 'Encode FPS','Sequence Size', 'FFV1 Size','Pixel Format', 'Sequence Type','Width','Height','Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
         #if "tiff_scans"  in dirnames:
@@ -208,7 +216,7 @@ for root,dirnames,filenames in os.walk(source_directory):
 
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
-                print 'Image content is lossless, Pixel Aspect Ratio has been altered'
+                print 'Image content is lossless, Pixel Aspect Ratio has been altered - This is mostly likely because your source had no pixel aspect ratio information, and Matroska is specifying 1:1. https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html '
                 append_csv(csv_report_filename, (parent_basename,'LOSSLESS - different PAR',start, finish,transcode_start, transcode_finish,transcode_time,sequence_length, fps,total_size, ffv1_size, pix_fmt, container,width, height,comp_ratio))
         elif len(checksum_mismatches) > 1:
             print 'NOT LOSSLESS'     
