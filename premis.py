@@ -149,8 +149,8 @@ def make_event(premis,event_type, event_detail, agentlist, eventID ):
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType          = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
             linkingAgentIdentifierValue         = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
-            linkingAgentIdentifier              = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifier')
-            linkingAgentIdentifier.text         = 'implementer'
+            linkingAgentIdentifierRole          = create_unit(2,linkingAgentIdentifier,'linkingAgentRole')
+            linkingAgentIdentifierRole.text     = 'implementer'
             linkingAgentIdentifierType.text     = i[0]
             linkingAgentIdentifierValue.text    = i[1]
 
