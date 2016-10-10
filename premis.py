@@ -300,8 +300,10 @@ def write_objects(source_file, items):
     scannerPCAgent                              = make_agent(premis,capture_uuid, 'agentaa00020')
     scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'agentaa00009')
     operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
-    make_event(premis, 'creation', '', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
-    make_event(premis, 'creation', '', [scannerAgent, operatorAgent], capture_received_uuid)
+    transcoderMachine                           = make_agent(premis,capture_received_uuid, 'agentaa00021')
+    transcoderMachineOS                         = make_agent(premis,capture_received_uuid, 'agentaa00013')
+    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
+    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid)
     xml_info                                    = [doc, premisxml]
     return xml_info
     
