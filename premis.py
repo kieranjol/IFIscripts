@@ -12,7 +12,7 @@ from collections import OrderedDict
 import csv
 
 
-def hashlib_md5(source_file,filename, manifest):
+def hashlib_md5(source_file,filename, manifest):   
    m = hashlib.md5()
    with open(str(filename), 'rb') as f:
        while True:
@@ -21,8 +21,11 @@ def hashlib_md5(source_file,filename, manifest):
                break
            m.update(buf)
    md5_output = m.hexdigest()
+   '''''
+   commenting out as most other microservies will be making their own manifests anyhow. Still, two checksums are made per file right now which is terrible
    with open(manifest, "ab") as fo:
        fo.write(md5_output + '  ' + source_file.split(os.sep)[-1] + '/' + filename +  '\n')
+   '''
    return md5_output
 
     
