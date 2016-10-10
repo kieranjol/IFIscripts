@@ -12,6 +12,8 @@ import csv
 from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
+from premis import make_premis
+from premis import write_premis
 
 
 def set_environment(logfile):
@@ -116,5 +118,11 @@ for root,dirnames,filenames in os.walk(source_directory):
         judgement = diff_textfiles(source_textfile, other_textfile)
         make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         finish = datetime.datetime.now()
+        split_list = os.path.basename(os.path.dirname(source_parent_dir)).split('_')
+        items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
+        xml_info    = make_premis(source_directory, items)
+        doc         = xml_info[0]
+        premisxml   = xml_info[1]
+        write_premis(doc, premisxml)
         append_csv(csv_report_filename, (parent_basename,judgement, start, finish))
 #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
