@@ -40,18 +40,26 @@ table of contents
     
 Scripts for use in the IFI Irish Film Archive. Scripts have been tested in OSX/Windows 7 (sometimes windows 10)  and Ubuntu 14.04. The aim is to make cross-platform scripts, but please get in touch with any issues. It is best to download all scripts, as some of them share code.
 
-Most scripts take either a file or a directory as their input, for example `makeffv1.py filename.mov` or `premis.py path/to/folder_of_stuff` 
+Most scripts take either a file or a directory as their input, for example `makeffv1.py filename.mov` or `premis.py path/to/folder_of_stuff`. (It's best to just drag and drop the folder or filename into the terminal)
 
 ## Transcodes ##
 
 #### makeffv1.py ####
-* <b>makeffv1.py</b> Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). CSV report is generate which gives details on losslessness. 
+* Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). CSV report is generated which gives details on losslessness and compression ratio. 
+* Usage for single file - `makeffv1.py filename.mov`
+* Usage for batch processing all videos in a directory - `makeffv1.py directory_name` 
 
 #### bitc.py ####
-* <b>bitc.py</b> - Create timecoded/watermarked h264s for single files or a batch process.
+* Create timecoded/watermarked h264s for single files or a batch process.
+* Usage for single file - `bitc.py filename.mov`
+* Usage for batch processing all videos in a directory - `bitc.py directory_name`
+* This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `bitc.py -h` to see all options  
 
 #### prores.py ####
-* <b>prores.py</b> - Transcode to prores.mov for single/multiple files. Type `prores.py -h` for instructions.
+* Transcode to prores.mov for single/multiple files. 
+* Usage for single file - `prores.py filename.mov`
+* Usage for batch processing all videos in a directory - `prores.py directory_name`
+* This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `prores.py -h` to see all options
 
 ## Digital Cinema Package Scripts ##
 
@@ -81,13 +89,10 @@ Further options can be viewed with `dcpfixity.py -h`
 #### sha512deep.py ####
 * <b>sha512deep.py</b> Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now Usage: ` sha512deep.py directory` 
 
-
 ## Image Sequences ##
 
 #### makedpx.py ####
 * <b>makedpx.py</b> - Transcode TIFFs losslessly to DPX. Framemd5s of source and output are created and verified for losslessness. Whole file manifest is created for all files.
-
-
 
 #### seq2ffv1.py ####
 * <b>seq2ffv1.py</b> Usage - `seq2ffv1.py directory`. Recursively batch process image sequence folders and transcode to a single ffv1.mkv. Framemd5 files are generated and validated for losslessness. Whole file manifests of the SIP are also created. Work in progress -more testing to be done. <br><br>
@@ -104,14 +109,12 @@ Further options can be viewed with `dcpfixity.py -h`
 #### renumber.py ####
 * <b>renumber.py</b> Usage - `renumber.py directory`. Renames TIFF files in an image sequence so that they start from ZERO (000000) <br><br>
 
-
 ## Quality Control ##
 
 #### qctools.py ####
 * Usage: `qctools.py filename` or to batch process all files in a directory: `qctools.py directory_name` - Generate QCTools xml.gz sidecar files which will load immediately in QCTools.
 
 ## Specific Workflows ##
-
 
 #### rawaudio.py ####
 * Usage: `rawaudio.py wav_filename.wav` Performs various preservation actions on a wav file produced from a film scan: Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
@@ -125,10 +128,13 @@ Further options can be viewed with `dcpfixity.py -h`
 * Usage: `update.py` Updates IFIscripts to the latest git head if the following directory structure exists in the home directory: `ifigit/ifiscripts`
 
 ## Experimental-Premis ##
+
 #### premis.py ####
-* <b>premis.py</b> Usage - `premis.py filename`. Work in progress PREMIS implementation. This PREMIS document will hopefully function as a growing log file as an asset makes its way through a workflow.<br><br>
+* <b>premis.py</b> Usage - `premis.py filename`. Work in progress PREMIS implementation. This PREMIS document will hopefully function as a growing log file as an asset makes its way through a workflow.
+
 #### revtmd.py ####
-* <b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.<br><br>
+* <b>reVTMD.py</b> is in beta. and is very much geared around one specific workflow.
+
 #### as11fixity.py ####
 * <b>as11fixity.py</b> - Work in progress script by @mahleranja and @ecodonohoe. There is a bash script in a different repository that works quite well for this purpose.
 
