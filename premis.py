@@ -176,7 +176,8 @@ def main():
         xml_info    = make_premis(source_file, items)
         doc         = xml_info[0]
         premisxml   = xml_info[1]
-        write_premis(doc, premisxml)    
+        write_premis(doc, premisxml) 
+           
 def write_objects(source_file, items):
 
     manifest            = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
@@ -191,20 +192,13 @@ def write_objects(source_file, items):
         parser      = ET.XMLParser(remove_blank_text=True)
         doc         = ET.parse(premisxml,parser=parser)
         premis      = doc.getroot()
-        wav_uuid    = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': "http://www.loc.gov/premis/v3"})[2]
-
-
-        
+        wav_uuid    = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': "http://www.loc.gov/premis/v3"})[2]    
     else:
         premis              = ET.fromstring(namespace)
         doc                 = ET.ElementTree(premis)
     video_files         = get_input(source_file)
-    print source_file
-    print video_files
     mediainfo_counter   = 1
     # Assuming that directory input means image sequence...
-    
-
     if video_files[0].endswith('wav'):
             premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
             print premisxml
