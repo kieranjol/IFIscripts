@@ -11,7 +11,14 @@ import hashlib
 from collections import OrderedDict
 import csv
 
-
+'''
+Presumptions:
+1. rawaudio.py is run first and a premis xml does not already exist or you get a uuid error
+2. makedpx.py runs second
+3. parent folder path is used for getting info on OE/filmographic number/source accession number
+4. for now, makedpx.py requires a silly config file
+5. lxml/ffmpeg/hashlib/md5deep/ififuncs/pyqt4 must all be installed
+'''
 def hashlib_md5(source_file,filename, manifest):   
    m = hashlib.md5()
    with open(str(filename), 'rb') as f:
@@ -281,11 +288,6 @@ def write_objects(source_file, items):
         object_identifier_filmographic_reference_number.text    = 'IFI Irish Film Archive Filmographic Reference Number'
         object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue') 
         object_identifier_filmographic_reference_value.text     = items['filmographic']
-        filename_identifier                                     = create_unit(4, object_parent, 'objectIdentifier')
-        filename_identifier_type                                = create_unit(1,filename_identifier, 'objectIdentifierType')
-        filename_identifier_type.text                           = 'Filename'
-        filename_identifier_value                               = create_unit(2,filename_identifier, 'objectIdentifierValue') 
-        filename_identifier_value.text                          = image
         objectCategory                                          = ET.Element("{%s}objectCategory" % (premis_namespace))
         object_parent.insert(5,objectCategory)
         objectCategory.text                                     = 'file'
@@ -316,27 +318,41 @@ def write_objects(source_file, items):
         size.text                       = str(os.path.getsize(image))
         formatDesignation               = create_unit(0,format_,'formatDesignation')
         formatName                      = create_unit(1,formatDesignation,'formatName')
+        formatName.text                 = subprocess.check_output(['mediainfo', '--Inform=General;%InternetMediaType%', image]).rstrip()
         messageDigestAlgorithm          = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest                   = create_unit(1,fixity, 'messageDigest')
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
         if os.path.isdir(source_file):
-            relationship                        = create_unit(7,object_parent, 'relationship')
-            relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
-            relatedObjectIdentifierType.text    = 'IFI Irish Film Archive Object Entry Number'
-            relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
-            relatedObjectIdentifierValue.text   = items['oe']
-            relatedObjectSequence               = create_unit(4,relationship,'relatedObjectSequence')
-            relatedObjectSequence.text          = str(mediainfo_counter)
-            relationshipType                    = create_unit(0,relationship, 'relationshipType')
-            relationshipType.text               = 'structural'
-            relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
-            relationshipSubType.text            = 'is included in'
-        messageDigestAlgorithm.text             = 'md5'
+            if not filetype == 'audio':
+                relationship                        = create_unit(7,object_parent, 'relationship')
+                relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
+                relatedObjectIdentifierType.text    = 'UUID'
+                relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
+                relatedObjectIdentifierValue.text   = representation_uuid
+                relatedObjectSequence               = create_unit(4,relationship,'relatedObjectSequence')
+                relatedObjectSequence.text          = str(mediainfo_counter)
+                relationshipType                    = create_unit(0,relationship, 'relationshipType')
+                relationshipType.text               = 'structural'
+                relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
+                relationshipSubType.text            = 'is included in'
+            messageDigestAlgorithm.text             = 'md5'
+
         md5_output                              = hashlib_md5(source_file, image, manifest)
         messageDigest.text                      = md5_output
         mediainfo_counter                       += 1
-    
+    # When the image info has been grabbed, add info about the representation to the wav file
+    wav_object  = doc.findall('//ns:object',namespaces={'ns': "http://www.loc.gov/premis/v3"})[-1]
+    if not filetype == 'audio':
+        relationship                        = create_unit(8,wav_object, 'relationship')
+        relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
+        relatedObjectIdentifierType.text    = 'UUID'
+        relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relatedObjectIdentifierValue.text   = representation_uuid 
+        relationshipType                    = create_unit(0,relationship, 'relationshipType')
+        relationshipType.text               = 'structural'
+        relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
+        relationshipSubType.text            = 'is included in'
     xml_info                                    = [doc, premisxml]
     return xml_info
     
