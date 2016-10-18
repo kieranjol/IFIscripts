@@ -102,7 +102,7 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value,agentRole = agent_info
     print agentVersion_value
     if agentVersion_value == 'ffmpeg_autoextract':
-        agentVersion = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
+        agentVersion_value = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
     premis_namespace            = "http://www.loc.gov/premis/v3"
     agent                       = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
     premis.insert(-1, agent)
@@ -150,8 +150,7 @@ def make_event(premis,event_type, event_detail, agentlist, eventID ):
         linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text    = 'IFI Irish Film Archive Object Entry Number'
         linkingObjectRole.text              = 'source'
-        for i in agentlist:
-            
+        for i in agentlist: 
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType          = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
             linkingAgentIdentifierValue         = create_unit(1,linkingAgentIdentifier,'linkingAgentIdentifierValue')
@@ -182,13 +181,26 @@ def write_objects(source_file, items):
 
     manifest            = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
     premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
-    print premisxml
+    
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
-    premis              = ET.fromstring(namespace)
     premis_namespace    = "http://www.loc.gov/premis/v3"
     xsi_namespace       = "http://www.w3.org/2001/XMLSchema-instance"
-    doc                 = ET.ElementTree(premis)
+    
+    if os.path.isfile(premisxml):
+        print 'looks like premis already exists?'
+        parser      = ET.XMLParser(remove_blank_text=True)
+        doc         = ET.parse(premisxml,parser=parser)
+        premis      = doc.getroot()
+        wav_uuid    = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': "http://www.loc.gov/premis/v3"})[2]
+
+
+        
+    else:
+        premis              = ET.fromstring(namespace)
+        doc                 = ET.ElementTree(premis)
     video_files         = get_input(source_file)
+    print source_file
+    print video_files
     mediainfo_counter   = 1
     # Assuming that directory input means image sequence...
     
@@ -199,10 +211,14 @@ def write_objects(source_file, items):
 
             if os.path.isfile(premisxml):
                 print 'looks like premis already exists?'
-                parser = ET.XMLParser(remove_blank_text=True)
-                doc = ET.parse(premisxml,parser=parser)
-                premis = doc.getroot()
+                parser      = ET.XMLParser(remove_blank_text=True)
+                doc         = ET.parse(premisxml,parser=parser)
+                premis      = doc.getroot()
+                filetype    = 'audio'
+                
+            else:
                 filetype = 'audio'
+                root_uuid   = str(uuid.uuid4())
     else:
         filetype = 'image'
         print video_files
@@ -238,6 +254,16 @@ def write_objects(source_file, items):
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text                                = 'has root'
         representationrelatedObjectIdentifierType.text          = 'UUID'
+        if os.path.isfile(premisxml):
+            relationship                                            = create_unit(5,object_parent, 'relationship')
+            wavRelatedObjectIdentifierType                          = create_unit(2,relationship, 'relatedObjectIdentifierType')
+            wavRelatedObjectIdentifierValue                         = create_unit(3,relationship,'relatedObjectIdentifierValue')
+            relationshipType                                        = create_unit(0,relationship, 'relationshipType')
+            relationshipType.text                                   = 'structural'
+            relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
+            relationshipSubType.text                                = 'includes'
+            wavRelatedObjectIdentifierType.text                     = 'UUID'
+            wavRelatedObjectIdentifierValue.text                    = wav_uuid.text
         root_uuid                                               = str(uuid.uuid4())
         representationrelatedObjectIdentifierValue.text         = root_uuid
     rep_counter = 0
@@ -273,6 +299,8 @@ def write_objects(source_file, items):
                 object_identifier_uuid_value.text = root_uuid
             else:
                 object_identifier_uuid_value.text = file_uuid
+        elif filetype == 'audio':
+            object_identifier_uuid_value.text = root_uuid 
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
