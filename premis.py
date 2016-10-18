@@ -99,7 +99,10 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
         for item in lists:
             if item == agentId:
                 agent_info = lists
-    agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value = agent_info
+    agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value,agentRole = agent_info
+    print agentVersion_value
+    if agentVersion_value == 'ffmpeg_autoextract':
+        agentVersion = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
     premis_namespace            = "http://www.loc.gov/premis/v3"
     agent                       = ET.SubElement(premis, "{%s}agent" % (premis_namespace))
     premis.insert(-1, agent)
@@ -167,6 +170,7 @@ def process_history(coding_dict, process_history_placement):
         a.text = coding_dict[i]
         counter1 += 1
         
+          
 def main():
         source_file = sys.argv[1]
         items       = pg.main()
@@ -177,7 +181,8 @@ def main():
 def write_objects(source_file, items):
 
     manifest            = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
-    premisxml           = os.path.dirname(os.path.dirname(sys.argv[1])) + '/' + os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))) + '_premis.xml'
+    premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
+    print premisxml
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
     premis              = ET.fromstring(namespace)
     premis_namespace    = "http://www.loc.gov/premis/v3"
@@ -189,6 +194,9 @@ def write_objects(source_file, items):
     
 
     if video_files[0].endswith('wav'):
+            premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
+            print premisxml
+
             if os.path.isfile(premisxml):
                 print 'looks like premis already exists?'
                 parser = ET.XMLParser(remove_blank_text=True)
@@ -297,16 +305,7 @@ def write_objects(source_file, items):
         md5_output                              = hashlib_md5(source_file, image, manifest)
         messageDigest.text                      = md5_output
         mediainfo_counter                       += 1
-    capture_uuid                                = str(uuid.uuid4())
-    capture_received_uuid                       = str(uuid.uuid4())
-    scannerAgent                                = make_agent(premis,capture_uuid, 'agentaa00004')
-    scannerPCAgent                              = make_agent(premis,capture_uuid, 'agentaa00020')
-    scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'agentaa00009')
-    operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
-    transcoderMachine                           = make_agent(premis,capture_received_uuid, 'agentaa00021')
-    transcoderMachineOS                         = make_agent(premis,capture_received_uuid, 'agentaa00013')
-    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
-    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid)
+    
     xml_info                                    = [doc, premisxml]
     return xml_info
     
