@@ -6,15 +6,28 @@ import os
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
+from ififuncs import generate_log
 import datetime
 import time
 import csv
+import uuid
 from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 from premis import make_premis
 from premis import write_premis
+from premis import make_agent
+from premis import make_event
 
+
+'''''
+Events:
+md5 manifest created of source
+framemd5 of source
+tiff2dpx
+framemd5 output
+manifest of output
+'''
 
 def set_environment(logfile):
     env_dict = os.environ.copy()
@@ -46,9 +59,11 @@ def make_framemd5(directory, container, log_filename_alteration):
 
     output = output_dirname + '/image/md5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
     logfile = output_dirname + '/image/logs/%s%s.log' % (ffmpeg_friendly_name, log_filename_alteration)
+
     env_dict = set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
     ffmpeg_friendly_name += "%06d." + '%s' % container
+
     framemd5 = ['ffmpeg','-report','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
     subprocess.call(framemd5, env=env_dict)   
@@ -87,9 +102,12 @@ create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Fi
 for root,dirnames,filenames in os.walk(source_directory):
     if "tiff_scans"  in dirnames:
         source_directory = root + '/tiff_scans'
+        general_log = root + '/logs/%s_image_log.log' % (os.path.basename(os.path.dirname(root)))
+        generate_log(general_log, 'Input = %s' % root)
         if not file_check(source_directory) == 'TIFF':
             append_csv(csv_report_filename, (source_directory,'EMPTY DIRECTORY - SKIPPED', 'n/a', 'n/a'))
             continue
+
         remove_bad_files(source_directory)
         source_parent_dir    = os.path.dirname(source_directory)
         normpath             = os.path.normpath(source_directory) 
@@ -97,6 +115,8 @@ for root,dirnames,filenames in os.walk(source_directory):
         split_path           = os.path.split(os.path.basename(source_directory))[1]
         start = datetime.datetime.now()
         source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
+        generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
+        print source_manifest
         make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
         info = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
         output_dirname = info[0]  
@@ -104,18 +124,21 @@ for root,dirnames,filenames in os.walk(source_directory):
         image_seq_without_container = info[2]
         tiff_filename = image_seq_without_container + "%06d.tiff" 
         dpx_filename = image_seq_without_container + "%06d.dpx" 
-
         logfile = output_dirname + '/image/logs/%sdpx_transcode.log' % image_seq_without_container
         env_dict = set_environment(logfile)
+        generate_log(general_log, 'Starting TIFF to DPX transcode')
         tiff2dpx = ['ffmpegnometadata','-report','-f','image2','-framerate','24', '-i', tiff_filename ,output_dirname +  '/image/dpx_files' '/' + dpx_filename]
         print tiff2dpx
 
         subprocess.call(tiff2dpx,env=env_dict)
+        generate_log(general_log, 'TIFF to DPX transcode complete')
         parent_basename =  os.path.basename(output_dirname)
         manifest_textfile = os.path.dirname(output_dirname) + '/' +  parent_basename + '_manifest.md5'
+        generate_log(general_log, 'Generating destination manifest via md5deep and storing as  %s' % manifest_textfile)
         other = make_framemd5(output_dirname + '/image/dpx_files', 'dpx', 'dpx_framemd5')
         other_textfile = other[1]
         judgement = diff_textfiles(source_textfile, other_textfile)
+        generate_log(general_log, 'Outcome of transcode was:  %s' % judgement)
         make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
         finish = datetime.datetime.now()
         split_list = os.path.basename(os.path.dirname(source_parent_dir)).split('_')
@@ -123,6 +146,27 @@ for root,dirnames,filenames in os.walk(source_directory):
         xml_info    = make_premis(source_directory, items)
         doc         = xml_info[0]
         premisxml   = xml_info[1]
+        premis = doc.getroot()
+        capture_uuid                                = str(uuid.uuid4())
+        capture_received_uuid                       = str(uuid.uuid4())
+        premis_checksum_uuid                        = str(uuid.uuid4())
+        framemd5_uuid                               = str(uuid.uuid4())
+        scannerAgent                                = make_agent(premis,capture_uuid, 'agentaa00004')
+        scannerPCAgent                              = make_agent(premis,capture_uuid, 'agentaa00020')
+        scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'agentaa00009')
+        hashlibAgent                                = make_agent(premis,capture_uuid, 'agentaa00008')
+        operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
+        transcoderMachine                           = make_agent(premis,capture_received_uuid, 'agentaa00021')
+        transcoderMachineOS                         = make_agent(premis,capture_received_uuid, 'agentaa00013')
+        macMiniTelecineMachineAgent                 = make_agent(premis,premis_checksum_uuid, 'agentaa00022')
+        macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, 'agentaa00011')
+        ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'agentaa00006')
+
+        make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
+        make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid)
+        make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid)
+        make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid )
         write_premis(doc, premisxml)
+        print premisxml
         append_csv(csv_report_filename, (parent_basename,judgement, start, finish))
 #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())

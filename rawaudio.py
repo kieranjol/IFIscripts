@@ -5,6 +5,11 @@ import os
 import hashlib
 import shutil
 from glob import glob
+from premis import make_premis
+from premis import write_premis
+from premis import make_agent
+from premis import make_event
+import uuid
 
 '''
 1. Accepts the wav as input
@@ -33,6 +38,7 @@ framemd5 = md5_dir + '/' + os.path.basename(input) +'.framemd5'
 normpath = os.path.normpath(parent_dir)
 relative_path = normpath.split(os.sep)[-1]
 manifest =  '%s_manifest.md5' % (relative_path)
+
 filenoext = os.path.splitext(input)[0]
 os.makedirs(metadata_dir)
 os.makedirs(md5_dir)
@@ -88,4 +94,26 @@ def make_manifest(relative_manifest_path, manifest_textfile):
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
-make_manifest(parent_dir,manifest)   
+make_manifest(parent_dir,manifest)
+split_list = os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))).split('_')
+items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
+xml_info    = make_premis(aeo_raw_extract_wav_dir, items)
+doc         = xml_info[0]
+premisxml   = xml_info[1]
+premis = doc.getroot()
+capture_uuid                                = str(uuid.uuid4())
+capture_received_uuid                       = str(uuid.uuid4())
+premis_checksum_uuid                        = str(uuid.uuid4())
+framemd5_uuid                               = str(uuid.uuid4())
+aeolightAgent                               = make_agent(premis,capture_uuid, 'agentaa00005')
+hashlibAgent                                = make_agent(premis,capture_uuid, 'agentaa00008')
+operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
+macMiniTelecineMachineAgent                 = make_agent(premis,premis_checksum_uuid, 'agentaa00022')
+macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, 'agentaa00011')
+ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'agentaa00006')
+
+make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, operatorAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], capture_uuid)
+make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid)
+make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid )
+write_premis(doc, premisxml)
+print premisxml
