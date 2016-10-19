@@ -64,7 +64,6 @@ def get_input(filename):
     input = filename
     # Store the directory containing the input file/directory.
     wd = os.path.dirname(os.path.abspath(input))
-    print wd
     # Change current working directory to the value stored as "wd"
     os.chdir(wd)
     # Store the actual file/directory name without the full path.
@@ -94,7 +93,7 @@ def make_premis(source_file, items):
     xml_info = write_objects(source_file, items)   
     return xml_info
 
-    
+
 def make_agent(premis,linkingEventIdentifier_value, agentId ):
     csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
     if os.path.isfile(csv_file):
@@ -107,7 +106,6 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
             if item == agentId:
                 agent_info = lists
     agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value,agentRole = agent_info
-    print agentVersion_value
     if agentVersion_value == 'ffmpeg_autoextract':
         agentVersion_value = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
     premis_namespace            = "http://www.loc.gov/premis/v3"
@@ -171,7 +169,6 @@ def process_history(coding_dict, process_history_placement):
     process = create_revtmd_unit(process_history_placement, revtmd_capture_history, 'codingprocessHistory')
     counter1 = 1
     for i in OrderedDict(coding_dict):
-        print i, coding_dict[i]
         a = create_revtmd_unit(counter1, process, i)
         a.text = coding_dict[i]
         counter1 += 1
@@ -208,8 +205,6 @@ def write_objects(source_file, items):
     # Assuming that directory input means image sequence...
     if video_files[0].endswith('wav'):
             premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
-            print premisxml
-
             if os.path.isfile(premisxml):
                 print 'looks like premis already exists?'
                 parser      = ET.XMLParser(remove_blank_text=True)
@@ -222,7 +217,6 @@ def write_objects(source_file, items):
                 root_uuid   = str(uuid.uuid4())
     else:
         filetype = 'image'
-        print video_files
         object_parent = create_unit(0, premis, 'object')
         print 'first_object'
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
@@ -243,7 +237,7 @@ def write_objects(source_file, items):
         object_identifier_filmographic_reference_number.text    = 'IFI Irish Film Archive Filmographic Reference Number'
         object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue') 
         object_identifier_filmographic_reference_value.text     = items['filmographic']
-        objectCategory                                          = create_unit(1,object_parent, 'objectCategory')  
+        objectCategory                                          = create_unit(4,object_parent, 'objectCategory')  
         objectCategory.text                                     = 'representation'
         relationship                                            = create_unit(4,object_parent, 'relationship')
         representationrelatedObjectIdentifierType               = create_unit(2,relationship, 'relatedObjectIdentifierType')
