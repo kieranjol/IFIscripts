@@ -98,7 +98,7 @@ emails = config[0].split(',')
 permission = ''
 all_files = sys.argv[1:]
 if not permission == 'y' or permission == 'Y':
-    print '\n\n**** These are the directories that wil be turned into DPX.\n'
+    print '\n\n**** All TIFF sequences within these directories will be converted to DPX.\n'
     for i in all_files:
         print i
     permission =  raw_input('\n**** These are the directories that wil be turned into DPX. \n**** If this looks ok, please press Y, otherwise, type N\n' )
@@ -108,8 +108,22 @@ if not permission == 'y' or permission == 'Y':
         print 'Exiting at your command- Cheerio for now'
         sys.exit()
     elif permission =='y' or permission == 'Y':
-        print 'Ok so!'
-  
+        print 'Ok so!' 
+user = ''
+if not user == '1' or user == '2':
+    user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n' )
+    while user not in ('1','2'):
+        user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n')
+if user == '1':
+    user = 'Brian Cash'
+    print 'Hi Brian, I promise not to leave any water bottles in the telecine room from now on '
+    time.sleep(1)
+elif user == '2':
+    user = 'Gavin Martin'
+    print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
+    time.sleep(1)
+print user
+
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for source_directory in all_files:
     for root,dirnames,filenames in os.walk(source_directory):
@@ -155,7 +169,7 @@ for source_directory in all_files:
             make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
             finish = datetime.datetime.now()
             split_list = os.path.basename(os.path.dirname(source_parent_dir)).split('_')
-            items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
+            items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
             xml_info    = make_premis(source_directory, items)
             doc         = xml_info[0]
             premisxml   = xml_info[1]
