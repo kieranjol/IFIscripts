@@ -189,10 +189,10 @@ for source_directory in all_files:
             macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, 'agentaa00011')
             ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'agentaa00006')
 
-            make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid)
-            make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid)
-            make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid)
-            make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid )
+            make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid,xml_info[2])
+            make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2])
+            make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2])
+            make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2] )
             write_premis(doc, premisxml)
             print premisxml
             append_csv(csv_report_filename, (parent_basename,judgement, start, finish))

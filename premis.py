@@ -129,7 +129,7 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
     
-def make_event(premis,event_type, event_detail, agentlist, eventID ):
+def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier):
         premis_namespace                    = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
@@ -152,8 +152,9 @@ def make_event(premis,event_type, event_detail, agentlist, eventID ):
         linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
         linkingObjectIdentifierType         = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
         linkingObjectIdentifierValue        = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
+        linkingObjectIdentifierValue.text   = eventLinkingObjectIdentifier
         linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
-        linkingObjectIdentifierType.text    = 'IFI Irish Film Archive Object Entry Number'
+        linkingObjectIdentifierType.text    = 'UUID'
         linkingObjectRole.text              = 'source'
         for i in agentlist: 
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
@@ -335,7 +336,7 @@ def write_objects(source_file, items):
         md5_output                              = hashlib_md5(source_file, image, manifest)
         messageDigest.text                      = md5_output
         mediainfo_counter                       += 1
-    # When the image info has been grabbed, add info about the representation to the wav file
+    # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
     wav_object  = doc.findall('//ns:object',namespaces={'ns': "http://www.loc.gov/premis/v3"})[-1]
     if not filetype == 'audio':
         relationship                        = create_unit(8,wav_object, 'relationship')
@@ -347,7 +348,10 @@ def write_objects(source_file, items):
         relationshipType.text               = 'structural'
         relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text            = 'is included in'
-    xml_info                                    = [doc, premisxml]
+    if filetype == 'audio':
+        xml_info                                    = [doc, premisxml, root_uuid]
+    else:    
+        xml_info                                    = [doc, premisxml, representation_uuid]
     return xml_info
     
 if __name__ == "__main__":
