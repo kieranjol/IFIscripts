@@ -25,7 +25,12 @@ import uuid
 usage = python rawaudio.py audio.wav
 
 '''
-
+def set_environment(logfile):
+    env_dict = os.environ.copy()
+    # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+    env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
+    return env_dict
+    
 input = sys.argv[1]
 desktop_dir = os.path.expanduser("~/Desktop/%s") % os.path.basename(input)
 parent_dir = os.path.dirname(input)
@@ -35,6 +40,7 @@ md5_dir = parent_dir + '/md5'
 logs_dir = parent_dir + '/log'
 aeo_raw_extract_wav_dir = parent_dir + '/aeo_raw_extract_wav'
 framemd5 = md5_dir + '/' + os.path.basename(input) +'.framemd5'
+logfile = logs_dir + '/' + os.path.basename(input) + '_framemd5.log'
 normpath = os.path.normpath(parent_dir)
 relative_path = normpath.split(os.sep)[-1]
 manifest =  '%s_manifest.md5' % (relative_path)
@@ -59,12 +65,13 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
 make_mediainfo(inputxml,'mediaxmlinput',input)
 
 
-
-subprocess.call(['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
+env_dict = set_environment(logfile)
+ffmpegcmd = ['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
                         '-i',input,
                         '-report',
                         '-f','framemd5',
-                        framemd5 ])   
+                        framemd5 ]
+subprocess.call(ffmpegcmd,env=env_dict)   
 shutil.copy(input, desktop_dir)   
 
 def remove_bad_files(root_dir):
