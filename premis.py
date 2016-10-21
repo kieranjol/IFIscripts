@@ -186,7 +186,7 @@ def main():
 def write_objects(source_file, items):
 
     manifest            = os.path.dirname(os.path.abspath(source_file)) + '/' + os.path.basename(source_file) + '_manifest.md5'
-    premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
+    premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/metadata' '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
     
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
     premis_namespace    = "http://www.loc.gov/premis/v3"

@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import os
+import shutil
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
@@ -127,27 +128,32 @@ print user
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for source_directory in all_files:
     for root,dirnames,filenames in os.walk(source_directory):
-        if "tiff_scans"  in dirnames:
-            source_directory = root + '/tiff_scans'
-            general_log = root + '/logs/%s_image_log.log' % (os.path.basename(os.path.dirname(root)))
-            generate_log(general_log, 'Input = %s' % root)
+            source_directory = root
+            
             if not file_check(source_directory) == 'TIFF':
                 append_csv(csv_report_filename, (source_directory,'EMPTY DIRECTORY - SKIPPED', 'n/a', 'n/a'))
                 continue
 
+            
+            root_dir = os.path.dirname(os.path.dirname(root))
+            general_log = root_dir + '/logs/image/%s_image_log.log' % os.path.basename(root_dir)
+
+            generate_log(general_log, 'Input = %s' % root)
             remove_bad_files(source_directory)
             source_parent_dir    = os.path.dirname(source_directory)
             normpath             = os.path.normpath(source_directory) 
             relative_path        = normpath.split(os.sep)[-1]
             split_path           = os.path.split(os.path.basename(source_directory))[1]
             start = datetime.datetime.now()
-            source_manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
+            source_manifest = root_dir + '/%s_manifest.md5' % relative_path
             generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
             print source_manifest
             make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
             info = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
             output_dirname = info[0]  
             source_textfile = info[1]
+            fmd5copy = root_dir + '/metadata/image'
+            shutil.copy(source_textfile,fmd5copy )
             image_seq_without_container = info[2]
             tiff_filename = image_seq_without_container + "%06d.tiff" 
             dpx_filename = image_seq_without_container + "%06d.dpx" 
