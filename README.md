@@ -24,6 +24,7 @@ table of contents
     * [seq.py](https://github.com/kieranjol/IFIscripts#seqpy)
 	* [oeremove.py](https://github.com/kieranjol/IFIscripts#oeremovepy)
     * [renumber.py](https://github.com/kieranjol/IFIscripts#renumberpy)
+    * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
 5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
@@ -116,7 +117,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container. 
-* Usage: `seq.py first_file_00001.tiff` and output will be stored in the parent directory.
+* Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
 
 ### oeremove.py ###
 * IFI specific script that removes OE### numbers from the head of an image sequence filename.
@@ -125,6 +126,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### renumber.py ###
 * Renames TIFF files in an image sequence so that they start from ZERO (000000) 
 * Usage - `renumber.py directory`
+
+### seq2dv.py ###
+* Transcodes a TIFF sequence to 24fps 720x576 DV in a MOV container.
+* Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
 
 ## Quality Control ##
 
