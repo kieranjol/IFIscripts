@@ -50,6 +50,8 @@ def parse_manifest(manifest):
 
 def validate(manifest_dict, manifest):
     logging.basicConfig(filename='myapp.log', level=logging.INFO)
+    logging.info('Validating %s ' % manifest)
+    error_counter = 0
     logging.info('Started')
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
@@ -62,6 +64,14 @@ def validate(manifest_dict, manifest):
         else:
             print '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
             logging.info('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
+            error_counter += 1
+    if error_counter > 0:
+        print 'The number of mismatched checksums is: %s' % error_counter
+        logging.info('The number of mismatched checksums is: %s' %  error_counter)
+    elif error_counter == 0:
+        print 'All checksums have validated'
+        logging.info('All checksums have validated')
+
 def make_parser():
     parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
                                  ' Written by Kieran O\'Leary. On a train home to Cork. 2016-10-22. R.I.P Anthony  \'Axel\'  Foley.')
@@ -73,6 +83,6 @@ def main():
     manifest = get_input(sys.argv[1])
     manifest_dict = parse_manifest(manifest)
     validate(manifest_dict, manifest)
-    
+
 if __name__ == '__main__':
    main()
