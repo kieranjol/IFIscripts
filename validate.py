@@ -3,7 +3,7 @@ import sys
 import hashlib
 import os
 import logging
-
+import argparse
 
 '''
 accept manifest as input
@@ -14,7 +14,7 @@ locate file, calculate fresh hash, print value to screen and log, add to premis 
 
 '''
 root = logging.getLogger()
-logging.basicConfig(filename='myapp.log', level=logging.INFO)
+logging.basicConfig(filename='myapp.log', filemode='w',level=logging.INFO)
 #root.setLevel(logging.DEBUG)
 
 def hashlib_md5(filename):
@@ -62,8 +62,14 @@ def validate(manifest_dict, manifest):
         else:
             print '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
             logging.info('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
-
+def make_parser():
+    parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
+                                 ' Written by Kieran O\'Leary. On a train home to Cork. 2016-10-22. R.I.P Anthony  \'Axel\'  Foley.')
+    parser.add_argument('input')
+    return parser
 def main():
+    parser = make_parser()
+    args = parser.parse_args()
     manifest = get_input(sys.argv[1])
     manifest_dict = parse_manifest(manifest)
     validate(manifest_dict, manifest)
