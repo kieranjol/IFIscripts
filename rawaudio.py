@@ -64,22 +64,18 @@ def make_manifest(relative_manifest_path, manifest_textfile):
 input = sys.argv[1]
 desktop_dir = os.path.expanduser("~/Desktop/%s") % os.path.basename(input)
 parent_dir = os.path.dirname(input)
-md5_file = input + '.md5'
-metadata_dir = parent_dir + '/xml_files'
-md5_dir = parent_dir + '/md5'
-logs_dir = parent_dir + '/log'
-aeo_raw_extract_wav_dir = parent_dir + '/aeo_raw_extract_wav'
-framemd5 = md5_dir + '/' + os.path.basename(input) +'.framemd5'
+root_dir = os.path.dirname(os.path.dirname(parent_dir))
+metadata_dir = root_dir + '/metadata/audio'
+logs_dir = root_dir + '/logs/audio'
+
+aeo_raw_extract_wav_dir = root_dir + '/objects/audio'
+framemd5 = metadata_dir + '/' + os.path.basename(input) +'.framemd5'
 logfile = logs_dir + '/' + os.path.basename(input) + '_framemd5.log'
-normpath = os.path.normpath(parent_dir)
+normpath = os.path.normpath(root_dir)
 relative_path = normpath.split(os.sep)[-1]
 manifest =  '%s_manifest.md5' % (relative_path)
 
 filenoext = os.path.splitext(input)[0]
-os.makedirs(metadata_dir)
-os.makedirs(md5_dir)
-os.makedirs(aeo_raw_extract_wav_dir)
-os.makedirs(logs_dir)
 
 inputxml =  inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input) )
 print inputxml
@@ -97,7 +93,6 @@ ffmpegcmd = ['ffmpeg',    # Create decoded md5 checksums for every frame of the 
 subprocess.call(ffmpegcmd,env=env_dict)   
 shutil.copy(input, desktop_dir)                       
 remove_bad_files(parent_dir)  
-shutil.move(input,aeo_raw_extract_wav_dir + '/' + os.path.basename(input)) 
 os.chdir(parent_dir)  
 log_files =  glob('*.txt')                
 for i in log_files:
@@ -105,7 +100,7 @@ for i in log_files:
         shutil.move(i, '%s/%s' % (logs_dir,i))             
 
 make_manifest(parent_dir,manifest)
-split_list = os.path.basename(os.path.dirname(os.path.dirname(sys.argv[1]))).split('_')
+split_list = root_dir.split('_')
 items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
 xml_info    = make_premis(aeo_raw_extract_wav_dir, items)
 doc         = xml_info[0]
