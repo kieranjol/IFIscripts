@@ -205,7 +205,8 @@ def write_objects(source_file, items):
     mediainfo_counter   = 1
     # Assuming that directory input means image sequence...
     if video_files[0].endswith('wav'):
-            premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
+            premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/metadata' + '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
+            print premisxml
             if os.path.isfile(premisxml):
                 print 'looks like premis already exists?'
                 parser      = ET.XMLParser(remove_blank_text=True)
