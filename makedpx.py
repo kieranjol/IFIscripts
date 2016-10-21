@@ -138,21 +138,21 @@ for source_directory in all_files:
             generate_log(general_log, 'Input = %s' % root)
             remove_bad_files(source_directory)
             source_parent_dir           = os.path.dirname(source_directory)
-            normpath                    = os.path.normpath(source_directory) 
+            normpath                    = os.path.normpath(source_directory)
             relative_path               = normpath.split(os.sep)[-1]
             split_path                  = os.path.split(os.path.basename(source_directory))[1]
             start                       = datetime.datetime.now()
             source_manifest             = root_dir + '/%s_manifest.md5' % relative_path
             generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
-            make_manifest(os.path.dirname(source_directory), os.path.basename(source_directory), source_manifest)
+            make_manifest(root_dir, rot_dir, source_manifest)
             info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
-            output_dirname              = info[0]  
+            output_dirname              = info[0]
             source_textfile             = info[1]
             fmd5copy                    = root_dir + '/metadata/image'
             shutil.copy(source_textfile,fmd5copy )
             image_seq_without_container = info[2]
-            tiff_filename               = image_seq_without_container + "%06d.tiff" 
-            dpx_filename                = image_seq_without_container + "%06d.dpx" 
+            tiff_filename               = image_seq_without_container + "%06d.tiff"
+            dpx_filename                = image_seq_without_container + "%06d.dpx"
             logfile                     = output_dirname + '/image/logs/%sdpx_transcode.log' % image_seq_without_container
             env_dict                    = set_environment(logfile)
             generate_log(general_log, 'Starting TIFF to DPX transcode')
@@ -180,19 +180,19 @@ for source_directory in all_files:
             capture_received_uuid                       = str(uuid.uuid4())
             premis_checksum_uuid                        = str(uuid.uuid4())
             framemd5_uuid                               = str(uuid.uuid4())
-            scannerAgent                                = make_agent(premis,capture_uuid, 'agentaa00004')
-            scannerPCAgent                              = make_agent(premis,capture_uuid, 'agentaa00020')
-            scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'agentaa00009')
-            hashlibAgent                                = make_agent(premis,capture_uuid, 'agentaa00008')
+            scannerAgent                                = make_agent(premis,capture_uuid, '1f4c1369-e9d1-425b-a810-6db1150955ba')
+            scannerPCAgent                              = make_agent(premis,capture_uuid, 'ca731b64-638f-4dc3-9d27-0fc14387e38c')
+            scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'b22baa5c-8160-427d-9e2f-b62a7263439d')
+            hashlibAgent                                = make_agent(premis,capture_uuid, '9430725d-7523-4071-9063-e8a6ac4f84c4')
             operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
-            transcoderMachine                           = make_agent(premis,capture_received_uuid, 'agentaa00021')
-            transcoderMachineOS                         = make_agent(premis,capture_received_uuid, 'agentaa00013')
-            macMiniTelecineMachineAgent                 = make_agent(premis,premis_checksum_uuid, 'agentaa00022')
-            macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, 'agentaa00011')
-            ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'agentaa00006')
+            transcoderMachine                           = make_agent(premis,capture_received_uuid, '946e5d40-a07f-47d1-9637-def5cb7854ba')
+            transcoderMachineOS                         = make_agent(premis,capture_received_uuid, '192f61b1-8130-4236-a827-a194a20557fe')
+            macMiniTelecineMachineAgent                 = make_agent(premis,premis_checksum_uuid, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+            macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, 'a3bc371f-11fa-4319-a656-1e53c2527552')
+            ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
 
-            make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by agentaa00009 to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid,xml_info[2])
-            make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from agentaa00009 and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2])
+            make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid,xml_info[2])
+            make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2])
             make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2])
             make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2] )
             write_premis(doc, premisxml)
