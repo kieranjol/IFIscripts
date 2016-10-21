@@ -15,8 +15,9 @@ table of contents
     * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)   
 4. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
     * [moveit.py](https://github.com/kieranjol/IFIscripts#moveitpy)
-    * [manifest.py](https://github.com/kieranjol/IFIscripts#manifest.py)
-    * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deep.py)    
+    * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
+    * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
+    * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
 5. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
@@ -93,6 +94,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### sha512deep.py ###
 * Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now. name is a play on the hashdeep toolset.
 * Usage: ` sha512deep.py directory` 
+
+### validate.py ###
+* Validate md5 sidecar manifest. Currently the script expects two spaces between the checksum and the filename. 
+* Usage: ` validate.py /path/to/manifest.md5`
 
 ## Image Sequences ##
 
