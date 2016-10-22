@@ -124,11 +124,9 @@ def get_input():
             print "Your input isn't a file or a directory."
             print "What was it? I'm curious."  
         create_csv(csv_report_filename, ('FILENAME', 'Lossless?', 'Source size in bits', 'FFV1 size in bits', ' Compression ratio'))
-        info_to_pass = [video_files, csv_report_filename]
-        return info_to_pass
-def make_ffv1(info_to_pass):
-    video_files = info_to_pass[0]
-    csv_report_filename = info_to_pass[1]
+        return video_files, csv_report_filename
+def make_ffv1(video_files, csv_report_filename):
+
     for filename in video_files: #loop all files in directory
 
 
@@ -244,8 +242,8 @@ def make_ffv1(info_to_pass):
         os.chdir('..')
 
 def main():
-    info_to_pass = get_input()
-    make_ffv1(info_to_pass)
+    video_files, csv_report_filename = get_input()
+    make_ffv1(video_files, csv_report_filename)
 if __name__ == "__main__":
     main() 
 '''

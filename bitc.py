@@ -92,19 +92,13 @@ def set_options(input):
     # Prints some stuff if input isn't a file or directory.
     else: 
         print "Your input isn't a file or a directory."
-    info_to_pass = [video_files,crf_value, number_of_effects, args,bitc]    
-    return info_to_pass
-    
-def main(sidecar):    
-    info_to_pass = set_options(sys.argv[1])
-    get_bitc(info_to_pass, sidecar)                      
+    return video_files,crf_value, number_of_effects, args,bitc
 
-def get_bitc(info_to_pass, sidecar):
-    video_files = info_to_pass[0]
-    crf_value =   info_to_pass[1]
-    number_of_effects = info_to_pass[2]
-    args = info_to_pass[3]
-    bitc = info_to_pass[4]
+def main(sidecar):    
+    video_files,crf_value, number_of_effects, args,bitc = set_options(sys.argv[1])
+    get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar)
+
+def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
     drawtext_options = []
     print video_files
     for filename in video_files:
