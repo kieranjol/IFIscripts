@@ -6,7 +6,7 @@ import logging
 import argparse
 
 root = logging.getLogger()
-logging.basicConfig(filename='myapp.log', filemode='w',level=logging.INFO)
+logging.basicConfig(filename='myapp.log', filemode='a',level=logging.INFO)
 #root.setLevel(logging.DEBUG)
 
 def hashlib_md5(filename):
