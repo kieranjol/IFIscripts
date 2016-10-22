@@ -5,14 +5,6 @@ import os
 import logging
 import argparse
 
-'''
-accept manifest as input
-parse manifest as list
-check which algorithm
-for each file:
-locate file, calculate fresh hash, print value to screen and log, add to premis file if exists, create premis if not
-
-'''
 root = logging.getLogger()
 logging.basicConfig(filename='myapp.log', filemode='w',level=logging.INFO)
 #root.setLevel(logging.DEBUG)
@@ -42,7 +34,7 @@ def parse_manifest(manifest):
         manifest_list = manifest_object.readlines()
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
-            path = entries[34:].replace('\n', '')
+            path = entries[34:].rstrip()
             logging.debug('%s %s' % (checksum, path))
             manifest_dict[path] = checksum
         logging.debug(manifest_dict)
