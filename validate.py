@@ -74,15 +74,17 @@ def validate(manifest_dict, manifest):
 
 def make_parser():
     parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
-                                 ' Written by Kieran O\'Leary. On a train home to Cork. 2016-10-22. R.I.P Anthony  \'Axel\'  Foley.')
+                                 ' Written by Kieran O\'Leary. R.I.P Anthony  \'Axel\'  Foley.')
     parser.add_argument('input')
     return parser
+
+def check_manifest(input):
+    manifest = get_input(input)
+    manifest_dict = parse_manifest(manifest)
+    validate(manifest_dict, manifest)
 def main():
     parser = make_parser()
     args = parser.parse_args()
-    manifest = get_input(sys.argv[1])
-    manifest_dict = parse_manifest(manifest)
-    validate(manifest_dict, manifest)
-
+    check_manifest(args.input)
 if __name__ == '__main__':
    main()
