@@ -6,13 +6,13 @@
 import subprocess
 import sys
 import filecmp
-from glob import glob
 import os
 import shutil
 import csv
 import time
 import itertools
 import getpass
+from glob import glob
 from ififuncs import set_environment
 from ififuncs import hashlib_manifest
 try:
@@ -31,10 +31,21 @@ def read_non_comment_lines(infile):
     for lineno, line in enumerate(infile):
         #if line[:1] != "#":
             yield lineno, line
+
+
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['mediainfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    var_type = subprocess.check_output(['mediainfo',
+                                        '--Language=raw',
+                                        '--Full',
+                                        type,
+                                        filename ]).replace('\n', '')
     return var_type
-# example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
+    '''
+    example - duration =  get_mediainfo('duration',
+                                      '--inform=General;%Duration_String4%',
+                                      sys.argv[1])
+    '''
+
 
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
@@ -44,7 +55,7 @@ def create_csv(csv_file, *args):
     finally:
         f.close()
         
-        
+
 def append_csv(csv_file, *args):
     f = open(csv_file, 'ab')
     try:
@@ -53,32 +64,40 @@ def append_csv(csv_file, *args):
     finally:
         f.close()
 
+
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser() 
+            + ' ' + what2log + ' \n')
     else:
         with open(log,"ab") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
-# Write metadata for original video file - with open will auto close the file.
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser()
+            + ' ' + what2log + ' \n')
+ 
+
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     with open(xmlfilename, "w+") as fo:
         xmlvariable = subprocess.check_output(['mediainfo',
-                        '-f',
-                        '--language=raw', # Use verbose output.
-                        '--output=XML',
-                        inputfilename])       #input filename
+                                               '-f',
+                                               '--language=raw',
+                                               '--output=XML',
+                                               inputfilename])
         fo.write(xmlvariable)
+
 
 def make_manifest(relative_manifest_path, manifest_textfile):
     os.chdir(relative_manifest_path)
     manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
+
 
 def get_input():
     if len(sys.argv) < 2:
@@ -89,74 +108,60 @@ def get_input():
         print 'If input is a directory, all files will be processed'
         print 'If input is a file, only that file will be processed'
         sys.exit()
-    
-    
     else:
         # Input, either file or firectory, that we want to process.
         input = sys.argv[1]
-        print input
-
         # Store the directory containing the input file/directory.
         wd = os.path.dirname(input)
-
         # Change current working directory to the value stored as "wd"
         os.chdir(os.path.abspath(wd))
-
         # Store the actual file/directory name without the full path.
         file_without_path = os.path.basename(input)
-        print file_without_path
-        csv_report_filename = os.path.basename(input) + 'makeffv1_results' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-
+        csv_report_filename = (os.path.basename(input) 
+        + 'makeffv1_results'
+        + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv')
         # Check if input is a file.
         # AFAIK, os.path.isfile only works if full path isn't present.
-        if os.path.isfile(file_without_path):      
-            print os.path.isfile(file_without_path)
+        if os.path.isfile(file_without_path):
             print "single file found"
             video_files = []                       # Create empty list 
             video_files.append(file_without_path)  # Add filename to list
-            print video_files
-
         # Check if input is a directory. 
         elif os.path.isdir(file_without_path):  
             os.chdir(file_without_path)
-            video_files =  glob('*.mov') + glob('*.mp4') + glob('*.mxf') + glob('*.mkv') + glob('*.avi') + glob('*.y4m')
-
-        # Prints some stuff if input isn't a file or directory.
+            video_files =  (glob('*.mov')
+                           + glob('*.mp4')
+                           + glob('*.mxf')
+                           + glob('*.mkv')
+                           + glob('*.avi')
+                           + glob('*.y4m'))
         else: 
             print "Your input isn't a file or a directory."
             print "What was it? I'm curious."  
-        create_csv(csv_report_filename, ('FILENAME', 'Lossless?', 'Source size in bits', 'FFV1 size in bits', ' Compression ratio'))
+        create_csv(csv_report_filename,
+                  ('FILENAME', 'Lossless?',
+                  'Source size in bits', 'FFV1 size in bits',
+                  ' Compression ratio'))
         return video_files, csv_report_filename
 def make_ffv1(video_files, csv_report_filename):
-
     for filename in video_files: #loop all files in directory
-
-
         filenoext = os.path.splitext(filename)[0]
-        # Change directory to directory with video files
-
-
-        print filenoext
-        # Generate new directory names in AIP
-        metadata_dir   = "%s/metadata" % filenoext
-        log_dir = "%s/logs" % filenoext
-        data_dir   = "%s/data" % filenoext
-        provenance_dir   = "%s/provenance" % filenoext
-
+        # Generate new directory names
+        metadata_dir    = "%s/metadata" % filenoext
+        log_dir         = "%s/logs" % filenoext
+        data_dir        = "%s/data" % filenoext
+        provenance_dir  = "%s/provenance" % filenoext
         # Actually create the directories.
         os.makedirs(metadata_dir)
         os.makedirs(data_dir)
         os.makedirs(provenance_dir)
         os.makedirs(log_dir)
-
-        #Generate filenames for new files in AIP.
+        #Generate filenames for new files.
         inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(filename) )
         inputtracexml  = "%s/%s_mediatrace.xml" % (metadata_dir,os.path.basename(filename) )
         output    = "%s/%s.mkv" % (data_dir, os.path.basename(filename))
-
         # Generate filename of ffv1.mkv without the path.
         outputfilename = os.path.basename(output)
-
         outputxml = "%s/%s_mediainfo.xml" % (metadata_dir, outputfilename)
         outputtracexml = "%s/%s_mediatrace.xml" % (metadata_dir, outputfilename)
         fmd5      = "%s/%s.framemd5" % (provenance_dir, os.path.basename(filename))
@@ -195,11 +200,6 @@ def make_ffv1(video_files, csv_report_filename):
         print fmd5_command
         subprocess.call(fmd5_command, env=fmd5_env_dict)
         generate_log(log, 'makeffv1.py Framemd5 generation of output file completed')                
-        log_files =  glob('*.log')                
-
-        # Verify that the video really is lossless by comparing the fixity of the two framemd5 files. 
-        
-
         source_video_size =  get_mediainfo('source_video_size', "--inform=General;%FileSize%", filename)
         ffv1_video_size =  get_mediainfo('ffv1_video_size', '--inform=General;%FileSize%', output)
         compression_ratio = float(source_video_size) / float(ffv1_video_size)
@@ -226,14 +226,10 @@ def make_ffv1(video_files, csv_report_filename):
             print 'NOT LOSSLESS'
             append_csv(csv_report_filename, (output,'NOT LOSSLESS',source_video_size,ffv1_video_size,compression_ratio))
             generate_log(log, 'makeffv1.py Not Lossless.')
-
         if filecmp.cmp(fmd5, fmd5ffv1, shallow=False): 
             print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
-
         else:
             print "The framemd5 text files are not completely identical. This may be because of a lossy transcode, or a change in metadata, most likely pixel aspect ratio. Please analyse the framemd5 files for source and output."
-            #sys.exit()                 # Script will exit the loop if transcode is not lossless.
-
         make_mediainfo(inputxml, 'mediaxmlinput', filename)
         make_mediainfo(outputxml, 'mediaxmloutput', output)
         make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
@@ -244,14 +240,11 @@ def make_ffv1(video_files, csv_report_filename):
         generate_log(log, 'makeffv1.py MD5 manifest started')
         hashlib_manifest(filenoext, manifest,manifest_path)
 
+
 def main():
     video_files, csv_report_filename = get_input()
     make_ffv1(video_files, csv_report_filename)
+
+
 if __name__ == "__main__":
-    main() 
-'''
-make_premis(output)
-make_event('whatever trevor')
-write_premis()
-'''    
-        
+    main()
