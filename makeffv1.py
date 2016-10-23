@@ -13,6 +13,7 @@ import csv
 import time
 import itertools
 import getpass
+from ififuncs import set_environment
 try:
     from ififuncs import make_mediatrace
 except ImportError:
@@ -162,9 +163,11 @@ def make_ffv1(video_files, csv_report_filename):
         log       = "%s/%s_log.log" %  (log_dir,filename)
         generate_log(log, 'Input = %s' % filename)
         generate_log(log, 'Output = %s' % output) 
-        generate_log(log, 'makeffv1.py transcode to FFV1 and framemd5 generation of source started.') 
+        generate_log(log, 'makeffv1.py transcode to FFV1 and framemd5 generation of source started.')
+        ffv1_logfile                         = log_dir + '/%s_ffv1_transcode.log' % filename
+        ffv1_env_dict                        = set_environment(ffv1_logfile)
         # Transcode video file writing frame md5 and output appropriately
-        subprocess.call(['ffmpeg',
+        ffv1_command =  ['ffmpeg',
                         '-i', filename,
                         '-c:v', 'ffv1',        # Use FFv1 codec
                         '-g','1',              # Use intra-frame only aka ALL-I aka GOP=1
@@ -177,20 +180,22 @@ def make_ffv1(video_files, csv_report_filename):
                         '-slices', '16',
                         output,	
                         '-f','framemd5','-an'  # Create decoded md5 checksums for every frame of the input. -an ignores audio
-                        , fmd5  ])
+                        , fmd5  ]
+        subprocess.call(ffv1_command, env=ffv1_env_dict)
         generate_log(log, 'makeffv1.py transcode to FFV1 and framemd5 generation completed.')        
         generate_log(log, 'makeffv1.py Framemd5 generation of output file started.')
-        subprocess.call(['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
+        fmd5_logfile                          = log_dir + '/%s_framemd5.log' % outputfilename
+        fmd5_env_dict                         = set_environment(fmd5_logfile)
+        fmd5_command =  ['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
                         '-i',output,
                         '-report',
                         '-f','framemd5','-an',
-                        fmd5ffv1 ])
+                        fmd5ffv1 ]
+        print fmd5_command
+        subprocess.call(fmd5_command, env=fmd5_env_dict)
         generate_log(log, 'makeffv1.py Framemd5 generation of output file completed')                
         log_files =  glob('*.log')                
-        for i in log_files:
-            if 'ffmpeg' in i:
-                shutil.move(i, '%s/%s' % (log_dir,i))
-                generate_log(log, 'makeffv1.py %s moved to log directory' % i)
+
         # Verify that the video really is lossless by comparing the fixity of the two framemd5 files. 
         
 
