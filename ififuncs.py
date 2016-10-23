@@ -116,6 +116,15 @@ def frames_to_seconds(audio_entry_point):
     audio_frame_count  = float(audio_frame_count) / 24.000 # Change to EditRate variable.
     audio_frame_count  = round(audio_frame_count, 3)
     return audio_frame_count
+
+
+def set_environment(logfile):
+    env_dict = os.environ.copy()
+    # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+    env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
+    return env_dict
+
+
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
