@@ -149,23 +149,21 @@ def make_ffv1(video_files, csv_report_filename):
         # Generate new directory names
         metadata_dir    = "%s/metadata" % filenoext
         log_dir         = "%s/logs" % filenoext
-        data_dir        = "%s/data" % filenoext
-        provenance_dir  = "%s/provenance" % filenoext
+        data_dir        = "%s/objects" % filenoext
         # Actually create the directories.
         os.makedirs(metadata_dir)
         os.makedirs(data_dir)
-        os.makedirs(provenance_dir)
         os.makedirs(log_dir)
         #Generate filenames for new files.
-        inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(filename) )
-        inputtracexml  = "%s/%s_mediatrace.xml" % (metadata_dir,os.path.basename(filename) )
+        inputxml  = "%s/%s_source_mediainfo.xml" % (metadata_dir,os.path.basename(filename) )
+        inputtracexml  = "%s/%s_source_mediatrace.xml" % (metadata_dir,os.path.basename(filename) )
         output    = "%s/%s.mkv" % (data_dir, os.path.basename(filename))
         # Generate filename of ffv1.mkv without the path.
         outputfilename = os.path.basename(output)
         outputxml = "%s/%s_mediainfo.xml" % (metadata_dir, outputfilename)
         outputtracexml = "%s/%s_mediatrace.xml" % (metadata_dir, outputfilename)
-        fmd5      = "%s/%s.framemd5" % (provenance_dir, os.path.basename(filename))
-        fmd5ffv1  = output + ".framemd5"
+        fmd5      = "%s/%s_source.framemd5" % (metadata_dir, os.path.basename(filename))
+        fmd5ffv1  = "%s/%s_ffv1.framemd5" % (metadata_dir, outputfilename)
         log       = "%s/%s_log.log" %  (log_dir,filename)
         generate_log(log, 'Input = %s' % filename)
         generate_log(log, 'Output = %s' % output) 
