@@ -14,6 +14,7 @@ import time
 import itertools
 import getpass
 from ififuncs import set_environment
+from ififuncs import hashlib_manifest
 try:
     from ififuncs import make_mediatrace
 except ImportError:
@@ -237,14 +238,11 @@ def make_ffv1(video_files, csv_report_filename):
         make_mediainfo(outputxml, 'mediaxmloutput', output)
         make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
         make_mediatrace(outputtracexml, 'mediatracexmloutput', output)
-        
-        normpath = os.path.normpath(filename)
-        source_parent_dir = os.path.dirname(filename)
-        relative_path = normpath.split(os.sep)[-1]
-        manifest =  '%s_manifest.md5' % (relative_path)
+        source_parent_dir = os.path.dirname(os.path.abspath(filename))
+        manifest_path = os.path.join(source_parent_dir, filenoext)
+        manifest =  '%s/%s_manifest.md5' % (manifest_path, filenoext)
         generate_log(log, 'makeffv1.py MD5 manifest started')
-        make_manifest(filenoext,manifest)
-        os.chdir('..')
+        hashlib_manifest(filenoext, manifest,manifest_path)
 
 def main():
     video_files, csv_report_filename = get_input()
