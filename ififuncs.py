@@ -7,6 +7,7 @@ import mimetypes
 import getpass
 import os
 import filecmp
+import hashlib
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -132,6 +133,43 @@ def generate_log(log, what2log):
     else:
         with open(log,"ab") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+
+
+def hashlib_md5(filename):
+   m = hashlib.md5()
+   with open(str(filename), 'rb') as f:
+       while True:
+           buf = f.read(2**20)
+           if not buf:
+               break
+           m.update(buf)
+   md5_output = m.hexdigest()
+   return md5_output
+
+def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
+    manifest_generator = ''
+    for root, directories, filenames in os.walk(manifest_dir):
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.']
+        for files in filenames: 
+            print 'Generating MD5 for %s' % files
+            md5 = hashlib_md5(os.path.join(root, files))
+            root2 = os.path.abspath(root).replace(path_to_remove, '')
+            try:
+                if root2[0] == '/':
+                    root2 = root2[1:]
+                if root2[0] == '\\':
+                    root2 = root2[1:]
+            except: IndexError
+            manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+    manifest_list = manifest_generator.splitlines()
+    files_in_manifest = len(manifest_list)
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
+    with open(manifest_textfile,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
+
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
