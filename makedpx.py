@@ -144,7 +144,7 @@ for source_directory in all_files:
             start                       = datetime.datetime.now()
             source_manifest             = root_dir + '/%s_manifest.md5' % relative_path
             generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
-            make_manifest(root_dir, rot_dir, source_manifest)
+            make_manifest(root_dir, root_dir, source_manifest)
             info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
             output_dirname              = info[0]
             source_textfile             = info[1]
