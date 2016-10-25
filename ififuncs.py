@@ -147,13 +147,22 @@ def hashlib_md5(filename):
    return md5_output
 
 def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
+    file_count = 0
+    for root, directories, filenames in os.walk(manifest_dir):
+            filenames = [f for f in filenames if not f[0] == '.']
+            directories[:] = [d for d in directories if not d[0] == '.']
+            for files in filenames:
+                    print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+                    file_count +=1
     manifest_generator = ''
+    md5_counter = 1
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
-        for files in filenames: 
-            print 'Generating MD5 for %s' % files
+        for files in filenames:
+            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root,files), md5_counter, file_count)
             md5 = hashlib_md5(os.path.join(root, files))
+            md5_counter +=1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
             try:
                 if root2[0] == '/':

@@ -5,10 +5,24 @@ import os
 import sys
 
 
+def count_files(input):
+    file_count = 1
+    for root, directories, filenames in os.walk(input):
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.']
+        for files in filenames:
+            print "Calculating number of files in all subdirectories -  %s files        \r"% file_count,
+            file_count +=1
+    return file_count
+
+
 def make_parser():
-    parser = argparse.ArgumentParser(description='Batch MD5 checksum generator.Accepts a parent folder as input and will generate manifest for each subfolder. Designed for a specific IFI Irish Film Archive workflow'
-                                 ' Written by Kieran O\'Leary.')
+    parser = argparse.ArgumentParser(description='Batch MD5 checksum generator.'
+                                'Accepts a parent folder as input and will generate manifest for each subfolder.'
+                                ' Designed for a specific IFI Irish Film Archive workflow. '
+                                'Written by Kieran O\'Leary.')
     parser.add_argument('input', help='file path of parent directory')
+    parser.add_argument('-v', action='store_true', help='verbose mode - some extra information such as overall file count.')
     return parser
 
 
@@ -23,7 +37,11 @@ def create_manifest(input):
 def main():
     parser = make_parser()
     args = parser.parse_args()
+    if args.v:
+        file_count = count_files(args.input)
     create_manifest(args.input)
+
+
 if __name__ == '__main__':
    main()
 
