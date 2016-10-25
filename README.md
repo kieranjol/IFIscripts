@@ -18,6 +18,7 @@ table of contents
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
+    * [batchfixity.py](https://github.com/kieranjol/IFIscripts#batchfixitypy)
 5. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
@@ -98,6 +99,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### validate.py ###
 * Validate md5 sidecar manifest. Currently the script expects two spaces between the checksum and the filename. 
 * Usage: ` validate.py /path/to/manifest.md5`
+
+### batchfixity.py ###
+* Batch MD5 checksum generator. Accepts a parent folder as input and will generate manifest for each subfolder. Designed for a specific IFI Irish Film Archive workflow.
+* Usage: ` batchfixity.py /path/to/parent_folder`
 
 ## Image Sequences ##
 
