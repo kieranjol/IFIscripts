@@ -131,7 +131,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### playerseq.py ###
 * Transcodes an image sequence & WAV to 24fps ProRes 4:2:2 HQ in a MOV container.
-* Usage: `seq.py path/to/parent_image__folder`.The script will then ask you to drag and drop the WAV file. The location is currently hardcoded to facilitate a workflow.
+* Usage: `playerseq.py path/to/parent_image__folder`.The script will then ask you to drag and drop the WAV file. The location is currently hardcoded to facilitate a workflow.
 
 ### oeremove.py ###
 * IFI specific script that removes OE### numbers from the head of an image sequence filename.
