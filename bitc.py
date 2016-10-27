@@ -137,10 +137,7 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
                 '-c:v', 'libx264',
                 '-pix_fmt', 'yuv420p',
                 '-crf', crf_value]
-        if height =='576':
-            if pixel_aspect_ratio == '1.000':
-                ffmpeg_args.append('-aspect')
-                ffmpeg_args.append('4:3')
+        
             
         if not args.map:
             ffmpeg_args.append('-map')
@@ -148,9 +145,10 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
             ffmpeg_args.append('-map')
             ffmpeg_args.append('0:v')
                               
-        if args.yadif or args.scale or bitc :
-             
+        if args.yadif or args.scale or args.player or bitc :
             ffmpeg_args.append('-vf')
+            
+            
               
             if bitc:
                 def getffprobe(variable, streamvalue, which_file):
@@ -223,7 +221,13 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
         
             
             if args.yadif:
-                if args.clean:
+                
+                if args.player:
+                    if height =='576':
+                             if pixel_aspect_ratio == '1.000':
+                
+                                 ffmpeg_args.append('yadif,scale=768:576')
+                elif args.clean:
                     ffmpeg_args.append(' yadif')     
                 else:               
                     drawtext_options[-1] += ',yadif' 
