@@ -36,6 +36,11 @@ def set_options(input):
                         '-map',
                         action='store_true',
                         help='Force default mapping, eg. 1 audio/video stream')
+                        
+    parser.add_argument(
+                        '-player',
+                        action='store_true',
+                        help='uses yadif, 4:3, clea.')
     args = parser.parse_args()
     
     h264_options = []
@@ -51,12 +56,18 @@ def set_options(input):
     if args.scale:
         h264_options.append('-scale')
         width_height = args.scale
+    if args.player:
+        args.clean = True
+        args.yadif = True
+        crf_value = '18'
+        
     if args.clean:
         bitc = False
         drawtext_options = []
     else:
         bitc = True   
         h264_options.append('bitc')
+    
 
     number_of_effects =  len(h264_options)
 
@@ -88,7 +99,7 @@ def set_options(input):
             glob('*.mkv') +
             glob('*.avi')
         )
-
+   
     # Prints some stuff if input isn't a file or directory.
     else: 
         print "Your input isn't a file or a directory."
@@ -116,13 +127,21 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
             output = filename + "_h264.mov"
             
         
-    
+        height = subprocess.check_output(['mediainfo','--Language=raw','--Full',"--Inform=Video;%Height%", filename]).rstrip()
+        pixel_aspect_ratio = subprocess.check_output(['mediainfo','--Language=raw','--Full',"--Inform=Video;%PixelAspectRatio%", filename]).rstrip()
+
+            
         ffmpeg_args =   ['ffmpeg',
                 '-i', filename,
                 '-c:a', 'aac',
                 '-c:v', 'libx264',
                 '-pix_fmt', 'yuv420p',
                 '-crf', crf_value]
+        if height =='576':
+            if pixel_aspect_ratio == '1.000':
+                ffmpeg_args.append('-aspect')
+                ffmpeg_args.append('4:3')
+            
         if not args.map:
             ffmpeg_args.append('-map')
             ffmpeg_args.append('0:a?')
@@ -223,6 +242,7 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
      
         ffmpeg_args.append(output)
         print ffmpeg_args
+        
         subprocess.call(ffmpeg_args)
 
 if __name__ == "__main__":
