@@ -129,6 +129,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container. 
 * Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
 
+### playerseq.py ###
+* Transcodes an image sequence & WAV to 24fps ProRes 4:2:2 HQ in a MOV container.
+* Usage: `seq.py path/to/parent_image__folder`.The script will then ask you to drag and drop the WAV file. The location is currently hardcoded to facilitate a workflow.
+
 ### oeremove.py ###
 * IFI specific script that removes OE### numbers from the head of an image sequence filename.
 * Usage - `oeremove.py directory`.
