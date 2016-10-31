@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
-from lxml import etree
 import sys
+try:
+    from lxml import etree
+except ImportError:
+    print '*** ERROR - LXML IS MISSING ***\nThis external module is required for xml parsing.\nInstall with  `pip install lxml`.\nYou may need to restart your terminal or your computer, but it should work immediately.\nYou may need to run `sudo pip install lxml` on some osx/linux machines.\n If having issues installing lxml on windows, download the relevant .whl file from here http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml and run `pip install /path/to/lxml_filename.whl'
+    sys.exit()
 import pdb
 from glob import glob
 import csv
@@ -22,7 +26,6 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
-import bagit
 import tempfile
 from decimal import *
 from sys import platform as _platform
