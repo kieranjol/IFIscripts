@@ -71,7 +71,9 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### dcpaccess.py ###
 * Create h264 or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop. 
 * Usage: `dcpaccess.py dcp_directory`
-*Further options can be viewed with `dcpaccess.py -h`
+* Dependencies: ffmpeg must be compiled with libopenjpeg -  `brew install ffmpeg --with-openjpeg`.
+* Python dependencies: lxml required.
+* Further options can be viewed with `dcpaccess.py -h`
 
 ### dcpfixity.py ###
 * Verify internal hashes in a DCP and write report to CSV. Optional (experimental) bagging if hashes validate. The script will search for all DCPs in subdirectories, process them one at a time and generate a CSV report.
@@ -87,6 +89,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### moveit.py ###
 * Copies a directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories. 
 * Usage: ` moveit.py source_dir destination_dir` 
+* Dependencies:  OSX requires gcp - `brew install coreutils`
 
 ### manifest.py ###
 * Creates relative md5 checksum manifest of a directory.
