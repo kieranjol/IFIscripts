@@ -69,8 +69,9 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Digital Cinema Package Scripts ##
 
 ### dcpaccess.py ###
-* Create h264 or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop. 
+* Create h264 (default)  or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop. 
 * Usage: `dcpaccess.py dcp_directory`
+* Use `-p` for prores output, and use `-hd` to rescale to 1920:1080 while maintaining the aspect ratio.
 * Dependencies: ffmpeg must be compiled with libopenjpeg -  `brew install ffmpeg --with-openjpeg`.
 * Python dependencies: lxml required.
 * Further options can be viewed with `dcpaccess.py -h`

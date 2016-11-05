@@ -49,6 +49,9 @@ parser.add_argument(
 parser.add_argument(
                     '-p', 
                     action='store_true',help='Use Apple ProRes 4:2:2 HQ instead of H264')
+parser.add_argument(
+                    '-hd',
+                    action='store_true',help='Scale to 1920:1080 while preserving the aspect ratio')
 args = parser.parse_args()
 '''
 if args.bag:
@@ -469,7 +472,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         command = ['ffmpeg','-f','concat','-safe', '0','-c:v ','libopenjpeg',
                    '-i',video_concat_textfile,'-f','concat','-safe', '0',
                    '-i',audio_concat_textfile,'-c:v']
-        command += codec          
+
+        command += codec
+        if args.hd:
+            command += ['-vf', "scale=1920:-1,setsar=1/1,pad=1920:1080:0:(oh-ih)/2"]
         command += [output]
         print command
         subprocess.call(command)        
