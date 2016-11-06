@@ -37,6 +37,7 @@ def parse_manifest(manifest):
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
             path = entries[34:].rstrip()
+            path = path.replace('\\', '/')
             if not os.path.isfile(path):
                 logging.info('%s is missing' % path )
                 print '%s is missing' % path
