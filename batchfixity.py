@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-from ififuncs import hashlib_manifest
+
 import argparse
 import os
 import sys
-
+import time
+import shutil
+from ififuncs import hashlib_manifest
+from ififuncs import generate_log
 
 def count_files(input):
     file_count = 1
@@ -31,7 +34,12 @@ def create_manifest(input):
     for dirname in os.walk('.').next()[1]:
         full_path = os.path.join(input, dirname)
         manifest_textfile = '%s/%s_manifest.md5' % (full_path,dirname)
+        log_name = '%s/%s_fixity.log' % (os.path.dirname(full_path),dirname)
+        generate_log(log_name, 'batchfixity started')
+        generate_log(log_name, '%s created' % manifest_textfile)
         hashlib_manifest(full_path, manifest_textfile, full_path)
+        generate_log(log_name, 'manifest creation complete')
+        shutil.move(log_name, full_path)
 
 
 def main():
