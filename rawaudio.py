@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 import subprocess
+import argparse
 import sys
 import os
 import hashlib
 import shutil
+import uuid
+import time
 from glob import glob
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
 from premis import make_event
-import uuid
+
 
 '''
 1. Accepts the wav as input
@@ -60,65 +63,129 @@ def make_manifest(relative_manifest_path, manifest_textfile):
     with open(manifest_textfile,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
-           
-input = sys.argv[1]
+
+
+def get_user():
+    user = ''
+    if not user == '1' or user == '2':
+        user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n' )
+        while user not in ('1','2'):
+            user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n')
+    if user == '1':
+        user = 'Brian Cash'
+        print 'Hi Brian, I promise not to leave any water bottles in the telecine room from now on '
+        time.sleep(1)
+    elif user == '2':
+        user = 'Gavin Martin'
+        print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
+        time.sleep(1)
+    return user
+
+
+def make_parser():
+    parser = argparse.ArgumentParser(description='Workflow specific metadata generator.'
+                                'Accepts a WAV file as input.'
+                                ' Designed for a specific IFI Irish Film Archive workflow. '
+                                'Written by Kieran O\'Leary.')
+    parser.add_argument('input', help='file path of parent directory')
+    parser.add_argument('-v', action='store_true', help='verbose mode - Display full ffmpeg information')
+    return parser
+
+total_process = 6
+parser = make_parser()
+args = parser.parse_args()
+input = args.input
+if not input.endswith('.wav'):
+   print 'This script accepts a WAV file contained in a very specific folder path as input.\nExiting'
+   sys.exit()
+user = get_user()
 desktop_dir = os.path.expanduser("~/Desktop/%s") % os.path.basename(input)
 parent_dir = os.path.dirname(input)
 root_dir = os.path.dirname(os.path.dirname(parent_dir))
+os.chdir(root_dir)
 metadata_dir = root_dir + '/metadata/audio'
-logs_dir = root_dir + '/logs/audio'
+logs_dir = 'logs/audio'
 
 aeo_raw_extract_wav_dir = root_dir + '/objects/audio'
 framemd5 = metadata_dir + '/' + os.path.basename(input) +'.framemd5'
-logfile = logs_dir + '/' + os.path.basename(input) + '_framemd5.log'
+logfile = logs_dir + '/%s_framemd5.log' % os.path.basename(input)
+process_counter = 1
+print 'Process %d of %d - Logfile of framemd5 ffmpeg process located in %s/%s' % (process_counter,total_process, root_dir, logfile)
+process_counter += 1
 normpath = os.path.normpath(root_dir)
 relative_path = normpath.split(os.sep)[-1]
 manifest =  root_dir + '/audio_manifest.md5' 
 
 filenoext = os.path.splitext(input)[0]
-
-inputxml =  inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input) )
-print inputxml
-
-        
+inputxml =  inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input))
 make_mediainfo(inputxml,'mediaxmlinput',input)
-
-
 env_dict = set_environment(logfile)
 ffmpegcmd = ['ffmpeg',    # Create decoded md5 checksums for every frame of the ffv1 output
                         '-i',input,
-                        '-report',
-                        '-f','framemd5',
+                        '-report',]
+if not args.v:
+    ffmpegcmd += ['-v', '0']
+ffmpegcmd +=    ['-f','framemd5',
                         framemd5 ]
-subprocess.call(ffmpegcmd,env=env_dict)   
-shutil.copy(input, desktop_dir)                       
-remove_bad_files(root_dir)  
+print 'Process %d of %d - Generating framemd5 values for source WAV' % (process_counter,total_process)
+process_counter += 1
+subprocess.call(ffmpegcmd,env=env_dict)
+print 'Process %d of %d - Creating a workhorse copy of source WAV on Desktop' % (process_counter,total_process)
+process_counter += 1
+shutil.copy(input, desktop_dir)
+print 'Process %d of %d - Checking if any unwanted files should be removed, eg .DS_Stores or desktop.ini/thumbs.db' % (process_counter,total_process)
+process_counter += 1
+remove_bad_files(root_dir)
 os.chdir(parent_dir)  
 log_files =  glob('*.txt')                
 for i in log_files:
    
         shutil.move(i, '%s/%s' % (logs_dir,i))             
 
+print 'Process %d of %d - Generating manifest' % (process_counter,total_process)
+process_counter += 1
 make_manifest(root_dir,manifest)
+
+
+'''
+BEGIN PREMIS
+'''
+print 'Process %d of %d - Generating PREMIS XML file' % (process_counter,total_process)
+process_counter += 1
 split_list = os.path.basename(root_dir).split('_')
-items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
-xml_info    = make_premis(aeo_raw_extract_wav_dir, items)
+audio_items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
+image_items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
+xml_info    = make_premis(aeo_raw_extract_wav_dir, image_items)
 doc         = xml_info[0]
 premisxml   = xml_info[1]
 premis = doc.getroot()
+extract_uuid                                = str(uuid.uuid4())
+capture_received_uuid                       = str(uuid.uuid4())
+audio_premis_checksum_uuid                  = str(uuid.uuid4())
+audio_framemd5_uuid                         = str(uuid.uuid4())
 capture_uuid                                = str(uuid.uuid4())
 capture_received_uuid                       = str(uuid.uuid4())
 premis_checksum_uuid                        = str(uuid.uuid4())
 framemd5_uuid                               = str(uuid.uuid4())
 aeolightAgent                               = make_agent(premis,capture_uuid, '50602139-104a-46ef-a53c-04fcb538723a')
 hashlibAgent                                = make_agent(premis,capture_uuid, '9430725d-7523-4071-9063-e8a6ac4f84c4')
-operatorAgent                               = make_agent(premis,capture_uuid,items['user'])
+operatorAgent                               = make_agent(premis,capture_uuid,audio_items['user'])
 macMiniTelecineMachineAgent                 = make_agent(premis,premis_checksum_uuid, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
 macMiniTelecineOSAgent                      = make_agent(premis,premis_checksum_uuid, '9486b779-907c-4cc4-802c-22e07dc1242f')
 ffmpegAgent                                 = make_agent(premis,framemd5_uuid , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-
-make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, operatorAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], capture_uuid,xml_info[2])
+scannerAgent                                = make_agent(premis,capture_uuid, '1f4c1369-e9d1-425b-a810-6db1150955ba')
+scannerPCAgent                              = make_agent(premis,capture_uuid, 'ca731b64-638f-4dc3-9d27-0fc14387e38c')
+scannerLinuxAgent                           = make_agent(premis,capture_uuid, 'b22baa5c-8160-427d-9e2f-b62a7263439d')
+hashlibAgent                                = make_agent(premis,capture_uuid, '9430725d-7523-4071-9063-e8a6ac4f84c4')
+operatorAgent                               = make_agent(premis,capture_uuid,image_items['user'])
+transcoderMachine                           = make_agent(premis,capture_received_uuid, '946e5d40-a07f-47d1-9637-def5cb7854ba')
+transcoderMachineOS                         = make_agent(premis,capture_received_uuid, '192f61b1-8130-4236-a827-a194a20557fe')
+make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, operatorAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], extract_uuid,xml_info[2])
+make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,xml_info[2])
+make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,xml_info[2] )
+make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], capture_uuid,xml_info[2])
+make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2])
 make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2])
-make_event(premis, 'message digest calculation', 'Frame level checksums', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2] )
+make_event(premis, 'message digest calculation', 'Frame level checksums of image', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2] )
 write_premis(doc, premisxml)
-print premisxml
+
