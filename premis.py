@@ -76,8 +76,9 @@ def get_input(filename):
     return video_files
 
 
-def make_premis(source_file, items, premis, premis_namespace, premisxml):
-    xml_info = create_object(source_file, items, premis, premis_namespace, premisxml)
+def make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,sequence):
+    # the sequence argument determines if a sequence counter is launched
+    xml_info = create_object(source_file, items, premis, premis_namespace, premisxml, representation_uuid, sequence)
     return xml_info
 
 
@@ -179,15 +180,14 @@ def setup_xml(source_file):
     return premisxml, premis_namespace, doc, premis
 
 
-def create_representation(source_file, premisxml, premis_namespace, doc, premis, items):
+def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid):
         object_parent = create_unit(0, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid                                  = create_unit(0,object_parent, 'objectIdentifier')
         object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
-        representation_uuid                                     = str(uuid.uuid4())
-        object_identifier_uuid_value.text = representation_uuid
+        object_identifier_uuid_value.text                       = representation_uuid
         object_parent.insert(1,object_identifier_parent)
         ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text                                         = 'IFI Irish Film Archive Object Entry Number'
@@ -201,9 +201,9 @@ def create_representation(source_file, premisxml, premis_namespace, doc, premis,
         object_identifier_filmographic_reference_value.text     = items['filmographic']
         objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root','about')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'includes','about')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root','about')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0])
+        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1])
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2])
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier):
         relationship                                            = create_unit(4,object_parent, 'relationship')
@@ -216,12 +216,13 @@ def representation_relationship(object_parent, premisxml, items, relationshiptyp
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text                                = relationshipsubtype
         representationrelatedObjectIdentifierType.text          = 'UUID'
+        representationrelatedObjectIdentifierValue.text          = linking_identifier
 
-def create_object(source_file, items, premis, premis_namespace, premisxml):
+def create_object(source_file, items, premis, premis_namespace, premisxml, representation_uuid, sequence):
     video_files         = get_input(source_file)
     mediainfo_counter   = 1
 
-
+    
     rep_counter = 0
     for image in video_files:
         object_parent                                           = create_unit(mediainfo_counter,premis, 'object')
@@ -245,7 +246,9 @@ def create_object(source_file, items, premis, premis_namespace, premisxml):
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         file_uuid                                               = str(uuid.uuid4())
-
+        object_identifier_uuid_value.text                       = file_uuid
+        if rep_counter == 0:
+            root_uuid = file_uuid
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
@@ -263,7 +266,18 @@ def create_object(source_file, items, premis, premis_namespace, premisxml):
         messageDigest                   = create_unit(1,fixity, 'messageDigest')
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
-
+        relationship                        = create_unit(7,object_parent, 'relationship')
+        relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
+        relatedObjectIdentifierType.text    = 'UUID'
+        relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relatedObjectIdentifierValue.text   = representation_uuid
+        if sequence == 'sequence':
+            relatedObjectSequence               = create_unit(4,relationship,'relatedObjectSequence')
+            relatedObjectSequence.text          = str(mediainfo_counter)
+        relationshipType                    = create_unit(0,relationship, 'relationshipType')
+        relationshipType.text               = 'structural'
+        relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
+        relationshipSubType.text            = 'is included in'
 
         md5_output                              = hashlib_md5(source_file, image)
         messageDigest.text                      = md5_output
@@ -271,7 +285,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml):
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
 
     doc                 = ET.ElementTree(premis)
-    xml_info                                    = [doc, premisxml, 'representation_uuid']
+    xml_info                                    = [doc, premisxml, root_uuid]
     return xml_info
 
 

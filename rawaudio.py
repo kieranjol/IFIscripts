@@ -7,12 +7,14 @@ import hashlib
 import shutil
 import uuid
 import time
+import uuid
 from glob import glob
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
 from premis import make_event
 from premis import setup_xml
+from premis import create_representation
 
 
 '''
@@ -154,13 +156,18 @@ BEGIN PREMIS
 source_directory = root_dir + '/objects/image'
 print 'Process %d of %d - Generating PREMIS XML file' % (process_counter,total_process)
 process_counter += 1
+representation_uuid = str(uuid.uuid4())
 premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
 split_list = os.path.basename(root_dir).split('_')
 audio_items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
 image_items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
-xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml)
-
-xml_info    = make_premis(aeo_raw_extract_wav_dir, audio_items, premis, premis_namespace, premisxml)
+linking_representation_uuids = []
+xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
+linking_representation_uuids.append(xml_info[2])
+xml_info    = make_premis(aeo_raw_extract_wav_dir, audio_items, premis, premis_namespace, premisxml, representation_uuid, 'nosequence')
+linking_representation_uuids.append(xml_info[2])
+linking_representation_uuids.append(image_items['sourceAccession'])
+create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid )
 doc         = xml_info[0]
 premisxml   = xml_info[1]
 premis = doc.getroot()
