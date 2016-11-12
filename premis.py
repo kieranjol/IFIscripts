@@ -82,7 +82,7 @@ def make_premis(source_file, items, premis, premis_namespace, premisxml,represen
     return xml_info
 
 
-def make_agent(premis,linkingEventIdentifier_value, agentId ):
+def make_agent(premis,linkingEventIdentifier_values, agentId ):
     csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
     if os.path.isfile(csv_file):
         read_object = open(csv_file)
@@ -111,12 +111,15 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     if not agentVersion_value == '':
         agentVersion                = create_unit(4,agent,'agentVersion')
         agentVersion.text           = agentVersion_value
-    linkingEventIdentifier      = create_unit(6,agent,'linkingEventIdentifier')
     agentIdType.text            = agentIdType_value
     agentIdValue.text           = agentIdValue_value
     agentType.text              = agentType_value
-
-    linkingEventIdentifier.text = linkingEventIdentifier_value
+    for event_link in linkingEventIdentifier_values:
+        linkingEventIdentifier      = create_unit(6,agent,'linkingEventIdentifier')
+        linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingAgentIdentifierType')
+        linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingAgentIdentifierValue')
+        linkingEventIdentifierValue.text = event_link
+        linkingEventIdentifierType.text = 'UUID'
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
 
