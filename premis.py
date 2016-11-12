@@ -107,7 +107,6 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     if not agentNote_value == '':
         agentNote                   = create_unit(5,agent,'agentNote')
         agentNote.text              = agentNote_value
-
     agentType                   = create_unit(3,agent,'agentType')
     if not agentVersion_value == '':
         agentVersion                = create_unit(4,agent,'agentVersion')
