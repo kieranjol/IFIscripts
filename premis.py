@@ -165,7 +165,7 @@ def main():
 
 def setup_xml(source_file):
     premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/metadata' '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
-    namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:revtmd="http://nwtssite.nwts.nara/schema/" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
+    namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
     premis_namespace    = "http://www.loc.gov/premis/v3"
     xsi_namespace       = "http://www.w3.org/2001/XMLSchema-instance"
 
@@ -201,16 +201,18 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         object_identifier_filmographic_reference_value.text     = items['filmographic']
         objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0])
-        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1])
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2])
+        # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a')
 
-def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier):
+def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence):
         relationship                                            = create_unit(4,object_parent, 'relationship')
         representationrelatedObjectIdentifierType               = create_unit(2,relationship, 'relatedObjectIdentifierType')
         representationrelatedObjectIdentifierValue              = create_unit(3,relationship,'relatedObjectIdentifierValue')
-        relatedObjectSequence                                   = create_unit(4,relationship,'relatedObjectSequence')
-        relatedObjectSequence.text                              = '1'
+        if root_sequence == 'root_sequence':
+            relatedObjectSequence                                   = create_unit(4,relationship,'relatedObjectSequence')
+            relatedObjectSequence.text                              = '1'
         relationshipType                                        = create_unit(0,relationship, 'relationshipType')
         relationshipType.text                                   = relationshiptype
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
