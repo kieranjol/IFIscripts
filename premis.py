@@ -103,16 +103,20 @@ def make_agent(premis,linkingEventIdentifier_value, agentId ):
     agentIdType                 = create_unit(2,agentIdentifier,'agentIdentifierType')
     agentIdValue                = create_unit(2,agentIdentifier,'agentIdentifierValue')
     agentName                   = create_unit(2,agent,'agentName')
+    agentName.text              = agentName_value
+    if not agentNote_value == '':
+        agentNote                   = create_unit(5,agent,'agentNote')
+        agentNote.text              = agentNote_value
+
     agentType                   = create_unit(3,agent,'agentType')
-    agentVersion                = create_unit(4,agent,'agentVersion')
-    agentNote                   = create_unit(5,agent,'agentNote')
+    if not agentVersion_value == '':
+        agentVersion                = create_unit(4,agent,'agentVersion')
+        agentVersion.text           = agentVersion_value
     linkingEventIdentifier      = create_unit(6,agent,'linkingEventIdentifier')
     agentIdType.text            = agentIdType_value
     agentIdValue.text           = agentIdValue_value
-    agentName.text              = agentName_value
     agentType.text              = agentType_value
-    agentVersion.text           = agentVersion_value
-    agentNote.text              = agentNote_value
+
     linkingEventIdentifier.text = linkingEventIdentifier_value
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
@@ -224,7 +228,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     video_files         = get_input(source_file)
     mediainfo_counter   = 1
 
-    
+
     rep_counter = 0
     for image in video_files:
         object_parent                                           = create_unit(mediainfo_counter,premis, 'object')
