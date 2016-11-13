@@ -39,13 +39,6 @@ def create_unit(index,parent, unitname):
     return unitname
 
 
-def create_hash(filename):
-    md5 = subprocess.check_output(['md5deep', filename])[:32]
-    messageDigestAlgorithm.text = 'md5'
-    messageDigest.text = md5
-    return md5
-
-
 def get_input(filename):
     # Input, either file or firectory, that we want to process.
     input = filename
@@ -171,7 +164,7 @@ def main():
 
 def setup_xml(source_file):
     premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/metadata' '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
-    namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd http://nwtssite.nwts.nara/schema/  " version="3.0"></premis:premis>'
+    namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
     premis_namespace    = "http://www.loc.gov/premis/v3"
     xsi_namespace       = "http://www.w3.org/2001/XMLSchema-instance"
 
@@ -289,6 +282,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
 
         md5_output                              = hashlib_md5(source_file, image)
         messageDigest.text                      = md5_output
+        messageDigestAlgorithm.text             = 'md5'
         mediainfo_counter                       += 1
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
 
