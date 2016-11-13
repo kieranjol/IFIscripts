@@ -12,7 +12,7 @@ table of contents
 3. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
 	* [dcpaccess.py](https://github.com/kieranjol/IFIscripts#dcpaccesspy)
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
-    * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)   
+    * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)
 4. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
     * [moveit.py](https://github.com/kieranjol/IFIscripts#moveitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
@@ -27,6 +27,7 @@ table of contents
 	* [oeremove.py](https://github.com/kieranjol/IFIscripts#oeremovepy)
     * [renumber.py](https://github.com/kieranjol/IFIscripts#renumberpy)
     * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
+    * [batchmetadata.py](https://github.com/kieranjol/IFIscripts#batchmetadata)
 5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
@@ -40,7 +41,7 @@ table of contents
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
 
 ## summary ##
-    
+
 Scripts for use in the IFI Irish Film Archive. Scripts have been tested in OSX/Windows 7 (sometimes windows 10)  and Ubuntu 14.04. The aim is to make cross-platform scripts, but please get in touch with any issues. It is best to download all scripts, as some of them share code.
 
 Most scripts take either a file or a directory as their input, for example `makeffv1.py filename.mov` or `premis.py path/to/folder_of_stuff`. (It's best to just drag and drop the folder or filename into the terminal)
@@ -50,18 +51,18 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Transcodes ##
 
 ### makeffv1.py ###
-* Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). CSV report is generated which gives details on losslessness and compression ratio. 
+* Transcodes to FFV1.mkv and performs framemd5 validation. Accepts single files or directories (all video files in a directory will be processed). CSV report is generated which gives details on losslessness and compression ratio.
 * Usage for single file - `makeffv1.py filename.mov`
-* Usage for batch processing all videos in a directory - `makeffv1.py directory_name` 
+* Usage for batch processing all videos in a directory - `makeffv1.py directory_name`
 
 ### bitc.py ###
 * Create timecoded/watermarked h264s for single files or a batch process.
 * Usage for single file - `bitc.py filename.mov`
 * Usage for batch processing all videos in a directory - `bitc.py directory_name`
-* This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `bitc.py -h` to see all options  
+* This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `bitc.py -h` to see all options
 
 ### prores.py ###
-* Transcode to prores.mov for single/multiple files. 
+* Transcode to prores.mov for single/multiple files.
 * Usage for single file - `prores.py filename.mov`
 * Usage for batch processing all videos in a directory - `prores.py directory_name`
 * This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `prores.py -h` to see all options
@@ -69,7 +70,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Digital Cinema Package Scripts ##
 
 ### dcpaccess.py ###
-* Create h264 (default)  or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop. 
+* Create h264 (default)  or prores transcodes (with optional subtitles) for unencrypted, single/multi reel Interop/SMPTE DCPs. The script will search for all DCPs in subdirectories, process them one at a time and export files to your Desktop.
 * Usage: `dcpaccess.py dcp_directory`
 * Use `-p` for prores output, and use `-hd` to rescale to 1920:1080 while maintaining the aspect ratio.
 * Dependencies: ffmpeg must be compiled with libopenjpeg -  `brew install ffmpeg --with-openjpeg`.
@@ -88,20 +89,20 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Fixity Scripts ##
 
 ### moveit.py ###
-* Copies a directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories. 
-* Usage: ` moveit.py source_dir destination_dir` 
+* Copies a directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories.
+* Usage: ` moveit.py source_dir destination_dir`
 * Dependencies:  OSX requires gcp - `brew install coreutils`
 
 ### manifest.py ###
 * Creates relative md5 checksum manifest of a directory.
-* Usage: ` manifest.py directory` 
+* Usage: ` manifest.py directory`
 
 ### sha512deep.py ###
 * Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now. name is a play on the hashdeep toolset.
-* Usage: ` sha512deep.py directory` 
+* Usage: ` sha512deep.py directory`
 
 ### validate.py ###
-* Validate md5 sidecar manifest. Currently the script expects two spaces between the checksum and the filename. 
+* Validate md5 sidecar manifest. Currently the script expects two spaces between the checksum and the filename.
 * Usage: ` validate.py /path/to/manifest.md5`
 
 ### batchfixity.py ###
@@ -112,7 +113,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### makedpx.py ###
 * Transcode TIFFs losslessly to DPX. Processess all sequeneces in every subdirectory. WARNING - Currently relies on a local config file - soon to be removed!
-* Framemd5s of source and output are created and verified for losslessness. 
+* Framemd5s of source and output are created and verified for losslessness.
 * Whole file manifest is created for all files.
 * Usage: `makedpx.py parent_folder` - generally we have 10 sequences in subfolders, so we pass the parent folder as input.
 
@@ -130,7 +131,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage - `seq2prores.py directory`
 
 ### seq.py ###
-* Transcodes a TIFF sequence to 24fps v210 in a MOV container. 
+* Transcodes a TIFF sequence to 24fps v210 in a MOV container.
 * Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
 
 ### playerseq.py ###
@@ -142,12 +143,16 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage - `oeremove.py directory`.
 
 ### renumber.py ###
-* Renames TIFF files in an image sequence so that they start from ZERO (000000) 
+* Renames TIFF files in an image sequence so that they start from ZERO (000000)
 * Usage - `renumber.py directory`
 
 ### seq2dv.py ###
 * Transcodes a TIFF sequence to 24fps 720x576 DV in a MOV container.
 * Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
+
+### batchmetadata.py ###
+* Traverses through subdirectories trying to find DPX and TIFF files and creates mediainfo and mediatrace XML files.
+Usage: `batchmetadata.py path/to/parent_directory` and output will be stored in the parent directory.
 
 ## Quality Control ##
 
@@ -159,12 +164,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Specific Workflows ##
 
 ### rawaudio.py ###
-* Performs various preservation actions on a WAV file produced from a film scan: 
+* Performs various preservation actions on a WAV file produced from a film scan:
     * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
 * Usage: `rawaudio.py wav_filename.wav`
 
 ### treatedaudio.py ###
-* Performs various preservation actions on a restored WAV file produced from a film scan: 
+* Performs various preservation actions on a restored WAV file produced from a film scan:
     * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
 * Usage: `treatedaudio.py wav_filename.wav`
 
