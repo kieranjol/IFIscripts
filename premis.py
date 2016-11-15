@@ -116,7 +116,7 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
 
-def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier):
+def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier, eventLinkingObjectRole):
         premis_namespace                    = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
@@ -142,7 +142,7 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         linkingObjectIdentifierValue.text   = eventLinkingObjectIdentifier
         linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
         linkingObjectIdentifierType.text    = 'UUID'
-        linkingObjectRole.text              = 'source'
+        linkingObjectRole.text              = eventLinkingObjectRole
         for i in agentlist:
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType          = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
@@ -201,11 +201,11 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence', 'UUID')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a', 'UUID')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'IFI Irish Film Archive Accessions Register')
 
-def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence):
+def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
         relationship                                            = create_unit(4,object_parent, 'relationship')
         representationrelatedObjectIdentifierType               = create_unit(2,relationship, 'relatedObjectIdentifierType')
         representationrelatedObjectIdentifierValue              = create_unit(3,relationship,'relatedObjectIdentifierValue')
@@ -216,7 +216,7 @@ def representation_relationship(object_parent, premisxml, items, relationshiptyp
         relationshipType.text                                   = relationshiptype
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text                                = relationshipsubtype
-        representationrelatedObjectIdentifierType.text          = 'UUID'
+        representationrelatedObjectIdentifierType.text          = linkingtype
         representationrelatedObjectIdentifierValue.text          = linking_identifier
 
 def create_object(source_file, items, premis, premis_namespace, premisxml, representation_uuid, sequence):
