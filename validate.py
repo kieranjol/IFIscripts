@@ -4,10 +4,10 @@ import hashlib
 import os
 import logging
 import argparse
+import time
+from ififuncs import make_desktop_logs_dir
 
-root = logging.getLogger()
-logging.basicConfig(filename='myapp.log', filemode='a',level=logging.INFO)
-#root.setLevel(logging.DEBUG)
+
 
 def hashlib_md5(filename):
    m = hashlib.md5()
@@ -94,6 +94,12 @@ def check_manifest(input):
 def main():
     parser = make_parser()
     args = parser.parse_args()
+    desktop_logs_dir = make_desktop_logs_dir()
+    log_name_source_ = os.path.basename(args.input) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+    log = "%s/%s_fixity_validation.log" % (desktop_logs_dir, log_name_source_)
+    root = logging.getLogger()
+    logging.basicConfig(filename=log, filemode='a',level=logging.INFO)
+    #root.setLevel(logging.DEBUG)
     check_manifest(args.input)
 if __name__ == '__main__':
    main()
