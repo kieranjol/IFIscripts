@@ -61,6 +61,7 @@ def validate(manifest_dict, manifest,missing_files):
     logging.info('Started')
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
+    error_list = []
     for i in manifest_dict:
         print 'Validating %s' % i
         current_hash = hashlib_md5(i)
@@ -69,14 +70,18 @@ def validate(manifest_dict, manifest,missing_files):
         else:
             print '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
             logging.info('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
+            error_list.append('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
             error_counter += 1
     if error_counter > 0:
-        print 'The number of mismatched checksums is: %s' % error_counter
+        print '\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter
         logging.info('The number of mismatched checksums is: %s' %  error_counter)
+        print '***** List of mismatched files*****'
+        for i in error_list:
+            print i
     elif error_counter == 0:
         if missing_files > 0:
-            print 'The number of missing files: %s' % missing_files
-            logging.info('The number of mismatched checksums is: %s' %  missing_files)
+            print '\n*****ERRORS!!!!***********\nThe number of missing files: %s\n***********\n' % missing_files
+            logging.info('\n***********ERRORS!!!!*****\nThe number of mismatched checksums is: %s\n***********\n' %  missing_files)
         elif missing_files == 0:
             print 'All checksums have validated'
             logging.info('All checksums have validated')
