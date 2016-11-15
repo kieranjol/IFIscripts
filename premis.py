@@ -109,8 +109,8 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
     agentType.text              = agentType_value
     for event_link in linkingEventIdentifier_values:
         linkingEventIdentifier      = create_unit(6,agent,'linkingEventIdentifier')
-        linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingAgentIdentifierType')
-        linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingAgentIdentifierValue')
+        linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierType')
+        linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierValue')
         linkingEventIdentifierValue.text = event_link
         linkingEventIdentifierType.text = 'UUID'
     agent_info                  = [agentIdType_value,agentIdValue_value]
@@ -167,7 +167,7 @@ def setup_xml(source_file):
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
     premis_namespace    = "http://www.loc.gov/premis/v3"
     xsi_namespace       = "http://www.w3.org/2001/XMLSchema-instance"
-
+    print premisxml
     if os.path.isfile(premisxml):
         print 'looks like premis already exists?'
         parser      = ET.XMLParser(remove_blank_text=True)
