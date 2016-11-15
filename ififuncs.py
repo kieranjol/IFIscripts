@@ -18,7 +18,7 @@ from email.mime.text import MIMEText
 import csv
 
 def diff_textfiles(source_textfile, other_textfile):
-    if filecmp.cmp(source_textfile, other_textfile, shallow=False): 
+    if filecmp.cmp(source_textfile, other_textfile, shallow=False):
         print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
         return 'lossless'
 
@@ -37,19 +37,19 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
 
 
 def make_qctools(input):
-   
-    qctools_args = ['ffprobe', '-f', 'lavfi', '-i',] 
-    qctools_args += ["movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1:round=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1,astats=metadata=1:reset=1:length=0.4[out1]" % input] 
+
+    qctools_args = ['ffprobe', '-f', 'lavfi', '-i',]
+    qctools_args += ["movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1:round=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1,astats=metadata=1:reset=1:length=0.4[out1]" % input]
     qctools_args += ['-show_frames', '-show_versions', '-of', 'xml=x=1:q=1', '-noprivate']
     print qctools_args
     qctoolsreport = subprocess.check_output(qctools_args)
     return qctoolsreport
-   
+
 def write_qctools_gz(qctoolsxml, sourcefile):
     with open(qctoolsxml, "w+") as fo:
         fo.write(make_qctools(sourcefile))
-    subprocess.call(['gzip', qctoolsxml]) 
-    
+    subprocess.call(['gzip', qctoolsxml])
+
 def get_audio_stream_count():
     audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
     return len(audio_stream_count)
@@ -65,7 +65,7 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
     fileToSend = attachment
     username = email_address
     password = password
-    
+
 
     msg = MIMEMultipart()
     msg["From"]    = emailfrom
@@ -104,16 +104,16 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
 
     server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
     server_ssl.ehlo() # optional, called by login()
-    server_ssl.login(username, password)  
-    # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
+    server_ssl.login(username, password)
+    # ssl server doesn't support or need tls, so don't call server_ssl.starttls()
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
     print msg.as_string()
     #server_ssl.quit()
     server_ssl.close()
     print 'successfully sent the mail'
-        
+
 def frames_to_seconds(audio_entry_point):
-    audio_frame_count  = float(audio_entry_point) 
+    audio_frame_count  = float(audio_entry_point)
     audio_frame_count  = float(audio_frame_count) / 24.000 # Change to EditRate variable.
     audio_frame_count  = round(audio_frame_count, 3)
     return audio_frame_count
@@ -183,12 +183,12 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
     if not os.path.isfile(manifest_textfile):
-        
+
         manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
         manifest_list = manifest_generator.splitlines()
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
-        manifest_list = sorted(manifest_list,  key=lambda x:(x[34:])) 
+        manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
         with open(manifest_textfile,"wb") as fo:
             for i in manifest_list:
                 fo.write(i + '\n')
@@ -223,7 +223,7 @@ def manifest_file_count(manifest2check):
             manifest_lines = [line.split(',') for line in fo.readlines()]
             count_in_manifest =  len(manifest_lines)
     return count_in_manifest
-    
+
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
     try:
@@ -231,8 +231,8 @@ def create_csv(csv_file, *args):
         writer.writerow(*args)
     finally:
         f.close()
-        
-        
+
+
 def append_csv(csv_file, *args):
     f = open(csv_file, 'ab')
     try:
