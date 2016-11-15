@@ -124,6 +124,39 @@ def copy_dir():
         generate_log(log_name_source, 'EVENT = File Transfer - Linux- Software=cp')
         subprocess.call(cmd)
 
+
+def diff_report(file1, file2, log_name_source):
+    with open(file1, 'r') as fo:
+        sourcelist = fo.readlines()
+
+    with open(file2, 'r') as ba:
+        destlist = ba.readlines()
+
+    for i in sourcelist:
+        if i not in destlist:
+            print '%s was expected, but a different value was found in destination manifest' % i.rstrip()
+            generate_log(log_name_source, 'ERROR = %s was expected, but a different value was found in destination manifest' % i.rstrip())
+
+
+def check_extra_files(file1, file2, log_name_source):
+    with open(file1, 'r') as fo:
+        sourcelist = fo.readlines()
+
+    with open(file2, 'r') as ba:
+        destlist = ba.readlines()
+    destlist_files = []
+    sourcelist_files = []
+    for x in destlist:
+        destlist_files.append(x[32:])
+    for y in sourcelist:
+        sourcelist_files.append(y[32:])
+
+    for i in destlist_files:
+        if i not in sourcelist_files:
+            print '%s is in your destination manifest but is not in the source manifest' % i.rstrip()
+            generate_log(log_name_source, 'ERROR = %s is in your destination manifest but is not in the source manifest' % i.rstrip())
+
+
 def check_overwrite(file2check):
     if os.path.isfile(file2check):
         print 'A manifest already exists at your destination. Overwrite? Y/N?'
@@ -314,8 +347,11 @@ else:
         generate_log(log_name_source, 'EVENT = File Transfer Outcome - Failure')
         print ' There are: \n %s files in your destination manifest \n' % files_in_manifest
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
+        diff_report(manifest, manifest_destination, log_name_source)
+        check_extra_files(manifest, manifest_destination, log_name_source)
         generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination,  %s files at source' % (destination_count, source_count))
     else:
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
+
 if args.b:
     display_benchmark()
