@@ -9,6 +9,7 @@ import uuid
 import time
 import uuid
 from glob import glob
+from ififuncs import hashlib_manifest
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
@@ -55,17 +56,6 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
-
-def make_manifest(relative_manifest_path, manifest_textfile):
-    print relative_manifest_path
-    os.chdir(relative_manifest_path)
-    manifest_generator = subprocess.check_output(['md5deep', '-ler', '.'])
-    manifest_list = manifest_generator.splitlines()
-    # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
-    with open(manifest_textfile,"wb") as fo:
-        for i in manifest_list:
-            fo.write(i + '\n')
 
 
 def get_user():
@@ -135,7 +125,7 @@ def process_audio(input, args):
     os.chdir(parent_dir)
     print 'Process %d of %d - Generating manifest' % (process_counter,total_process)
     process_counter += 1
-    make_manifest(root_dir,manifest)
+    hashlib_manifest(root_dir, manifest, root_dir)
     return root_dir, process_counter, total_process, aeo_raw_extract_wav_dir
 
 
@@ -182,13 +172,13 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     operatorAgent                               = make_agent(premis,[scanning_uuid],image_items['user'])
     transcoderMachine                           = make_agent(premis,[capture_received_uuid], '946e5d40-a07f-47d1-9637-def5cb7854ba')
     transcoderMachineOS                         = make_agent(premis,[capture_received_uuid], '192f61b1-8130-4236-a827-a194a20557fe')
-    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, operatorAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], extract_uuid,xml_info[2])
-    make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,xml_info[2])
-    make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,xml_info[2] )
-    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], scanning_uuid,xml_info[2])
-    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2])
-    make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2])
-    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2] )
+    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, operatorAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], extract_uuid,xml_info[2], 'outcome')
+    make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,xml_info[2], 'source')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,xml_info[2], 'source' )
+    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, operatorAgent, scannerPCAgent, scannerLinuxAgent], scanning_uuid,xml_info[2], 'outcome')
+    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, operatorAgent], capture_received_uuid,xml_info[2],'outcome')
+    make_event(premis, 'message digest calculation', '', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2], 'source')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2], 'source' )
     write_premis(doc, premisxml)
 
 def main():
