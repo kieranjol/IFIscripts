@@ -240,3 +240,19 @@ def append_csv(csv_file, *args):
         writer.writerow(*args)
     finally:
         f.close()
+
+
+def make_desktop_manifest_dir():
+    desktop_manifest_dir = os.path.expanduser("~/Desktop/moveit_manifests")
+    if not os.path.isdir(desktop_manifest_dir):
+        #I should probably ask permission here, or ask for alternative location
+        os.makedirs(desktop_manifest_dir)
+    return desktop_manifest_dir
+
+
+def make_desktop_logs_dir():
+    desktop_logs_dir = os.path.expanduser("~/Desktop/ifiscripts_logs")
+    if not os.path.isdir(desktop_logs_dir):
+        #I should probably ask permission here, or ask for alternative location
+        os.makedirs(desktop_logs_dir)
+    return desktop_logs_dir

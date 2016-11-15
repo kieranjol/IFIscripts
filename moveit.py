@@ -11,6 +11,7 @@ import time
 import argparse
 import getpass
 import hashlib
+from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
@@ -178,11 +179,13 @@ destination                    = args.destination # or hardcode
 destination_final_path         = destination + '/%s' % dirname
 manifest_destination = destination + '/%s_manifest.md5' % dirname
 manifest_ =  '/%s_manifest.md5' % dirname
-manifest = os.path.expanduser("~/Desktop/%s") % manifest_
+desktop_manifest_dir = make_desktop_manifest_dir()
+manifest = "%s/%s" % (desktop_manifest_dir, manifest_)
 manifest_sidecar                = source_parent_dir + '/%s_manifest.md5' % relative_path
 manifest_root = source + '/%s_manifest.md5' % os.path.basename(source)
 log_name_source_                = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
-log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
+desktop_logs_dir = make_desktop_logs_dir()
+log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
 log_name_destination           = destination + '/%s_ifi_events_log.log' % dirname        
 generate_log(log_name_source, 'move.py started.') 
 generate_log(log_name_source, 'Source: %s' % source)  
@@ -293,7 +296,7 @@ for root, directories, filenames in os.walk(destination_final_path):
 
 
 if rootpos == 'y':
-    manifest_temp = tempfile.mkstemp(dir=os.path.expanduser("~/Desktop"), suffix='.md5')
+    manifest_temp = tempfile.mkstemp(dir=desktop_manifest_dir, suffix='.md5')
     os.close(manifest_temp[0]) # Needed for windows.
     with open(manifest, 'r') as fo:
         dest_manifest_list = fo.readlines()
