@@ -65,7 +65,8 @@ def validate(manifest_dict, manifest,missing_files):
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
     error_list = []
-    for i in manifest_dict:
+
+    for i in sorted(manifest_dict.keys()):
         print 'Validating %s' % i
         current_hash = hashlib_md5(i)
         if current_hash == manifest_dict[i]:
