@@ -5,6 +5,7 @@ import os
 import logging
 import argparse
 import time
+import getpass
 from ififuncs import make_desktop_logs_dir
 
 
@@ -21,12 +22,14 @@ def hashlib_md5(filename):
    return md5_output
    
 def get_input(manifest):
-    if not manifest.endswith(('.txt', '.md5' )):
-        print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 file'
+    if not manifest.endswith(('.txt', '.md5', '.exf' )):
+        print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.'
         sys.exit()
-    else:
+    elif manifest.endswith('.exf'):
+        print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this.  It will list some missing files but will validate checksums as usual.'
         return manifest
-    
+    else:
+        return manifest    
 
 def parse_manifest(manifest):
     missing_files = 0
@@ -58,7 +61,7 @@ def validate(manifest_dict, manifest,missing_files):
     logging.basicConfig(filename='myapp.log', level=logging.INFO)
     logging.info('Validating %s ' % manifest)
     error_counter = 0
-    logging.info('Started')
+    logging.info('Started at %s using the following workstation: %s' % (time.strftime("%Y-%m-%dT%H:%M:%S "), getpass.getuser()))
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
     error_list = []
