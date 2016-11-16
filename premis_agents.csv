@@ -1,0 +1,101 @@
+agentIdentifierType,agentIdentifierValue,agentName,agentType,agentVersion,agentNote,agentRole
+UUID,0b96a20d-49f5-46e9-950d-4e11242a487e,Brian Cash,person,,,implementer
+UUID,9cab0b9c-4787-4482-8927-a045178c8e39,Gavin Martin,person,,,implementer
+UUID,0b3b7e69-80e1-48ec-bf07-62b04669117d,Kieran O'Leary,person,,,implementer
+UUID,1f4c1369-e9d1-425b-a810-6db1150955ba,P&S Techniks SteadyFrame,hardware,601-0601,12-bit RAW bayer internally transcoded to linear 16-bit RGB TIFF,implementer
+UUID,50602139-104a-46ef-a53c-04fcb538723a,AEO-Light,software,2.1,,executing program
+UUID,ee83e19e-cdb1-4d83-91fb-7faf7eff738e,ffmpeg,software,ffmpeg_autoextract,,executing program
+UUID,11e157a3-1aa7-4195-b816-009a3d47148c,Avid Media Composer,software,8.3.1,,executing program
+UUID,9430725d-7523-4071-9063-e8a6ac4f84c4,hashlib,software,Python 2.7,,implementer
+UUID,b22baa5c-8160-427d-9e2f-b62a7263439d,debian,software,4.0r5,Operating system for ca731b64-638f-4dc3-9d27-0fc14387e38c,implementer
+UUID,9486b779-907c-4cc4-802c-22e07dc1242f,osx,software,10.11.1,,implementer
+UUID,a3bc371f-11fa-4319-a656-1e53c2527552,osx,software,10.11.2,,implementer
+UUID,f2b79d56-dcd7-4f32-8d80-497851a8fd6b,osx,software,10.11.3,,implementer
+UUID,192f61b1-8130-4236-a827-a194a20557fe,Windows 7,software,Service Pack 2,Operating system for 946e5d40-a07f-47d1-9637-def5cb7854ba,implementer
+UUID,9281e196-b691-4f03-a004-0ea2bb032a93,SteadyFrame Transcoder,software,,,implementer
+UUID,b342d3f7-d87e-4fe3-8da5-89e16a30b59e,Raelene Casey,people,,,implementer
+UUID,cb638899-7ade-4a18-9bba-b8b1a20132a7,Dean Kavanagh,people,,,implementer
+UUID,4ad89075-3c57-4391-8961-81c4c91062e6,Anja Mahler,people,,,implementer
+UUID,838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55,Mac Pro,hardware,,,implementer
+UUID,55003bbd-49a4-4c7b-8da2-0d5b9bf10168,ProTools,software,,,implementer
+UUID,ca731b64-638f-4dc3-9d27-0fc14387e38c,Steadyframe Computer,hardware,,Host computer for 1369-e9d1-425b-a810-6db1150955ba,implementer
+UUID,946e5d40-a07f-47d1-9637-def5cb7854ba,HP Z800,hardware,Z800,,implementer
+UUID,230d72da-07e7-4a79-96ca-998b9f7a3e41,mac mini,hardware,,,implementer
+UUID,634edcae-65a7-48b1-9758-bcfbdd12f80b,Aaron Healy,people,,,implementer
+UUID,25cdb926-12b5-4647-bef1-6f9bca3c18bc,Felix Meehan,people,,,implementer
+UUID,642208d9-6f65-4498-998f-9a17379319f9,Eoin O'Donohoe,people,,,implementer
+UUID,68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc,osx,software,10.11.4,,implementer
+,e5872957-8ee8-4c20-bd8e-d76e1de01b34,,,,,
+,8c02d962-5ac5-4e51-a30c-002553134320,,,,,
+,52adf876-bf30-431c-b0c6-80cc4fd9406c,,,,,
+,9e59e772-14b0-4f9e-95b3-b88b6e751c3b,,,,,
+,bc3de900-3903-4764-ab91-2ce89977d0d2,,,,,
+,60ae3a85-b595-45e0-8e4a-b95e90a6c422,,,,,
+,dbdbb06b-ab10-49db-97a1-ff2ad285f9d2,,,,,
+,e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9,,,,,
+,f47b98a2-b879-4786-9f6b-11fc3234a91e,,,,,
+,c5e504ca-b4d5-410f-b87b-4b7ed794e44d,,,,,
+,75a0b9ff-1f04-43bd-aa87-c31b73b1b61c,,,,,
+,c5fc84fc-cc96-42a1-a5be-830b4e3012ae,,,,,
+,be3060a8-6ccf-4339-97d5-a265687c3a5a,,,,,
+,c93ee9a5-4c0c-4670-b857-8726bfd23cae,,,,,
+,5fd99e09-63d7-4e9f-8383-1902f727d2a5,,,,,
+,d13fae39-ac71-446e-88df-96c0d267b26c,,,,,
+,8fac66ac-05de-478c-9d93-c89d46233197,,,,,
+,005d4f57-69a4-40d9-9360-d45ff8e44f64,,,,,
+,acf3de69-f7c2-4010-a96b-e2e5018a43b3,,,,,
+,6d0a4ad3-7dc6-4607-b3bc-a284228e0c73,,,,,
+,8419bfcb-51cb-4ea6-a8b2-e51a9af2e68a,,,,,
+,14b935f1-8a9e-45b7-abf2-2593e89e77fc,,,,,
+,b499818d-aecd-4ad7-bc61-f4fed329b18b,,,,,
+,e37a0f86-816b-416f-8da7-4f5780d80a12,,,,,
+,a3dd197d-ed80-41ff-bb84-f13e79a6e6d6,,,,,
+,6d782410-db75-497b-97a6-c41a0fcc285c,,,,,
+,bfc78799-ddfb-452d-b0ab-bf48c9dbcaa1,,,,,
+,81a11bf9-65c4-4688-ab4a-954dbb1be241,,,,,
+,29db18b3-1a90-4f7e-8432-adbf1ae40507,,,,,
+,1be59fbb-bd99-40a9-8593-94d07f0e89f4,,,,,
+,ee377e44-8635-4bda-a444-f7e632d32096,,,,,
+,175468eb-c087-43b8-8444-222378604a95,,,,,
+,2b45a5a3-1e90-4918-a6aa-41d9a93aef5e,,,,,
+,f98bf550-a3fe-4f66-925e-8944799f930d,,,,,
+,491e18c3-e4e1-4a47-b945-dadb53b565d1,,,,,
+,4ac05527-bc27-4848-9f57-b2dc0820fab4,,,,,
+,aa82e005-3246-4b2c-ba18-61de26a0855a,,,,,
+,3acdc15f-ffd1-4be9-b279-351cb369ec15,,,,,
+,62d87cd8-fc74-4895-b8c1-c2173feae060,,,,,
+,2f68cf72-3fde-4e40-ac7b-ec7e382fbcf8,,,,,
+,8d87bd1c-1936-46ee-ab56-5d571462f9ec,,,,,
+,199f8f98-90d4-4ca1-9d84-bcde93d4b698,,,,,
+,efb8371f-7d46-4f41-9133-011478b4b97a,,,,,
+,b6a7bddf-08a0-46b7-a2b3-09e5fc1ec23b,,,,,
+,f1b47f5f-fa70-42e3-ae39-6c56665e4a30,,,,,
+,88e13b20-ba85-49c0-a8d0-ac32398adf6c,,,,,
+,0ca96616-d585-436e-af3d-7a10202ce1c5,,,,,
+,2178af8e-19e7-43c3-9bcd-24c462853672,,,,,
+,f9e0a990-afc9-4411-bd2a-930f7a521778,,,,,
+,3eec23de-facc-4a5e-a4ed-f8ad34626251,,,,,
+,b924d919-fea5-47b7-8106-eeff86233b3d,,,,,
+,2178d1d3-85be-4bfa-8be1-114a8a17ebbd,,,,,
+,97eb6b34-9eb8-4d18-88a8-1949ef439ccc,,,,,
+,0edd5887-d142-4788-a63f-3a66e861085f,,,,,
+,edb34421-9849-4ed7-8949-32d8ed663e63,,,,,
+,c1a6a2f9-95cb-48e8-8850-654839283eaf,,,,,
+,daab22a7-e2c4-4907-baa4-b527989a6347,,,,,
+,76483b12-8fdf-4814-af6b-e13093224b26,,,,,
+,8492102e-5cef-406e-bf2b-98cb0b89efd1,,,,,
+,4808d33a-5909-4468-bff0-24223d24d0ff,,,,,
+,da95cce2-5bf2-41f1-9262-89624d52f4c7,,,,,
+,2404f843-888e-41fc-aca0-e2111d3567cb,,,,,
+,4eb2a923-4cd9-47db-984a-e514b16c0dc8,,,,,
+,d7680749-b04c-473f-a543-f0982dc8ad01,,,,,
+,30ff2e04-3435-43f4-b705-eeec2ccbb146,,,,,
+,d02a678c-fdd5-4c4c-a844-1dee97d14f6c,,,,,
+,9778988b-aa29-45ec-addb-db740a4c4f7d,,,,,
+,7659dcaf-3f31-4f91-ad89-d0b3cabeecc3,,,,,
+,093c801b-bf3d-41c9-89e3-c30802b6324a,,,,,
+,ad041690-366d-489c-8cbd-8e82b4553844,,,,,
+,f9fd82a0-dcaf-40ae-81ec-c448c66710ad,,,,,
+,f8e5a21d-5eb4-43e0-8af1-74c47f272537,,,,,
+,6d2d3230-5cd8-4c16-bf97-1a771be54fb9,,,,,
+,59d8bf83-0189-4302-8710-2db7ce995bcb,,,,,

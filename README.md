@@ -28,6 +28,7 @@ table of contents
     * [renumber.py](https://github.com/kieranjol/IFIscripts#renumberpy)
     * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
     * [batchmetadata.py](https://github.com/kieranjol/IFIscripts#batchmetadata)
+	* [batchrename.py](https://github.com/kieranjol/IFIscripts#batchrename)
 5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
@@ -152,7 +153,11 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### batchmetadata.py ###
 * Traverses through subdirectories trying to find DPX and TIFF files and creates mediainfo and mediatrace XML files.
-Usage: `batchmetadata.py path/to/parent_directory` and output will be stored in the parent directory.
+* Usage: `batchmetadata.py path/to/parent_directory` and output will be stored in the parent directory.
+
+### batchrename.py ###
+* Renames TIFF files in an image sequence except for numberic sequence and file extension.
+* Usage - `batchrename.py directory` - enter new filename when prompted
 
 ## Quality Control ##
 
