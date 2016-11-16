@@ -21,10 +21,10 @@ UUID,55003bbd-49a4-4c7b-8da2-0d5b9bf10168,ProTools,software,,,implementer
 UUID,ca731b64-638f-4dc3-9d27-0fc14387e38c,Steadyframe Computer,hardware,,Host computer for 1369-e9d1-425b-a810-6db1150955ba,implementer
 UUID,946e5d40-a07f-47d1-9637-def5cb7854ba,HP Z800,hardware,Z800,,implementer
 UUID,230d72da-07e7-4a79-96ca-998b9f7a3e41,mac mini,hardware,,,implementer
-UUID,634edcae-65a7-48b1-9758-bcfbdd12f80b,Aaron Healy,people,,,
-UUID,25cdb926-12b5-4647-bef1-6f9bca3c18bc,Felix Meehan,people,,,
-UUID,642208d9-6f65-4498-998f-9a17379319f9,Eoin O'Donohoe,people,,,
-,68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc,,,,,
+UUID,634edcae-65a7-48b1-9758-bcfbdd12f80b,Aaron Healy,people,,,implementer
+UUID,25cdb926-12b5-4647-bef1-6f9bca3c18bc,Felix Meehan,people,,,implementer
+UUID,642208d9-6f65-4498-998f-9a17379319f9,Eoin O'Donohoe,people,,,implementer
+UUID,68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc,osx,software,10.11.4,,implementer
 ,e5872957-8ee8-4c20-bd8e-d76e1de01b34,,,,,
 ,8c02d962-5ac5-4e51-a30c-002553134320,,,,,
 ,52adf876-bf30-431c-b0c6-80cc4fd9406c,,,,,
