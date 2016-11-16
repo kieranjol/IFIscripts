@@ -186,12 +186,14 @@ def main():
     parser = make_parser()
     args = parser.parse_args()
     input = args.input
-    if not input.endswith('.wav'):
-       print 'This script accepts a WAV file contained in a very specific folder path as input.\nExiting'
-       sys.exit()
     user = get_user()
-    root_dir, process_counter, total_process, aeo_raw_extract_wav_dir = process_audio(input, args)
-    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user)
+    for root, dirnames, filenames in os.walk(input):
+        for files in filenames:
+            if files.endswith('.wav'):
+                root_dir, process_counter, total_process, aeo_raw_extract_wav_dir = process_audio(os.path.join(root,files), args)
+                premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user)
+            else:
+                continue
 
 if __name__ == '__main__':
     main()
