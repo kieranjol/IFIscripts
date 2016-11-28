@@ -95,6 +95,8 @@ def process_audio(input, args):
     logs_dir = 'logs/audio'
     aeo_raw_extract_wav_dir = root_dir + '/objects/audio'
     framemd5 = metadata_dir + '/' + os.path.basename(input) +'.framemd5'
+    if os.path.isfile(framemd5):
+        return 'x', 'x', 'x', 'x'
     logfile = logs_dir + '/%s_framemd5.log' % os.path.basename(input)
     process_counter = 1
     print 'Process %d of %d - Logfile of framemd5 ffmpeg process located in %s/%s' % (process_counter,total_process, root_dir, logfile)
@@ -191,7 +193,10 @@ def main():
         for files in filenames:
             if files.endswith('.wav'):
                 root_dir, process_counter, total_process, aeo_raw_extract_wav_dir = process_audio(os.path.join(root,files), args)
-                premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user)
+                if total_process == 'x':
+                    continue
+                else:
+                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user)
             else:
                 continue
 
