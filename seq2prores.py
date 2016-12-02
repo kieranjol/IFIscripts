@@ -36,10 +36,13 @@ def get_filenames(directory, log_filename_alteration):
     images.sort()
     mediainfo_xml = '%s/%s_mediainfo.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
     mediatrace_xml = '%s/%s_mediatrace.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
-    print 'Creating mediainfo XML for %s' % images[0]
-    make_mediainfo(mediainfo_xml, 'mediaxmloutput', images[0])
-    print 'Creating mediatrace XML for %s' % images[0]
-    make_mediatrace(mediatrace_xml, 'mediatracexmlinput', images[0])
+    
+    if not os.path.isfile(mediainfo_xml):
+        print 'Creating mediainfo XML for %s' % images[0]
+        make_mediainfo(mediainfo_xml, 'mediaxmloutput', images[0])
+    if not os.path.isfile(mediatrace_xml):
+        print 'Creating mediatrace XML for %s' % images[0]    
+        make_mediatrace(mediatrace_xml, 'mediatracexmlinput', images[0])
     if '864000' in images[0]:
         start_number = '864000'
     elif len(images[0].split("_")[-1].split(".")) > 2:
@@ -92,7 +95,10 @@ def remove_bad_files(root_dir):
 
 
 def main():
-    csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+    desktop_logdir = os.path.expanduser("~/Desktop/") + 'seq_csv_reports'
+    if not os.path.isdir(desktop_logdir):
+        os.makedirs(desktop_logdir)
+    csv_report_filename = desktop_logdir + '/dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
     source_directory = sys.argv[1]
     create_csv(csv_report_filename, ('Sequence Name', 'Start time', 'Finish Time'))
