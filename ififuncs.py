@@ -30,7 +30,7 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
   with open(xmlfilename, "w+") as fo:
   	xmlvariable = subprocess.check_output(['mediainfo',
   						'-f',
-  						'--language=raw', # Use verbose output.
+  						'--language=raw','--File_TestContinuousFileNames=0', # Use verbose output.
   						'--output=XML',
   						inputfilename])       #input filename
   	fo.write(xmlvariable)
@@ -200,7 +200,7 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
     with open(tracefilename, "w+") as fo:
         xmlvariable = subprocess.check_output(['mediainfo',
                         '-f',
-                        '--Details=1', # Use verbose output.
+                        '--Details=1','--File_TestContinuousFileNames=0', # Use verbose output.
                         '--output=XML',
                         inputfilename])       #input filename
         fo.write(xmlvariable)

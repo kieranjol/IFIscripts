@@ -34,7 +34,12 @@ def get_filenames(directory, log_filename_alteration):
     else:
         return 'none'
     images.sort()
-
+    mediainfo_xml = '%s/%s_mediainfo.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
+    mediatrace_xml = '%s/%s_mediatrace.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
+    print 'Creating mediainfo XML for %s' % images[0]
+    make_mediainfo(mediainfo_xml, 'mediaxmloutput', images[0])
+    print 'Creating mediatrace XML for %s' % images[0]
+    make_mediatrace(mediatrace_xml, 'mediatracexmlinput', images[0])
     if '864000' in images[0]:
         start_number = '864000'
     elif len(images[0].split("_")[-1].split(".")) > 2:
@@ -134,10 +139,10 @@ def main():
             # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
             logfile = "\'" + logfile + "\'"
             env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
+            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
             print seq2prores
             subprocess.call(seq2prores,env=env_dict)
-            inputxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
+            mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
             tracexml =  "%s/%s_mediatrace.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
             audio_mediainfoxml = "%s/%s_mediainfo.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
             audio_mediatracexml = "%s/%s_mediatrace.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
@@ -145,8 +150,8 @@ def main():
                 make_mediainfo(audio_mediainfoxml,'audiomediaxmlinput',master_audio)
             if not os.path.isfile(audio_mediatracexml):
                 make_mediainfo(audio_mediatracexml,'audiomediatraceinput',master_audio)
-            if not os.path.isfile(inputxml):
-                make_mediainfo(inputxml,'mediaxmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
+            if not os.path.isfile(mezzanine_mediainfoxml):
+                make_mediainfo(mezzanine_mediainfoxml,'mediaxmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
             if not os.path.isfile(tracexml):
                 make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
             hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
