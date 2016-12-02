@@ -135,7 +135,7 @@ parser.add_argument('destination', help='Destination directory')
 
 args                 = parser.parse_args()
 source_directory     = args.source_directory
-destination         e = args.destination # or hardcode
+destination          = args.destination # or hardcode
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time', 'Transcode Start Time', 'Transcode Finish Time','Transcode Time', 'Frame Count', 'Encode FPS','Sequence Size', 'FFV1 Size','Pixel Format', 'Sequence Type','Width','Height','Compression Ratio'))
 for root,dirnames,filenames in os.walk(source_directory):
         source_directory = root # + '/tiff_scans'
