@@ -134,7 +134,7 @@ def main():
             # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
             logfile = "\'" + logfile + "\'"
             env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', '-an', 'framemd5', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
+            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','copy', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
             print seq2prores
             subprocess.call(seq2prores,env=env_dict)
             inputxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
