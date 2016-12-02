@@ -9,6 +9,7 @@ import time
 from ififuncs import generate_log
 from ififuncs import manifest_file_count
 from ififuncs import make_manifest
+from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir
 
 
 def remove_bad_files(root_dir):
@@ -39,9 +40,13 @@ if args.s:
     manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
 else:
     manifest_ =  '/%s_manifest.md5' % relative_path
-    manifest = os.path.expanduser("~/Desktop/%s") % manifest_
-log_name_source_                = os.path.basename(args.source) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-log_name_source = os.path.expanduser("~/Desktop/%s.log") % log_name_source_
+    desktop_manifest_dir = make_desktop_manifest_dir()
+    manifest = "%s/%s" % (desktop_manifest_dir, manifest_)
+
+log_name_source_                = os.path.basename(args.source)  + time.strftime("_%Y_%m_%dT%H_%M_%S")
+desktop_logs_dir = make_desktop_logs_dir()
+log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
+
 
 generate_log(log_name_source, 'move.py started.') 
 generate_log(log_name_source, 'Source: %s' % source)  
