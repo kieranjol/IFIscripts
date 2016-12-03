@@ -179,7 +179,7 @@ def setup_xml(source_file):
     return premisxml, premis_namespace, doc, premis
 
 
-def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid):
+def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence):
         object_parent = create_unit(0, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid                                  = create_unit(0,object_parent, 'objectIdentifier')
@@ -201,7 +201,9 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence', 'UUID')
+        if sequence == 'sequence':
+            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence', 'UUID')
+
         representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a', 'UUID')
         representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'IFI Irish Film Archive Accessions Register')
 
@@ -248,8 +250,10 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         file_uuid                                               = str(uuid.uuid4())
         object_identifier_uuid_value.text                       = file_uuid
+
         if rep_counter == 0:
             root_uuid = file_uuid
+
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
@@ -287,7 +291,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
 
     doc                 = ET.ElementTree(premis)
-    xml_info                                    = [doc, premisxml, root_uuid]
+    xml_info                                    = [doc, premisxml, root_uuid,sequence]
     return xml_info
 
 
