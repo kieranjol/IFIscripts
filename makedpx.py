@@ -62,6 +62,7 @@ def make_framemd5(directory, container, log_filename_alteration):
     except: OSError
 
     output = output_dirname + '/image/md5/%s%s.framemd5' % (ffmpeg_friendly_name,container)
+
     logfile = output_dirname + '/image/logs/%s%s.log' % (ffmpeg_friendly_name, log_filename_alteration)
 
     env_dict = set_environment(logfile)
@@ -94,6 +95,35 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
+
+def premis_log(source_parent_dir, source_directory):
+    split_list = os.path.basename(os.path.dirname(source_parent_dir)).split('_')
+    premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
+    items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
+    premis = doc.getroot()
+    framemd5_uuid                               = str(uuid.uuid4())
+    final_sip_manifest_uuid                              = str(uuid.uuid4())
+    a = doc.xpath('//ns:agentIdentifierValue',namespaces={'ns': premis_namespace})
+    for i in a:
+        if i.text == '9430725d-7523-4071-9063-e8a6ac4f84c4':
+            linkingEventIdentifier      = create_unit(-1,i.getparent().getparent(),'linkingEventIdentifier')
+            linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierType')
+            linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierValue')
+            linkingEventIdentifierValue.text = final_sip_manifest_uuid
+            linkingEventIdentifierType.text = 'UUID'
+        elif i.text == 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e':
+            linkingEventIdentifier      = create_unit(-1,i.getparent().getparent(),'linkingEventIdentifier')
+            linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierType')
+            linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierValue')
+            linkingEventIdentifierValue.text = framemd5_uuid
+            linkingEventIdentifierType.text = 'UUID'
+    representation_uuid  = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': premis_namespace})[0].text
+    #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of images', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]], framemd5_uuid, representation_uuid, 'source' )
+    write_premis(doc, premisxml)
+
+
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 dpxconfig = os.path.expanduser("~/Desktop/") + 'make_dpx_config.txt'
 with open(dpxconfig, 'r') as fo:
@@ -175,39 +205,12 @@ for source_directory in all_files:
             judgement = diff_textfiles(source_textfile, other_textfile)
             generate_log(general_log, 'Outcome of transcode was:  %s' % judgement)
             make_manifest(output_parent_directory, os.path.basename(output_dirname), manifest_textfile)
+            source_metadata_dir = root_dir + '/metadata/image'
+            shutil.copy(source_textfile, source_metadata_dir + '/%s' % os.path.basename(source_textfile))
             finish = datetime.datetime.now()
             '''
             begin premis
             '''
-            split_list = os.path.basename(os.path.dirname(source_parent_dir)).split('_')
-            premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
-            items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
-            premis = doc.getroot()
-            framemd5_uuid                               = str(uuid.uuid4())
-            final_sip_manifest_uuid                              = str(uuid.uuid4())
-            a = doc.xpath('//ns:agentIdentifierValue',namespaces={'ns': premis_namespace})
-            for i in a:
-                if i.text == '9430725d-7523-4071-9063-e8a6ac4f84c4':
-                    linkingEventIdentifier      = create_unit(-1,i.getparent().getparent(),'linkingEventIdentifier')
-                    linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierType')
-                    linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierValue')
-                    linkingEventIdentifierValue.text = final_sip_manifest_uuid
-                    linkingEventIdentifierType.text = 'UUID'
-                elif i.text == 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e':
-                    linkingEventIdentifier      = create_unit(-1,i.getparent().getparent(),'linkingEventIdentifier')
-                    linkingEventIdentifierType = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierType')
-                    linkingEventIdentifierValue = create_unit(1,linkingEventIdentifier, 'linkingEventIdentifierValue')
-                    linkingEventIdentifierValue.text = framemd5_uuid
-                    linkingEventIdentifierType.text = 'UUID'
+            premis_log(source_parent_dir, source_directory)
 
-
-
-
-            representation_uuid  = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': premis_namespace})[0].text
-            #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source')
-            make_event(premis, 'message digest calculation', 'Frame level checksums of images', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]], framemd5_uuid, representation_uuid, 'source' )
-            write_premis(doc, premisxml)
-            print premisxml
             append_csv(csv_report_filename, (parent_basename,judgement, start, finish))
-    #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
