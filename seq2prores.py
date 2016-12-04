@@ -8,13 +8,21 @@ from ififuncs import diff_textfiles
 import datetime
 import time
 import csv
+import uuid
+import lxml.etree as ET
 from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 from ififuncs import hashlib_manifest
 from ififuncs import make_mediainfo
 from ififuncs import make_mediatrace
-
+from premis import make_premis
+from premis import write_premis
+from premis import make_agent
+from premis import make_event
+from premis import setup_xml
+from premis import create_unit
+from premis import create_representation
 
 def set_environment(logfile):
     env_dict = os.environ.copy()
@@ -127,7 +135,7 @@ def main():
             source_manifest =  master_parent_dir + '/' + os.path.basename( master_parent_dir) +  '_manifest.md5'
             mezzanine_manifest =   mezzanine_parent_dir + '/' + os.path.basename( mezzanine_parent_dir) +  '_manifest.md5'
             master_audio =  master_parent_dir + '/objects/audio/' + os.listdir(master_parent_dir + '/objects/audio')[0]
-
+            mezzanine_file =  mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov'
             image_seq_without_container = info[0]
             start_number                = info[1]
             container                   = info[2]
@@ -148,6 +156,29 @@ def main():
             seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
             print seq2prores
             subprocess.call(seq2prores,env=env_dict)
+            representation_uuid = str(uuid.uuid4())
+            split_list = os.path.basename(mezzanine_parent_dir).split('_')
+            user = 'kieran'
+            premisxml, premis_namespace, doc, premis = setup_xml(mezzanine_file)
+            items = {"workflow":"seq2prores","oe":'n/a', "filmographic":split_list[0], "sourceAccession":split_list[1], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
+            premis = doc.getroot()
+            xml_info    = make_premis(mezzanine_file, items, premis, premis_namespace,premisxml, representation_uuid, '????')
+            sequence = xml_info[3]
+
+            linking_representation_uuids = []
+            linking_representation_uuids.append(xml_info[2])
+            linking_representation_uuids.append(xml_info[2])
+            linking_representation_uuids.append(items['sourceAccession'])
+            create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
+            doc         = xml_info[0]
+            premisxml   = xml_info[1]
+            framemd5_uuid                               = str(uuid.uuid4())
+            final_sip_manifest_uuid                              = str(uuid.uuid4())
+            prores_event_uuid = str(uuid.uuid4())
+            #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 44khz 24-bit PCM audio', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]],prores_event_uuid,representation_uuid, 'outcome')
+            write_premis(doc, premisxml)
+            print premisxml
             mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
             tracexml =  "%s/%s_mediatrace.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
             audio_mediainfoxml = "%s/%s_mediainfo.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
@@ -162,8 +193,18 @@ def main():
                 make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
             hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
             hashlib_manifest(mezzanine_parent_dir, mezzanine_manifest, mezzanine_parent_dir)
+            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source')
             finish = datetime.datetime.now()
             append_csv(csv_report_filename, (os.path.basename( master_parent_dir), start, finish))
-
+            '''
+            to create premis you must:
+            1. have a parent folder with oe_filmo_source in folder name
+            2. generate premis object with setup_xml()
+            3. generate a representation uuid4.
+            4. populate a user variable
+            5. use make_premis, passing a file or a folder with sequence
+            6. create a representation and link to file
+            '''
+    #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
 if __name__ == '__main__':
     main()
