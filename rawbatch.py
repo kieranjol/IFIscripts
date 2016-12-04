@@ -142,11 +142,13 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     image_items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
     linking_representation_uuids = []
     xml_info    = make_premis(aeo_raw_extract_wav_dir, audio_items, premis, premis_namespace, premisxml, representation_uuid, 'nosequence')
-    xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
+
     linking_representation_uuids.append(xml_info[2])
+    xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
+
     linking_representation_uuids.append(xml_info[2])
     linking_representation_uuids.append(image_items['sourceAccession'])
-    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid )
+    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
     doc         = xml_info[0]
     premisxml   = xml_info[1]
     premis = doc.getroot()
