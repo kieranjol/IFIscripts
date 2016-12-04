@@ -10,6 +10,8 @@ import pg
 import hashlib
 from collections import OrderedDict
 import csv
+from ififuncs import append_csv
+from ififuncs import create_csv
 
 
 def hashlib_md5(source_file,filename):
@@ -179,6 +181,14 @@ def setup_xml(source_file):
     return premisxml, premis_namespace, doc, premis
 
 
+def representation_uuid_csv(filmographic, source_accession, uuid):
+    uuid_csv = os.path.expanduser('~/Desktop/uuid.csv')
+    print os.path.abspath(uuid_csv)
+    if not os.path.isfile(uuid_csv):
+        create_csv(uuid_csv, ('reference number','source accession number' 'uuid'))
+    append_csv(uuid_csv, (filmographic, source_accession, uuid) )
+
+
 def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence):
         object_parent = create_unit(0, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
@@ -187,6 +197,8 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         object_identifier_uuid_value.text                       = representation_uuid
+        # add uuids to csv so that other workflows can use them as linking identifiers.
+        representation_uuid_csv(items['filmographic'],items['sourceAccession'], representation_uuid)
         object_parent.insert(1,object_identifier_parent)
         ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text                                         = 'IFI Irish Film Archive Object Entry Number'
@@ -202,9 +214,9 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
         if sequence == 'sequence':
-            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence', 'UUID')
+            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[1], 'root_sequence', 'UUID')
 
-        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a', 'UUID')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[0], 'n/a', 'UUID')
         representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'IFI Irish Film Archive Accessions Register')
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
@@ -228,7 +240,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
 
     rep_counter = 0
     for image in video_files:
-        object_parent                                           = create_unit(mediainfo_counter,premis, 'object')
+        object_parent                                           = create_unit(-1,premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
         ob_id_type.text                                         = 'IFI Irish Film Archive Object Entry Number'
