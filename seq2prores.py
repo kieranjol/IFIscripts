@@ -126,17 +126,21 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     image:
     crop in avid
     grade in baselight
-    export from protools
+    export from avid
 
     framemd5 audio
     framemd5 image
     whole md5
 
     '''
-    audio_framemd5_uuid                         = str(uuid.uuid4())
-    premis_checksum_uuid                        = str(uuid.uuid4())
-    framemd5_uuid                               = str(uuid.uuid4())
+    audio_rx5_uuid                              = str(uuid.uuid4())
+    audio_protools_uuid                         = str(uuid.uuid4())
+    image_avid_crop_uuid                                  = str(uuid.uuid4())
+    image_baselight_grade_uuid                       = str(uuid.uuid4())
+    image_export_avid
     package_manifest_uuid                       = str(uuid.uuid4())
+    audio_framemd5_uuid                         = str(uuid.uuid4())
+    image_framemd5_uuid                         = str(uuid.uuid4())
 
     ffmpegAgent_events                          = [framemd5_uuid, audio_framemd5_uuid]
     ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
