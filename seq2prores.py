@@ -126,7 +126,7 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     ffmpegAgent_events                          = [framemd5_uuid, audio_framemd5_uuid]
     ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
     write_premis(doc, premisxml)
-
+    return representation_uuid
 
 def main():
     desktop_logdir = os.path.expanduser("~/Desktop/") + 'seq_csv_reports'
@@ -171,7 +171,7 @@ def main():
             audio_dir            = source_parent_dir + '/audio'
             logs_dir            =  mezzanine_parent_dir + '/logs'
             user = 'kieran'
-            premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
+            source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
 
             os.chdir(audio_dir)
             audio_file_list = glob('*.wav')
@@ -197,7 +197,7 @@ def main():
             linking_representation_uuids = []
             linking_representation_uuids.append(xml_info[2])
             linking_representation_uuids.append(xml_info[2])
-            linking_representation_uuids.append(items['sourceAccession'])
+            linking_representation_uuids.append(source_representation_uuid)
             create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
             doc         = xml_info[0]
             premisxml   = xml_info[1]
