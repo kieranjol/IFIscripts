@@ -98,34 +98,8 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
-def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
-    source_directory = root_dir 
-    
-    representation_uuid = str(uuid.uuid4())
-    premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
-    split_list = os.path.basename(os.path.dirname(os.path.dirname(root_dir))).split('_')
-    audio_items = {"workflow":"treated audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
-    image_items = {"workflow":"grade","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
-    linking_representation_uuids = []
-    xml_info    = make_premis(aeo_raw_extract_wav_dir, audio_items, premis, premis_namespace, premisxml, representation_uuid, 'nosequence')
 
-    linking_representation_uuids.append(xml_info[2])
-    xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
 
-    linking_representation_uuids.append(xml_info[2])
-    linking_representation_uuids.append(image_items['sourceAccession'])
-    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
-    doc         = xml_info[0]
-    premisxml   = xml_info[1]
-    premis = doc.getroot()
-    audio_framemd5_uuid                         = str(uuid.uuid4())
-    premis_checksum_uuid                        = str(uuid.uuid4())
-    framemd5_uuid                               = str(uuid.uuid4())
-    package_manifest_uuid                       = str(uuid.uuid4())
-   
-    ffmpegAgent_events                          = [framemd5_uuid, audio_framemd5_uuid]
-    ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-    write_premis(doc, premisxml)
 
 
 def main():
@@ -153,7 +127,6 @@ def main():
             for files in filenames:
                 total_size += os.path.getsize(os.path.join(root,files))
             master_parent_dir     = os.path.dirname(source_parent_dir)
-            master_object_dir     = master_parent_dir + '/objects/image'
             master_metadata_dir = master_parent_dir + '/' + 'metadata'
             middle =  os.listdir(os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine')[0]
             mezzanine_object_dir            =  os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s/objects' % middle
@@ -170,8 +143,6 @@ def main():
             number_regex = "%0" + str(start_number_length) + 'd.'
             audio_dir            = source_parent_dir + '/audio'
             logs_dir            =  mezzanine_parent_dir + '/logs'
-            user = 'kieran'
-            premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
 
             os.chdir(audio_dir)
             audio_file_list = glob('*.wav')
