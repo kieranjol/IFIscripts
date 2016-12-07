@@ -98,6 +98,8 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
+                    
+                    
 def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     source_directory = root_dir
 
@@ -135,15 +137,45 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     '''
     audio_rx5_uuid                              = str(uuid.uuid4())
     audio_protools_uuid                         = str(uuid.uuid4())
-    image_avid_crop_uuid                                  = str(uuid.uuid4())
-    image_baselight_grade_uuid                       = str(uuid.uuid4())
-    image_export_avid
+    image_avid_crop_uuid                        = str(uuid.uuid4())
+    image_baselight_grade_uuid                  = str(uuid.uuid4())
     package_manifest_uuid                       = str(uuid.uuid4())
     audio_framemd5_uuid                         = str(uuid.uuid4())
     image_framemd5_uuid                         = str(uuid.uuid4())
-
-    ffmpegAgent_events                          = [framemd5_uuid, audio_framemd5_uuid]
+    
+    ffmpegAgent_events                          = [audio_framemd5_uuid , audio_framemd5_uuid]
+    hashlib_events                              = [package_manifest_uuid]
+    avid_events                                 = [image_avid_crop_uuid,image_baselight_grade_uuid]
+    protools_events                             = [audio_protools_uuid]
+    baselight_events                            = [image_baselight_grade_uuid]
+    rx5_events                                  = [audio_rx5_uuid] 
+    macMiniTelecineMachineAgent_events          = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    macMiniTelecineMachineOSAgent_events        = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    macProTelecineMachineOSAgent_events         = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    macProTelecineMachineAgent_events           = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    gavin_events                                = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    brian_events                                = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    
+    macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+    macProTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55')
+    macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
+    macProTelecineOSAgent                      = make_agent(premis,macProTelecineMachineOSAgent_events, '52adf876-bf30-431c-b0c6-80cc4fd9406c')
     ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+    hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
+    avidAgent                                   = make_agent(premis,avid_events, '11e157a3-1aa7-4195-b816-009a3d47148c')
+    protoolsAgent                               = make_agent(premis,protools_events, '55003bbd-49a4-4c7b-8da2-0d5b9bf10168')
+    baselightAgent                              = make_agent(premis,baselight_events, '8c02d962-5ac5-4e51-a30c-002553134320')
+    rx5Agent                                    = make_agent(premis,rx5_events, 'e5872957-8ee8-4c20-bd8e-d76e1de01b34')
+    gavinAgent                                  = make_agent(premis,gavin_events, '9cab0b9c-4787-4482-8927-a045178c8e39')
+    brianAgent                                  = make_agent(premis,brian_events, '0b96a20d-49f5-46e9-950d-4e11242a487e')
+    
+    make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Import to Avid and crop to 2048x1536', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,representation_uuid, 'outcome')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, brianAgent ],image_framemd5_uuid,representation_uuid, 'source')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,brianAgent], package_manifest_uuid,representation_uuid, 'source' )
+    
     write_premis(doc, premisxml)
     return representation_uuid
 
@@ -236,7 +268,7 @@ def main():
             operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
             operatorAgent                               = make_agent(premis,operatorEvents ,items['user'])
             #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 44khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,representation_uuid, 'outcome')
+            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,representation_uuid, 'outcome')
 
             print premisxml
             mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
