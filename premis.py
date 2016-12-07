@@ -78,7 +78,7 @@ def make_premis(source_file, items, premis, premis_namespace, premisxml,represen
 
 
 def make_agent(premis,linkingEventIdentifier_values, agentId ):
-    csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
+    csv_file = os.path.expanduser("~/ifigit/ifiscripts/premis_agents.csv")
     if os.path.isfile(csv_file):
         read_object = open(csv_file)
         reader = csv.reader(read_object)
@@ -89,6 +89,7 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
             if item == agentId:
                 agent_info = lists
     agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value,agentRole = agent_info
+
     if agentVersion_value == 'ffmpeg_autoextract':
         agentVersion_value = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
     premis_namespace            = "http://www.loc.gov/premis/v3"
@@ -239,6 +240,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
 
 
     rep_counter = 0
+    print 'Generating PREMIS metadata about each file object - this may take some time if on a network and/or working with an image sequence'
     for image in video_files:
         object_parent                                           = create_unit(-1,premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
