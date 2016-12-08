@@ -157,9 +157,9 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     brian_events                                = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
     
     macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
-    macProTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55')
+    macProTelecineMachineAgent                  = make_agent(premis,macMiniTelecineMachineAgent_events, '838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55')
     macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
-    macProTelecineOSAgent                      = make_agent(premis,macProTelecineMachineOSAgent_events, '52adf876-bf30-431c-b0c6-80cc4fd9406c')
+    macProTelecineOSAgent                       = make_agent(premis,macProTelecineMachineOSAgent_events, '52adf876-bf30-431c-b0c6-80cc4fd9406c')
     ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
     hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
     avidAgent                                   = make_agent(premis,avid_events, '11e157a3-1aa7-4195-b816-009a3d47148c')
@@ -171,7 +171,7 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     
     make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,representation_uuid, 'outcome')
     make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,representation_uuid, 'outcome')
-    make_event(premis, 'creation', 'Import to Avid and crop to 2048x1536', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Import to Avid and remove overscan', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
     make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,representation_uuid, 'outcome')
     make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, brianAgent ],image_framemd5_uuid,representation_uuid, 'source')
     make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,brianAgent], package_manifest_uuid,representation_uuid, 'source' )
@@ -233,7 +233,7 @@ def main():
             # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
             logfile = "\'" + logfile + "\'"
             env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
+            seq2prores= ['ffmpeg','-y','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5', '-c:a', 'pcm_s24le', '-f', 'framemd5', '-vn', master_metadata_dir + '/audio/' + os.path.basename(master_parent_dir) + '.framemd5']
             print seq2prores
             subprocess.call(seq2prores,env=env_dict)
             representation_uuid = str(uuid.uuid4())
