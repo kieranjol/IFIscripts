@@ -123,7 +123,7 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         premis_namespace                    = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
-        event_Identifier                    = create_unit(1,event,'event_Identifier')
+        event_Identifier                    = create_unit(1,event,'eventIdentifier')
         event_id_type                       = ET.Element("{%s}eventIdentifierType" % (premis_namespace))
         event_Identifier.insert(0,event_id_type)
         event_id_value                      = ET.Element("{%s}eventIdentifierValue" % (premis_namespace))
@@ -136,7 +136,7 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         event_Type.text                     = event_type
         event_id_value.text                 = eventID
         event_id_type.text                  = 'UUID'
-        eventDetailInformation              = create_unit(4,event,'event_DetailInformation')
+        eventDetailInformation              = create_unit(4,event,'eventDetailInformation')
         eventDetail                         = create_unit(0,eventDetailInformation,'eventDetail')
         eventDetail.text                    = event_detail
         linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
@@ -222,8 +222,9 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
         relationship                                            = create_unit(4,object_parent, 'relationship')
-        representationrelatedObjectIdentifierType               = create_unit(2,relationship, 'relatedObjectIdentifierType')
-        representationrelatedObjectIdentifierValue              = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        representationrelatedObjectIdentifier                   = create_unit(2,relationship, 'relatedObjectIdentifier')
+        representationrelatedObjectIdentifierType               = create_unit(2,representationrelatedObjectIdentifier, 'relatedObjectIdentifierType')
+        representationrelatedObjectIdentifierValue              = create_unit(3,representationrelatedObjectIdentifier,'relatedObjectIdentifierValue')
         if root_sequence == 'root_sequence':
             relatedObjectSequence                                   = create_unit(4,relationship,'relatedObjectSequence')
             relatedObjectSequence.text                              = '1'
@@ -286,9 +287,10 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
         relationship                        = create_unit(7,object_parent, 'relationship')
-        relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
+        relatedObjectIdentifier             = create_unit(2,relationship, 'relatedObjectIdentifier')
+        relatedObjectIdentifierType         = create_unit(2,relatedObjectIdentifier , 'relatedObjectIdentifierType')
         relatedObjectIdentifierType.text    = 'UUID'
-        relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relatedObjectIdentifierValue        = create_unit(3,relatedObjectIdentifier ,'relatedObjectIdentifierValue')
         relatedObjectIdentifierValue.text   = representation_uuid
         if sequence == 'sequence':
             relatedObjectSequence               = create_unit(4,relationship,'relatedObjectSequence')
