@@ -218,7 +218,7 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
             representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[1], 'root_sequence', 'UUID')
 
         representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[0], 'n/a', 'UUID')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010 -')
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
         relationship                                            = create_unit(4,object_parent, 'relationship')
@@ -250,7 +250,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         object_identifier_parent.insert(0,ob_id_type)
         object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
         object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
-        object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Object Entry Register '
+        object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
         object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
         object_identifier_filmographic_reference_value.text     = items['filmographic']
         objectCategory                                          = ET.Element("{%s}objectCategory" % (premis_namespace))
