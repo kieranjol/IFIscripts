@@ -183,7 +183,7 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     make_event(premis, 'message digest calculation', 'Whole file checksum of audio created for PREMIS XML', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,xml_info[2], 'source')
     make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,xml_info[2], 'source' )
     make_event(premis, 'message digest calculation', 'Whole file checksums of image created for PREMIS XML', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,xml_info[2], 'source')
-    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], framemd5_uuid,xml_info[2], 'source' )
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent, operatorAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], package_manifest_uuid,xml_info[2], 'source' )
     write_premis(doc, premisxml)
 
 def main():

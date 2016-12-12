@@ -44,12 +44,12 @@ def get_filenames(directory, log_filename_alteration):
     images.sort()
     mediainfo_xml = '%s/%s_mediainfo.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
     mediatrace_xml = '%s/%s_mediatrace.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
-    
+
     if not os.path.isfile(mediainfo_xml):
         print 'Creating mediainfo XML for %s' % images[0]
         make_mediainfo(mediainfo_xml, 'mediaxmloutput', images[0])
     if not os.path.isfile(mediatrace_xml):
-        print 'Creating mediatrace XML for %s' % images[0]    
+        print 'Creating mediatrace XML for %s' % images[0]
         make_mediatrace(mediatrace_xml, 'mediatracexmlinput', images[0])
     if '864000' in images[0]:
         start_number = '864000'
@@ -98,9 +98,89 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
+                    
+                    
+def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
+    source_directory = root_dir
 
+    representation_uuid = str(uuid.uuid4())
+    premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
+    split_list = os.path.basename(os.path.dirname(os.path.dirname(root_dir))).split('_')
+    if 'ifard2016' in split_list[2]:
+        split_list[2] = split_list[2].replace('ifard2016', 'IFA-(RD)2016-')
 
+    audio_items = {"workflow":"treated audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
+    image_items = {"workflow":"grade","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Gavin Martin'}
+    linking_representation_uuids = []
+    xml_info    = make_premis(aeo_raw_extract_wav_dir, audio_items, premis, premis_namespace, premisxml, representation_uuid, 'nosequence')
 
+    linking_representation_uuids.append(xml_info[2])
+    xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
+
+    linking_representation_uuids.append(xml_info[2])
+    linking_representation_uuids.append(image_items['sourceAccession'])
+    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
+    doc         = xml_info[0]
+    premisxml   = xml_info[1]
+    premis = doc.getroot()
+    '''
+    events:
+    audio - audio cleaning in rx5
+    export from protools
+
+    image:
+    crop in avid
+    grade in baselight
+    export from avid
+
+    framemd5 audio
+    framemd5 image
+    whole md5
+
+    '''
+    audio_rx5_uuid                              = str(uuid.uuid4())
+    audio_protools_uuid                         = str(uuid.uuid4())
+    image_avid_crop_uuid                        = str(uuid.uuid4())
+    image_baselight_grade_uuid                  = str(uuid.uuid4())
+    package_manifest_uuid                       = str(uuid.uuid4())
+    audio_framemd5_uuid                         = str(uuid.uuid4())
+    image_framemd5_uuid                         = str(uuid.uuid4())
+    
+    ffmpegAgent_events                          = [audio_framemd5_uuid , audio_framemd5_uuid]
+    hashlib_events                              = [package_manifest_uuid]
+    avid_events                                 = [image_avid_crop_uuid,image_baselight_grade_uuid]
+    protools_events                             = [audio_protools_uuid]
+    baselight_events                            = [image_baselight_grade_uuid]
+    rx5_events                                  = [audio_rx5_uuid] 
+    macMiniTelecineMachineAgent_events          = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    macMiniTelecineMachineOSAgent_events        = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    macProTelecineMachineOSAgent_events         = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    macProTelecineMachineAgent_events           = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    gavin_events                                = [image_avid_crop_uuid, image_baselight_grade_uuid]
+    brian_events                                = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    
+    macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+    macProTelecineMachineAgent                  = make_agent(premis,macMiniTelecineMachineAgent_events, '838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55')
+    macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
+    macProTelecineOSAgent                       = make_agent(premis,macProTelecineMachineOSAgent_events, '52adf876-bf30-431c-b0c6-80cc4fd9406c')
+    ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+    hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
+    avidAgent                                   = make_agent(premis,avid_events, '11e157a3-1aa7-4195-b816-009a3d47148c')
+    protoolsAgent                               = make_agent(premis,protools_events, '55003bbd-49a4-4c7b-8da2-0d5b9bf10168')
+    baselightAgent                              = make_agent(premis,baselight_events, '8c02d962-5ac5-4e51-a30c-002553134320')
+    rx5Agent                                    = make_agent(premis,rx5_events, 'e5872957-8ee8-4c20-bd8e-d76e1de01b34')
+    gavinAgent                                  = make_agent(premis,gavin_events, '9cab0b9c-4787-4482-8927-a045178c8e39')
+    brianAgent                                  = make_agent(premis,brian_events, '0b96a20d-49f5-46e9-950d-4e11242a487e')
+    
+    make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Import to Avid and remove overscan', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
+    make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,representation_uuid, 'outcome')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, brianAgent ],image_framemd5_uuid,representation_uuid, 'source')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,brianAgent], package_manifest_uuid,representation_uuid, 'source' )
+    
+    write_premis(doc, premisxml)
+    return representation_uuid
 
 def main():
     desktop_logdir = os.path.expanduser("~/Desktop/") + 'seq_csv_reports'
@@ -127,6 +207,7 @@ def main():
             for files in filenames:
                 total_size += os.path.getsize(os.path.join(root,files))
             master_parent_dir     = os.path.dirname(source_parent_dir)
+            master_object_dir     = master_parent_dir + '/objects/image'
             master_metadata_dir = master_parent_dir + '/' + 'metadata'
             middle =  os.listdir(os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine')[0]
             mezzanine_object_dir            =  os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s/objects' % middle
@@ -143,6 +224,8 @@ def main():
             number_regex = "%0" + str(start_number_length) + 'd.'
             audio_dir            = source_parent_dir + '/audio'
             logs_dir            =  mezzanine_parent_dir + '/logs'
+            user = 'Brian Cash'
+            source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
 
             os.chdir(audio_dir)
             audio_file_list = glob('*.wav')
@@ -153,12 +236,12 @@ def main():
             # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
             logfile = "\'" + logfile + "\'"
             env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-            seq2prores= ['ffmpeg','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5']
+            seq2prores= ['ffmpeg','-y','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5', '-c:a', 'pcm_s24le', '-f', 'framemd5', '-vn', master_metadata_dir + '/audio/' + os.path.basename(master_parent_dir) + '.framemd5']
             print seq2prores
             subprocess.call(seq2prores,env=env_dict)
             representation_uuid = str(uuid.uuid4())
             split_list = os.path.basename(mezzanine_parent_dir).split('_')
-            user = 'kieran'
+            user = 'Brian Cash'
             premisxml, premis_namespace, doc, premis = setup_xml(mezzanine_file)
             items = {"workflow":"seq2prores","oe":'n/a', "filmographic":split_list[0], "sourceAccession":split_list[1], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
             premis = doc.getroot()
@@ -167,17 +250,29 @@ def main():
 
             linking_representation_uuids = []
             linking_representation_uuids.append(xml_info[2])
-            linking_representation_uuids.append(xml_info[2])
-            linking_representation_uuids.append(items['sourceAccession'])
+            linking_representation_uuids.append(xml_info[2]) # the duplicate does nothing btw, they are a placeholder from a hardcoded function
+            linking_representation_uuids.append(source_representation_uuid)
             create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
             doc         = xml_info[0]
             premisxml   = xml_info[1]
-            framemd5_uuid                               = str(uuid.uuid4())
-            final_sip_manifest_uuid                              = str(uuid.uuid4())
-            prores_event_uuid = str(uuid.uuid4())
+            final_sip_manifest_uuid                     = str(uuid.uuid4())
+            prores_event_uuid                           = str(uuid.uuid4())
+
+            macMiniTelecineMachineAgent_events          = [prores_event_uuid,final_sip_manifest_uuid  ]
+            macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+            macMiniTelecineMachineOSAgent_events        = [prores_event_uuid,final_sip_manifest_uuid ]
+            macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
+
+            hashlib_events                              = [final_sip_manifest_uuid ]
+            hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
+            print items['user']
+            ffmpegAgent_events                          = [prores_event_uuid ]
+            ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+            operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
+            operatorAgent                               = make_agent(premis,operatorEvents ,items['user'])
             #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 44khz 24-bit PCM audio', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]],prores_event_uuid,representation_uuid, 'outcome')
-            write_premis(doc, premisxml)
+            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,representation_uuid, 'outcome')
+
             print premisxml
             mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
             tracexml =  "%s/%s_mediatrace.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
@@ -193,7 +288,8 @@ def main():
                 make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
             hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
             hashlib_manifest(mezzanine_parent_dir, mezzanine_manifest, mezzanine_parent_dir)
-            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source')
+            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, operatorAgent],final_sip_manifest_uuid,representation_uuid, 'source')
+            write_premis(doc, premisxml)
             finish = datetime.datetime.now()
             append_csv(csv_report_filename, (os.path.basename( master_parent_dir), start, finish))
             '''
