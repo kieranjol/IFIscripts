@@ -281,7 +281,10 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         size.text                       = str(os.path.getsize(image))
         formatDesignation               = create_unit(0,format_,'formatDesignation')
         formatName                      = create_unit(1,formatDesignation,'formatName')
-        formatName.text                 = subprocess.check_output(['mediainfo', '--Inform=General;%InternetMediaType%', image]).rstrip()
+        formatName_mediainfo            = subprocess.check_output(['mediainfo', '--Inform=General;%InternetMediaType%', image]).rstrip()
+        if formatName_mediainfo == '':
+            formatName_mediainfo        = subprocess.check_output(['mediainfo', '--Inform=General;%Format_Commercial%', image]).rstrip()
+        formatName.text                 = formatName_mediainfo
         messageDigestAlgorithm          = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest                   = create_unit(1,fixity, 'messageDigest')
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
