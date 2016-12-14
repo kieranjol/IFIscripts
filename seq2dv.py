@@ -6,8 +6,8 @@ import os
 from glob import glob
 
 
-def get_input():
-    source_directory = sys.argv[1]
+def get_input(root):
+    source_directory = root
     os.chdir(source_directory)
     images = (glob('*.tif')
             + glob('*.tiff')
@@ -38,9 +38,15 @@ def make_dv(ffmpeg_friendly_name, output):
     print cmd
     subprocess.call(cmd)
 def main():
-    images,source_directory = get_input()
-    ffmpeg_friendly_name,output = get_filenames(images, source_directory)
-    make_dv(ffmpeg_friendly_name, output)
+    all_files = sys.argv[1:]
+    for folders in all_files:
+        for root, dirs, files in os.walk(folders):
+            if len(files) > 0:
+                if files[0].endswith(('.tif', '.tiff', '.dpx' )):
+                    print '***********************************************************************************************************************************************************'
+                    images,source_directory = get_input(root)
+                    ffmpeg_friendly_name,output = get_filenames(images, source_directory)
+                    make_dv(ffmpeg_friendly_name, output)
 
 if __name__ == '__main__':
     main()
