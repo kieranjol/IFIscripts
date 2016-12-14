@@ -24,6 +24,34 @@ from premis import setup_xml
 from premis import create_unit
 from premis import create_representation
 
+def get_user():
+    user = ''
+    if user not in ('1','2', '3', '4', '5'):
+        user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n' )
+        while user not in ('1','2', '3', '4', '5'):
+            user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n')
+    if user == '1':
+        user = 'Brian Cash'
+        print 'Hi Brian, i still need to give you back twin peaks '
+        time.sleep(1)
+    elif user == '2':
+        user = 'Gavin Martin'
+        print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
+        time.sleep(1)
+    elif user == '3':
+        user = 'Kieran O\'Leary'
+        print 'Hi Kieran, NO MESSAGE FOR YOU'
+        time.sleep(1)
+    elif user == '4':
+        user = 'Raelene Casey'
+        print 'Hi Raelene - Injoke of the week: Williamsburg/Australia/Blondy/Colin Farrell'
+        time.sleep(1)
+    elif user == '5':
+        user = 'Aoife Fitzmaurice'
+        print 'Hi Aoife, Paul Galvin < Roy Keane'
+        time.sleep(1)
+    return user
+
 def set_environment(logfile):
     env_dict = os.environ.copy()
     # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
@@ -98,8 +126,8 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
-                    
-                    
+
+
 def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     source_directory = root_dir
 
@@ -143,22 +171,37 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     image_avid_crop_uuid                        = str(uuid.uuid4())
     image_baselight_grade_uuid                  = str(uuid.uuid4())
     package_manifest_uuid                       = str(uuid.uuid4())
-    audio_framemd5_uuid                         = str(uuid.uuid4())
     image_framemd5_uuid                         = str(uuid.uuid4())
-    
-    ffmpegAgent_events                          = [audio_framemd5_uuid , audio_framemd5_uuid]
+
+    ffmpegAgent_events                          = [image_framemd5_uuid ]
     hashlib_events                              = [package_manifest_uuid]
     avid_events                                 = [image_avid_crop_uuid,image_baselight_grade_uuid]
     protools_events                             = [audio_protools_uuid]
     baselight_events                            = [image_baselight_grade_uuid]
-    rx5_events                                  = [audio_rx5_uuid] 
-    macMiniTelecineMachineAgent_events          = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
-    macMiniTelecineMachineOSAgent_events        = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
+    rx5_events                                  = [audio_rx5_uuid]
+    macMiniTelecineMachineAgent_events          = [audio_rx5_uuid, package_manifest_uuid, image_framemd5_uuid, audio_protools_uuid]
+    macMiniTelecineMachineOSAgent_events        = [audio_rx5_uuid, package_manifest_uuid, image_framemd5_uuid, audio_protools_uuid]
     macProTelecineMachineOSAgent_events         = [image_avid_crop_uuid, image_baselight_grade_uuid]
     macProTelecineMachineAgent_events           = [image_avid_crop_uuid, image_baselight_grade_uuid]
     gavin_events                                = [image_avid_crop_uuid, image_baselight_grade_uuid]
-    brian_events                                = [audio_rx5_uuid, package_manifest_uuid, audio_framemd5_uuid, image_framemd5_uuid, audio_protools_uuid]
-    
+    brian_events                                = [audio_rx5_uuid,  audio_protools_uuid]
+
+
+    if user == 'Gavin Martin':
+        gavin_events += package_manifest_uuid, image_framemd5_uuid
+    elif user == 'Brian Cash':
+        brian_events += package_manifest_uuid, image_framemd5_uuid
+    else:
+        script_user_events                      = [package_manifest_uuid, image_framemd5_uuid,]
+
+        script_user_Agent                       = make_agent(premis,script_user_events, user )
+    gavinAgent                                  = make_agent(premis,gavin_events, '9cab0b9c-4787-4482-8927-a045178c8e39')
+    if user == 'Gavin Martin':
+        script_user_Agent  = gavinAgent
+
+    brianAgent                                  = make_agent(premis,brian_events, '0b96a20d-49f5-46e9-950d-4e11242a487e')
+    if user == 'Brian Cash':
+        script_user_Agent = brianAgent
     macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
     macProTelecineMachineAgent                  = make_agent(premis,macMiniTelecineMachineAgent_events, '838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55')
     macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
@@ -169,16 +212,16 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
     protoolsAgent                               = make_agent(premis,protools_events, '55003bbd-49a4-4c7b-8da2-0d5b9bf10168')
     baselightAgent                              = make_agent(premis,baselight_events, '8c02d962-5ac5-4e51-a30c-002553134320')
     rx5Agent                                    = make_agent(premis,rx5_events, 'e5872957-8ee8-4c20-bd8e-d76e1de01b34')
-    gavinAgent                                  = make_agent(premis,gavin_events, '9cab0b9c-4787-4482-8927-a045178c8e39')
-    brianAgent                                  = make_agent(premis,brian_events, '0b96a20d-49f5-46e9-950d-4e11242a487e')
-    
+
+
+
     make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,representation_uuid, 'outcome')
     make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,representation_uuid, 'outcome')
     make_event(premis, 'creation', 'Import to Avid and remove overscan', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
     make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,representation_uuid, 'outcome')
-    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, brianAgent ],image_framemd5_uuid,representation_uuid, 'source')
-    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,brianAgent], package_manifest_uuid,representation_uuid, 'source' )
-    
+    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, script_user_Agent ],image_framemd5_uuid,representation_uuid, 'source')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,script_user_Agent], package_manifest_uuid,representation_uuid, 'source' )
+
     write_premis(doc, premisxml)
     return representation_uuid
 
@@ -187,9 +230,10 @@ def main():
     if not os.path.isdir(desktop_logdir):
         os.makedirs(desktop_logdir)
     csv_report_filename = desktop_logdir + '/dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-
+    user = get_user()
     source_directory = sys.argv[1]
     create_csv(csv_report_filename, ('Sequence Name', 'Start time', 'Finish Time'))
+
     for root,dirnames,filenames in os.walk(source_directory):
             #if "tiff_scans"  in dirnames:
             source_directory = root# + '/tiff_scans'
@@ -224,7 +268,7 @@ def main():
             number_regex = "%0" + str(start_number_length) + 'd.'
             audio_dir            = source_parent_dir + '/audio'
             logs_dir            =  mezzanine_parent_dir + '/logs'
-            user = 'Brian Cash'
+
             source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
 
             os.chdir(audio_dir)
@@ -241,7 +285,6 @@ def main():
             subprocess.call(seq2prores,env=env_dict)
             representation_uuid = str(uuid.uuid4())
             split_list = os.path.basename(mezzanine_parent_dir).split('_')
-            user = 'Brian Cash'
             premisxml, premis_namespace, doc, premis = setup_xml(mezzanine_file)
             items = {"workflow":"seq2prores","oe":'n/a', "filmographic":split_list[0], "sourceAccession":split_list[1], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
             premis = doc.getroot()
@@ -265,11 +308,10 @@ def main():
 
             hashlib_events                              = [final_sip_manifest_uuid ]
             hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
-            print items['user']
             ffmpegAgent_events                          = [prores_event_uuid ]
             ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
             operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
-            operatorAgent                               = make_agent(premis,operatorEvents ,items['user'])
+            operatorAgent                               = make_agent(premis,operatorEvents ,user)
             #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
             make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,representation_uuid, 'outcome')
 
