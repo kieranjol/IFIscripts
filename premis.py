@@ -139,13 +139,14 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         eventDetailInformation              = create_unit(4,event,'eventDetailInformation')
         eventDetail                         = create_unit(0,eventDetailInformation,'eventDetail')
         eventDetail.text                    = event_detail
-        linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
-        linkingObjectIdentifierType         = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
-        linkingObjectIdentifierValue        = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
-        linkingObjectIdentifierValue.text   = eventLinkingObjectIdentifier
-        linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
-        linkingObjectIdentifierType.text    = 'UUID'
-        linkingObjectRole.text              = eventLinkingObjectRole
+        for i in eventLinkingObjectIdentifier:
+            linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
+            linkingObjectIdentifierType         = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
+            linkingObjectIdentifierValue        = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
+            linkingObjectIdentifierValue.text   = i
+            linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
+            linkingObjectIdentifierType.text    = 'UUID'
+            linkingObjectRole.text              = eventLinkingObjectRole
         for i in agentlist:
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType          = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
@@ -191,6 +192,7 @@ def representation_uuid_csv(filmographic, source_accession, uuid):
 
 
 def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence):
+
         object_parent = create_unit(0, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid                                  = create_unit(0,object_parent, 'objectIdentifier')
@@ -215,13 +217,15 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
         if sequence == 'sequence':
-            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[1], 'root_sequence', 'UUID')
+            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[1][0], 'root_sequence', 'UUID')
+            for i in linkinguuids[1]:
+                representation_relationship(object_parent, premisxml, items, 'structural', 'includes',i, 'includes', 'UUID')
 
         representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[0], 'n/a', 'UUID')
         representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010 -')
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
-        relationship                                            = create_unit(4,object_parent, 'relationship')
+        relationship                                            = create_unit(-1,object_parent, 'relationship')
         representationrelatedObjectIdentifier                   = create_unit(2,relationship, 'relatedObjectIdentifier')
         representationrelatedObjectIdentifierType               = create_unit(2,representationrelatedObjectIdentifier, 'relatedObjectIdentifierType')
         representationrelatedObjectIdentifierValue              = create_unit(3,representationrelatedObjectIdentifier,'relatedObjectIdentifierValue')
@@ -233,13 +237,14 @@ def representation_relationship(object_parent, premisxml, items, relationshiptyp
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text                                = relationshipsubtype
         representationrelatedObjectIdentifierType.text          = linkingtype
+        print linking_identifier
         representationrelatedObjectIdentifierValue.text          = linking_identifier
 
 def create_object(source_file, items, premis, premis_namespace, premisxml, representation_uuid, sequence):
     video_files         = get_input(source_file)
     mediainfo_counter   = 1
 
-
+    image_uuids = []
     rep_counter = 0
     print 'Generating PREMIS metadata about each file object - this may take some time if on a network and/or working with an image sequence'
     for image in video_files:
@@ -264,6 +269,7 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         file_uuid                                               = str(uuid.uuid4())
+        image_uuids.append(file_uuid)
         object_identifier_uuid_value.text                       = file_uuid
 
         if rep_counter == 0:
@@ -310,10 +316,9 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
 
     doc                 = ET.ElementTree(premis)
-    xml_info                                    = [doc, premisxml, root_uuid,sequence]
+    xml_info                                    = [doc, premisxml, root_uuid,sequence, image_uuids]
+
     return xml_info
-
-
 
 if __name__ == "__main__":
         main()

@@ -144,8 +144,8 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
 
     linking_representation_uuids.append(xml_info[2])
     xml_info    = make_premis(source_directory, image_items, premis, premis_namespace,premisxml, representation_uuid, 'sequence')
-
-    linking_representation_uuids.append(xml_info[2])
+    print xml_info
+    linking_representation_uuids.append(xml_info[4])
     linking_representation_uuids.append(image_items['sourceAccession'])
     create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
     doc         = xml_info[0]
@@ -215,12 +215,12 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user):
 
 
 
-    make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,representation_uuid, 'outcome')
-    make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,representation_uuid, 'outcome')
-    make_event(premis, 'creation', 'Import to Avid and remove overscan', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,representation_uuid, 'outcome')
-    make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,representation_uuid, 'outcome')
-    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, script_user_Agent ],image_framemd5_uuid,representation_uuid, 'source')
-    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,script_user_Agent], package_manifest_uuid,representation_uuid, 'source' )
+    make_event(premis, 'creation', 'Audio cleanup', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, rx5Agent  , brianAgent ],audio_rx5_uuid,[linking_representation_uuids[0]], 'outcome')
+    make_event(premis, 'creation', 'Audio trimming and export', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, protoolsAgent, brianAgent ],audio_protools_uuid ,[linking_representation_uuids[0]], 'outcome')
+    make_event(premis, 'creation', 'Import to Avid and remove overscan', [macProTelecineMachineAgent ,macProTelecineOSAgent, avidAgent, gavinAgent ],image_avid_crop_uuid,xml_info[4], 'outcome')
+    make_event(premis, 'creation', 'Colour Correction', [macProTelecineMachineAgent ,macProTelecineOSAgent, baselightAgent , gavinAgent ],image_baselight_grade_uuid ,xml_info[4], 'outcome')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of image', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, script_user_Agent ],image_framemd5_uuid,xml_info[4], 'source')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent,script_user_Agent], package_manifest_uuid,[representation_uuid], 'source' )
 
     write_premis(doc, premisxml)
     return representation_uuid
@@ -313,7 +313,7 @@ def main():
             operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
             operatorAgent                               = make_agent(premis,operatorEvents ,user)
             #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,representation_uuid, 'outcome')
+            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,[representation_uuid], 'outcome')
 
             print premisxml
             mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
@@ -330,7 +330,7 @@ def main():
                 make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
             hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
             hashlib_manifest(mezzanine_parent_dir, mezzanine_manifest, mezzanine_parent_dir)
-            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, operatorAgent],final_sip_manifest_uuid,representation_uuid, 'source')
+            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, operatorAgent],final_sip_manifest_uuid,[representation_uuid], 'source')
             write_premis(doc, premisxml)
             finish = datetime.datetime.now()
             append_csv(csv_report_filename, (os.path.basename( master_parent_dir), start, finish))
