@@ -27,9 +27,9 @@ from premis import create_representation
 def get_user():
     user = ''
     if user not in ('1','2', '3', '4', '5'):
-        user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n' )
+        user =  raw_input('\n\n**** Who are you?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n' )
         while user not in ('1','2', '3', '4', '5'):
-            user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n')
+            user =  raw_input('\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n')
     if user == '1':
         user = 'Brian Cash'
         print 'Hi Brian, i still need to give you back twin peaks '
