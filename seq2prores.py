@@ -229,7 +229,7 @@ def main():
     desktop_logdir = os.path.expanduser("~/Desktop/") + 'seq_csv_reports'
     if not os.path.isdir(desktop_logdir):
         os.makedirs(desktop_logdir)
-    csv_report_filename = desktop_logdir + '/dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+    csv_report_filename = desktop_logdir + '/seq2prores_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
     user = get_user()
     source_directory = sys.argv[1]
     create_csv(csv_report_filename, ('Sequence Name', 'Start time', 'Finish Time'))
@@ -261,6 +261,9 @@ def main():
             mezzanine_manifest =   mezzanine_parent_dir + '/' + os.path.basename( mezzanine_parent_dir) +  '_manifest.md5'
             master_audio =  master_parent_dir + '/objects/audio/' + os.listdir(master_parent_dir + '/objects/audio')[0]
             mezzanine_file =  mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov'
+            if os.path.isfile(mezzanine_file):
+                print 'Mezzanine file already exists so this script has most likely already been run.. skipping.'
+                continue
             image_seq_without_container = info[0]
             start_number                = info[1]
             container                   = info[2]
