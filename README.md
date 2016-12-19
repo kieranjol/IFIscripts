@@ -127,9 +127,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### seq2prores.py ###
 * Specific IFI workflow that expects a particular folder path:
-* Recursively batch process image sequence folders with seperate WAV files and transcode to a single Apple Pro Res HQ file in a MOV container.
+* Recursively batch process image sequence folders with seperate WAV files and transcode to a single Apple Pro Res HQ file in a MOV container. PREMIS XML log files are generated with hardcoded IFI values for the source DPX sequence and the transcoded mezzanine file in the respective /metadata directory
 * A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
 * Usage - `seq2prores.py directory`
+* seq2prores accepts multiple parent folders, so one can run `seq2prores.py directory1 directory2 directory3` etc
 
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container.
