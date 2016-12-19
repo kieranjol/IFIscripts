@@ -229,123 +229,136 @@ def main():
     desktop_logdir = os.path.expanduser("~/Desktop/") + 'seq_csv_reports'
     if not os.path.isdir(desktop_logdir):
         os.makedirs(desktop_logdir)
+    all_files = sys.argv[1:]
+    permission = ''
+    if not permission == 'y' or permission == 'Y':
+        print '\n\n**** All image sequences within these directories will be converted the input for this script.\n'
+        for i in all_files:
+            print i
+        permission =  raw_input('\n**** All image sequences within these directories will be converted the input for this script \n**** If this looks ok, please press Y, otherwise, type N\n' )
+        while permission not in ('Y','y','N','n'):
+            permission =  raw_input('\n**** All image sequences within these directories will be converted the input for this script \n**** If this looks ok, please press Y, otherwise, type N\n')
+        if permission == 'n' or permission == 'N':
+            print 'Exiting at your command- Cheerio for now'
+            sys.exit()
+        elif permission =='y' or permission == 'Y':
+            print 'Ok so!'
     csv_report_filename = desktop_logdir + '/seq2prores_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
     user = get_user()
-    source_directory = sys.argv[1]
     create_csv(csv_report_filename, ('Sequence Name', 'Start time', 'Finish Time'))
+    for source_directory in all_files:
+        for root,dirnames,filenames in os.walk(source_directory):
+                #if "tiff_scans"  in dirnames:
+                source_directory = root# + '/tiff_scans'
+                total_size = 0
+                remove_bad_files(source_directory)
+                source_parent_dir    = os.path.dirname(source_directory)
+                normpath             = os.path.normpath(source_directory)
+                relative_path        = normpath.split(os.sep)[-1]
+                split_path           = os.path.split(os.path.basename(source_directory))[1]
+                start = datetime.datetime.now()
 
-    for root,dirnames,filenames in os.walk(source_directory):
-            #if "tiff_scans"  in dirnames:
-            source_directory = root# + '/tiff_scans'
-            total_size = 0
-            remove_bad_files(source_directory)
-            source_parent_dir    = os.path.dirname(source_directory)
-            normpath             = os.path.normpath(source_directory)
-            relative_path        = normpath.split(os.sep)[-1]
-            split_path           = os.path.split(os.path.basename(source_directory))[1]
-            start = datetime.datetime.now()
+                info = get_filenames(source_directory, 'dpx_framemd5')
+                if info == 'none':
+                    continue
+                for files in filenames:
+                    total_size += os.path.getsize(os.path.join(root,files))
+                master_parent_dir     = os.path.dirname(source_parent_dir)
+                master_object_dir     = master_parent_dir + '/objects/image'
+                master_metadata_dir = master_parent_dir + '/' + 'metadata'
+                middle =  os.listdir(os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine')[0]
+                mezzanine_object_dir            =  os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s/objects' % middle
+                mezzanine_parent_dir   = os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s' % middle
+                mezzanine_metadata_dir = mezzanine_parent_dir + '/metadata'
+                source_manifest =  master_parent_dir + '/' + os.path.basename( master_parent_dir) +  '_manifest.md5'
+                mezzanine_manifest =   mezzanine_parent_dir + '/' + os.path.basename( mezzanine_parent_dir) +  '_manifest.md5'
+                master_audio =  master_parent_dir + '/objects/audio/' + os.listdir(master_parent_dir + '/objects/audio')[0]
+                mezzanine_file =  mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov'
+                if os.path.isfile(mezzanine_file):
+                    print 'Mezzanine file already exists so this script has most likely already been run.. skipping.'
+                    continue
+                image_seq_without_container = info[0]
+                start_number                = info[1]
+                container                   = info[2]
+                start_number_length = len(start_number)
+                number_regex = "%0" + str(start_number_length) + 'd.'
+                audio_dir            = source_parent_dir + '/audio'
+                logs_dir            =  mezzanine_parent_dir + '/logs'
 
-            info = get_filenames(source_directory, 'dpx_framemd5')
-            if info == 'none':
-                continue
-            for files in filenames:
-                total_size += os.path.getsize(os.path.join(root,files))
-            master_parent_dir     = os.path.dirname(source_parent_dir)
-            master_object_dir     = master_parent_dir + '/objects/image'
-            master_metadata_dir = master_parent_dir + '/' + 'metadata'
-            middle =  os.listdir(os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine')[0]
-            mezzanine_object_dir            =  os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s/objects' % middle
-            mezzanine_parent_dir   = os.path.dirname(os.path.dirname(master_parent_dir)) + '/mezzanine/%s' % middle
-            mezzanine_metadata_dir = mezzanine_parent_dir + '/metadata'
-            source_manifest =  master_parent_dir + '/' + os.path.basename( master_parent_dir) +  '_manifest.md5'
-            mezzanine_manifest =   mezzanine_parent_dir + '/' + os.path.basename( mezzanine_parent_dir) +  '_manifest.md5'
-            master_audio =  master_parent_dir + '/objects/audio/' + os.listdir(master_parent_dir + '/objects/audio')[0]
-            mezzanine_file =  mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov'
-            if os.path.isfile(mezzanine_file):
-                print 'Mezzanine file already exists so this script has most likely already been run.. skipping.'
-                continue
-            image_seq_without_container = info[0]
-            start_number                = info[1]
-            container                   = info[2]
-            start_number_length = len(start_number)
-            number_regex = "%0" + str(start_number_length) + 'd.'
-            audio_dir            = source_parent_dir + '/audio'
-            logs_dir            =  mezzanine_parent_dir + '/logs'
+                source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
 
-            source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user)
+                os.chdir(audio_dir)
+                audio_file_list = glob('*.wav')
+                audio_file = os.path.join(audio_dir,audio_file_list[0])
+                dpx_filename                = image_seq_without_container + number_regex + container
+                logfile = logs_dir + '/%s_prores.log' % os.path.basename(mezzanine_parent_dir)
+                env_dict = os.environ.copy()
+                # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
+                logfile = "\'" + logfile + "\'"
+                env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
+                seq2prores= ['ffmpeg','-y','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5', '-c:a', 'pcm_s24le', '-f', 'framemd5', '-vn', master_metadata_dir + '/audio/' + os.path.basename(master_parent_dir) + '.framemd5']
+                print seq2prores
+                subprocess.call(seq2prores,env=env_dict)
+                representation_uuid = str(uuid.uuid4())
+                split_list = os.path.basename(mezzanine_parent_dir).split('_')
+                premisxml, premis_namespace, doc, premis = setup_xml(mezzanine_file)
+                items = {"workflow":"seq2prores","oe":'n/a', "filmographic":split_list[0], "sourceAccession":split_list[1], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
+                premis = doc.getroot()
+                xml_info    = make_premis(mezzanine_file, items, premis, premis_namespace,premisxml, representation_uuid, '????')
+                sequence = xml_info[3]
 
-            os.chdir(audio_dir)
-            audio_file_list = glob('*.wav')
-            audio_file = os.path.join(audio_dir,audio_file_list[0])
-            dpx_filename                = image_seq_without_container + number_regex + container
-            logfile = logs_dir + '/%s_prores.log' % os.path.basename(mezzanine_parent_dir)
-            env_dict = os.environ.copy()
-            # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
-            logfile = "\'" + logfile + "\'"
-            env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-            seq2prores= ['ffmpeg','-y','-f','image2','-framerate','24', '-start_number', start_number, '-i', root + '/' + dpx_filename ,'-i', audio_file,'-c:v','prores','-profile:v', '3','-c:a','pcm_s24le', '-ar', '48000', mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov','-f', 'framemd5', '-an', master_metadata_dir + '/image/' + os.path.basename(master_parent_dir) + '.framemd5', '-c:a', 'pcm_s24le', '-f', 'framemd5', '-vn', master_metadata_dir + '/audio/' + os.path.basename(master_parent_dir) + '.framemd5']
-            print seq2prores
-            subprocess.call(seq2prores,env=env_dict)
-            representation_uuid = str(uuid.uuid4())
-            split_list = os.path.basename(mezzanine_parent_dir).split('_')
-            premisxml, premis_namespace, doc, premis = setup_xml(mezzanine_file)
-            items = {"workflow":"seq2prores","oe":'n/a', "filmographic":split_list[0], "sourceAccession":split_list[1], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
-            premis = doc.getroot()
-            xml_info    = make_premis(mezzanine_file, items, premis, premis_namespace,premisxml, representation_uuid, '????')
-            sequence = xml_info[3]
+                linking_representation_uuids = []
+                linking_representation_uuids.append(xml_info[2])
+                linking_representation_uuids.append(xml_info[2]) # the duplicate does nothing btw, they are a placeholder from a hardcoded function
+                linking_representation_uuids.append(source_representation_uuid)
+                create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
+                doc         = xml_info[0]
+                premisxml   = xml_info[1]
+                final_sip_manifest_uuid                     = str(uuid.uuid4())
+                prores_event_uuid                           = str(uuid.uuid4())
 
-            linking_representation_uuids = []
-            linking_representation_uuids.append(xml_info[2])
-            linking_representation_uuids.append(xml_info[2]) # the duplicate does nothing btw, they are a placeholder from a hardcoded function
-            linking_representation_uuids.append(source_representation_uuid)
-            create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
-            doc         = xml_info[0]
-            premisxml   = xml_info[1]
-            final_sip_manifest_uuid                     = str(uuid.uuid4())
-            prores_event_uuid                           = str(uuid.uuid4())
+                macMiniTelecineMachineAgent_events          = [prores_event_uuid,final_sip_manifest_uuid  ]
+                macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+                macMiniTelecineMachineOSAgent_events        = [prores_event_uuid,final_sip_manifest_uuid ]
+                macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
 
-            macMiniTelecineMachineAgent_events          = [prores_event_uuid,final_sip_manifest_uuid  ]
-            macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
-            macMiniTelecineMachineOSAgent_events        = [prores_event_uuid,final_sip_manifest_uuid ]
-            macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
+                hashlib_events                              = [final_sip_manifest_uuid ]
+                hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
+                ffmpegAgent_events                          = [prores_event_uuid ]
+                ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+                operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
+                operatorAgent                               = make_agent(premis,operatorEvents ,user)
+                #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+                make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,[representation_uuid], 'outcome')
 
-            hashlib_events                              = [final_sip_manifest_uuid ]
-            hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
-            ffmpegAgent_events                          = [prores_event_uuid ]
-            ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            operatorEvents                              = [final_sip_manifest_uuid,prores_event_uuid]
-            operatorAgent                               = make_agent(premis,operatorEvents ,user)
-            #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-            make_event(premis, 'creation', 'Image Sequence and WAV re-encoded to Apple Pro Res 422 HQ with 48khz 24-bit PCM audio', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, ffmpegAgent, operatorAgent ],prores_event_uuid,[representation_uuid], 'outcome')
-
-            print premisxml
-            mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
-            tracexml =  "%s/%s_mediatrace.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
-            audio_mediainfoxml = "%s/%s_mediainfo.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
-            audio_mediatracexml = "%s/%s_mediatrace.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
-            if not os.path.isfile(audio_mediainfoxml):
-                make_mediainfo(audio_mediainfoxml,'audiomediaxmlinput',master_audio)
-            if not os.path.isfile(audio_mediatracexml):
-                make_mediainfo(audio_mediatracexml,'audiomediatraceinput',master_audio)
-            if not os.path.isfile(mezzanine_mediainfoxml):
-                make_mediainfo(mezzanine_mediainfoxml,'mediaxmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
-            if not os.path.isfile(tracexml):
-                make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
-            hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
-            hashlib_manifest(mezzanine_parent_dir, mezzanine_manifest, mezzanine_parent_dir)
-            make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, operatorAgent],final_sip_manifest_uuid,[representation_uuid], 'source')
-            write_premis(doc, premisxml)
-            finish = datetime.datetime.now()
-            append_csv(csv_report_filename, (os.path.basename( master_parent_dir), start, finish))
-            '''
-            to create premis you must:
-            1. have a parent folder with oe_filmo_source in folder name
-            2. generate premis object with setup_xml()
-            3. generate a representation uuid4.
-            4. populate a user variable
-            5. use make_premis, passing a file or a folder with sequence
-            6. create a representation and link to file
-            '''
-    #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
+                print premisxml
+                mezzanine_mediainfoxml =  "%s/%s_mediainfo.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
+                tracexml =  "%s/%s_mediatrace.xml" % (mezzanine_metadata_dir,os.path.basename(mezzanine_parent_dir) )
+                audio_mediainfoxml = "%s/%s_mediainfo.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
+                audio_mediatracexml = "%s/%s_mediatrace.xml" % (master_metadata_dir + '/audio',os.path.basename(master_audio) )
+                if not os.path.isfile(audio_mediainfoxml):
+                    make_mediainfo(audio_mediainfoxml,'audiomediaxmlinput',master_audio)
+                if not os.path.isfile(audio_mediatracexml):
+                    make_mediainfo(audio_mediatracexml,'audiomediatraceinput',master_audio)
+                if not os.path.isfile(mezzanine_mediainfoxml):
+                    make_mediainfo(mezzanine_mediainfoxml,'mediaxmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
+                if not os.path.isfile(tracexml):
+                    make_mediatrace(tracexml,'mediatracexmlinput',mezzanine_object_dir + '/' + os.path.basename(mezzanine_parent_dir) + '_mezzanine.mov')
+                hashlib_manifest(master_parent_dir, source_manifest, master_parent_dir)
+                hashlib_manifest(mezzanine_parent_dir, mezzanine_manifest, mezzanine_parent_dir)
+                make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [macMiniTelecineMachineAgent ,macMiniTelecineOSAgent, operatorAgent],final_sip_manifest_uuid,[representation_uuid], 'source')
+                write_premis(doc, premisxml)
+                finish = datetime.datetime.now()
+                append_csv(csv_report_filename, (os.path.basename( master_parent_dir), start, finish))
+                '''
+                to create premis you must:
+                1. have a parent folder with oe_filmo_source in folder name
+                2. generate premis object with setup_xml()
+                3. generate a representation uuid4.
+                4. populate a user variable
+                5. use make_premis, passing a file or a folder with sequence
+                6. create a representation and link to file
+                '''
+        #send_gmail(emails, csv_report_filename, 'makedpx completed', 'Hi,\n Please the attached log for details of the makedpx job, \nSincerely yours,\nIFIROBOT', config[2].rstrip(), config[3].rstrip())
 if __name__ == '__main__':
     main()
