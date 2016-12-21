@@ -74,6 +74,18 @@ def get_user():
         time.sleep(1)
     return user
 
+def get_aeolight_workstation():
+    aeolight_station = ''
+    if not aeolight_station == '1' or aeolight_station == '2':
+        aeolight_station =  raw_input('\n\n**** Where was AEO-Light run?\nPress 1 or 2\n\n1. telecine room mac\n2. CA machine\n' )
+        while aeolight_station not in ('1','2'):
+            aeolight_station =  raw_input('\n\n**** Where was AEO-Light run?\nPress 1 or 2\n\n1. telecine room mac\n2. CA machine\n')
+    if aeolight_station == '1':
+        aeolight_station = 'telecine'
+    elif aeolight_station == '2':
+        aeolight_station = 'ca_machine'
+    return aeolight_station
+
 
 def make_parser():
     parser = argparse.ArgumentParser(description='Workflow specific metadata generator.'
@@ -131,7 +143,7 @@ def process_audio(input, args):
     return root_dir, process_counter, total_process, aeo_raw_extract_wav_dir
 
 
-def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user):
+def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation):
     source_directory = root_dir + '/objects/image'
     print 'Process %d of %d - Generating PREMIS XML file' % (process_counter,total_process)
     process_counter += 1
@@ -160,7 +172,6 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     audio_framemd5_uuid                         = str(uuid.uuid4())
     scanning_uuid                               = str(uuid.uuid4())
     premis_checksum_uuid                        = str(uuid.uuid4())
-    framemd5_uuid                               = str(uuid.uuid4())
     package_manifest_uuid                       = str(uuid.uuid4())
     aeolight_events = [extract_uuid]
     aeolightAgent                               = make_agent(premis,aeolight_events, '50602139-104a-46ef-a53c-04fcb538723a')
@@ -168,10 +179,10 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
     brian_events                                = [extract_uuid]
     if user == 'Brian Cash':
-        brian_events += audio_premis_checksum_uuid,audio_framemd5_uuid,premis_checksum_uuid,framemd5_uuid,package_manifest_uuid
+        brian_events += audio_premis_checksum_uuid,audio_framemd5_uuid,premis_checksum_uuid,package_manifest_uuid
         brian_events = [capture_received_uuid, scanning_uuid]
     elif user == 'Gavin Martin':
-        brian_events += audio_premis_checksum_uuid,audio_framemd5_uuid,premis_checksum_uuid,framemd5_uuid,package_manifest_uuid
+        brian_events += audio_premis_checksum_uuid,audio_framemd5_uuid,premis_checksum_uuid,package_manifest_uuid
         gavin_events = [capture_received_uuid, scanning_uuid]
         gavinAgent                                  = make_agent(premis,gavin_events, '9cab0b9c-4787-4482-8927-a045178c8e39')
 
@@ -182,20 +193,34 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     brianAgent                                  = make_agent(premis,brian_events, '0b96a20d-49f5-46e9-950d-4e11242a487e')
     if user == 'Brian Cash':
         script_user_Agent = brianAgent
-    macMiniTelecineMachineAgent_events          = [extract_uuid, audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid, framemd5_uuid,package_manifest_uuid ]
-    macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
-    macMiniTelecineMachineOSAgent_events        = [extract_uuid, audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid, framemd5_uuid, package_manifest_uuid ]
-    macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
-    ffmpegAgent_events                          = [framemd5_uuid, audio_framemd5_uuid]
+
+    if aeolight_workstation == 'telecine':
+        macMiniTelecineMachineAgent_events          = [extract_uuid, audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid,package_manifest_uuid ]
+        macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+        macMiniTelecineMachineOSAgent_events        = [extract_uuid, audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid, package_manifest_uuid ]
+        macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
+        transcoderMachine                           = make_agent(premis,[capture_received_uuid], '946e5d40-a07f-47d1-9637-def5cb7854ba')
+        transcoderMachineOS                         = make_agent(premis,[capture_received_uuid], '192f61b1-8130-4236-a827-a194a20557fe')
+        aeolight_computer = macMiniTelecineMachineAgent
+        aeolight_OS = macMiniTelecineOSAgent
+    elif aeolight_workstation == 'ca_machine':
+        macMiniTelecineMachineAgent_events          = [audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid,package_manifest_uuid ]
+        macMiniTelecineMachineAgent                 = make_agent(premis,macMiniTelecineMachineAgent_events, '230d72da-07e7-4a79-96ca-998b9f7a3e41')
+        macMiniTelecineMachineOSAgent_events        = [audio_premis_checksum_uuid, premis_checksum_uuid, audio_framemd5_uuid, package_manifest_uuid ]
+        macMiniTelecineOSAgent                      = make_agent(premis,macMiniTelecineMachineOSAgent_events, '9486b779-907c-4cc4-802c-22e07dc1242f')
+        transcoderMachine                           = make_agent(premis,[capture_received_uuid, extract_uuid], '946e5d40-a07f-47d1-9637-def5cb7854ba')
+        transcoderMachineOS                         = make_agent(premis,[capture_received_uuid, extract_uuid], '192f61b1-8130-4236-a827-a194a20557fe')
+        aeolight_computer = transcoderMachine
+        aeolight_OS = transcoderMachineOS
+    ffmpegAgent_events                          = [audio_framemd5_uuid]
     ffmpegAgent                                 = make_agent(premis,ffmpegAgent_events , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
     scannerAgent                                = make_agent(premis,[scanning_uuid], '1f4c1369-e9d1-425b-a810-6db1150955ba')
     scannerPCAgent                              = make_agent(premis,[scanning_uuid], 'ca731b64-638f-4dc3-9d27-0fc14387e38c')
     scannerLinuxAgent                           = make_agent(premis,[scanning_uuid], 'b22baa5c-8160-427d-9e2f-b62a7263439d')
-    transcoderMachine                           = make_agent(premis,[capture_received_uuid], '946e5d40-a07f-47d1-9637-def5cb7854ba')
-    transcoderMachineOS                         = make_agent(premis,[capture_received_uuid], '192f61b1-8130-4236-a827-a194a20557fe')
+
     make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, script_user_Agent, scannerPCAgent, scannerLinuxAgent], scanning_uuid,xml_info[4], 'outcome')
     make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, script_user_Agent], capture_received_uuid,image_uuids,'outcome')
-    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, brianAgent, macMiniTelecineMachineAgent, macMiniTelecineOSAgent], extract_uuid,[audio_file_uuid], 'outcome')
+    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, brianAgent, aeolight_computer, aeolight_OS ], extract_uuid,[audio_file_uuid], 'outcome')
     make_event(premis, 'message digest calculation', 'Whole file checksum of audio created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,[audio_file_uuid], 'source')
     make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,[audio_file_uuid], 'source' )
     make_event(premis, 'message digest calculation', 'Whole file checksums of image created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,[representation_uuid], 'source')
@@ -207,6 +232,7 @@ def main():
     args = parser.parse_args()
     input = args.input
     user = get_user()
+    aeolight_workstation = get_aeolight_workstation()
     for root, dirnames, filenames in os.walk(input):
         for files in filenames:
             if files.endswith('.wav'):
@@ -214,7 +240,7 @@ def main():
                 if total_process == 'x':
                     continue
                 else:
-                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user)
+                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation)
             else:
                 continue
 
