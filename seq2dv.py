@@ -41,8 +41,8 @@ def main():
     all_files = sys.argv[1:]
     for folders in all_files:
         for root, dirs, files in os.walk(folders):
-            if len(files) > 0:
-                if files[0].endswith(('.tif', '.tiff', '.dpx' )):
+            if len(files) > 10:
+                if files[5].endswith(('.tif', '.tiff', '.dpx' )):
                     print '***********************************************************************************************************************************************************'
                     images,source_directory = get_input(root)
                     ffmpeg_friendly_name,output = get_filenames(images, source_directory)
