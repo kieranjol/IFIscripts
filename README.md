@@ -34,6 +34,7 @@ table of contents
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [rawaudio.py](https://github.com/kieranjol/IFIscripts#rawaudiopy)
     * [treatedaudio.py](https://github.com/kieranjol/IFIscripts#treatedaudiopy)
+    * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
 8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
@@ -178,6 +179,11 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Performs various preservation actions on a restored WAV file produced from a film scan:
     * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
 * Usage: `treatedaudio.py wav_filename.wav`
+
+### mezzaninecheck.py ###
+* Checks folders in order to see if either 0 or >1 files exist in a mezzanine/objects folder.
+* 
+* Usage: `treatedaudio.py /path/to/parent_folder`
 
 ## Misc ##
 
