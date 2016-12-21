@@ -174,7 +174,7 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     premis_checksum_uuid                        = str(uuid.uuid4())
     package_manifest_uuid                       = str(uuid.uuid4())
     aeolight_events = [extract_uuid]
-    aeolightAgent                               = make_agent(premis,aeolight_events, '50602139-104a-46ef-a53c-04fcb538723a')
+    aeolightAgent                               = make_agent(premis,aeolight_events, 'bc3de900-3903-4764-ab91-2ce89977d0d2')
     hashlib_events                              = [audio_premis_checksum_uuid, premis_checksum_uuid, package_manifest_uuid]
     hashlibAgent                                = make_agent(premis,hashlib_events, '9430725d-7523-4071-9063-e8a6ac4f84c4')
     brian_events                                = [extract_uuid]
