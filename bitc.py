@@ -227,6 +227,7 @@ def get_bitc(video_files, crf_value, number_of_effects, args, bitc, sidecar):
         subprocess.call(ffmpeg_args)
         if args.md5:
             manifest =  '%s_manifest.md5' % filename
+            print 'Generating md5 sidecar...'
             h264_md5 = hashlib_md5(filename)
             with open(manifest,'wb') as fo:
                 fo.write('%s  %s' % (h264_md5, filename))
