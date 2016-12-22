@@ -4,17 +4,17 @@ import argparse
 import subprocess
 import sys
 import os
+from ififuncs import hashlib_md5
 from glob import glob
-import pdb
 from sys import platform as _platform
 
 def set_options(input):
-    parser = argparse.ArgumentParser(description='IFI ffmpeg H264 ffmpeg Encoder.'
+    parser = argparse.ArgumentParser(description='IFI Irish Film Institute H264 FFMPEG Encoder.'
                                      ' Written by Kieran O\'Leary.')
     parser.add_argument('input')
     parser.add_argument(
                         '-clean', 
-                        action='store_true',help='no watermark or timecode')
+                        action='store_true',help='Disables watermark and timecode for a clean image')
     parser.add_argument(
                         '-yadif', 
                         action='store_true',help='Yet Another DeInterlace Filter')
@@ -23,7 +23,7 @@ def set_options(input):
                         help='Set quality. Default is 23, lower number = large file/high quality, high number = small file/poor quality')
     parser.add_argument(
                         '-o', 
-                        help='Set output directory. Default directory is the same directory as input.')
+                        help='Set output directory. The default directory is the same directory as input.')
     parser.add_argument(
                         '-scale',
                         help='Rescale video.'
@@ -76,7 +76,8 @@ def set_options(input):
 
     # Store the directory containing the input file/directory.
     wd = os.path.dirname(input)
-    print wd
+    if wd == '':
+        wd = os.getcwd()
     # Change current working directory to the value stored as "wd"
     os.chdir(wd)
 
@@ -248,6 +249,11 @@ def get_bitc(video_files,crf_value, number_of_effects, args,bitc, sidecar):
         print ffmpeg_args
         
         subprocess.call(ffmpeg_args)
+        if args.md5:
+            manifest =  '%s_manifest.md5' % filename
+            h264_md5 = hashlib_md5(filename)
+            with open(manifest,'wb') as fo:
+                fo.write('%s  %s' % (h264_md5, filename))
 
 if __name__ == "__main__":
     main('sidecar')
