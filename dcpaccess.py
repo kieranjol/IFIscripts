@@ -4,7 +4,7 @@ import sys
 try:
     from lxml import etree
 except ImportError:
-    print '*** ERROR - LXML IS MISSING ***\nThis external module is required for xml parsing.\nInstall with  `pip install lxml`.\nYou may need to restart your terminal or your computer, but it should work immediately.\nYou may need to run `sudo pip install lxml` on some osx/linux machines.\n If having issues installing lxml on windows, download the relevant .whl file from here http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml and run `pip install /path/to/lxml_filename.whl'
+    print ('*** ERROR - LXML IS MISSING ***\nThis external module is required for xml parsing.\nInstall with  `pip install lxml`.\nYou may need to restart your terminal or your computer, but it should work immediately.\nYou may need to run `sudo pip install lxml` on some osx/linux machines.\n If having issues installing lxml on windows, download the relevant .whl file from here http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml and run `pip install /path/to/lxml_filename.whl')
     sys.exit()
 import pdb
 from glob import glob
@@ -65,9 +65,9 @@ if args.m:
 else:
     email = 'disabled'
 if args.s:
-    print '***********************************************'
-    print 'You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. '
-    print '***********************************************'
+    print( '***********************************************')
+    print ('You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. ')
+    print ('***********************************************')
     time.sleep(1)
     
 # Set a bunch of variables for filenaming.    
@@ -98,17 +98,17 @@ def choose_cpl():
     global cpl_list
     # Some DCPs have multiple CPLs!       
     cpl_number = 1
-    print 'Multiple CPL files found'
+    print ('Multiple CPL files found')
     for i in cpl_list:
-        print cpl_number,  i
+        print (cpl_number,  i)
         cpl_number += 1   
-    print 'Please select which CPL you would like to process'
+    print( 'Please select which CPL you would like to process')
     chosen_cpl = raw_input()
     cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
     if args.s:
         cpl_namespace      = cpl_parse.xpath('namespace-uri(.)') 
         subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
-        print 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?'         
+        print( 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?')         
     return cpl_parse 
     
     
@@ -121,10 +121,10 @@ def find_cpl():
         try:  
             xmlname = etree.parse(i)
         except SyntaxError:
-            print 'not a valid CPL!'
+            print( 'not a valid CPL!')
             continue
         except KeyError:
-            print 'Missing CPL!'
+            print( 'Missing CPL!')
             continue
         xml_namespace = xmlname.xpath('namespace-uri(.)')
         # Create list of CPLs.
@@ -151,17 +151,17 @@ def audio_delay_check(cpl_parse, cpl_namespace ):
     # Check if there is an intended audio delay.    
     count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )
     xmluuid_list               = cpl_parse.xpath('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
-    print xmluuid_list  
+    print (xmluuid_list)  
     EntryPoint_list          = cpl_parse.xpath('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
     dur_list                   = cpl_parse.xpath('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
     dur_intrinsic_list         = cpl_parse.xpath('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})    
     counter = 0
     delays  = 0
     while counter < count:
-        print counter
+        print (counter)
         audio_delay_values = []
         xmluuid = xmluuid_list[counter]
-        print xmluuid.text, counter
+        print (xmluuid.text, counter)
         EntryPoint = EntryPoint_list[counter]
         entrypoint_audio      = float(EntryPoint.text)
         if EntryPoint.text != '0':
@@ -195,7 +195,7 @@ def burn_subs():
     count = len(subs)
     sub_delay = 1
     if not len(subs) == len(pic_mxfs):
-        print 'The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!'
+        print('The amount of picture files does not equal the amount of subtitles. This feature is not supported yet. Sorry!')
         sub_delay = 0
         # This assumes that if there are less subtitles than video files, it's because there's an extra AV reel at the head.A more robust option will be added later. Right now this fixes the one use case I've seen.
     if delays != 0:
@@ -212,19 +212,19 @@ def burn_subs():
             xmlo = etree.parse(subs[subs_counter])
         except SyntaxError:
             if 'mxf' in srt_file:
-                print 'Subtitle file is most likely an SMPTE MXF which is not currently supported.'
+                print('Subtitle file is most likely an SMPTE MXF which is not currently supported.')
             else:
-                print 'not a valid CPL!'
+                print ('not a valid CPL!')
             counter +=1
             continue
         except KeyError:
-            print 'Missing CPL!'
+            print ('Missing CPL!')
             counter +=1
             continue
         sub_count = int(xmlo.xpath('count(//Subtitle)'))
         current_sub_counter = 0
         with open(srt_file, "w") as myfile:
-               print 'Transforming ', sub_count, 'subtitles'
+               print ('Transforming ', sub_count, 'subtitles')
         while current_sub_counter < sub_count:
             counter2 = current_sub_counter +1
             in_point = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeIn']
@@ -238,11 +238,11 @@ def burn_subs():
                 for i in bla:
                         myfile.write(i.encode("utf-8") + '\n')
                 myfile.write('\n')
-                print 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r' ,
+                print( 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r') ,
             current_sub_counter +=1 
         current_sub_counter= 0
         if delays == 0:
-            print 'There were no audio delays.'
+            print( 'There were no audio delays.')
             command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
             '-c:a','copy', '-c:v', 'libx264',]
         else:
@@ -259,7 +259,7 @@ def burn_subs():
             subs_counter = 0
             sub_delay += 1
         command += [output_subs_mkv ]
-        print command
+        print (command)
         subprocess.call(command)
         counter += 1 
     sys.exit()
@@ -341,10 +341,10 @@ def send_gmail():
     server_ssl.login(username, password)  
     # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-    print msg.as_string()
+    print(msg.as_string())
     #server_ssl.quit()
     server_ssl.close()
-    print 'successfully sent the mail'  
+    print ('successfully sent the mail')  
     
 # Write the list of filenames containing picture to a textfile. 
 # http://www.pythonforbeginners.com/files/reading-and-writing-files-in-python
@@ -377,7 +377,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             assetmap_xml = etree.parse(assetmap)
         except SyntaxError:
 
-            print 'Not a valid ASSETMAP!'
+            print('Not a valid ASSETMAP!')
             continue
            
         assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')     
@@ -460,7 +460,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         finalaudio  = concat_list[0]
         finalpic    = concat_list[1]
         if delays == 0:
-            print 'There were no audio delays.'
+            print( 'There were no audio delays.')
         else:
             for i in audio_delay:
                 # Wrapping PCM in matroska as WAV has 4 gig limit.
@@ -477,7 +477,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         if args.hd:
             command += ['-vf', "scale=1920:-1,setsar=1/1,pad=1920:1080:0:(oh-ih)/2"]
         command += [output]
-        print command
+        print (command)
         subprocess.call(command)        
         # Removes PKLs from list of files to hash, as these files are not in manifest.
 
