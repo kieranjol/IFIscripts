@@ -5,21 +5,14 @@ import subprocess
 import os
 import pdb
 import filecmp
-from sys import platform as _platform
 import tempfile
 import time
 import argparse
 import getpass
 import hashlib
-from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir
+from sys import platform as _platform
+from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
 
-def generate_log(log, what2log):
-    if not os.path.isfile(log):
-        with open(log,"wb") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
-    else:
-        with open(log,"ab") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
 
 def hashlib_md5(filename, manifest):
    read_size = 0
@@ -37,8 +30,6 @@ def hashlib_md5(filename, manifest):
            if percent_done > last_percent_done:
                sys.stdout.write('[%d%%]\r' % percent_done)
                sys.stdout.flush()
-
-
                last_percent_done = percent_done
    md5_output = m.hexdigest()
    return md5_output + '  ' + os.path.abspath(filename) +  '\n'
