@@ -301,3 +301,28 @@ def get_image_sequence_files(directory):
     else:
         return 'none'
     return images
+
+def get_ffmpeg_friendly_name(images):
+    if '864000' in images[0]:
+        start_number = '864000'
+    elif len(images[0].split("_")[-1].split(".")) > 2:
+        start_number = images[0].split("_")[-1].split(".")[1]
+    else:
+        start_number = images[0].split("_")[-1].split(".")[0]
+    container               = images[0].split(".")[-1]
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")
+    else:
+        numberless_filename = images[0].split("_")[0:-1]
+    ffmpeg_friendly_name = ''
+    counter = 0
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+        print ffmpeg_friendly_name
+    else:
+        while  counter <len(numberless_filename) :
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
+    return ffmpeg_friendly_name, container, start_number

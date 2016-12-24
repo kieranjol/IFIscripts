@@ -28,6 +28,8 @@ from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 from ififuncs import get_image_sequence_files
+from ififuncs import get_ffmpeg_friendly_name
+
 
 
 def read_non_comment_lines(infile):
@@ -47,30 +49,9 @@ def make_framemd5(directory, log_filename_alteration):
     images = get_image_sequence_files(directory)
     sequence_length = len(images)
     global output_parent_directory
-    if '864000' in images[0]:
-        start_number = '864000'
-    elif len(images[0].split("_")[-1].split(".")) > 2:
-        start_number = images[0].split("_")[-1].split(".")[1]
-    else:
-        start_number = images[0].split("_")[-1].split(".")[0]
-    container               = images[0].split(".")[-1]
+    ffmpeg_friendly_name, container, start_number = get_ffmpeg_friendly_name(images)
     output_parent_directory = args.destination
-    if len(images[0].split("_")[-1].split(".")) > 2:
-        numberless_filename = images[0].split(".")
-    else:
-        numberless_filename = images[0].split("_")[0:-1]
-    ffmpeg_friendly_name = ''
-    counter = 0
-    if len(images[0].split("_")[-1].split(".")) > 2:
-        numberless_filename = images[0].split(".")[0:-1]
-        for i in numberless_filename[:-1]:
-            ffmpeg_friendly_name += i + '.'
-        print ffmpeg_friendly_name
-    else:
-        while  counter <len(numberless_filename) :
-            ffmpeg_friendly_name += numberless_filename[counter] + '_'
-            counter += 1
-    print ffmpeg_friendly_name
+
     if start_number == '864000':
         output_dirname  = output_parent_directory + '/' + os.path.basename(directory) + time.strftime("%Y_%m_%dT%H_%M_%S")
         basename        = os.path.basename(directory)
