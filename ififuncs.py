@@ -8,6 +8,7 @@ import getpass
 import os
 import filecmp
 import hashlib
+from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -26,6 +27,8 @@ def diff_textfiles(source_textfile, other_textfile):
     	print "CHECKSUM MISMATCH - Further information on the next line!!!"
         return 'lossy'
     	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
+
+
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
   with open(xmlfilename, "w+") as fo:
   	xmlvariable = subprocess.check_output(['mediainfo',
@@ -45,16 +48,24 @@ def make_qctools(input):
     qctoolsreport = subprocess.check_output(qctools_args)
     return qctoolsreport
 
+
 def write_qctools_gz(qctoolsxml, sourcefile):
     with open(qctoolsxml, "w+") as fo:
         fo.write(make_qctools(sourcefile))
     subprocess.call(['gzip', qctoolsxml])
 
+
 def get_audio_stream_count():
     audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
     return len(audio_stream_count)
+
+
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['MediaInfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    var_type = subprocess.check_output(['mediainfo',
+                                        '--Language=raw',
+                                        '--Full',
+                                        type,
+                                        filename ]).replace('\n', '')
     return var_type
 # example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 
@@ -129,10 +140,14 @@ def set_environment(logfile):
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser()
+            + ' ' + what2log + ' \n')
     else:
         with open(log,"ab") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser()
+            + ' ' + what2log + ' \n')
 
 
 def hashlib_md5(filename):
@@ -267,3 +282,22 @@ def make_desktop_logs_dir():
         #I should probably ask permission here, or ask for alternative location
         os.makedirs(desktop_logs_dir)
     return desktop_logs_dir
+
+def get_image_sequence_files(directory):
+    # This function accepts a directory as input, and checks returns a list of files in an image sequence.
+    os.chdir(directory)
+    tiff_check = glob('*.tiff')
+    dpx_check = glob('*.dpx')
+    tif_check = glob('*.tif')
+    if len(dpx_check) > 0:
+        images = dpx_check
+        images.sort()
+    elif len(tiff_check) > 0:
+        images = tiff_check
+        images.sort()
+    elif len(tif_check) > 0:
+        images = tif_check
+        images.sort()
+    else:
+        return 'none'
+    return images
