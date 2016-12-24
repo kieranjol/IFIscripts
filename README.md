@@ -32,8 +32,6 @@ table of contents
 5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
-    * [rawaudio.py](https://github.com/kieranjol/IFIscripts#rawaudiopy)
-    * [treatedaudio.py](https://github.com/kieranjol/IFIscripts#treatedaudiopy)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
@@ -169,16 +167,6 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for batch processing all videos in a directory - `qctools.py directory_name`
 
 ## Specific Workflows ##
-
-### rawaudio.py ###
-* Performs various preservation actions on a WAV file produced from a film scan:
-    * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
-* Usage: `rawaudio.py wav_filename.wav`
-
-### treatedaudio.py ###
-* Performs various preservation actions on a restored WAV file produced from a film scan:
-    * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
-* Usage: `treatedaudio.py wav_filename.wav`
 
 ### mezzaninecheck.py ###
 * Checks folders in order to see if either 0 or >1 files exist in a mezzanine/objects folder.
