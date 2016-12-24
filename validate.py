@@ -9,7 +9,6 @@ import getpass
 from ififuncs import make_desktop_logs_dir
 
 
-
 def hashlib_md5(filename):
    read_size = 0
    last_percent_done = 0
@@ -26,12 +25,10 @@ def hashlib_md5(filename):
            if percent_done > last_percent_done:
                sys.stdout.write('[%d%%]\r' % percent_done)
                sys.stdout.flush()
-
-
                last_percent_done = percent_done
    md5_output = m.hexdigest()
    return md5_output
-   
+
 def get_input(manifest):
     if not manifest.endswith(('.txt', '.md5', '.exf' )):
         print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.'
@@ -40,7 +37,7 @@ def get_input(manifest):
         print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this.  It will list some missing files but will validate checksums as usual.'
         return manifest
     else:
-        return manifest    
+        return manifest
 
 def parse_manifest(manifest):
     missing_files = 0
@@ -69,10 +66,8 @@ def parse_manifest(manifest):
     return manifest_dict, missing_files
 
 def validate(manifest_dict, manifest,missing_files):
-    logging.basicConfig(filename='myapp.log', level=logging.INFO)
     logging.info('Validating %s ' % manifest)
     error_counter = 0
-    logging.info('Started at %s using the following workstation: %s' % (time.strftime("%Y-%m-%dT%H:%M:%S "), getpass.getuser()))
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
     error_list = []
@@ -111,6 +106,7 @@ def check_manifest(input):
     manifest = get_input(input)
     manifest_dict, missing_files = parse_manifest(manifest)
     validate(manifest_dict, manifest, missing_files)
+
 def main():
     parser = make_parser()
     args = parser.parse_args()
@@ -119,6 +115,8 @@ def main():
     log = "%s/%s_fixity_validation.log" % (desktop_logs_dir, log_name_source_)
     root = logging.getLogger()
     logging.basicConfig(filename=log, filemode='a',level=logging.INFO)
+    logging.info('Started at %s using the following workstation: %s' % (time.strftime("%Y-%m-%dT%H:%M:%S "), getpass.getuser()))
+
     #root.setLevel(logging.DEBUG)
     check_manifest(args.input)
 if __name__ == '__main__':
