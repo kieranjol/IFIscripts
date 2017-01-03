@@ -138,6 +138,8 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user, image_date_modif
     split_list = os.path.basename(os.path.dirname(os.path.dirname(root_dir))).split('_')
     if 'ifard2016' in split_list[2]:
         split_list[2] = split_list[2].replace('ifard2016', 'IFA-(RD)2016-')
+    elif 'ifard2017' in split_list[2]:
+        split_list[2] = split_list[2].replace('ifard2017', 'IFA-(RD)2017-')
 
     audio_items = {"workflow":"treated audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
     image_items = {"workflow":"grade","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Gavin Martin'}

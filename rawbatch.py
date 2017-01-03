@@ -158,6 +158,10 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     representation_uuid = str(uuid.uuid4())
     premisxml, premis_namespace, doc, premis = setup_xml(source_directory)
     split_list = os.path.basename(root_dir).split('_')
+    if 'ifard2016' in split_list[2]:
+        split_list[2] = split_list[2].replace('ifard2016', 'IFA-(RD)2016-')
+    elif 'ifard2017' in split_list[2]:
+        split_list[2] = split_list[2].replace('ifard2017', 'IFA-(RD)2017-')
     audio_items = {"workflow":"raw audio","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":'Brian Cash'}
     image_items = {"workflow":"scanning","oe":split_list[0], "filmographic":split_list[1], "sourceAccession":split_list[2], "interventions":['placeholder'], "prepList":['placeholder'], "user":user}
     linking_representation_uuids = []
