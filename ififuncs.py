@@ -326,3 +326,20 @@ def get_ffmpeg_friendly_name(images):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
             counter += 1
     return ffmpeg_friendly_name, container, start_number
+    
+def get_date_modified(filename):
+    """Gets the date modified date of a filename in ISO8601 style.
+
+    Date created values seem to be difficult to grab in a cross-platform way.
+
+
+        Args:
+            filename: Path of filename to check.
+
+        Returns:
+            date_modified: string, for example '2016-12-19T21:30:43'
+
+        """
+    epoch_time = os.path.getmtime(filename)
+    date_modified =  datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%dT%H:%M:%S")
+    return date_modified
