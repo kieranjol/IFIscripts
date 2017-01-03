@@ -130,7 +130,7 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
 
-def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier, eventLinkingObjectRole):
+def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier, eventLinkingObjectRole, event_time):
         premis_namespace                    = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
@@ -143,7 +143,10 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         event.insert(2,event_Type)
         event_DateTime                      = ET.Element("{%s}eventDateTime" % (premis_namespace))
         event.insert(3,event_DateTime)
-        event_DateTime.text                 = time.strftime("%Y-%m-%dT%H:%M:%S")
+        if event_time == 'now':
+            event_DateTime.text             = time.strftime("%Y-%m-%dT%H:%M:%S")
+        else:
+            event_DateTime.text             = event_time
         event_Type.text                     = event_type
         event_id_value.text                 = eventID
         event_id_type.text                  = 'UUID'
