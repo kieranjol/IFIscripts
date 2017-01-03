@@ -199,7 +199,6 @@ def setup_xml(source_file):
 
 def representation_uuid_csv(filmographic, source_accession, uuid):
     uuid_csv = os.path.expanduser('~/Desktop/uuid.csv')
-    print os.path.abspath(uuid_csv)
     if not os.path.isfile(uuid_csv):
         create_csv(uuid_csv, ('reference number','source accession number' 'uuid'))
     append_csv(uuid_csv, (filmographic, source_accession, uuid) )
@@ -251,7 +250,6 @@ def representation_relationship(object_parent, premisxml, items, relationshiptyp
         relationshipSubType                                     = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text                                = relationshipsubtype
         representationrelatedObjectIdentifierType.text          = linkingtype
-        print linking_identifier
         representationrelatedObjectIdentifierValue.text          = linking_identifier
 
 def create_object(source_file, items, premis, premis_namespace, premisxml, representation_uuid, sequence):
