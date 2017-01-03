@@ -119,8 +119,8 @@ def premis_log(source_parent_dir, source_directory):
             linkingEventIdentifierType.text = 'UUID'
     representation_uuid  = doc.findall('//ns:objectIdentifierValue',namespaces={'ns': premis_namespace})[0].text
     #ffmpegAgent                                 = make_agent(premis,[framemd5_uuid ], 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source')
-    make_event(premis, 'message digest calculation', 'Frame level checksums of images', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]], framemd5_uuid, representation_uuid, 'source' )
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [['UUID','9430725d-7523-4071-9063-e8a6ac4f84c4' ]],final_sip_manifest_uuid,representation_uuid, 'source', 'now')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of images', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]], framemd5_uuid, representation_uuid, 'source', 'now' )
     write_premis(doc, premisxml)
 
 
