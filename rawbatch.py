@@ -10,6 +10,7 @@ import time
 import uuid
 from glob import glob
 from ififuncs import hashlib_manifest
+from ififuncs import get_date_modified
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
@@ -66,7 +67,7 @@ def get_user():
             user =  raw_input('\n\n**** Who did the actual scanning?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n')
     if user == '1':
         user = 'Brian Cash'
-        print 'Hi Brian, I promise not to leave any water bottles in the telecine room from now on '
+        print 'Hi Brian, I believe that we can move on from that water bottle message as I have changed my terrible ways'
         time.sleep(1)
     elif user == '2':
         user = 'Gavin Martin'
@@ -143,8 +144,15 @@ def process_audio(input, args):
     return root_dir, process_counter, total_process, aeo_raw_extract_wav_dir
 
 
-def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation):
+def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified):
     source_directory = root_dir + '/objects/image'
+    image_dir_list = os.listdir(source_directory)
+    for image_files in image_dir_list:
+        if not image_files[0] == '.':
+            if image_files.endswith('.tiff'):
+                first_image =  source_directory + '/' + image_files
+                image_date_modified = get_date_modified(first_image)
+                continue
     print 'Process %d of %d - Generating PREMIS XML file' % (process_counter,total_process)
     process_counter += 1
     representation_uuid = str(uuid.uuid4())
@@ -218,13 +226,13 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     scannerPCAgent                              = make_agent(premis,[scanning_uuid], 'ca731b64-638f-4dc3-9d27-0fc14387e38c')
     scannerLinuxAgent                           = make_agent(premis,[scanning_uuid], 'b22baa5c-8160-427d-9e2f-b62a7263439d')
 
-    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, script_user_Agent, scannerPCAgent, scannerLinuxAgent], scanning_uuid,xml_info[4], 'outcome')
-    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, script_user_Agent], capture_received_uuid,image_uuids,'outcome')
-    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, brianAgent, aeolight_computer, aeolight_OS ], extract_uuid,[audio_file_uuid], 'outcome')
-    make_event(premis, 'message digest calculation', 'Whole file checksum of audio created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,[audio_file_uuid], 'source')
-    make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,[audio_file_uuid], 'source' )
-    make_event(premis, 'message digest calculation', 'Whole file checksums of image created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,[representation_uuid], 'source')
-    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], package_manifest_uuid,[representation_uuid], 'source' )
+    make_event(premis, 'creation', 'Film scanned to 12-bit RAW Bayer format and transcoded internally by ca731b64-638f-4dc3-9d27-0fc14387e38c to 16-bit RGB linear TIFF', [scannerAgent, script_user_Agent, scannerPCAgent, scannerLinuxAgent], scanning_uuid,xml_info[4], 'outcome', image_date_modified)
+    make_event(premis, 'creation', 'TIFF image sequence is received via ethernet from ca731b64-638f-4dc3-9d27-0fc14387e38c and written to Disk', [transcoderMachine,transcoderMachineOS, script_user_Agent], capture_received_uuid,image_uuids,'outcome', image_date_modified)
+    make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, brianAgent, aeolight_computer, aeolight_OS ], extract_uuid,[audio_file_uuid], 'outcome',audio_date_modified)
+    make_event(premis, 'message digest calculation', 'Whole file checksum of audio created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,[audio_file_uuid], 'source', 'now')
+    make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,[audio_file_uuid], 'source', 'now' )
+    make_event(premis, 'message digest calculation', 'Whole file checksums of image created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,[representation_uuid], 'source', 'now')
+    make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], package_manifest_uuid,[representation_uuid], 'source', 'now' )
     write_premis(doc, premisxml)
 
 def main():
@@ -237,10 +245,11 @@ def main():
         for files in filenames:
             if files.endswith('.wav'):
                 root_dir, process_counter, total_process, aeo_raw_extract_wav_dir = process_audio(os.path.join(root,files), args)
+                audio_date_modified = get_date_modified(os.path.join(root,files))
                 if total_process == 'x':
                     continue
                 else:
-                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation)
+                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified)
             else:
                 continue
 
