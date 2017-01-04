@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="scanningTab">
      <attribute name="title">
@@ -150,86 +150,6 @@
       <property name="text">
        <string>Preparation Actions</string>
       </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="gradeTab">
-     <attribute name="title">
-      <string>Grade</string>
-     </attribute>
-     <widget class="QListWidget" name="listWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>391</width>
-        <height>341</height>
-       </rect>
-      </property>
-      <item>
-       <property name="text">
-        <string>Rescale via Frameflex</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Rescale via Baselight</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Set reference black and white via Baselight</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Set reference black and white via Baselight colour correction</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Local Scaling via Baselight</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Contrast Curve adjustment via Baselight</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Saturation adjustment via Baselight Hue Shift</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Hue Shift via Baselight Hue Shift</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Image Stabilisation via Avid No active image area lost</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Image Stabilisation via Avid but active image area lost</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Horizontal flipping</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Vertical flipping</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Damage removal via Paint effect</string>
-       </property>
-      </item>
      </widget>
     </widget>
     <widget class="QWidget" name="tapeTab">
@@ -448,6 +368,89 @@
       </item>
      </widget>
     </widget>
+    <widget class="QWidget" name="gradeTab">
+     <attribute name="title">
+      <string>Grade</string>
+     </attribute>
+     <widget class="QListWidget" name="listWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>391</width>
+        <height>341</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>Rescale via Frameflex</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Rescale via Baselight</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Set reference black and white via Baselight</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Set reference black and white via Baselight colour correction</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Local Scaling via Baselight</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Contrast Curve adjustment via Baselight</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Saturation adjustment via Baselight Hue Shift</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Hue Shift via Baselight Hue Shift</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Image Stabilisation via Avid No active image area lost</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Image Stabilisation via Avid but active image area lost</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Horizontal flipping</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Vertical flipping</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Damage removal via Paint effect</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
    </widget>
    <widget class="QComboBox" name="userComboBox">
     <property name="geometry">
@@ -598,6 +601,16 @@
      <string>Process!</string>
     </property>
    </widget>
+   <zorder>userComboBox</zorder>
+   <zorder>lineEdit_3</zorder>
+   <zorder>oeTextBox</zorder>
+   <zorder>FilmographicTextBox</zorder>
+   <zorder>sourceAccessionTextBox</zorder>
+   <zorder>lineEdit_4</zorder>
+   <zorder>lineEdit_5</zorder>
+   <zorder>lineEdit_6</zorder>
+   <zorder>processButton</zorder>
+   <zorder>tabWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -605,7 +618,7 @@
      <x>0</x>
      <y>0</y>
      <width>877</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

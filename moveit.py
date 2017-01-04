@@ -5,30 +5,32 @@ import subprocess
 import os
 import pdb
 import filecmp
-from sys import platform as _platform
 import tempfile
 import time
 import argparse
 import getpass
 import hashlib
-from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir
+from sys import platform as _platform
+from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
 
-def generate_log(log, what2log):
-    if not os.path.isfile(log):
-        with open(log,"wb") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
-    else:
-        with open(log,"ab") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
 
 def hashlib_md5(filename, manifest):
+   read_size = 0
+   last_percent_done = 0
    m = hashlib.md5()
+   total_size = os.path.getsize(filename)
    with open(str(filename), 'rb') as f:
        while True:
            buf = f.read(2**20)
            if not buf:
                break
+           read_size += len(buf)
            m.update(buf)
+           percent_done = 100 * read_size / total_size
+           if percent_done > last_percent_done:
+               sys.stdout.write('[%d%%]\r' % percent_done)
+               sys.stdout.flush()
+               last_percent_done = percent_done
    md5_output = m.hexdigest()
    return md5_output + '  ' + os.path.abspath(filename) +  '\n'
 
@@ -105,7 +107,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
 
 def copy_dir():
     if _platform == "win32":
-        subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH', '/XD', '.*'])
+        subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH', '/XD', '.*', '/XD', '*System Volume Information*', '/XD', '$Recycle.bin', '/a-:SH', '/a+:R'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')
     elif _platform == "darwin":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51

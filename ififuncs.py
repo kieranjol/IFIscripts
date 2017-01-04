@@ -8,6 +8,8 @@ import getpass
 import os
 import filecmp
 import hashlib
+import datetime
+from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -26,6 +28,8 @@ def diff_textfiles(source_textfile, other_textfile):
     	print "CHECKSUM MISMATCH - Further information on the next line!!!"
         return 'lossy'
     	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
+
+
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
   with open(xmlfilename, "w+") as fo:
   	xmlvariable = subprocess.check_output(['mediainfo',
@@ -45,16 +49,24 @@ def make_qctools(input):
     qctoolsreport = subprocess.check_output(qctools_args)
     return qctoolsreport
 
+
 def write_qctools_gz(qctoolsxml, sourcefile):
     with open(qctoolsxml, "w+") as fo:
         fo.write(make_qctools(sourcefile))
     subprocess.call(['gzip', qctoolsxml])
 
+
 def get_audio_stream_count():
     audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
     return len(audio_stream_count)
+
+
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['MediaInfo', '--Language=raw', '--Full', type , filename ]).replace('\n', '')
+    var_type = subprocess.check_output(['mediainfo',
+                                        '--Language=raw',
+                                        '--Full',
+                                        type,
+                                        filename ]).replace('\n', '')
     return var_type
 # example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 
@@ -129,20 +141,35 @@ def set_environment(logfile):
 def generate_log(log, what2log):
     if not os.path.isfile(log):
         with open(log,"wb") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser()
+            + ' ' + what2log + ' \n')
     else:
         with open(log,"ab") as fo:
-            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ") + getpass.getuser() + ' ' + what2log + ' \n')
+            fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
+            + getpass.getuser()
+            + ' ' + what2log + ' \n')
 
 
 def hashlib_md5(filename):
+   read_size = 0
+   last_percent_done = 0
    m = hashlib.md5()
+   total_size = os.path.getsize(filename)
    with open(str(filename), 'rb') as f:
        while True:
            buf = f.read(2**20)
            if not buf:
                break
+           read_size += len(buf)
            m.update(buf)
+           percent_done = 100 * read_size / total_size
+           if percent_done > last_percent_done:
+               sys.stdout.write('[%d%%]\r' % percent_done)
+               sys.stdout.flush()
+
+
+               last_percent_done = percent_done
    md5_output = m.hexdigest()
    return md5_output
 
@@ -256,3 +283,64 @@ def make_desktop_logs_dir():
         #I should probably ask permission here, or ask for alternative location
         os.makedirs(desktop_logs_dir)
     return desktop_logs_dir
+
+def get_image_sequence_files(directory):
+    # This function accepts a directory as input, and checks returns a list of files in an image sequence.
+    os.chdir(directory)
+    tiff_check = glob('*.tiff')
+    dpx_check = glob('*.dpx')
+    tif_check = glob('*.tif')
+    if len(dpx_check) > 0:
+        images = dpx_check
+        images.sort()
+    elif len(tiff_check) > 0:
+        images = tiff_check
+        images.sort()
+    elif len(tif_check) > 0:
+        images = tif_check
+        images.sort()
+    else:
+        return 'none'
+    return images
+
+def get_ffmpeg_friendly_name(images):
+    if '864000' in images[0]:
+        start_number = '864000'
+    elif len(images[0].split("_")[-1].split(".")) > 2:
+        start_number = images[0].split("_")[-1].split(".")[1]
+    else:
+        start_number = images[0].split("_")[-1].split(".")[0]
+    container               = images[0].split(".")[-1]
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")
+    else:
+        numberless_filename = images[0].split("_")[0:-1]
+    ffmpeg_friendly_name = ''
+    counter = 0
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+        print ffmpeg_friendly_name
+    else:
+        while  counter <len(numberless_filename) :
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
+    return ffmpeg_friendly_name, container, start_number
+    
+def get_date_modified(filename):
+    """Gets the date modified date of a filename in ISO8601 style.
+
+    Date created values seem to be difficult to grab in a cross-platform way.
+
+
+        Args:
+            filename: Path of filename to check.
+
+        Returns:
+            date_modified: string, for example '2016-12-19T21:30:43'
+
+        """
+    epoch_time = os.path.getmtime(filename)
+    date_modified =  datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%dT%H:%M:%S")
+    return date_modified

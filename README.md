@@ -32,8 +32,7 @@ table of contents
 5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
-    * [rawaudio.py](https://github.com/kieranjol/IFIscripts#rawaudiopy)
-    * [treatedaudio.py](https://github.com/kieranjol/IFIscripts#treatedaudiopy)
+    * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
 8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
@@ -127,9 +126,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### seq2prores.py ###
 * Specific IFI workflow that expects a particular folder path:
-* Recursively batch process image sequence folders with seperate WAV files and transcode to a single Apple Pro Res HQ file in a MOV container.
+* Recursively batch process image sequence folders with seperate WAV files and transcode to a single Apple Pro Res HQ file in a MOV container. PREMIS XML log files are generated with hardcoded IFI values for the source DPX sequence and the transcoded mezzanine file in the respective /metadata directory
 * A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
 * Usage - `seq2prores.py directory`
+* seq2prores accepts multiple parent folders, so one can run `seq2prores.py directory1 directory2 directory3` etc
 
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container.
@@ -168,15 +168,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ## Specific Workflows ##
 
-### rawaudio.py ###
-* Performs various preservation actions on a WAV file produced from a film scan:
-    * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
-* Usage: `rawaudio.py wav_filename.wav`
-
-### treatedaudio.py ###
-* Performs various preservation actions on a restored WAV file produced from a film scan:
-    * Subfolder creation/checksum creation/framemd5 creation/file duplication/metadata extraction.
-* Usage: `treatedaudio.py wav_filename.wav`
+### mezzaninecheck.py ###
+* Checks folders in order to see if either 0 or >1 files exist in a mezzanine/objects folder.
+* 
+* Usage: `treatedaudio.py /path/to/parent_folder`
 
 ## Misc ##
 

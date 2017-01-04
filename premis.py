@@ -10,16 +10,29 @@ import pg
 import hashlib
 from collections import OrderedDict
 import csv
+from ififuncs import append_csv
+from ififuncs import create_csv
 
 
 def hashlib_md5(source_file,filename):
+   read_size = 0
+   last_percent_done = 0
    m = hashlib.md5()
+   total_size = os.path.getsize(filename)
    with open(str(filename), 'rb') as f:
        while True:
            buf = f.read(2**20)
            if not buf:
                break
+           read_size += len(buf)
            m.update(buf)
+           percent_done = 100 * read_size / total_size
+           if percent_done > last_percent_done:
+               sys.stdout.write('[%d%%]\r' % percent_done)
+               sys.stdout.flush()
+
+
+               last_percent_done = percent_done
    md5_output = m.hexdigest()
    return md5_output
 
@@ -76,7 +89,7 @@ def make_premis(source_file, items, premis, premis_namespace, premisxml,represen
 
 
 def make_agent(premis,linkingEventIdentifier_values, agentId ):
-    csv_file = os.path.expanduser("~/Desktop/premis_agents.csv")
+    csv_file = os.path.expanduser("~/ifigit/ifiscripts/premis_agents.csv")
     if os.path.isfile(csv_file):
         read_object = open(csv_file)
         reader = csv.reader(read_object)
@@ -87,6 +100,7 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
             if item == agentId:
                 agent_info = lists
     agentIdType_value,agentIdValue_value,agentName_value,agentType_value, agentVersion_value,agentNote_value,agentRole = agent_info
+
     if agentVersion_value == 'ffmpeg_autoextract':
         agentVersion_value = subprocess.check_output(['ffmpeg','-version','-v','0']).splitlines()[0]
     premis_namespace            = "http://www.loc.gov/premis/v3"
@@ -116,11 +130,11 @@ def make_agent(premis,linkingEventIdentifier_values, agentId ):
     agent_info                  = [agentIdType_value,agentIdValue_value]
     return agent_info
 
-def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier, eventLinkingObjectRole):
+def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinkingObjectIdentifier, eventLinkingObjectRole, event_time):
         premis_namespace                    = "http://www.loc.gov/premis/v3"
         event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
         premis.insert(-1,event)
-        event_Identifier                    = create_unit(1,event,'event_Identifier')
+        event_Identifier                    = create_unit(1,event,'eventIdentifier')
         event_id_type                       = ET.Element("{%s}eventIdentifierType" % (premis_namespace))
         event_Identifier.insert(0,event_id_type)
         event_id_value                      = ET.Element("{%s}eventIdentifierValue" % (premis_namespace))
@@ -129,20 +143,24 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
         event.insert(2,event_Type)
         event_DateTime                      = ET.Element("{%s}eventDateTime" % (premis_namespace))
         event.insert(3,event_DateTime)
-        event_DateTime.text                 = time.strftime("%Y-%m-%dT%H:%M:%S")
+        if event_time == 'now':
+            event_DateTime.text             = time.strftime("%Y-%m-%dT%H:%M:%S")
+        else:
+            event_DateTime.text             = event_time
         event_Type.text                     = event_type
         event_id_value.text                 = eventID
         event_id_type.text                  = 'UUID'
-        eventDetailInformation              = create_unit(4,event,'event_DetailInformation')
+        eventDetailInformation              = create_unit(4,event,'eventDetailInformation')
         eventDetail                         = create_unit(0,eventDetailInformation,'eventDetail')
         eventDetail.text                    = event_detail
-        linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
-        linkingObjectIdentifierType         = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
-        linkingObjectIdentifierValue        = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
-        linkingObjectIdentifierValue.text   = eventLinkingObjectIdentifier
-        linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
-        linkingObjectIdentifierType.text    = 'UUID'
-        linkingObjectRole.text              = eventLinkingObjectRole
+        for i in eventLinkingObjectIdentifier:
+            linkingObjectIdentifier             = create_unit(5,event,'linkingObjectIdentifier')
+            linkingObjectIdentifierType         = create_unit(0,linkingObjectIdentifier,'linkingObjectIdentifierType')
+            linkingObjectIdentifierValue        = create_unit(1,linkingObjectIdentifier,'linkingObjectIdentifierValue')
+            linkingObjectIdentifierValue.text   = i
+            linkingObjectRole                   = create_unit(2,linkingObjectIdentifier,'linkingObjectRole')
+            linkingObjectIdentifierType.text    = 'UUID'
+            linkingObjectRole.text              = eventLinkingObjectRole
         for i in agentlist:
             linkingAgentIdentifier              = create_unit(-1,event,'linkingAgentIdentifier')
             linkingAgentIdentifierType          = create_unit(0,linkingAgentIdentifier,'linkingAgentIdentifierType')
@@ -179,36 +197,63 @@ def setup_xml(source_file):
     return premisxml, premis_namespace, doc, premis
 
 
-def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid):
-        object_parent = create_unit(0, premis, 'object')
+def representation_uuid_csv(filmographic, source_accession, uuid):
+    uuid_csv = os.path.expanduser('~/Desktop/uuid.csv')
+    if not os.path.isfile(uuid_csv):
+        create_csv(uuid_csv, ('reference number','source accession number' 'uuid'))
+    append_csv(uuid_csv, (filmographic, source_accession, uuid) )
+
+def create_intellectual_entity(premisxml, premis_namespace, doc, premis, items, intellectual_entity_uuid):
+    object_parent                                           = create_unit(0, premis, 'object')
+    object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
+    object_identifier_uuid                                  = create_unit(2,object_parent, 'objectIdentifier')
+    object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+    object_identifier_uuid_type.text                        = 'UUID'
+    object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
+    object_identifier_uuid_value.text                       = intellectual_entity_uuid
+    # add uuids to csv so that other workflows can use them as linking identifiers.
+    representation_uuid_csv(items['filmographic'],items['sourceAccession'], intellectual_entity_uuid)
+    object_parent.insert(1,object_identifier_parent)
+    object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
+    object_identifier_filmographic_reference_number         = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
+    object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
+    object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
+    object_identifier_filmographic_reference_value.text     = items['filmographic']
+    objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
+    objectCategory.text                                     = 'intellectual entity'
+def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence, intellectual_entity_uuid):
+        object_parent                                           = create_unit(1, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid                                  = create_unit(0,object_parent, 'objectIdentifier')
         object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         object_identifier_uuid_value.text                       = representation_uuid
+        # add uuids to csv so that other workflows can use them as linking identifiers.
+        representation_uuid_csv(items['filmographic'],items['sourceAccession'], representation_uuid)
         object_parent.insert(1,object_identifier_parent)
         ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
-        ob_id_type.text                                         = 'IFI Irish Film Archive Object Entry Number'
+        ob_id_type.text                                         = 'Irish Film Archive Object Entry Register'
         objectIdentifierValue                                   = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
         objectIdentifierValue.text                              = items['oe']
         object_identifier_parent.insert(0,ob_id_type)
-        object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
-        object_identifier_filmographic_reference_number         = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
-        object_identifier_filmographic_reference_number.text    = 'IFI Irish Film Archive Filmographic Reference Number'
-        object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
-        object_identifier_filmographic_reference_value.text     = items['filmographic']
-        objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
+        objectCategory                                          = create_unit(2,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[0], 'root_sequence', 'UUID')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[1], 'n/a', 'UUID')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'IFI Irish Film Archive Accessions Register')
+        if sequence == 'sequence':
+            representation_relationship(object_parent, premisxml, items, 'structural', 'has root',linkinguuids[1][0], 'root_sequence', 'UUID')
+            for i in linkinguuids[1]:
+                representation_relationship(object_parent, premisxml, items, 'structural', 'includes',i, 'includes', 'UUID')
+
+        representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[0], 'n/a', 'UUID')
+        representation_relationship(object_parent, premisxml, items, 'derivation', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010 -')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'represents',intellectual_entity_uuid, 'n/a', 'UUID')
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
-        relationship                                            = create_unit(4,object_parent, 'relationship')
-        representationrelatedObjectIdentifierType               = create_unit(2,relationship, 'relatedObjectIdentifierType')
-        representationrelatedObjectIdentifierValue              = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relationship                                            = create_unit(-1,object_parent, 'relationship')
+        representationrelatedObjectIdentifier                   = create_unit(2,relationship, 'relatedObjectIdentifier')
+        representationrelatedObjectIdentifierType               = create_unit(2,representationrelatedObjectIdentifier, 'relatedObjectIdentifierType')
+        representationrelatedObjectIdentifierValue              = create_unit(3,representationrelatedObjectIdentifier,'relatedObjectIdentifierValue')
         if root_sequence == 'root_sequence':
             relatedObjectSequence                                   = create_unit(4,relationship,'relatedObjectSequence')
             relatedObjectSequence.text                              = '1'
@@ -223,17 +268,18 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     video_files         = get_input(source_file)
     mediainfo_counter   = 1
 
-
+    image_uuids = []
     rep_counter = 0
+    print 'Generating PREMIS metadata about each file object - this may take some time if on a network and/or working with an image sequence'
     for image in video_files:
-        object_parent                                           = create_unit(mediainfo_counter,premis, 'object')
+        object_parent                                           = create_unit(-1,premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
-        ob_id_type.text                                         = 'IFI Irish Film Archive Object Entry Number'
+        ob_id_type.text                                         = 'Irish Film Archive Object Entry Register'
         object_identifier_parent.insert(0,ob_id_type)
         object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
         object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
-        object_identifier_filmographic_reference_number.text    = 'IFI Irish Film Archive Filmographic Reference Number'
+        object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
         object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
         object_identifier_filmographic_reference_value.text     = items['filmographic']
         objectCategory                                          = ET.Element("{%s}objectCategory" % (premis_namespace))
@@ -247,9 +293,12 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         file_uuid                                               = str(uuid.uuid4())
+        image_uuids.append(file_uuid)
         object_identifier_uuid_value.text                       = file_uuid
+
         if rep_counter == 0:
             root_uuid = file_uuid
+
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
         objectCharacteristics.insert(2,format_)
@@ -262,15 +311,19 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         size.text                       = str(os.path.getsize(image))
         formatDesignation               = create_unit(0,format_,'formatDesignation')
         formatName                      = create_unit(1,formatDesignation,'formatName')
-        formatName.text                 = subprocess.check_output(['mediainfo', '--Inform=General;%InternetMediaType%', image]).rstrip()
+        formatName_mediainfo            = subprocess.check_output(['mediainfo', '--Inform=General;%InternetMediaType%', image]).rstrip()
+        if formatName_mediainfo == '':
+            formatName_mediainfo        = subprocess.check_output(['mediainfo', '--Inform=General;%Format_Commercial%', image]).rstrip()
+        formatName.text                 = formatName_mediainfo
         messageDigestAlgorithm          = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest                   = create_unit(1,fixity, 'messageDigest')
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
         relationship                        = create_unit(7,object_parent, 'relationship')
-        relatedObjectIdentifierType         = create_unit(2,relationship, 'relatedObjectIdentifierType')
+        relatedObjectIdentifier             = create_unit(2,relationship, 'relatedObjectIdentifier')
+        relatedObjectIdentifierType         = create_unit(2,relatedObjectIdentifier , 'relatedObjectIdentifierType')
         relatedObjectIdentifierType.text    = 'UUID'
-        relatedObjectIdentifierValue        = create_unit(3,relationship,'relatedObjectIdentifierValue')
+        relatedObjectIdentifierValue        = create_unit(3,relatedObjectIdentifier ,'relatedObjectIdentifierValue')
         relatedObjectIdentifierValue.text   = representation_uuid
         if sequence == 'sequence':
             relatedObjectSequence               = create_unit(4,relationship,'relatedObjectSequence')
@@ -287,10 +340,9 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
 
     doc                 = ET.ElementTree(premis)
-    xml_info                                    = [doc, premisxml, root_uuid]
+    xml_info                                    = [doc, premisxml, root_uuid,sequence, image_uuids]
+
     return xml_info
-
-
 
 if __name__ == "__main__":
         main()

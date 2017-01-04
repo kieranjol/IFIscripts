@@ -8,7 +8,7 @@ input = sys.argv[1]
 
 os.chdir(input)
 print 'Please wait - gathering filelist...'
-tiffs = glob('*.tiff')
+tiffs = glob('*.tiff') + glob('*.dpx')
 counter = 0
 
 filename = tiffs[0]
