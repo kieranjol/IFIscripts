@@ -30,16 +30,27 @@ def make_parser():
 
 
 def create_manifest(input):
+    master_log = os.path.expanduser('~/Desktop/batchfixity_errors.log')
     os.chdir(input)
     for dirname in os.walk('.').next()[1]:
         full_path = os.path.join(input, dirname)
         manifest_textfile = '%s/%s_manifest.md5' % (full_path,dirname)
-        log_name = '%s/%s_fixity.log' % (os.path.dirname(full_path),dirname)
-        generate_log(log_name, 'batchfixity started')
-        generate_log(log_name, '%s created' % manifest_textfile)
-        hashlib_manifest(full_path, manifest_textfile, full_path)
-        generate_log(log_name, 'manifest creation complete')
-        shutil.move(log_name, full_path)
+        if not os.path.isfile(manifest_textfile):
+            log_name = '%s/%s_fixity.log' % (os.path.dirname(full_path),dirname)
+            generate_log(log_name, 'batchfixity started')
+            generate_log(log_name, '%s created' % manifest_textfile)
+            try:
+                hashlib_manifest(full_path, manifest_textfile, full_path)
+                generate_log(log_name, 'manifest creation complete')
+                shutil.move(log_name, full_path)
+            except IOError:
+                with open(master_log, 'ab') as log:
+                    log.write('%s has failed probably because of special characters like a fada\n' % full_path)
+                    generate_log(log_name, 'manifest has failed probably because of special characters like a fada')
+                   
+                
+            
+            
 
 
 def main():
