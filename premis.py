@@ -205,7 +205,6 @@ def representation_uuid_csv(filmographic, source_accession, uuid):
 
 def create_intellectual_entity(premisxml, premis_namespace, doc, premis, items, intellectual_entity_uuid):
     object_parent                                           = create_unit(0, premis, 'object')
-    object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
     object_identifier_uuid                                  = create_unit(2,object_parent, 'objectIdentifier')
     object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
     object_identifier_uuid_type.text                        = 'UUID'
