@@ -226,7 +226,7 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
         object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
         object_identifier_filmographic_reference_value.text     = items['filmographic']
-        objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
+        objectCategory                                          = create_unit(2,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
         if sequence == 'sequence':
