@@ -5,18 +5,18 @@ import sys
 import os
 import shutil
 import argparse
-from glob import glob
-from ififuncs import diff_textfiles
-from ififuncs import make_manifest
-from ififuncs import generate_log
 import datetime
 import time
 import csv
 import uuid
+from glob import glob
 from ififuncs import create_csv
 from ififuncs import append_csv
 from ififuncs import send_gmail
 from ififuncs import hashlib_manifest
+from ififuncs import diff_textfiles
+from ififuncs import make_manifest
+from ififuncs import generate_log
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
@@ -177,15 +177,9 @@ for source_directory in all_files:
                 continue
 
             root_dir = os.path.dirname(os.path.dirname(root))
-
-
             general_log = root_dir + '/logs/image/%s_image_log.log' % os.path.basename(root_dir)
             generate_log(general_log, 'Input = %s' % root)
             remove_bad_files(source_directory)
-
-
-
-
             source_parent_dir           = os.path.dirname(source_directory)
             normpath                    = os.path.normpath(source_directory)
             relative_path               = normpath.split(os.sep)[-1]
@@ -194,7 +188,7 @@ for source_directory in all_files:
             source_manifest             = root_dir + '/%s_manifest.md5' % relative_path
             generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
             make_manifest(root_dir, root_dir, source_manifest)
-            info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5',)
+            info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
             output_dirname              = info[0]
             source_textfile             = info[1]
             fmd5copy                    = root_dir + '/metadata/image'
@@ -208,7 +202,6 @@ for source_directory in all_files:
             generate_log(general_log, 'Starting TIFF to DPX transcode')
             tiff2dpx                    = ['ffmpegnometadata','-report','-f','image2','-framerate','24', '-i', tiff_filename ,output_dirname +  '/image/dpx_files' '/' + dpx_filename]
             print tiff2dpx
-
             subprocess.call(tiff2dpx,env=env_dict)
             generate_log(general_log, 'TIFF to DPX transcode complete')
             parent_basename =  os.path.basename(output_dirname)
