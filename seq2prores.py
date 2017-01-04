@@ -24,6 +24,7 @@ from premis import make_event
 from premis import setup_xml
 from premis import create_unit
 from premis import create_representation
+from premis import create_intellectual_entity
 
 def get_user():
     user = ''
@@ -74,7 +75,7 @@ def get_filenames(directory, log_filename_alteration):
     image_date_modified = get_date_modified(images[0])
     mediainfo_xml = '%s/%s_mediainfo.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
     mediatrace_xml = '%s/%s_mediatrace.xml' % (os.path.dirname(os.path.dirname(directory)) + '/metadata/image', images[0])
-    
+
     if not os.path.isfile(mediainfo_xml):
         print 'Creating mediainfo XML for %s' % images[0]
         make_mediainfo(mediainfo_xml, 'mediaxmloutput', images[0])
@@ -130,7 +131,7 @@ def remove_bad_files(root_dir):
                     os.remove(path)
 
 
-def premis_description(root_dir, aeo_raw_extract_wav_dir, user, image_date_modified, audio_date_modified):
+def premis_description(root_dir, aeo_raw_extract_wav_dir, user, image_date_modified, audio_date_modified, intellectual_entity_uuid):
     source_directory = root_dir
 
     representation_uuid = str(uuid.uuid4())
@@ -151,7 +152,8 @@ def premis_description(root_dir, aeo_raw_extract_wav_dir, user, image_date_modif
     print xml_info
     linking_representation_uuids.append(xml_info[4])
     linking_representation_uuids.append(image_items['sourceAccession'])
-    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
+    create_intellectual_entity(premisxml, premis_namespace, doc, premis, audio_items, intellectual_entity_uuid)
+    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence', intellectual_entity_uuid )
     doc         = xml_info[0]
     premisxml   = xml_info[1]
     premis = doc.getroot()
@@ -293,8 +295,8 @@ def main():
                 number_regex = "%0" + str(start_number_length) + 'd.'
                 audio_dir            = source_parent_dir + '/audio'
                 logs_dir            =  mezzanine_parent_dir + '/logs'
-
-                source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user, image_date_modified, audio_date_modified)
+                intellectual_entity_uuid = str(uuid.uuid4())
+                source_representation_uuid = premis_description(master_object_dir, master_parent_dir + '/objects/audio', user, image_date_modified, audio_date_modified, intellectual_entity_uuid)
 
                 os.chdir(audio_dir)
                 audio_file_list = glob('*.wav')
@@ -320,7 +322,8 @@ def main():
                 linking_representation_uuids.append(xml_info[2])
                 linking_representation_uuids.append(xml_info[2]) # the duplicate does nothing btw, they are a placeholder from a hardcoded function
                 linking_representation_uuids.append(source_representation_uuid)
-                create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence )
+                create_intellectual_entity(premisxml, premis_namespace, doc, premis, items, intellectual_entity_uuid)
+                create_representation(premisxml, premis_namespace, doc, premis, items,linking_representation_uuids, representation_uuid,sequence, intellectual_entity_uuid)
                 doc         = xml_info[0]
                 premisxml   = xml_info[1]
                 final_sip_manifest_uuid                     = str(uuid.uuid4())

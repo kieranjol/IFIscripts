@@ -17,6 +17,7 @@ from premis import make_agent
 from premis import make_event
 from premis import setup_xml
 from premis import create_representation
+from premis import create_intellectual_entity
 
 
 '''
@@ -144,7 +145,7 @@ def process_audio(input, args):
     return root_dir, process_counter, total_process, aeo_raw_extract_wav_dir
 
 
-def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified):
+def premis_description(root_dir, process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified, intellectual_entity_uuid):
     source_directory = root_dir + '/objects/image'
     image_dir_list = os.listdir(source_directory)
     for image_files in image_dir_list:
@@ -174,7 +175,8 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
 
     linking_representation_uuids.append(image_items['sourceAccession'])
     audio_file_uuid = linking_representation_uuids[0]
-    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence' )
+    create_intellectual_entity(premisxml, premis_namespace, doc, premis, audio_items, intellectual_entity_uuid)
+    create_representation(premisxml, premis_namespace, doc, premis, audio_items,linking_representation_uuids, representation_uuid, 'sequence', intellectual_entity_uuid)
     doc         = xml_info[0]
     premisxml   = xml_info[1]
     premis = doc.getroot()
@@ -235,6 +237,7 @@ def premis_description(root_dir, process_counter, total_process, aeo_raw_extract
     make_event(premis, 'creation', 'PCM WAV file extracted from overscanned image area of source TIFF files', [aeolightAgent, brianAgent, aeolight_computer, aeolight_OS ], extract_uuid,[audio_file_uuid], 'outcome',audio_date_modified)
     make_event(premis, 'message digest calculation', 'Whole file checksum of audio created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_premis_checksum_uuid,[audio_file_uuid], 'source', 'now')
     make_event(premis, 'message digest calculation', 'Frame level checksums of audio', [ffmpegAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], audio_framemd5_uuid,[audio_file_uuid], 'source', 'now' )
+
     make_event(premis, 'message digest calculation', 'Whole file checksums of image created for PREMIS XML', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], premis_checksum_uuid,[representation_uuid], 'source', 'now')
     make_event(premis, 'message digest calculation', 'Checksum manifest for whole package created', [hashlibAgent, brianAgent,macMiniTelecineMachineAgent, macMiniTelecineOSAgent], package_manifest_uuid,[representation_uuid], 'source', 'now' )
     write_premis(doc, premisxml)
@@ -253,7 +256,8 @@ def main():
                 if total_process == 'x':
                     continue
                 else:
-                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified)
+                    intellectual_entity_uuid = str(uuid.uuid4())
+                    premis_description(root_dir,process_counter, total_process, aeo_raw_extract_wav_dir, user, aeolight_workstation, audio_date_modified, intellectual_entity_uuid)
             else:
                 continue
 

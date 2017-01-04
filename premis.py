@@ -203,10 +203,26 @@ def representation_uuid_csv(filmographic, source_accession, uuid):
         create_csv(uuid_csv, ('reference number','source accession number' 'uuid'))
     append_csv(uuid_csv, (filmographic, source_accession, uuid) )
 
-
-def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence):
-
-        object_parent = create_unit(0, premis, 'object')
+def create_intellectual_entity(premisxml, premis_namespace, doc, premis, items, intellectual_entity_uuid):
+    object_parent                                           = create_unit(0, premis, 'object')
+    object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
+    object_identifier_uuid                                  = create_unit(2,object_parent, 'objectIdentifier')
+    object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
+    object_identifier_uuid_type.text                        = 'UUID'
+    object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
+    object_identifier_uuid_value.text                       = intellectual_entity_uuid
+    # add uuids to csv so that other workflows can use them as linking identifiers.
+    representation_uuid_csv(items['filmographic'],items['sourceAccession'], intellectual_entity_uuid)
+    object_parent.insert(1,object_identifier_parent)
+    object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
+    object_identifier_filmographic_reference_number         = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
+    object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
+    object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
+    object_identifier_filmographic_reference_value.text     = items['filmographic']
+    objectCategory                                          = create_unit(4,object_parent, 'objectCategory')
+    objectCategory.text                                     = 'intellectual entity'
+def create_representation(premisxml, premis_namespace, doc, premis, items, linkinguuids, representation_uuid, sequence, intellectual_entity_uuid):
+        object_parent                                           = create_unit(1, premis, 'object')
         object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid                                  = create_unit(0,object_parent, 'objectIdentifier')
         object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
@@ -221,11 +237,6 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
         objectIdentifierValue                                   = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
         objectIdentifierValue.text                              = items['oe']
         object_identifier_parent.insert(0,ob_id_type)
-        object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
-        object_identifier_filmographic_reference_number         = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
-        object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
-        object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
-        object_identifier_filmographic_reference_value.text     = items['filmographic']
         objectCategory                                          = create_unit(2,object_parent, 'objectCategory')
         objectCategory.text                                     = 'representation'
         # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
@@ -235,7 +246,8 @@ def create_representation(premisxml, premis_namespace, doc, premis, items, linki
                 representation_relationship(object_parent, premisxml, items, 'structural', 'includes',i, 'includes', 'UUID')
 
         representation_relationship(object_parent, premisxml, items, 'structural', 'includes',linkinguuids[0], 'n/a', 'UUID')
-        representation_relationship(object_parent, premisxml, items, 'structural', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010 -')
+        representation_relationship(object_parent, premisxml, items, 'derivation', 'has source',linkinguuids[2], 'n/a', 'Irish Film Archive Film Accession Register 2010 -')
+        representation_relationship(object_parent, premisxml, items, 'structural', 'represents',intellectual_entity_uuid, 'n/a', 'UUID')
 
 def representation_relationship(object_parent, premisxml, items, relationshiptype, relationshipsubtype, linking_identifier, root_sequence, linkingtype):
         relationship                                            = create_unit(-1,object_parent, 'relationship')
