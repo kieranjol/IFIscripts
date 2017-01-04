@@ -35,17 +35,19 @@ source_parent_dir    = os.path.dirname(source)
 normpath             = os.path.normpath(source)
 dirname              = os.path.split(os.path.basename(source))[1]
 relative_path        = normpath.split(os.sep)[-1]
-
+log_name_source_                = os.path.basename(args.source)  + time.strftime("_%Y_%m_%dT%H_%M_%S")
 if args.s:
     manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
+    log_name_source = source_parent_dir + '/%s.log' % log_name_source_
+
 else:
     manifest_ =  '/%s_manifest.md5' % relative_path
     desktop_manifest_dir = make_desktop_manifest_dir()
     manifest = "%s/%s" % (desktop_manifest_dir, manifest_)
 
-log_name_source_                = os.path.basename(args.source)  + time.strftime("_%Y_%m_%dT%H_%M_%S")
-desktop_logs_dir = make_desktop_logs_dir()
-log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
+
+    desktop_logs_dir = make_desktop_logs_dir()
+    log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
 
 
 generate_log(log_name_source, 'move.py started.')
