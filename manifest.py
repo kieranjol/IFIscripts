@@ -6,6 +6,7 @@ import os
 import getpass
 import argparse
 import time
+import shutil
 from ififuncs import generate_log
 from ififuncs import manifest_file_count
 from ififuncs import hashlib_manifest
@@ -27,6 +28,7 @@ parser = argparse.ArgumentParser(description='Generate manifest with checksums f
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('source', help='Input directory')
 parser.add_argument('-s', '-sidecar', action='store_true', help='Generates Sidecar')
+parser.add_argument('-f', '-felix', action='store_true', help='Felix Meehan workflow - places manifest inside of source directory')
 
 args = parser.parse_args()
 
@@ -39,7 +41,10 @@ log_name_source_                = os.path.basename(args.source)  + time.strftime
 if args.s:
     manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
     log_name_source = source_parent_dir + '/%s.log' % log_name_source_
-
+    
+elif args.f:
+    manifest = source + '/%s_manifest.md5' % relative_path
+    log_name_source = source_parent_dir + '/%s.log' % log_name_source_
 else:
     manifest_ =  '/%s_manifest.md5' % relative_path
     desktop_manifest_dir = make_desktop_manifest_dir()
@@ -82,8 +87,9 @@ source_manifest_start_time = time.time()
 if not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
-        hashlib_manifest(source, manifest,source_parent_dir)
+        hashlib_manifest(source, manifest,source)
         generate_log(log_name_source, 'EVENT = Generating source manifest')
+        shutil.move(log_name_source, source)
 
     except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
