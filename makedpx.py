@@ -4,6 +4,7 @@ import subprocess
 import sys
 import os
 import shutil
+import argparse
 from glob import glob
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
@@ -43,8 +44,11 @@ def make_framemd5(directory, container, log_filename_alteration):
     os.chdir(directory)
 
     images = glob('*.%s' % container)
-    global output_parent_directory
-    output_parent_directory = config[1].rstrip()
+    batch_dir = os.path.basename(os.path.dirname(os.path.dirname(root_dir)))
+    output_parent_directory = os.path.join(args.o, batch_dir)
+    if not os.path.isdir(output_parent_directory):
+        os.makedirs(output_parent_directory)
+
     numberless_filename = images[0].split("_")[0:-1]
     ffmpeg_friendly_name = ''
     counter = 0
@@ -72,7 +76,7 @@ def make_framemd5(directory, container, log_filename_alteration):
     framemd5 = ['ffmpeg','-report','-f','image2', '-i', ffmpeg_friendly_name,'-f','framemd5',output]
     print framemd5
     subprocess.call(framemd5, env=env_dict)
-    info = [output_dirname, output, image_seq_without_container]
+    info = [output_dirname, output, image_seq_without_container, output_parent_directory]
     return info
 def file_check(dir2check):
     os.chdir(dir2check)
@@ -123,14 +127,22 @@ def premis_log(source_parent_dir, source_directory):
     make_event(premis, 'message digest calculation', 'Frame level checksums of images', [['UUID','ee83e19e-cdb1-4d83-91fb-7faf7eff738e' ]], framemd5_uuid, representation_uuid, 'source', 'now' )
     write_premis(doc, premisxml)
 
+parser = argparse.ArgumentParser(description='DPX2TIFF specific workflow for IFI'
+                                ' Written by Kieran O\'Leary.')
+parser.add_argument(
+                    'input', nargs='+',
+                    help='full path of input directory'
+                    )
+parser.add_argument(
+                    '-o',
+                    help='full path of output directory', required=True)
+args = parser.parse_args()
+print args
 
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
-dpxconfig = os.path.expanduser("~/Desktop/") + 'make_dpx_config.txt'
-with open(dpxconfig, 'r') as fo:
-    config = fo.readlines()
-emails = config[0].split(',')
+
 permission = ''
-all_files = sys.argv[1:]
+all_files = args.input
 if not permission == 'y' or permission == 'Y':
     print '\n\n**** All TIFF sequences within these directories will be converted to DPX.\n'
     for i in all_files:
@@ -150,12 +162,11 @@ if not user == '1' or user == '2':
         user =  raw_input('\n\n**** Who are you?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n')
 if user == '1':
     user = 'Brian Cash'
-    print 'Hi Brian, thanks for the Twin Peaks Box Set '
+    print 'Hi Brian, *****INSERT NEW MESSAGE HERE********* '
 elif user == '2':
     user = 'Gavin Martin'
     print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
     time.sleep(1)
-print user
 
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
 for source_directory in all_files:
@@ -166,6 +177,8 @@ for source_directory in all_files:
                 continue
 
             root_dir = os.path.dirname(os.path.dirname(root))
+
+
             general_log = root_dir + '/logs/image/%s_image_log.log' % os.path.basename(root_dir)
             generate_log(general_log, 'Input = %s' % root)
             remove_bad_files(source_directory)
@@ -181,12 +194,13 @@ for source_directory in all_files:
             source_manifest             = root_dir + '/%s_manifest.md5' % relative_path
             generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
             make_manifest(root_dir, root_dir, source_manifest)
-            info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
+            info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5',)
             output_dirname              = info[0]
             source_textfile             = info[1]
             fmd5copy                    = root_dir + '/metadata/image'
             shutil.copy(source_textfile,fmd5copy )
             image_seq_without_container = info[2]
+            output_parent_directory     = info[3]
             tiff_filename               = image_seq_without_container + "%06d.tiff"
             dpx_filename                = image_seq_without_container + "%06d.dpx"
             logfile                     = output_dirname + '/image/logs/%sdpx_transcode.log' % image_seq_without_container
