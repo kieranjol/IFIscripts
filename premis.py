@@ -212,7 +212,6 @@ def create_intellectual_entity(premisxml, premis_namespace, doc, premis, items, 
     object_identifier_uuid_value.text                       = intellectual_entity_uuid
     # add uuids to csv so that other workflows can use them as linking identifiers.
     representation_uuid_csv(items['filmographic'],items['sourceAccession'], intellectual_entity_uuid)
-    object_parent.insert(1,object_identifier_parent)
     object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
     object_identifier_filmographic_reference_number         = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
     object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
@@ -272,34 +271,23 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
     print 'Generating PREMIS metadata about each file object - this may take some time if on a network and/or working with an image sequence'
     for image in video_files:
         object_parent                                           = create_unit(-1,premis, 'object')
-        object_identifier_parent                                = create_unit(1,object_parent, 'objectIdentifier')
-        ob_id_type                                              = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
-        ob_id_type.text                                         = 'Irish Film Archive Object Entry Register'
-        object_identifier_parent.insert(0,ob_id_type)
-        object_identifier_filmographic                          = create_unit(3,object_parent, 'objectIdentifier')
-        object_identifier_filmographic_reference_number = create_unit(1,object_identifier_filmographic, 'objectIdentifierType')
-        object_identifier_filmographic_reference_number.text    = 'Irish Film Archive Filmographic Database'
-        object_identifier_filmographic_reference_value          = create_unit(2,object_identifier_filmographic, 'objectIdentifierValue')
-        object_identifier_filmographic_reference_value.text     = items['filmographic']
-        objectCategory                                          = ET.Element("{%s}objectCategory" % (premis_namespace))
-        object_parent.insert(5,objectCategory)
-        objectCategory.text                                     = 'file'
-        objectCharacteristics                                   = create_unit(10,object_parent, 'objectCharacteristics')
-        objectIdentifierValue                                   = create_unit(1, object_identifier_parent, 'objectIdentifierValue')
-        objectIdentifierValue.text                              = items['oe']
-        object_identifier_uuid                                  = create_unit(2,object_parent, 'objectIdentifier')
+        object_identifier_uuid                                  = create_unit(1,object_parent, 'objectIdentifier')
         object_identifier_uuid_type                             = create_unit(1,object_identifier_uuid, 'objectIdentifierType')
         object_identifier_uuid_type.text                        = 'UUID'
         object_identifier_uuid_value                            = create_unit(2,object_identifier_uuid, 'objectIdentifierValue')
         file_uuid                                               = str(uuid.uuid4())
         image_uuids.append(file_uuid)
         object_identifier_uuid_value.text                       = file_uuid
+        objectCategory                                          = ET.Element("{%s}objectCategory" % (premis_namespace))
+        object_parent.insert(5,objectCategory)
+        objectCategory.text                                     = 'file'
 
         if rep_counter == 0:
             root_uuid = file_uuid
 
         rep_counter +=1
         format_ = ET.Element("{%s}format" % (premis_namespace))
+        objectCharacteristics                                   = create_unit(10,object_parent, 'objectCharacteristics')
         objectCharacteristics.insert(2,format_)
 
         mediainfo                       = subprocess.check_output(['mediainfo', '-f', '--language=raw', '--Output=XML', image])
