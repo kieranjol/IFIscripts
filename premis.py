@@ -6,7 +6,6 @@ import sys
 import subprocess
 import os
 from glob import glob
-import pg
 import hashlib
 from collections import OrderedDict
 import csv
@@ -172,13 +171,8 @@ def make_event(premis,event_type, event_detail, agentlist, eventID, eventLinking
 
 
 def main():
-        source_file = sys.argv[1]
-        premisxml, premis_namespace, doc, premis = setup_xml(source_file)
-        items       = pg.main()
-        xml_info    = make_premis(source_file, items, premis, premis_namespace, premisxml)
-        doc         = xml_info[0]
-        premisxml   = xml_info[1]
-        write_premis(doc, premisxml)
+    print 'This is not a standalone script. It is a library of functions that other scripts can use'
+    sys.exit()
 
 def setup_xml(source_file):
     premisxml           = os.path.dirname(os.path.dirname(source_file)) + '/metadata' '/' + os.path.basename(os.path.dirname(os.path.dirname(source_file))) + '_premis.xml'
