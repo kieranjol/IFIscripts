@@ -298,6 +298,8 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         formatName.text                 = formatName_mediainfo
         messageDigestAlgorithm          = create_unit(0,fixity, 'messageDigestAlgorithm')
         messageDigest                   = create_unit(1,fixity, 'messageDigest')
+        messageDigestOriginator         = create_unit(2,fixity, 'messageDigestOriginator')
+        messageDigestOriginator.text    = 'internal'
         objectCharacteristicsExtension  = create_unit(4,objectCharacteristics,'objectCharacteristicsExtension')
         objectCharacteristicsExtension.insert(mediainfo_counter, mediainfo_xml)
         relationship                        = create_unit(7,object_parent, 'relationship')
