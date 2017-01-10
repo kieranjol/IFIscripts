@@ -23,6 +23,7 @@ table of contents
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
     * [seq2prores.py](https://github.com/kieranjol/IFIscripts#seq2prorespy)
+     * [rawbatch.py](https://github.com/kieranjol/IFIscripts#rawcatchpy)
     * [seq.py](https://github.com/kieranjol/IFIscripts#seqpy)
 	* [oeremove.py](https://github.com/kieranjol/IFIscripts#oeremovepy)
     * [renumber.py](https://github.com/kieranjol/IFIscripts#renumberpy)
