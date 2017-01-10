@@ -131,6 +131,13 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage - `seq2prores.py directory`
 * seq2prores accepts multiple parent folders, so one can run `seq2prores.py directory1 directory2 directory3` etc
 
+### rawbatch.py ###
+* Specific IFI workflow that expects a particular folder path:
+* Recursively batch process image sequence folders with seperate WAV files, generating PREMIS XML log files with hardcoded IFI values.
+* A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
+* Usage - `rawbatch.py directory`
+* rawbatch accepts multiple parent folders, so one can run 'rawbatch.py directory1 directory2 directory3` etc
+
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container.
 * Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
