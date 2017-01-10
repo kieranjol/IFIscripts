@@ -21,17 +21,18 @@ from premis import create_intellectual_entity
 
 
 '''
-1. Accepts the wav as input
-2. in /audio subfolder, the only files should be the audio.wav and the log.txt
-3. workhorse copy sent to desktop
-4. mediainfo in /xml_files
-5. framemd5 in /md5
-6. manifest in audio directory
-7. log gets moved to /log
-8. audio gets moved to aeo_raw_extract_wav
-9. To DO - Premis/revtmd.
+1. Accepts directory as input
+2. Looks for the wav file
+3. in /audio subfolder, the only files should be the audio.wav and the log.txt
+4. workhorse wav copy sent to desktop
+5. premis xml created
+6. audio framemd5 gets moved to /metadata/audio
+7. audio mediainfo gets moved to /metadata/audio
+8. log gets moved to /logs/audio
+9. manifest for whole SIP in directory
 
-usage = python rawaudio.py audio.wav
+
+usage = python rawbatch.py directory
 
 '''
 def set_environment(logfile):
