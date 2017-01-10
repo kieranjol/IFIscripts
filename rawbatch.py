@@ -107,6 +107,9 @@ def process_audio(input, args):
     root_dir = os.path.dirname(os.path.dirname(parent_dir))
     os.chdir(root_dir)
     metadata_dir = root_dir + '/metadata/audio'
+    aeo_light_premislog = input + '.xml'
+    if os.path.isfile(aeo_light_premislog):
+        shutil.move(aeo_light_premislog, metadata_dir)
     logs_dir = 'logs/audio'
     aeo_raw_extract_wav_dir = root_dir + '/objects/audio'
     framemd5 = metadata_dir + '/' + os.path.basename(input) +'.framemd5'
