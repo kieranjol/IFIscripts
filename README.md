@@ -134,7 +134,8 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### rawbatch.py ###
 * Specific IFI workflow that expects a particular folder path:
-* Recursively batch process image sequence folders with seperate WAV files, generating PREMIS XML log files with hardcoded IFI values.
+* Recursively batch processes image sequence folders with seperate WAV files, generating PREMIS XML log files with hardcoded IFI values.
+* A duplicate audio WAV file is created and sent to desktop as workhorse.
 * A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
 * Usage - `rawbatch.py directory`
 * rawbatch accepts multiple parent folders, so one can run 'rawbatch.py directory1 directory2 directory3` etc
