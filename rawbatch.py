@@ -121,7 +121,7 @@ def process_audio(input, args):
     process_counter += 1
     normpath = os.path.normpath(root_dir)
     relative_path = normpath.split(os.sep)[-1]
-    manifest =  root_dir + '/audio_manifest.md5'
+    manifest =  root_dir + '/raw_sip_manifest.md5'
     filenoext = os.path.splitext(input)[0]
     inputxml =  inputxml  = "%s/%s_mediainfo.xml" % (metadata_dir,os.path.basename(input))
     make_mediainfo(inputxml,'mediaxmlinput',input)
