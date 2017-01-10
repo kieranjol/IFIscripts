@@ -23,6 +23,7 @@ table of contents
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
     * [seq2prores.py](https://github.com/kieranjol/IFIscripts#seq2prorespy)
+    * [rawbatch.py](https://github.com/kieranjol/IFIscripts#rawbatchpy)
     * [seq.py](https://github.com/kieranjol/IFIscripts#seqpy)
 	* [oeremove.py](https://github.com/kieranjol/IFIscripts#oeremovepy)
     * [renumber.py](https://github.com/kieranjol/IFIscripts#renumberpy)
@@ -130,6 +131,14 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
 * Usage - `seq2prores.py directory`
 * seq2prores accepts multiple parent folders, so one can run `seq2prores.py directory1 directory2 directory3` etc
+
+### rawbatch.py ###
+* Specific IFI workflow that expects a particular folder path:
+* Recursively batch processes image sequence folders with seperate WAV files, generating PREMIS XML log files with hardcoded IFI values.
+* A duplicate audio WAV file is created and sent to desktop as workhorse.
+* A whole file MD5 manifest of everything in the SIP are also created. Work in progress - more testing to be done.
+* Usage - `rawbatch.py directory`
+* rawbatch accepts multiple parent folders, so one can run 'rawbatch.py directory1 directory2 directory3` etc
 
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container.
