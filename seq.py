@@ -33,7 +33,7 @@ while  counter <len(numberless_filename) :
     ffmpeg_friendly_name += numberless_filename[counter] + '_'
     counter += 1
 dirname = os.path.dirname(source_directory)    
-output = dirname + '/%s_consolidate.mov' % os.path.split(source_directory)[-1]
+output = dirname + '/%s.mov' % os.path.split(source_directory)[-1]
 ffmpeg_friendly_name += '%06d' + extension
 codec = 'v210'
 if args.p:
