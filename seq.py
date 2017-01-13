@@ -39,7 +39,9 @@ ffmpeg_friendly_name += '%06d' + extension
 codec = 'v210'
 if args.p:
     codec = 'prores'
+#the sript will choose 24fps as default    
 cmd = ['ffmpeg','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-c:v',codec,output]
+#adding the choice of an alternative fps here through argsparse
 if args.f:
     fps = raw_input('what alternative framerate do you require? 16,18,21,25?')	               
     cmd = ['ffmpeg','-f','image2','-framerate',fps, '-i', ffmpeg_friendly_name,'-c:v',codec,output] 
