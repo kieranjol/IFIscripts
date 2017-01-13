@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description='Generate v210/mov file from image 
                                 'Written by Kieran O\'Leary.')
 parser.add_argument('input', help='file path of parent directory')
 parser.add_argument('-p', action='store_true', help='Use the Apple ProRes 4:2:2 codec instead of v210')
+parser.add_argument('-f', action='store_true', help='choose an alternative framerate')
 args = parser.parse_args()
 source_directory = args.input
 
@@ -39,6 +40,9 @@ codec = 'v210'
 if args.p:
     codec = 'prores'
 cmd = ['ffmpeg','-f','image2','-framerate','24', '-i', ffmpeg_friendly_name,'-c:v',codec,output]
+if args.f:
+    fps = raw_input('what alternative framerate do you require? 16,18,21,25?')	               
+    cmd = ['ffmpeg','-f','image2','-framerate',fps, '-i', ffmpeg_friendly_name,'-c:v',codec,output] 
 print cmd
 subprocess.call(cmd)
 print 'Output file is located in %s' % output
