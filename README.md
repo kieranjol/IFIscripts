@@ -143,6 +143,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### seq.py ###
 * Transcodes a TIFF sequence to 24fps v210 in a MOV container.
 * Usage: `seq.py path/to/tiff_folder` and output will be stored in the parent directory.
+* Further options can be viewed using `seq.py -h`
 
 ### playerseq.py ###
 * Transcodes an image sequence & WAV to 24fps ProRes 4:2:2 HQ in a MOV container.
