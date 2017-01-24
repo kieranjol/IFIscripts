@@ -87,7 +87,10 @@ source_manifest_start_time = time.time()
 if not os.path.isfile(manifest):
     try:
         print 'Generating source manifest'
-        hashlib_manifest(source, manifest,source)
+        if args.f:
+            hashlib_manifest(source, manifest,source)
+        else:
+            hashlib_manifest(source, manifest,source_parent_dir)
         generate_log(log_name_source, 'EVENT = Generating source manifest')
         shutil.move(log_name_source, source)
 
