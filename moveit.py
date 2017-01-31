@@ -70,8 +70,11 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
     global manifest_generator
     source_counter = 0
     for root, directories, filenames in os.walk(source):
-        filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == 'System Volume Information']
+        filenames = [f for f in filenames if not os.path.basename(root) == 'System Volume Information']
+        filenames = [f for f in filenames if not f[0] == '.']
+
         for files in filenames:
                 source_counter +=1
     counter2 = 1
@@ -80,10 +83,11 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_
         print 'Destination manifest already exists'
 
     for root, directories, filenames in os.walk(manifest_dir):
-            filenames = [f for f in filenames if not f[0] == '.']
             directories[:] = [d for d in directories if not d[0] == '.']
+            directories[:] = [d for d in directories if not d[0] == 'System Volume Information']
+            filenames = [f for f in filenames if not os.path.basename(root) == 'System Volume Information']
+            filenames = [f for f in filenames if not f[0] == '.']
             for files in filenames:
-
                 print 'Generating MD5 for %s - %d of %d' % (files, counter2, source_counter)
                 md5 = hashlib_md5(os.path.join(root, files), manifest)
                 root2 = root.replace(path_to_remove, '')
