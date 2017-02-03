@@ -153,9 +153,9 @@ def make_ffv1(video_files, csv_report_filename):
             generate_log(log, 'makeffv1.py Transcode was lossless')
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
-                print 'Image content is lossless, Pixel Aspect Ratio has been altered'
+                print 'Image content is lossless, Pixel Aspect Ratio has been altered. Update ffmpeg in order to resolve the PAR issue.'
                 append_csv(csv_report_filename, (output,'LOSSLESS - different PAR',source_video_size,ffv1_video_size,compression_ratio))
-                generate_log(log, 'makeffv1.py Image content is lossless, but Pixel Aspect Ratio has been altered')
+                generate_log(log, 'makeffv1.py Image content is lossless, but Pixel Aspect Ratio has been altered. Update ffmpeg in order to resolve the PAR issue.')
         elif len(checksum_mismatches) > 1:
             print 'NOT LOSSLESS'
             append_csv(csv_report_filename, (output,'NOT LOSSLESS',source_video_size,ffv1_video_size,compression_ratio))
