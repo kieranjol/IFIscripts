@@ -173,10 +173,9 @@ def make_ffv1(video_files, csv_report_filename):
         print 'Generating mediatrace xml of output file and saving it in %s' % outputtracexml
         make_mediatrace(outputtracexml, 'mediatracexmloutput', output)
         source_parent_dir = os.path.dirname(os.path.abspath(filename))
-        manifest_path = os.path.join(source_parent_dir, filenoext)
-        manifest =  '%s/%s_manifest.md5' % (manifest_path, filenoext)
+        manifest =  '%s/%s_manifest.md5' % (source_parent_dir, filenoext)
         generate_log(log, 'makeffv1.py MD5 manifest started')
-        hashlib_manifest(filenoext, manifest,manifest_path)
+        hashlib_manifest(filenoext, manifest,source_parent_dir)
 
 
 def main():
