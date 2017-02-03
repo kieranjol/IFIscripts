@@ -91,7 +91,7 @@ def make_ffv1(video_files, csv_report_filename):
         #Generate filenames for new files.
         inputxml  = "%s/%s_source_mediainfo.xml" % (metadata_dir,os.path.basename(filename) )
         inputtracexml  = "%s/%s_source_mediatrace.xml" % (metadata_dir,os.path.basename(filename) )
-        output    = "%s/%s.mkv" % (data_dir, os.path.basename(filename))
+        output    = "%s/%s.mkv" % (data_dir, os.path.splitext(os.path.basename(filename))[0])
         # Generate filename of ffv1.mkv without the path.
         outputfilename = os.path.basename(output)
         outputxml = "%s/%s_mediainfo.xml" % (metadata_dir, outputfilename)
