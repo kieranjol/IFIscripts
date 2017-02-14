@@ -26,7 +26,6 @@ except ImportError:
     print '*** ERROR - IFIFUNCS IS MISSING - *** \nMakeffv1 requires that ififuncs.py is located in the same directory as some functions are located in that script - https://github.com/kieranjol/IFIscripts/blob/master/ififuncs.py'
     sys.exit()
 
-
 def read_non_comment_lines(infile):
     # Adapted from Andrew Dalke - http://stackoverflow.com/a/8304087/2188572
     for lineno, line in enumerate(infile):
@@ -104,6 +103,9 @@ def make_ffv1(video_files, csv_report_filename):
         generate_log(log, 'makeffv1.py transcode to FFV1 and framemd5 generation of source started.')
         ffv1_logfile                         = log_dir + '/%s_ffv1_transcode.log' % filename
         ffv1_env_dict                        = set_environment(ffv1_logfile)
+        par = subprocess.check_output(['mediainfo','--Language=raw','--Full',"--Inform=Video;%PixelAspectRatio%", filename]).rstrip()
+        field_order = subprocess.check_output(['mediainfo','--Language=raw','--Full',"--Inform=Video;%ScanType%", filename]).rstrip()
+        height = subprocess.check_output(['mediainfo','--Language=raw','--Full',"--Inform=Video;%Height%", filename]).rstrip()
         # Transcode video file writing frame md5 and output appropriately
         ffv1_command =  ['ffmpeg',
                         '-i', filename,
@@ -115,10 +117,17 @@ def make_ffv1(video_files, csv_report_filename):
                         '-dn',
                         '-report',
                         '-slicecrc', '1',
-                        '-slices', '16',
-                        output,
+                        '-slices', '16',]
+        # check for FCP7 lack of description and PAL
+        if par == '1.000':
+            if field_order == '':
+                if height == '576':
+                    ffv1_command +=  ['-vf',
+                                     'setfield=tff,setdar=4/3']
+        ffv1_command += [output,
                         '-f','framemd5','-an'  # Create decoded md5 checksums for every frame of the input. -an ignores audio
                         , fmd5  ]
+        print ffv1_command
         subprocess.call(ffv1_command, env=ffv1_env_dict)
         generate_log(log, 'makeffv1.py transcode to FFV1 and framemd5 generation completed.')
         generate_log(log, 'makeffv1.py Framemd5 generation of output file started.')
