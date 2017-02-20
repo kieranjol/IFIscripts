@@ -116,7 +116,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Transcode TIFFs losslessly to DPX. Processess all sequeneces in every subdirectory. WARNING - Currently relies on a local config file - soon to be removed!
 * Framemd5s of source and output are created and verified for losslessness.
 * Whole file manifest is created for all files.
-* Usage: `makedpx.py parent_folder` - generally we have 10 sequences in subfolders, so we pass the parent folder as input.
+* Usage: `makedpx.py parent_folder -o destination_folder` - generally we have 10 sequences in subfolders, so we pass the parent folder as input.
 
 ### seq2ffv1.py ###
 * Work in progress -more testing to be done.
