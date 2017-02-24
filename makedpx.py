@@ -157,15 +157,18 @@ if not permission == 'y' or permission == 'Y':
         print 'Ok so!'
 user = ''
 if not user == '1' or user == '2':
-    user =  raw_input('\n\n**** Who are you?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n' )
+    user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n' )
     while user not in ('1','2'):
-        user =  raw_input('\n\n**** Who are you?\nPress 1 or 2\n\n1. Brian Cash\n2. Gavin Martin\n')
+        user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n')
 if user == '1':
     user = 'Brian Cash'
-    print 'Hi Brian, *****INSERT NEW MESSAGE HERE********* '
+    print 'Hi Brian, Congratulations on becoming a father!!!'
 elif user == '2':
     user = 'Gavin Martin'
     print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
+    elif user == '3':
+    user = 'Raelene Casey'
+    print 'Hi Raelene, Brian must be out of the office'
     time.sleep(1)
 
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
