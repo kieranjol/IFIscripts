@@ -166,7 +166,7 @@ if user == '1':
 elif user == '2':
     user = 'Gavin Martin'
     print 'Hi Gavin, Have you renewed your subscription to American Cinematographer?'
-    elif user == '3':
+elif user == '3':
     user = 'Raelene Casey'
     print 'Hi Raelene, Brian must be out of the office'
     time.sleep(1)
