@@ -141,6 +141,7 @@ print args
 
 csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
+#permission for correct directories sought from user
 permission = ''
 all_files = args.input
 if not permission == 'y' or permission == 'Y':
@@ -155,10 +156,12 @@ if not permission == 'y' or permission == 'Y':
         sys.exit()
     elif permission =='y' or permission == 'Y':
         print 'Ok so!'
+        
+#user identity sought for accurate premis documentation
 user = ''
-if not user == '1' or user == '2':
+if not user == '1' or user == '2'or user == '3':
     user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n' )
-    while user not in ('1','2'):
+    while user not in ('1','2','3'):
         user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n')
 if user == '1':
     user = 'Brian Cash'
