@@ -159,9 +159,9 @@ if not permission == 'y' or permission == 'Y':
         
 #user identity sought for accurate premis documentation
 user = ''
-if not user == '1' or user == '2'user == '3':
+if not user == '1' or user == '2'or user == '3':
     user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n' )
-    while user not in ('1','2', '3'):
+    while user not in ('1','2','3'):
         user =  raw_input('\n\n**** Who are you?\nPress 1 or 2 or 3\n\n1. Brian Cash\n2. Gavin Martin\n3. Raelene Casey\n')
 if user == '1':
     user = 'Brian Cash'
