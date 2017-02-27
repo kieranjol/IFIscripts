@@ -145,7 +145,8 @@ def make_ffv1(video_files, csv_report_filename):
         source_video_size =  get_mediainfo('source_video_size', "--inform=General;%FileSize%", filename)
         ffv1_video_size =  get_mediainfo('ffv1_video_size', '--inform=General;%FileSize%', output)
         compression_ratio = float(source_video_size) / float(ffv1_video_size)
-        shutil.copy(sys.argv[0], log_dir)
+        if os.path.basename(sys.argv[0]) == 'makeffv1.py':
+            shutil.copy(sys.argv[0], log_dir)
         checksum_mismatches = []
         with open(fmd5) as f1:
             with open(fmd5ffv1) as f2:
