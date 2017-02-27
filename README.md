@@ -34,6 +34,7 @@ table of contents
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
+    * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
@@ -182,7 +183,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### mezzaninecheck.py ###
 * Checks folders in order to see if either 0 or >1 files exist in a mezzanine/objects folder.
 * 
-* Usage: `treatedaudio.py /path/to/parent_folder`
+* Usage: `mezzaninecheck.py /path/to/parent_folder`
+
+### loopline.py ###
+* Workflow specific to the Loopline project.
+* makeffv1.py and bitc.py are run on the input
+* Usage: `loopline.py /path/to/parent_folder` or `loopline.py /path/to/file`
 
 ## Misc ##
 

@@ -13,6 +13,7 @@ def main():
         '-crf','20',
         video,
         '-o', os.path.dirname(sys.argv[1])])
-    
+
+
 if __name__ == '__main__':
     main()
