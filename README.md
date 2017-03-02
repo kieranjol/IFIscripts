@@ -35,6 +35,7 @@ table of contents
 6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
+    * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
@@ -189,6 +190,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Workflow specific to the Loopline project.
 * makeffv1.py and bitc.py are run on the input
 * Usage: `loopline.py /path/to/parent_folder` or `loopline.py /path/to/file`
+
+### masscopy.py ###
+* Copies all directories in your input location using moveit.py ONLY if a manifest sidecar already exists.
+* This is useful if a lot of SIPs produced by makeffv1 are created and you want to move them all to another location while harnessing the pre-existing checksum manifest.
+* WARNING - It is essential to check the log file on the desktop/ifiscripts_logs for each folder that transferred!!
+* Usage: `masscopy.py /path/to/parent_folder -o /path/to/destination_folder`
 
 ## Misc ##
 
