@@ -315,9 +315,14 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         relationshipType.text               = 'structural'
         relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text            = 'is included in'
-
-        md5_output                              = hashlib_md5(source_file, image)
-        messageDigest.text                      = md5_output
+        # this is a total hack. if sequence = loopline', do not generate hash as it already exists in manifest :(
+        print len(sequence)
+        print sequence
+        if not len(sequence) == 32:
+            md5_output                              = hashlib_md5(source_file, image)
+            messageDigest.text                      = md5_output
+        else:
+            messageDigest.text                      = sequence
         messageDigestAlgorithm.text             = 'md5'
         mediainfo_counter                       += 1
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..

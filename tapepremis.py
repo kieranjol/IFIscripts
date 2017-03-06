@@ -19,14 +19,25 @@ from premis import setup_xml
 from premis import create_representation
 from premis import create_intellectual_entity
 
+def get_checksum(manifest):
+    if os.path.isfile(manifest):
+        with open(manifest, 'r') as fo:
+            manifest_lines = fo.readlines()
+            for md5 in manifest_lines:
+                if md5[-5:].rsplit()[0] == '.mkv':
+                    return md5[:32]
+
+
 
 def main():
     premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
     print premisxml, doc, premis
     source_file = sys.argv[1]
+    md5 = get_checksum(sys.argv[2])
     items = {"workflow":"raw audio","oe":os.path.basename(source_file), "filmographic":'n/a', "sourceAccession":os.path.basename(source_file), "interventions":['placeholder'], "prepList":['placeholder'], "user":'Kieran O\' Leary'}
     representation_uuid = str(uuid.uuid4())
-    xml_info = make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,'not_sequence')
+    # the final argument here is 'loopline' which tells premis.py to not generate a checksum
+    xml_info = make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,md5)
     capture_uuid                                = str(uuid.uuid4())
     transcode_uuid                              = str(uuid.uuid4())
     framemd5_uuid                               = str(uuid.uuid4())
