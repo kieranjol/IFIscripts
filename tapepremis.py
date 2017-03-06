@@ -28,12 +28,37 @@ def get_checksum(manifest):
                     return md5[:32]
 
 
+def get_capture_workstation():
+    capture_station = ''
+    if not capture_station == '1' or capture_station == '2' or capture_station == '3':
+        capture_station =  raw_input('\n\n**** Where was tape captured?\nPress 1, 2 or 3\n\n1. es2\n2. loopline\n3. ingest 1\n' )
+        while capture_station not in ('1','2','3'):
+            capture_station =  raw_input('\n\n**** Where was tape captured?\nPress 1, 2 or 3\n\n1. es2\n2. loopline\n3. ingest 1\n' )
+    if capture_station == '1':
+        capture_station = 'telecine'
+    elif capture_station == '2':
+        capture_station = 'ca_machine'
+    elif capture_station == '3':
+        capture_station = 'ca_machine'
+    return capture_station
+
 
 def main():
     premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
-    print premisxml, doc, premis
+    get_capture_workstation()
     source_file = sys.argv[1]
-    md5 = get_checksum(sys.argv[2])
+    sip_dir = os.path.dirname(source_file)
+    parent_dir = os.path.dirname(sip_dir)
+    '''
+    /home/kieranjol/ifigit/ifiscripts/massive/objects sip
+    /home/kieranjol/ifigit/ifiscripts/massive parent
+
+    '''
+    manifest = parent_dir + '_manifest.md5'
+    if not os.path.isfile(manifest):
+        print 'no manifest found'
+        sys.exit()
+    md5 = get_checksum(manifest)
     items = {"workflow":"raw audio","oe":os.path.basename(source_file), "filmographic":'n/a', "sourceAccession":os.path.basename(source_file), "interventions":['placeholder'], "prepList":['placeholder'], "user":'Kieran O\' Leary'}
     representation_uuid = str(uuid.uuid4())
     # the final argument here is 'loopline' which tells premis.py to not generate a checksum
