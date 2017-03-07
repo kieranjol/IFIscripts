@@ -9,6 +9,7 @@ import uuid
 import time
 import uuid
 from glob import glob
+import lxml.etree as ET
 from ififuncs import hashlib_manifest
 from ififuncs import get_date_modified
 from premis import make_premis
@@ -49,7 +50,20 @@ def get_checksum(manifest):
                     return md5[:32]
 
 
-def get_capture_workstation():
+def get_capture_workstation(mediaxml):
+    mediaxml_object         = ET.parse(mediaxml)
+    mxml      = mediaxml_object.getroot()
+    mediaExpress_check =  len(mxml.xpath('//COMAPPLEPROAPPSLOGNOTE'))
+    fcp7_check =  len(mxml.xpath('//COMAPPLEFINALCUTSTUDIOMEDIAUUID'))
+    if mediaExpress_check > 0:
+        print 'this was probably Media Express?'
+    elif fcp7_check > 0:
+        print 'this was probably FCP7?'
+    else:
+        # i can't find any meaningful distinctive metadata that control room writes.
+        print 'this was probably Control Room?'
+
+    sys.exit()
     capture_station = ''
     if not capture_station == '1' or capture_station == '2' or capture_station == '3':
         capture_station =  raw_input('\n\n**** Where was tape captured?\nPress 1, 2 or 3\n\n1. es2\n2. loopline\n3. ingest 1\n' )
@@ -66,10 +80,14 @@ def get_capture_workstation():
 
 def main():
     premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
-    get_capture_workstation()
+    
     source_file = sys.argv[1]
     sip_dir = os.path.dirname(source_file)
     parent_dir = os.path.dirname(sip_dir)
+    metadata_dir = os.path.join(parent_dir, 'metadata')
+    ffv1_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1] + '_mediainfo.xml'))
+    if os.path.isfile(ffv1_xml):
+        get_capture_workstation(ffv1_xml)
     '''
     /home/kieranjol/ifigit/ifiscripts/massive/objects sip
     /home/kieranjol/ifigit/ifiscripts/massive parent
