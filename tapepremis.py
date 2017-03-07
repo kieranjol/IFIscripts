@@ -19,6 +19,27 @@ from premis import setup_xml
 from premis import create_representation
 from premis import create_intellectual_entity
 
+
+def capture_description(premis, xml_info):
+    '''
+    Events:
+    1. capture - glean from v210 mediainfo xml
+    2. ffv1 - ffmpeg logs but get time from sip log also user input
+    3. lossless verification - ffmpeg logs and time/judgement from sip log
+    4. whole file manifest - sip log
+    that's it?
+    '''
+    capture_uuid                                = str(uuid.uuid4())
+    transcode_uuid                              = str(uuid.uuid4())
+    framemd5_uuid                               = str(uuid.uuid4())
+    manifest_uuid                               = str(uuid.uuid4())
+    ffmpegAgent                                 = make_agent(premis,[transcode_uuid] , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
+    m200pAgent                                 = make_agent(premis,[transcode_uuid] , '60ae3a85-b595-45e0-8e4a-b95e90a6c422')
+    
+    capture_agents = [ffmpegAgent, m200pAgent]
+    make_event(premis, 'creation', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    
+    
 def get_checksum(manifest):
     if os.path.isfile(manifest):
         with open(manifest, 'r') as fo:
@@ -63,12 +84,9 @@ def main():
     representation_uuid = str(uuid.uuid4())
     # the final argument here is 'loopline' which tells premis.py to not generate a checksum
     xml_info = make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,md5)
-    capture_uuid                                = str(uuid.uuid4())
-    transcode_uuid                              = str(uuid.uuid4())
-    framemd5_uuid                               = str(uuid.uuid4())
-    manifest_uuid                               = str(uuid.uuid4())
-    ffmpegAgent                                 = make_agent(premis,[transcode_uuid] , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-    make_event(premis, 'creation', 'transcode to ffv1 (figure out wording later)', [ffmpegAgent], transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    capture_description(premis, xml_info)
+    
+    
     
     write_premis(doc, premisxml)
 
