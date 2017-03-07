@@ -35,10 +35,12 @@ def capture_description(premis, xml_info,capture_station):
     framemd5_uuid                               = str(uuid.uuid4())
     manifest_uuid                               = str(uuid.uuid4())
     ffmpegAgent                                 = make_agent(premis,[transcode_uuid] , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-    m2000pAgent                                  = make_agent(premis,[transcode_uuid] , '60ae3a85-b595-45e0-8e4a-b95e90a6c422')
+    m2000pAgent                                 = make_agent(premis,[transcode_uuid] , '60ae3a85-b595-45e0-8e4a-b95e90a6c422')
     
     capture_agents = [ffmpegAgent, m2000pAgent]
-    make_event(premis, 'creation', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    make_event(premis, 'creation', 'tape capture', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    make_event(premis, 'compression', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    make_event(premis, 'fixity check', 'lossless verification via framemd5 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
     
     
 def get_checksum(manifest):
@@ -95,7 +97,7 @@ def main():
     metadata_dir = os.path.join(parent_dir, 'metadata')
     ffv1_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1] + '_mediainfo.xml'))
     if os.path.isfile(ffv1_xml):
-        capture_sation = get_capture_workstation(ffv1_xml)
+        capture_station = get_capture_workstation(ffv1_xml)
     else:
         print('Can\'t find XML of FFv1 file. Exiting!')
         sys.exit() 
