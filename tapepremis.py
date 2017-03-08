@@ -59,7 +59,12 @@ def get_checksum(manifest):
                 if md5[-5:].rsplit()[0] == '.mkv':
                     return md5[:32]
 
+def get_times(sourcexml):
 
+    mediaxml_object         = ET.parse(sourcexml)
+    mxml      = mediaxml_object.getroot()
+    capture_date =  mxml.xpath('//File_Modified_Date_Local')[0].text #encoded date is probably better
+    print capture_date
 def get_capture_workstation(mediaxml):
     mediaxml_object         = ET.parse(mediaxml)
     mxml      = mediaxml_object.getroot()
@@ -105,6 +110,9 @@ def main():
     parent_dir = os.path.dirname(sip_dir)
     metadata_dir = os.path.join(parent_dir, 'metadata')
     ffv1_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1] + '_mediainfo.xml'))
+    # the replace here is a terrible hack. Sad! Fix!
+    source_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1].replace('.mkv', '.mov') + '_source_mediainfo.xml'))
+    get_times(source_xml)
     if os.path.isfile(ffv1_xml):
         capture_station = get_capture_workstation(ffv1_xml)
     else:
