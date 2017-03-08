@@ -20,11 +20,11 @@ UUID,838a1a1b-7ddd-4846-ae8e-3b5ecb4aae55,Mac Pro,hardware,,Image restoration te
 UUID,55003bbd-49a4-4c7b-8da2-0d5b9bf10168,ProTools,software,12.5.1,,implementer
 UUID,ca731b64-638f-4dc3-9d27-0fc14387e38c,Steadyframe Computer,hardware,,Host computer for 1369-e9d1-425b-a810-6db1150955ba,implementer
 UUID,946e5d40-a07f-47d1-9637-def5cb7854ba,HP Z800,hardware,Z800,,implementer
-UUID,230d72da-07e7-4a79-96ca-998b9f7a3e41,mac mini,hardware,,,implementer
+UUID,230d72da-07e7-4a79-96ca-998b9f7a3e41,mac mini,hardware,,Telecine room Mac Mini,implementer
 UUID,634edcae-65a7-48b1-9758-bcfbdd12f80b,Aaron Healy,person,,,implementer
 UUID,25cdb926-12b5-4647-bef1-6f9bca3c18bc,Felix Meehan,person,,,implementer
 UUID,642208d9-6f65-4498-998f-9a17379319f9,Eoin O'Donohoe,person,,,implementer
-UUID,68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc,osx,software,10.11.4,,implementer
+UUID,68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc,osx,software,10.11.4,El Capitan,implementer
 UUID,e5872957-8ee8-4c20-bd8e-d76e1de01b34,iZotope Rx5,software,5.01.184,,implementer
 UUID,8c02d962-5ac5-4e51-a30c-002553134320,Baselight,software,4.4.7725,Plugin for 11e157a3-1aa7-4195-b816-009a3d47148c,implementer
 UUID,52adf876-bf30-431c-b0c6-80cc4fd9406c,osx,software,10.9.5,,implementer
@@ -33,9 +33,9 @@ UUID,bc3de900-3903-4764-ab91-2ce89977d0d2,AEO-Light,software,2.2,,executing prog
 UUID,60ae3a85-b595-45e0-8e4a-b95e90a6c422,Sony DVW-M2000P,hardware,,Sony Digital Betacam VTR,implementer
 UUID,dbdbb06b-ab10-49db-97a1-ff2ad285f9d2,Sony DVW-A510P,hardware,,Sony Digital Betacam VTR,implementer
 UUID,e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9,Sony J30-SDI,hardware,,Sony Digital Betacam VTR,implementer
-UUID,f47b98a2-b879-4786-9f6b-11fc3234a91e,Blackmagic UltraStudio 4K,hardware,,,implementer
-UUID,c5e504ca-b4d5-410f-b87b-4b7ed794e44d,AJA KONA 3,hardware,,,
-UUID,75a0b9ff-1f04-43bd-aa87-c31b73b1b61c,,,,,
+UUID,f47b98a2-b879-4786-9f6b-11fc3234a91e,Blackmagic UltraStudio 4K,hardware,,Edit Suite 2,implementer
+UUID,c5e504ca-b4d5-410f-b87b-4b7ed794e44d,AJA KONA 3,hardware,,,implementer
+UUID,75a0b9ff-1f04-43bd-aa87-c31b73b1b61c,Mac Pro,hardware,,Edit Suite 2,implementer
 UUID,c5fc84fc-cc96-42a1-a5be-830b4e3012ae,,,,,
 UUID,be3060a8-6ccf-4339-97d5-a265687c3a5a,,,,,
 UUID,c93ee9a5-4c0c-4670-b857-8726bfd23cae,,,,,
