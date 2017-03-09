@@ -122,15 +122,15 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
     #print digest_with_progress(full_path, 1024)  
         mxf_checksum = str(digest_with_progress(full_path, 1024))
         #13
-print 'Generating Report....  \n',
+        print 'Generating Report....  \n',
 
         
         
 
-if mxf_checksum == checksum:
-    append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
-else:
-    append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
+        if mxf_checksum == checksum:
+            append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
+        else:
+            append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
          #14
 
 print "Report complete - Time elaspsed : ", datetime.now() - startTime
@@ -169,6 +169,7 @@ As-11 Fixity
 8.2 remove extension eg MXF store new filname eg GAA filename_no_extention
 8.3 check if GAA with .XML extension exists  - xml_filename
 """
+
 
 
 
