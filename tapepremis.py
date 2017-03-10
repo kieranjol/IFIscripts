@@ -35,18 +35,29 @@ def capture_description(premis, xml_info,capture_station):
     framemd5_uuid                               = str(uuid.uuid4())
     manifest_uuid                               = str(uuid.uuid4())
     ffmpegAgent                                 = make_agent(premis,[transcode_uuid] , 'ee83e19e-cdb1-4d83-91fb-7faf7eff738e')
-    j30sdiAgent                                 = make_agent(premis,[capture_uuid] , 'e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9')
-    bm4kAgent                                   = make_agent(premis,[capture_uuid] , 'f47b98a2-b879-4786-9f6b-11fc3234a91e')
-    edit_suite2_macAgent                        = make_agent(premis,[capture_uuid] , '75a0b9ff-1f04-43bd-aa87-c31b73b1b61c')
-    m2000pAgent                                 = make_agent(premis,[capture_uuid] , '60ae3a85-b595-45e0-8e4a-b95e90a6c422')
-    elcapitanAgent                              = make_agent(premis,[capture_uuid] , '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
-    print capture_station
     if capture_station == 'es2':
+        j30sdiAgent                                 = make_agent(premis,[capture_uuid] , 'e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9')
+        bm4kAgent                                   = make_agent(premis,[capture_uuid] , 'f47b98a2-b879-4786-9f6b-11fc3234a91e')
+        edit_suite2_macAgent                        = make_agent(premis,[capture_uuid] , '75a0b9ff-1f04-43bd-aa87-c31b73b1b61c')
+        elcapitanAgent                              = make_agent(premis,[capture_uuid] , '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc')
         capture_agents = [j30sdiAgent, bm4kAgent, edit_suite2_macAgent, elcapitanAgent]
-    if capture_station == 'loopline':
-        capture_agents = [j30sdiAgent, bm4kAgent, edit_suite2_macAgent, elcapitanAgent]
+    elif capture_station == 'loopline':
+        m2000pAgent                                 = make_agent(premis,[capture_uuid] , '60ae3a85-b595-45e0-8e4a-b95e90a6c422')
+        kona3Agent                                  = make_agent(premis,[capture_uuid] , 'c5e504ca-b4d5-410f-b87b-4b7ed794e44d')
+        osxLionAgent                                = make_agent(premis,[capture_uuid] , 'c5fc84fc-cc96-42a1-a5be-830b4e3012ae')
+        looplineMacAgent                            = make_agent(premis,[capture_uuid] , 'be3060a8-6ccf-4339-97d5-a265687c3a5a')
+        capture_agents = [m2000pAgent, kona3Agent, looplineMacAgent, osxLionAgent]
+    elif capture_station == 'ingest1':
+        sony510pAgent                                   = make_agent(premis,[capture_uuid] , 'dbdbb06b-ab10-49db-97a1-ff2ad285f9d2')
+        ingest1Agent                                = make_agent(premis,[capture_uuid] , '5fd99e09-63d7-4e9f-8383-1902f727d2a5')
+        windows7Agent                               = make_agent(premis,[capture_uuid] , '192f61b1-8130-4236-a827-a194a20557fe')
+        ingest1konaAgent                               = make_agent(premis,[capture_uuid] , 'c93ee9a5-4c0c-4670-b857-8726bfd23cae')
+        capture_agents = [sony510pAgent, ingest1konaAgent, ingest1Agent, windows7Agent]
     make_event(premis, 'creation', 'tape capture', capture_agents, capture_uuid,xml_info[4], 'outcome', 'now-placeholder')
-    make_event(premis, 'compression', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    if capture_station == 'loopline':
+        make_event(premis, 'compression', 'transcode to ffv1 while specifying 4:3 DAR and Top Field First interlacement', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    else:
+        make_event(premis, 'compression', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
     make_event(premis, 'fixity check', 'lossless verification via framemd5 (figure out wording later)', capture_agents, framemd5_uuid,xml_info[4], 'source', 'now-placeholder')
     make_event(premis, 'message digest calculation', 'whole file checksum manifest of SIP', capture_agents, manifest_uuid,xml_info[4], 'source', 'now-placeholder')
     
@@ -132,6 +143,7 @@ def main():
     representation_uuid = str(uuid.uuid4())
     # the final argument here is 'loopline' which tells premis.py to not generate a checksum
     xml_info = make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,md5)
+    print xml_info
     capture_description(premis, xml_info, capture_station)
     
     

@@ -11,7 +11,8 @@ UUID,b22baa5c-8160-427d-9e2f-b62a7263439d,debian,software,4.0r5,Operating system
 UUID,9486b779-907c-4cc4-802c-22e07dc1242f,osx,software,10.11.1,,implementer
 UUID,a3bc371f-11fa-4319-a656-1e53c2527552,osx,software,10.11.2,,implementer
 UUID,f2b79d56-dcd7-4f32-8d80-497851a8fd6b,osx,software,10.11.3,,implementer
-UUID,192f61b1-8130-4236-a827-a194a20557fe,Windows 7,software,Service Pack 2,Operating system for 946e5d40-a07f-47d1-9637-def5cb7854ba,implementer
+UUID,c5fc84fc-cc96-42a1-a5be-830b4e3012ae,osx,software,10.7.5,Mac OSX Lion,implementer
+UUID,192f61b1-8130-4236-a827-a194a20557fe,Windows 7,software,Service Pack 2,,implementer
 UUID,9281e196-b691-4f03-a004-0ea2bb032a93,SteadyFrame Transcoder,software,,,implementer
 UUID,b342d3f7-d87e-4fe3-8da5-89e16a30b59e,Raelene Casey,person,,,implementer
 UUID,cb638899-7ade-4a18-9bba-b8b1a20132a7,Dean Kavanagh,person,,,implementer
@@ -36,10 +37,9 @@ UUID,e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9,Sony J30-SDI,hardware,,Sony Digital Be
 UUID,f47b98a2-b879-4786-9f6b-11fc3234a91e,Blackmagic UltraStudio 4K,hardware,,Edit Suite 2,implementer
 UUID,c5e504ca-b4d5-410f-b87b-4b7ed794e44d,AJA KONA 3,hardware,,,implementer
 UUID,75a0b9ff-1f04-43bd-aa87-c31b73b1b61c,Mac Pro,hardware,,Edit Suite 2,implementer
-UUID,c5fc84fc-cc96-42a1-a5be-830b4e3012ae,,,,,
-UUID,be3060a8-6ccf-4339-97d5-a265687c3a5a,,,,,
-UUID,c93ee9a5-4c0c-4670-b857-8726bfd23cae,,,,,
-UUID,5fd99e09-63d7-4e9f-8383-1902f727d2a5,,,,,
+UUID,be3060a8-6ccf-4339-97d5-a265687c3a5a,Mac Pro,hardware,,Loopline edit suite,implementer
+UUID,c93ee9a5-4c0c-4670-b857-8726bfd23cae,AJA KONA LHe Plus,hardware,00T59106,,implementer
+UUID,5fd99e09-63d7-4e9f-8383-1902f727d2a5,Hewlett Packard Z420 Workstation,hardware,CZC4310HNZ,Ingest 1,implementer
 UUID,d13fae39-ac71-446e-88df-96c0d267b26c,,,,,
 UUID,8fac66ac-05de-478c-9d93-c89d46233197,,,,,
 UUID,005d4f57-69a4-40d9-9360-d45ff8e44f64,,,,,
