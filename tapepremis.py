@@ -115,7 +115,6 @@ def get_capture_workstation(mediaxml):
 
 def main():
     premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
-    
     source_file = sys.argv[1]
     sip_dir = os.path.dirname(source_file)
     parent_dir = os.path.dirname(sip_dir)
@@ -140,9 +139,12 @@ def main():
         sys.exit()
     md5 = get_checksum(manifest)
     items = {"workflow":"raw audio","oe":os.path.basename(source_file), "filmographic":'n/a', "sourceAccession":os.path.basename(source_file), "interventions":['placeholder'], "prepList":['placeholder'], "user":'Kieran O\' Leary'}
+
     representation_uuid = str(uuid.uuid4())
     # the final argument here is 'loopline' which tells premis.py to not generate a checksum
     xml_info = make_premis(source_file, items, premis, premis_namespace, premisxml,representation_uuid,md5)
+    linkinguuids = [xml_info[4][0],'n/a',os.path.basename(source_file)]
+    create_representation(premisxml, premis_namespace, doc, premis, items,linkinguuids, representation_uuid, 'no_sequence', 'n/a')
     print xml_info
     capture_description(premis, xml_info, capture_station)
     
