@@ -21,7 +21,8 @@ from premis import create_representation
 from premis import create_intellectual_entity
 
 
-def capture_description(premis, xml_info,capture_station):
+def capture_description(premis, xml_info,capture_station, times):
+    print times
     '''
     Events:
     1. capture - glean from v210 mediainfo xml
@@ -53,11 +54,11 @@ def capture_description(premis, xml_info,capture_station):
         windows7Agent                               = make_agent(premis,[capture_uuid] , '192f61b1-8130-4236-a827-a194a20557fe')
         ingest1konaAgent                               = make_agent(premis,[capture_uuid] , 'c93ee9a5-4c0c-4670-b857-8726bfd23cae')
         capture_agents = [sony510pAgent, ingest1konaAgent, ingest1Agent, windows7Agent]
-    make_event(premis, 'creation', 'tape capture', capture_agents, capture_uuid,xml_info[4], 'outcome', 'now-placeholder')
+    make_event(premis, 'creation', 'tape capture', capture_agents, capture_uuid,xml_info[4], 'outcome', times[0])
     if capture_station == 'loopline':
-        make_event(premis, 'compression', 'transcode to ffv1 while specifying 4:3 DAR and Top Field First interlacement', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+        make_event(premis, 'compression', 'transcode to ffv1 while specifying 4:3 DAR and Top Field First interlacement', capture_agents, transcode_uuid,xml_info[4], 'outcome', times[1])
     else:
-        make_event(premis, 'compression', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', 'now-placeholder')
+        make_event(premis, 'compression', 'transcode to ffv1 (figure out wording later)', capture_agents, transcode_uuid,xml_info[4], 'outcome', times[1])
     make_event(premis, 'fixity check', 'lossless verification via framemd5 (figure out wording later)', capture_agents, framemd5_uuid,xml_info[4], 'source', 'now-placeholder')
     make_event(premis, 'message digest calculation', 'whole file checksum manifest of SIP', capture_agents, manifest_uuid,xml_info[4], 'source', 'now-placeholder')
     
@@ -75,7 +76,7 @@ def get_times(sourcexml):
     mediaxml_object         = ET.parse(sourcexml)
     mxml      = mediaxml_object.getroot()
     capture_date =  mxml.xpath('//File_Modified_Date_Local')[0].text #encoded date is probably better
-    print capture_date
+    return capture_date
 def get_capture_workstation(mediaxml):
     mediaxml_object         = ET.parse(mediaxml)
     mxml      = mediaxml_object.getroot()
@@ -122,7 +123,9 @@ def main():
     ffv1_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1] + '_mediainfo.xml'))
     # the replace here is a terrible hack. Sad! Fix!
     source_xml = os.path.join(metadata_dir, os.path.basename(sys.argv[1].replace('.mkv', '.mov') + '_source_mediainfo.xml'))
-    get_times(source_xml)
+    capture_time = get_times(source_xml)
+    transcode_time = get_times(ffv1_xml)
+    times = [capture_time, transcode_time]
     if os.path.isfile(ffv1_xml):
         capture_station = get_capture_workstation(ffv1_xml)
     else:
@@ -146,7 +149,7 @@ def main():
     linkinguuids = [xml_info[4][0],'n/a',os.path.basename(source_file)]
     create_representation(premisxml, premis_namespace, doc, premis, items,linkinguuids, representation_uuid, 'no_sequence', 'n/a')
     print xml_info
-    capture_description(premis, xml_info, capture_station)
+    capture_description(premis, xml_info, capture_station, times)
     
     
     
