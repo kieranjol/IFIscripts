@@ -148,7 +148,7 @@ def get_capture_workstation(mediaxml):
                     '\n\n**** Where was tape captured?\n'
                     'Press 1, 2 or 3\n\n1. es2\n2. loopline\n3. ingest 1\n'
                     )
-                while capture_station not in range(1, 4):
+                while int(capture_station) not in range(1, 4):
                     capture_station = raw_input(
                         '\n\n**** Where was tape captured?\n'
                         'Press 1, 2 or 3\n\n1. es2\n2. loopline\n3. ingest 1\n'
