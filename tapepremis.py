@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 import subprocess
-import argparse
 import sys
 import os
-import hashlib
 import shutil
-import uuid
 import time
 import uuid
-from glob import glob
 import lxml.etree as ET
-from ififuncs import hashlib_manifest
 from ififuncs import get_date_modified
 from premis import make_premis
 from premis import write_premis
@@ -22,7 +17,6 @@ from premis import create_intellectual_entity
 
 
 def capture_description(premis, xml_info,capture_station, times):
-    print times
     '''
     Events:
     1. capture - glean from v210 mediainfo xml
@@ -49,10 +43,10 @@ def capture_description(premis, xml_info,capture_station, times):
         looplineMacAgent                            = make_agent(premis,[capture_uuid] , 'be3060a8-6ccf-4339-97d5-a265687c3a5a')
         capture_agents = [m2000pAgent, kona3Agent, looplineMacAgent, osxLionAgent]
     elif capture_station == 'ingest1':
-        sony510pAgent                                   = make_agent(premis,[capture_uuid] , 'dbdbb06b-ab10-49db-97a1-ff2ad285f9d2')
+        sony510pAgent                               = make_agent(premis,[capture_uuid] , 'dbdbb06b-ab10-49db-97a1-ff2ad285f9d2')
         ingest1Agent                                = make_agent(premis,[capture_uuid] , '5fd99e09-63d7-4e9f-8383-1902f727d2a5')
         windows7Agent                               = make_agent(premis,[capture_uuid] , '192f61b1-8130-4236-a827-a194a20557fe')
-        ingest1konaAgent                               = make_agent(premis,[capture_uuid] , 'c93ee9a5-4c0c-4670-b857-8726bfd23cae')
+        ingest1konaAgent                            = make_agent(premis,[capture_uuid] , 'c93ee9a5-4c0c-4670-b857-8726bfd23cae')
         capture_agents = [sony510pAgent, ingest1konaAgent, ingest1Agent, windows7Agent]
     make_event(premis, 'creation', 'tape capture', capture_agents, capture_uuid,xml_info[4], 'outcome', times[0])
     if capture_station == 'loopline':
