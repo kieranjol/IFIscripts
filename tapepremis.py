@@ -192,12 +192,12 @@ def ffv1_description(
     make_event(
         premis, 'fixity check',
         'lossless verification via framemd5 (figure out wording later)',
-        ffv1_agents, framemd5_uuid, xml_info[4], 'source', 'now-placeholder'
+        ffv1_agents, framemd5_uuid, xml_info[4], 'source', times[3]
         )
     make_event(
         premis, 'message digest calculation',
         'whole file checksum manifest of SIP', ffv1_agents,
-        manifest_uuid, xml_info[4], 'source', 'now-placeholder'
+        manifest_uuid, xml_info[4], 'source', times[2]
         )
     for agent in ffv1_agents:
     # Just the UUID is returned. This prevents errors if the engineer and
@@ -299,6 +299,23 @@ def get_user(question):
     return user
 
 
+def analyze_log(logfile):
+    losslessness = ''
+    framemd5_time = ''
+    manifest_time = ''
+    with open(logfile, 'r') as fo:
+        log_lines = fo.readlines()
+        for line in log_lines:
+            if 'Transcode was lossless' in line:
+                losslessness = 'lossless'
+            if 'Framemd5 generation of output file completed' in line:
+                framemd5_time = line[:19]
+            if 'MD5 manifest started' in line:
+                manifest_time = line[:19]
+
+        return manifest_time, framemd5_time, losslessness
+
+
 def main():
     total_agents = []
     script_user = get_user('**** Who is running this script?')
@@ -308,6 +325,7 @@ def main():
     sip_dir = os.path.dirname(source_file)
     parent_dir = os.path.dirname(sip_dir)
     metadata_dir = os.path.join(parent_dir, 'metadata')
+    logs_dir = os.path.join(parent_dir, 'logs')
     ffv1_xml = os.path.join(
         metadata_dir, os.path.basename(
             sys.argv[1]
@@ -320,9 +338,17 @@ def main():
         os.path.basename(
             sys.argv[1].replace('.mkv', '.mov')
             + '_source_mediainfo.xml'))
+    logfile = os.path.join(
+        logs_dir,
+        os.path.basename(
+            sys.argv[1].replace('.mkv', '.mov')
+            + '_log.log'))
     capture_time = get_times(source_xml)
     transcode_time = get_times(ffv1_xml)
-    times = [capture_time, transcode_time]
+    manifest_time, framemd5_time, losslessness = analyze_log(logfile)
+    times = [
+        capture_time, transcode_time, manifest_time, framemd5_time, losslessness
+        ]
     if os.path.isfile(ffv1_xml):
         capture_station = get_capture_workstation(ffv1_xml)
     else:
