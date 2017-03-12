@@ -2,7 +2,6 @@
 import sys
 import os
 import uuid
-import csv
 import lxml.etree as ET
 from ififuncs import get_date_modified
 from premis import make_premis
@@ -14,73 +13,75 @@ from premis import create_unit
 
 
 def make_event(
-    premis,event_type, event_detail,
-    agentlist, eventID, eventLinkingObjectIdentifier,
-    eventLinkingObjectRole, event_time
+        premis, event_type, event_detail,
+        agentlist, event_id, event_linking_object_identifier,
+        event_linking_object_role, event_time
     ):
     # This is really only here because the premis.py version handles the \
     # linkingAgentIdentifiers differently.
     premis_namespace = "http://www.loc.gov/premis/v3"
     event = ET.SubElement(premis, "{%s}event" % (premis_namespace))
-    premis.insert(-1,event)
-    event_Identifier = create_unit(1,event,'eventIdentifier')
+    premis.insert(-1, event)
+    event_Identifier = create_unit(1, event, 'eventIdentifier')
     event_id_type = ET.Element("{%s}eventIdentifierType" % (premis_namespace))
-    event_Identifier.insert(0,event_id_type)
+    event_Identifier.insert(0, event_id_type)
     event_id_value = ET.Element("{%s}eventIdentifierValue" % (premis_namespace))
-    event_Identifier.insert(0,event_id_value)
+    event_Identifier.insert(0, event_id_value)
     event_Type = ET.Element("{%s}eventType" % (premis_namespace))
-    event.insert(2,event_Type)
+    event.insert(2, event_Type)
     event_DateTime = ET.Element("{%s}eventDateTime" % (premis_namespace))
-    event.insert(3,event_DateTime)
+    event.insert(3, event_DateTime)
     if event_time == 'now':
         event_DateTime.text = time.strftime("%Y-%m-%dT%H:%M:%S")
     else:
         event_DateTime.text = event_time
     event_Type.text = event_type
-    event_id_value.text = eventID
+    event_id_value.text = event_id
     event_id_type.text = 'UUID'
     eventDetailInformation = create_unit(
-        4,event,'eventDetailInformation'
+        4, event, 'eventDetailInformation'
         )
     eventDetail = create_unit(
-        0,eventDetailInformation,'eventDetail'
+        0, eventDetailInformation, 'eventDetail'
         )
     eventDetail.text = event_detail
-    for i in eventLinkingObjectIdentifier:
+    for i in event_linking_object_identifier:
         linkingObjectIdentifier = create_unit(
-            5,event,'linkingObjectIdentifier'
+            5, event, 'linkingObjectIdentifier'
             )
         linkingObjectIdentifierType = create_unit(
-            0,linkingObjectIdentifier,'linkingObjectIdentifierType'
+            0, linkingObjectIdentifier, 'linkingObjectIdentifierType'
             )
         linkingObjectIdentifierValue = create_unit(
-            1,linkingObjectIdentifier,'linkingObjectIdentifierValue'
+            1, linkingObjectIdentifier, 'linkingObjectIdentifierValue'
             )
         linkingObjectIdentifierValue.text = i
         linkingObjectRole = create_unit(
-            2,linkingObjectIdentifier,'linkingObjectRole'
+            2, linkingObjectIdentifier, 'linkingObjectRole'
             )
         linkingObjectIdentifierType.text = 'UUID'
-        linkingObjectRole.text = eventLinkingObjectRole
+        linkingObjectRole.text = event_linking_object_role
     for i in agentlist:
         linkingAgentIdentifier = create_unit(
-            -1,event,'linkingAgentIdentifier'
+            -1, event, 'linkingAgentIdentifier'
             )
         linkingAgentIdentifierType = create_unit(
-            0,linkingAgentIdentifier,'linkingAgentIdentifierType'
+            0, linkingAgentIdentifier, 'linkingAgentIdentifierType'
             )
         linkingAgentIdentifierValue = create_unit(
-            1,linkingAgentIdentifier,'linkingAgentIdentifierValue'
+            1, linkingAgentIdentifier, 'linkingAgentIdentifierValue'
             )
         linkingAgentIdentifierRole = create_unit(
-            2,linkingAgentIdentifier,'linkingAgentRole'
+            2, linkingAgentIdentifier, 'linkingAgentRole'
             )
         linkingAgentIdentifierRole.text = 'implementer'
         linkingAgentIdentifierType.text = 'UUID'
         linkingAgentIdentifierValue.text = i
 
 
-def capture_description(premis, xml_info, capture_station, times, total_agents, engineer):
+def capture_description(
+        premis, xml_info, capture_station, times, total_agents, engineer
+    ):
     '''
     Events:
     1. capture - glean from v210 mediainfo xml
@@ -95,8 +96,8 @@ def capture_description(premis, xml_info, capture_station, times, total_agents, 
         engineer_agent = '9e59e772-14b0-4f9e-95b3-b88b6e751c3b'
     elif engineer == 'Raelene Casey':
         engineer_agent = 'b342d3f7-d87e-4fe3-8da5-89e16a30b59e'
-    
-  
+
+
     capture_uuid = str(uuid.uuid4())
     capture_dict = {}
     if capture_station == 'es2':
@@ -107,7 +108,7 @@ def capture_description(premis, xml_info, capture_station, times, total_agents, 
         capture_agents = [
             j30sdi_agent, bm4k_agent,
             edit_suite2_mac_agent, elcapitan_agent,
-            engineer_agent 
+            engineer_agent
             ]
     elif capture_station == 'loopline':
         m2000p_agent = '60ae3a85-b595-45e0-8e4a-b95e90a6c422'
@@ -119,7 +120,7 @@ def capture_description(premis, xml_info, capture_station, times, total_agents, 
             loopline_mac_agent, osx_lion_agent,
             engineer_agent
             ]
-            
+
     elif capture_station == 'ingest1':
         sony510p_agent = 'dbdbb06b-ab10-49db-97a1-ff2ad285f9d2'
         ingest1_agent = '5fd99e09-63d7-4e9f-8383-1902f727d2a5'
@@ -141,13 +142,15 @@ def capture_description(premis, xml_info, capture_station, times, total_agents, 
     return event_dict
 
 
-def ffv1_description(premis, xml_info, capture_station, times, event_dict, script_user):
+def ffv1_description(
+    premis, xml_info, capture_station, times, event_dict, script_user
+    ):
     if script_user == 'Kieran O\'Leary':
         script_user_agent = '0b3b7e69-80e1-48ec-bf07-62b04669117d'
     elif script_user == 'Aoife Fitzmaurice':
         script_user_agent = '9e59e772-14b0-4f9e-95b3-b88b6e751c3b'
     elif script_user == 'Raelene Casey':
-        script_user_agent = 'b342d3f7-d87e-4fe3-8da5-89e16a30b59e'    
+        script_user_agent = 'b342d3f7-d87e-4fe3-8da5-89e16a30b59e'
     transcode_uuid = str(uuid.uuid4())
     framemd5_uuid = str(uuid.uuid4())
     manifest_uuid = str(uuid.uuid4())
@@ -156,13 +159,13 @@ def ffv1_description(premis, xml_info, capture_station, times, event_dict, scrip
         elcapitan_agent = '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc'
         ffv1_agents = [
             edit_suite2_mac_agent, elcapitan_agent, script_user_agent
-            ]    
+            ]
         make_event(
             premis, 'compression',
             'transcode to FFV1/Matroska (figure out wording later)',
             ffv1_agents, transcode_uuid, xml_info[4], 'outcome', times[1]
             )
-        
+
     elif capture_station == 'ingest1':
         ingest1_agent = '5fd99e09-63d7-4e9f-8383-1902f727d2a5'
         windows7_agent = '192f61b1-8130-4236-a827-a194a20557fe'
@@ -179,13 +182,13 @@ def ffv1_description(premis, xml_info, capture_station, times, event_dict, scrip
         loopline_mac_agent = 'be3060a8-6ccf-4339-97d5-a265687c3a5a'
         ffv1_agents = [
             osx_lion_agent, loopline_mac_agent, script_user_agent
-            ]  
+            ]
         make_event(
             premis, 'compression',
             'transcode to FFV1/Matroska while specifying 4:3 DAR '
             'and Top Field First interlacement',
             ffv1_agents, transcode_uuid, xml_info[4], 'outcome', times[1]
-            )  
+            )
     make_event(
         premis, 'fixity check',
         'lossless verification via framemd5 (figure out wording later)',
@@ -196,9 +199,9 @@ def ffv1_description(premis, xml_info, capture_station, times, event_dict, scrip
         'whole file checksum manifest of SIP', ffv1_agents,
         manifest_uuid, xml_info[4], 'source', 'now-placeholder'
         )
-    print ffv1_agents    
     for agent in ffv1_agents:
-    # Just the UUID is returned.
+    # Just the UUID is returned. This prevents errors if the engineer and
+    # script user are different
         if agent in event_dict:
             event_dict[agent] += [transcode_uuid]
             event_dict[agent] += [framemd5_uuid]
@@ -209,7 +212,7 @@ def ffv1_description(premis, xml_info, capture_station, times, event_dict, scrip
             event_dict[agent] += [manifest_uuid]
     for agent in event_dict:
         make_agent(
-            premis, event_dict[agent],agent
+            premis, event_dict[agent], agent
             )
 
 
@@ -272,19 +275,21 @@ def get_capture_workstation(mediaxml):
     return capture_station
 
 
-    
 def get_user(question):
     user = ''
-    if not user == '1' or user == '2' or user =='3':
-        user =  raw_input(
+    if not user == '1' or user == '2' or user == '3':
+        user = raw_input(
             '\n\n%s'
             '\nPress 1 or 2 or 3\n\n'
-            '1. Kieran O\'Leary\n2. Aoife Fitzmaurice\n3. Raelene Casey\n' % question)
+            '1. Kieran O\'Leary\n2. Aoife Fitzmaurice\n3. Raelene Casey\n'
+            % question)
         while user not in ('1', '2', '3'):
-            user =  raw_input(
-            '\n\n%s'
-            '\nPress 1 or 2 or 3\n\n'
-            '1. Kieran O\'Leary\n2. Aoife Fitzmaurice\n3. Raelene Casey\n' % question)
+            user = raw_input(
+                '\n\n%s'
+                '\nPress 1 or 2 or 3\n\n'
+                '1. Kieran O\'Leary\n2. Aoife Fitzmaurice\n3. Raelene Casey\n'
+                % question
+                )
     if user == '1':
         user = 'Kieran O\'Leary'
     elif user == '2':
