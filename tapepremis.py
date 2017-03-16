@@ -342,15 +342,23 @@ def analyze_log(logfile):
 def main():
     script_user = get_user('**** Who is running this script?')
     engineer = get_user('**** Who captured the actual tape?')
-    premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
-    source_file = sys.argv[1]
+    if not os.path.isdir(sys.argv[1]):
+        print 'Input should be a directory'
+        sys.exit()
+    for root, dirs, filenames in os.walk(sys.argv[1]):
+        for filename in filenames:
+            if filename.endswith('.mkv'):
+                if os.path.isfile(os.path.join(root, filename)):
+                    source_file = os.path.join(root, filename)
+    print 'Processing: %s' % source_file
+    premisxml, premis_namespace, doc, premis = setup_xml(source_file)
     sip_dir = os.path.dirname(source_file)
     parent_dir = os.path.dirname(sip_dir)
     metadata_dir = os.path.join(parent_dir, 'metadata')
     logs_dir = os.path.join(parent_dir, 'logs')
     ffv1_xml = os.path.join(
         metadata_dir, os.path.basename(
-            sys.argv[1]
+            source_file
             + '_mediainfo.xml'
             )
         )
@@ -358,12 +366,12 @@ def main():
     source_xml = os.path.join(
         metadata_dir,
         os.path.basename(
-            sys.argv[1].replace('.mkv', '.mov')
+            source_file.replace('.mkv', '.mov')
             + '_source_mediainfo.xml'))
     logfile = os.path.join(
         logs_dir,
         os.path.basename(
-            sys.argv[1].replace('.mkv', '.mov')
+            source_file.replace('.mkv', '.mov')
             + '_log.log'))
     capture_time = get_times(source_xml)
     transcode_time = get_times(ffv1_xml)
