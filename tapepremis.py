@@ -81,7 +81,7 @@ def make_event(
 
 
 def capture_description(
-        premis, xml_info, capture_station, times, total_agents, engineer
+        premis, xml_info, capture_station, times, engineer
     ):
     '''
     Events:
@@ -100,7 +100,6 @@ def capture_description(
 
 
     capture_uuid = str(uuid.uuid4())
-    capture_dict = {}
     if capture_station == 'es2':
         j30sdi_agent = 'e2ca7ad2-8edf-4e4e-a3c7-36e970c796c9'
         bm4k_agent = 'f47b98a2-b879-4786-9f6b-11fc3234a91e'
@@ -122,13 +121,18 @@ def capture_description(
             engineer_agent
             ]
 
-    elif capture_station == 'ingest1':
+    elif 'ingest1' in capture_station:
         sony510p_agent = 'dbdbb06b-ab10-49db-97a1-ff2ad285f9d2'
+        sony1200p_agent = 'd13fae39-ac71-446e-88df-96c0d267b26c'
         ingest1_agent = '5fd99e09-63d7-4e9f-8383-1902f727d2a5'
         windows7_agent = '192f61b1-8130-4236-a827-a194a20557fe'
         ingest1kona_agent = 'c93ee9a5-4c0c-4670-b857-8726bfd23cae'
-        capture_agents = [
-            sony510p_agent, ingest1kona_agent,
+        if capture_station == 'ingest1-dvw':
+            capture_agents = [sony510p_agent]
+        elif capture_station == 'ingest1-uvw':
+            capture_agents = [sony1200p_agent]
+        capture_agents += [
+            ingest1kona_agent,
             ingest1_agent, windows7_agent,
             engineer_agent
             ]
@@ -144,7 +148,7 @@ def capture_description(
 
 
 def ffv1_description(
-    premis, xml_info, capture_station, times, event_dict, script_user
+        premis, xml_info, capture_station, times, event_dict, script_user
     ):
     if script_user == 'Kieran O\'Leary':
         script_user_agent = '0b3b7e69-80e1-48ec-bf07-62b04669117d'
@@ -167,7 +171,7 @@ def ffv1_description(
             ffv1_agents, transcode_uuid, xml_info[4], 'outcome', times[1]
             )
 
-    elif capture_station == 'ingest1':
+    elif 'ingest1' in capture_station:
         ingest1_agent = '5fd99e09-63d7-4e9f-8383-1902f727d2a5'
         windows7_agent = '192f61b1-8130-4236-a827-a194a20557fe'
         ffv1_agents = [
@@ -273,6 +277,24 @@ def get_capture_workstation(mediaxml):
                 capture_station = 'loopline'
             elif capture_station == '3':
                 capture_station = 'ingest1'
+    if capture_station == 'ingest1':
+        ingest_deck = '0'
+        while int(ingest_deck) not in range(1,3):
+            ingest_deck = raw_input(
+                '\n\n**** Where was tape captured?\n'
+                'Press 1, 2\n1. DVW-510p (Digi)\n2. UVW-1200p (BetaSP)\n'
+                )
+            if int(ingest_deck) not in range(1,3):
+                print 'Incorrect input. Please enter 1 or 2 plz'
+                while int(ingest_deck) not in range(1,3):
+                    ingest_deck = raw_input(
+                        '\n\n**** Where was tape captured?\n'
+                        'Press 1, 2\n2. DVW-510p (Digi)\n3. UVW-1200p (BetaSP)\n'
+                        )
+            if ingest_deck == '1':
+                capture_station = 'ingest1-dvw'
+            elif ingest_deck == '2':
+                capture_station = 'ingest1-uvw'
     return capture_station
 
 
@@ -318,7 +340,6 @@ def analyze_log(logfile):
 
 
 def main():
-    total_agents = []
     script_user = get_user('**** Who is running this script?')
     engineer = get_user('**** Who captured the actual tape?')
     premisxml, premis_namespace, doc, premis = setup_xml(sys.argv[1])
@@ -393,7 +414,7 @@ def main():
         items, linkinguuids, representation_uuid, 'no_sequence', 'n/a'
         )
     event_dict = capture_description(
-        premis, xml_info, capture_station, times, total_agents, engineer
+        premis, xml_info, capture_station, times, engineer
         )
     ffv1_description(
         premis, xml_info, capture_station, times, event_dict, script_user
