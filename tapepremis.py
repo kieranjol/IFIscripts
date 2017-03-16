@@ -369,12 +369,12 @@ def main():
     # I don't even know if any of these are relevant anymore
     items = {
         "workflow":"raw audio",
-        "oe":os.path.basename(source_file),
+        "oe":'n/a',
         "filmographic":'n/a',
-        "sourceAccession":os.path.basename(source_file),
+        "sourceAccession":'unknown at present',
         "interventions":['placeholder'],
         "prepList":['placeholder'],
-        "user":'Kieran O\' Leary'
+        "user":'n/a'
         }
     representation_uuid = str(uuid.uuid4())
     intellectual_entity_uuid = str(uuid.uuid4())
@@ -383,7 +383,7 @@ def main():
         source_file, items, premis,
         premis_namespace, premisxml, representation_uuid, md5
         )
-    linkinguuids = [xml_info[4][0], 'n/a', os.path.basename(source_file)]
+    linkinguuids = [xml_info[4][0], 'n/a', 'n/a']
     create_intellectual_entity(
         premisxml, premis_namespace, doc, premis,
         items, intellectual_entity_uuid
