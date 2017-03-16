@@ -9,6 +9,7 @@ from premis import make_agent
 from premis import write_premis
 from premis import setup_xml
 from premis import create_representation
+from premis import create_intellectual_entity
 from premis import create_unit
 
 
@@ -376,12 +377,17 @@ def main():
         "user":'Kieran O\' Leary'
         }
     representation_uuid = str(uuid.uuid4())
+    intellectual_entity_uuid = str(uuid.uuid4())
     # looks like loopline isn't the keyword any longer. it's len = 32?
     xml_info = make_premis(
         source_file, items, premis,
         premis_namespace, premisxml, representation_uuid, md5
         )
     linkinguuids = [xml_info[4][0], 'n/a', os.path.basename(source_file)]
+    create_intellectual_entity(
+        premisxml, premis_namespace, doc, premis,
+        items, intellectual_entity_uuid
+        )
     create_representation(
         premisxml, premis_namespace, doc, premis,
         items, linkinguuids, representation_uuid, 'no_sequence', 'n/a'
