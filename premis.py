@@ -179,6 +179,7 @@ def setup_xml(source_file):
     namespace           = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
     premis_namespace    = "http://www.loc.gov/premis/v3"
     xsi_namespace       = "http://www.w3.org/2001/XMLSchema-instance"
+    print premisxml
     if os.path.isfile(premisxml):
         print 'looks like premis already exists?'
         parser      = ET.XMLParser(remove_blank_text=True)
@@ -314,13 +315,9 @@ def create_object(source_file, items, premis, premis_namespace, premisxml, repre
         relationshipType.text               = 'structural'
         relationshipSubType                 = create_unit(1,relationship, 'relationshipSubType')
         relationshipSubType.text            = 'is included in'
-        # this is a total hack. if sequence = loopline', do not generate hash as it already exists in manifest :(
-        # looks like loopline isn't the keyword any longer. it's len = 32?
-        if not len(sequence) == 32:
-            md5_output                              = hashlib_md5(source_file, image)
-            messageDigest.text                      = md5_output
-        else:
-            messageDigest.text                      = sequence
+
+        md5_output                              = hashlib_md5(source_file, image)
+        messageDigest.text                      = md5_output
         messageDigestAlgorithm.text             = 'md5'
         mediainfo_counter                       += 1
     # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
