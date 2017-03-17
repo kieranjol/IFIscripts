@@ -2,17 +2,143 @@
 import sys
 import os
 import uuid
+import subprocess
 import lxml.etree as ET
 from ififuncs import get_date_modified
-from premis import make_premis
 from premis import make_agent
 from premis import write_premis
 from premis import setup_xml
 from premis import create_representation
 from premis import create_intellectual_entity
 from premis import create_unit
+from premis import get_input
 
-
+def create_object(
+        source_file, items, premis, premis_namespace,
+        premisxml, representation_uuid, sequence
+    ):
+    video_files = get_input(source_file)
+    mediainfo_counter = 1
+    image_uuids = []
+    rep_counter = 0
+    print('Generating PREMIS metadata about each file object - this may take'
+          ' some time if on a network and/or working with an image sequence')
+    for image in video_files:
+        object_parent = create_unit(
+            -1, premis, 'object'
+            )
+        object_identifier_uuid = create_unit(
+            1, object_parent, 'objectIdentifier'
+            )
+        object_identifier_uuid_type = create_unit(
+            1, object_identifier_uuid, 'objectIdentifierType'
+            )
+        object_identifier_uuid_type.text = 'UUID'
+        object_identifier_uuid_value = create_unit(
+            2, object_identifier_uuid, 'objectIdentifierValue'
+            )
+        file_uuid = str(uuid.uuid4())
+        image_uuids.append(file_uuid)
+        object_identifier_uuid_value.text = file_uuid
+        object_category = ET.Element(
+            "{%s}objectCategory" % (premis_namespace)
+            )
+        object_parent.insert(
+            5, object_category
+            )
+        object_category.text = 'file'
+        if rep_counter == 0:
+            root_uuid = file_uuid
+        rep_counter += 1
+        format_ = ET.Element("{%s}format" % (premis_namespace))
+        object_characteristics = create_unit(
+            10, object_parent, 'objectCharacteristics'
+            )
+        object_characteristics.insert(2, format_)
+        mediainfo = subprocess.check_output(
+            ['mediainfo', '--Output=PBCore2', image]
+            )
+        parser = ET.XMLParser(
+            remove_blank_text=True, remove_comments=True
+            )
+        mediainfo_xml = ET.fromstring((mediainfo), parser=parser)
+        fixity = create_unit(
+            0, object_characteristics, 'fixity'
+            )
+        size = create_unit(
+            1, object_characteristics, 'size'
+            )
+        size.text = str(os.path.getsize(image))
+        format_designation = create_unit(
+            0, format_, 'formatDesignation'
+            )
+        format_name = create_unit(
+            1, format_designation, 'formatName'
+            )
+        format_name_mediainfo = subprocess.check_output(
+            ['mediainfo', '--Inform=General;%InternetMediaType%', image]
+            ).rstrip()
+        if format_name_mediainfo == '':
+            format_name_mediainfo = subprocess.check_output(
+                ['mediainfo', '--Inform=General;%Format_Commercial%', image]
+                ).rstrip()
+        format_name.text = format_name_mediainfo
+        message_digest_algorithm = create_unit(
+            0, fixity, 'messageDigestAlgorithm'
+            )
+        message_digest = create_unit(
+            1, fixity, 'messageDigest'
+            )
+        message_digestOriginator = create_unit(
+            2, fixity, 'messageDigestOriginator'
+            )
+        message_digestOriginator.text = 'internal'
+        object_characteristicsExtension = create_unit(
+            4, object_characteristics, 'objectCharacteristicsExtension'
+            )
+        object_characteristicsExtension.insert(
+            mediainfo_counter, mediainfo_xml
+            )
+        relationship = create_unit(
+            7, object_parent, 'relationship'
+            )
+        relatedObjectIdentifier = create_unit(
+            2, relationship, 'relatedObjectIdentifier'
+            )
+        relatedObjectIdentifierType = create_unit(
+            2, relatedObjectIdentifier, 'relatedObjectIdentifierType'
+            )
+        relatedObjectIdentifierType.text = 'UUID'
+        relatedObjectIdentifierValue = create_unit(
+            3, relatedObjectIdentifier, 'relatedObjectIdentifierValue'
+            )
+        relatedObjectIdentifierValue.text = representation_uuid
+        if sequence == 'sequence':
+            relatedObjectSequence = create_unit(
+                4, relationship, 'relatedObjectSequence'
+                )
+            relatedObjectSequence.text = str(mediainfo_counter)
+        relationshipType = create_unit(
+            0, relationship, 'relationshipType'
+            )
+        relationshipType.text = 'structural'
+        relationshipSubType = create_unit(
+            1, relationship, 'relationshipSubType'
+            )
+        relationshipSubType.text = 'is included in'
+        # this is a total hack. if sequence = loopline', do not generate hash as it already exists in manifest :(
+        # looks like loopline isn't the keyword any longer. it's len = 32?
+        if not len(sequence) == 32:
+            md5_output = hashlib_md5(source_file, image)
+            message_digest.text = md5_output
+        else:
+            message_digest.text = sequence
+        message_digest_algorithm.text = 'md5'
+        mediainfo_counter += 1
+    # When the image info has been grabbed, add info about the representation to the wav file. This may be problematic if makedpx is run first..
+    doc = ET.ElementTree(premis)
+    xml_info = [doc, premisxml, root_uuid, sequence, image_uuids]
+    return xml_info
 def make_event(
         premis, event_type, event_detail,
         agentlist, event_id, event_linking_object_identifier,
@@ -279,14 +405,14 @@ def get_capture_workstation(mediaxml):
                 capture_station = 'ingest1'
     if capture_station == 'ingest1':
         ingest_deck = '0'
-        while int(ingest_deck) not in range(1,3):
+        while int(ingest_deck) not in range(1, 3):
             ingest_deck = raw_input(
                 '\n\n**** Where was tape captured?\n'
                 'Press 1, 2\n1. DVW-510p (Digi)\n2. UVW-1200p (BetaSP)\n'
                 )
-            if int(ingest_deck) not in range(1,3):
+            if int(ingest_deck) not in range(1, 3):
                 print 'Incorrect input. Please enter 1 or 2 plz'
-                while int(ingest_deck) not in range(1,3):
+                while int(ingest_deck) not in range(1, 3):
                     ingest_deck = raw_input(
                         '\n\n**** Where was tape captured?\n'
                         'Press 1, 2\n2. DVW-510p (Digi)\n3. UVW-1200p (BetaSP)\n'
@@ -408,7 +534,7 @@ def main():
     representation_uuid = str(uuid.uuid4())
     intellectual_entity_uuid = str(uuid.uuid4())
     # looks like loopline isn't the keyword any longer. it's len = 32?
-    xml_info = make_premis(
+    xml_info = create_object(
         source_file, items, premis,
         premis_namespace, premisxml, representation_uuid, md5
         )
