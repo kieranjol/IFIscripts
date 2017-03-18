@@ -36,6 +36,7 @@ table of contents
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
+    * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
@@ -188,7 +189,8 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ### loopline.py ###
 * Workflow specific to the Loopline project.
-* makeffv1.py and bitc.py are run on the input
+* makeffv1.py and bitc.py are run on the input, unless a DV file is present, in which case bitc.py and dvsip.py will be run.
+* A proxies folder for the h264 files will be created within your parent folder if it does not already exist.
 * Usage: `loopline.py /path/to/parent_folder` or `loopline.py /path/to/file`
 
 ### masscopy.py ###
@@ -196,6 +198,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * This is useful if a lot of SIPs produced by makeffv1 are created and you want to move them all to another location while harnessing the pre-existing checksum manifest.
 * WARNING - It is essential to check the log file on the desktop/ifiscripts_logs for each folder that transferred!!
 * Usage: `masscopy.py /path/to/parent_folder -o /path/to/destination_folder`
+
+### dvsip.py ###
+* Creates SIP for DV video files. Generates objects/logs/metadata dirs and creates mediatrace, mediainfo, framemd5, logfiles, MD5 sidecar and moves the DV file into the objects directory.
+* Usage: `dvsip.py /path/to/parent_folder` or `dvsip.py /path/to/file`
 
 ## Misc ##
 
