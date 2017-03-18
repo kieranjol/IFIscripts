@@ -78,6 +78,19 @@ def get_input():
         else:
             print "Your input isn't a file or a directory."
             print "What was it? I'm curious."
+        # temporary hack to stop makeffv1 from processing DV
+        dv_test = []
+        for test_files in video_files:
+            codec =  get_mediainfo(
+                'codec', '--inform=Video;%Codec%',
+                 test_files
+                 )
+            if codec == 'DV':
+                dv_test.append(test_files)
+                print 'DV file found, skipping'
+        for i in dv_test:
+            if i in video_files:
+                video_files.remove(i)
         create_csv(
             csv_report_filename,
             (
