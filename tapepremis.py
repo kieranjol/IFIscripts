@@ -8,10 +8,115 @@ from ififuncs import get_date_modified
 from premis import make_agent
 from premis import write_premis
 from premis import setup_xml
-from premis import create_representation
 from premis import create_intellectual_entity
 from premis import create_unit
 from premis import get_input
+from premis import representation_uuid_csv
+
+
+def create_representation(
+        premisxml, premis_namespace, doc, premis,
+        items, linkinguuids, representation_uuid,
+        sequence, intellectual_entity_uuid
+        ):
+        object_parent = create_unit(
+            1, premis, 'object'
+            )
+        object_identifier_parent = create_unit(
+            1, object_parent, 'objectIdentifier'
+            )
+        object_identifier_uuid = create_unit(
+            0, object_parent, 'objectIdentifier'
+            )
+        object_identifier_uuid_type = create_unit(
+            1, object_identifier_uuid, 'objectIdentifierType'
+            )
+        object_identifier_uuid_type.text = 'UUID'
+        object_identifier_uuid_value = create_unit(
+            2, object_identifier_uuid, 'objectIdentifierValue'
+            )
+        object_identifier_uuid_value.text = representation_uuid
+        # add uuids to csv so that other workflows can use them as linking identifiers.
+        representation_uuid_csv(
+            items['filmographic'], items['sourceAccession'], representation_uuid
+            )
+        object_parent.insert(
+            1, object_identifier_parent
+            )
+        ob_id_type = ET.Element("{%s}objectIdentifierType" % (premis_namespace))
+        ob_id_type.text = 'Irish Film Archive Object Entry Register'
+        objectIdentifierValue = create_unit(
+            1, object_identifier_parent, 'objectIdentifierValue'
+            )
+        objectIdentifierValue.text = items['oe']
+        object_identifier_parent.insert(
+            0, ob_id_type
+            )
+        objectCategory = create_unit(
+            2, object_parent, 'objectCategory'
+            )
+        objectCategory.text = 'representation'
+        # These hardcoded relationships do not really belong here. They should be stipulated by another microservice
+        if sequence == 'sequence':
+            representation_relationship(
+                object_parent, premisxml, items,
+                'structural', 'has root', linkinguuids[1][0],
+                'root_sequence', 'UUID'
+                )
+            for i in linkinguuids[1]:
+                representation_relationship(
+                    object_parent, premisxml, items, 'structural',
+                    'includes', i, 'includes', 'UUID'
+                    )
+        representation_relationship(
+            object_parent, premisxml, items, 'structural',
+            'includes',linkinguuids[0], 'n/a', 'UUID'
+            )
+        representation_relationship(
+            object_parent, premisxml, items, 'derivation',
+            'has source',linkinguuids[2], 'n/a',
+            'Irish Film Archive Film Accession Register 2010 -'
+            )
+        representation_relationship(
+            object_parent, premisxml, items,
+            'structural', 'represents', intellectual_entity_uuid, 'n/a', 'UUID'
+            )
+        return object_parent
+
+def representation_relationship(
+        object_parent, premisxml, items, relationshiptype,
+        relationshipsubtype, linking_identifier, root_sequence, linkingtype
+    ):
+        relationship = create_unit(
+            -1, object_parent, 'relationship'
+            )
+        representationrelatedObjectIdentifier = create_unit(
+            2, relationship, 'relatedObjectIdentifier'
+            )
+        representationrelatedObjectIdentifierType = create_unit(
+            2, representationrelatedObjectIdentifier,
+            'relatedObjectIdentifierType'
+            )
+        representationrelatedObjectIdentifierValue = create_unit(
+            3, representationrelatedObjectIdentifier,
+            'relatedObjectIdentifierValue'
+            )
+        if root_sequence == 'root_sequence':
+            relatedObjectSequence = create_unit(
+                4, relationship, 'relatedObjectSequence'
+                )
+            relatedObjectSequence.text = '1'
+        relationshipType = create_unit(
+            0, relationship, 'relationshipType'
+            )
+        relationshipType.text = relationshiptype
+        relationshipSubType = create_unit(
+            1, relationship, 'relationshipSubType'
+            )
+        relationshipSubType.text = relationshipsubtype
+        representationrelatedObjectIdentifierType.text = linkingtype
+        representationrelatedObjectIdentifierValue.text = linking_identifier
+
 
 def create_object(
         source_file, items, premis, premis_namespace,
@@ -274,7 +379,7 @@ def capture_description(
 
 
 def ffv1_description(
-        premis, xml_info, capture_station, times, event_dict, script_user
+        premis, xml_info, workstation, times, event_dict, script_user
     ):
     if script_user == 'Kieran O\'Leary':
         script_user_agent = '0b3b7e69-80e1-48ec-bf07-62b04669117d'
@@ -285,7 +390,7 @@ def ffv1_description(
     transcode_uuid = str(uuid.uuid4())
     framemd5_uuid = str(uuid.uuid4())
     manifest_uuid = str(uuid.uuid4())
-    if capture_station == 'es2':
+    if 'admin' in workstation:
         edit_suite2_mac_agent = '75a0b9ff-1f04-43bd-aa87-c31b73b1b61c'
         elcapitan_agent = '68f56ede-a1cf-48aa-b1d8-dc9850d5bfcc'
         ffv1_agents = [
@@ -297,7 +402,7 @@ def ffv1_description(
             ffv1_agents, transcode_uuid, xml_info[4], 'outcome', times[1]
             )
 
-    elif 'ingest1' in capture_station:
+    elif 'kieranjol' in workstation:
         ingest1_agent = '5fd99e09-63d7-4e9f-8383-1902f727d2a5'
         windows7_agent = '192f61b1-8130-4236-a827-a194a20557fe'
         ffv1_agents = [
@@ -308,7 +413,7 @@ def ffv1_description(
             'transcode to FFV1/Matroska (figure out wording later)',
             ffv1_agents, transcode_uuid, xml_info[4], 'outcome', times[1]
             )
-    elif capture_station == 'loopline':
+    elif 'kaja' in workstation:
         osx_lion_agent = 'c5fc84fc-cc96-42a1-a5be-830b4e3012ae'
         loopline_mac_agent = 'be3060a8-6ccf-4339-97d5-a265687c3a5a'
         ffv1_agents = [
@@ -452,6 +557,7 @@ def analyze_log(logfile):
     losslessness = ''
     framemd5_time = ''
     manifest_time = ''
+    logged_workstation = ''
     with open(logfile, 'r') as fo:
         log_lines = fo.readlines()
         for line in log_lines:
@@ -461,8 +567,10 @@ def analyze_log(logfile):
                 framemd5_time = line[:19]
             if 'MD5 manifest started' in line:
                 manifest_time = line[:19]
+        workstation = log_lines[0][20:35]
+        print workstation
 
-        return manifest_time, framemd5_time, losslessness
+        return manifest_time, framemd5_time, losslessness, workstation
 
 
 def main():
@@ -501,7 +609,7 @@ def main():
             + '_log.log'))
     capture_time = get_times(source_xml)
     transcode_time = get_times(ffv1_xml)
-    manifest_time, framemd5_time, losslessness = analyze_log(logfile)
+    manifest_time, framemd5_time, losslessness, workstation = analyze_log(logfile)
     times = [
         capture_time, transcode_time, manifest_time, framemd5_time, losslessness
         ]
@@ -513,7 +621,6 @@ def main():
     '''
     /home/kieranjol/ifigit/ifiscripts/massive/objects sip
     /home/kieranjol/ifigit/ifiscripts/massive parent
-
     '''
     manifest = parent_dir + '_manifest.md5'
     if not os.path.isfile(manifest):
@@ -543,7 +650,7 @@ def main():
         premisxml, premis_namespace, doc, premis,
         items, intellectual_entity_uuid
         )
-    create_representation(
+    representation_object = create_representation(
         premisxml, premis_namespace, doc, premis,
         items, linkinguuids, representation_uuid, 'no_sequence', 'n/a'
         )
@@ -551,7 +658,7 @@ def main():
         premis, xml_info, capture_station, times, engineer
         )
     ffv1_description(
-        premis, xml_info, capture_station, times, event_dict, script_user
+        premis, xml_info, workstation, times, event_dict, script_user
         )
     write_premis(doc, premisxml)
 
