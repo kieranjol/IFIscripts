@@ -75,7 +75,7 @@ def digest_with_progress(filename, chunk_size):
     f.close()
     return digest.hexdigest()
 
-create_csv(csv_report, ('Filename' , 'Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
+create_csv(csv_report, ('Filename' , 'Series_Title', 'Prog_Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
 #6
 
 if checkfile == True:
@@ -109,7 +109,7 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
         dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
         
         #parsed values
-        checksum = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
+        series_title = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
         prog_title = dpp_xml_parse.findtext('//ns:ProgrammeTitle', namespaces={'ns':dpp_xml_namespace })
         ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
         checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
@@ -128,9 +128,9 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
         
 
         if mxf_checksum == checksum:
-            append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
+            append_csv(csv_report,(filename, series_title, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
         else:
-            append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
+            append_csv(csv_report,(filename, series_title, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
          #14
 
 print "Report complete - Time elaspsed : ", datetime.now() - startTime
@@ -169,7 +169,6 @@ As-11 Fixity
 8.2 remove extension eg MXF store new filname eg GAA filename_no_extention
 8.3 check if GAA with .XML extension exists  - xml_filename
 """
-
 
 
 
