@@ -226,7 +226,6 @@ def make_ffv1(video_files, csv_report_filename):
         source_parent_dir = os.path.dirname(os.path.abspath(filename))
         manifest = '%s/%s_manifest.md5' % (source_parent_dir, filenoext)
         generate_log(log, 'makeffv1.py MD5 manifest started')
-        hashlib_manifest(filenoext, manifest, source_parent_dir)
         checksum_mismatches = []
         with open(fmd5) as f1:
             with open(fmd5ffv1) as f2:
@@ -276,6 +275,7 @@ def make_ffv1(video_files, csv_report_filename):
                     )
                 )
             generate_log(log, 'makeffv1.py Not Lossless.')
+        hashlib_manifest(filenoext, manifest, source_parent_dir)
         if filecmp.cmp(fmd5, fmd5ffv1, shallow=False):
             print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
         else:
@@ -283,7 +283,6 @@ def make_ffv1(video_files, csv_report_filename):
             " This may be because of a lossy transcode,"
             " or a change in metadata, most likely pixel aspect ratio."
             " Please analyse the framemd5 files for source and output."
-
 
 def main():
     video_files, csv_report_filename = get_input()
