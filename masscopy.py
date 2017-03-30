@@ -42,18 +42,6 @@ def main():
             if os.path.isfile(manifest):
                 dirlist.append(os.path.join(args.input, source_directory))
     all_files = dirlist
-    if not permission == 'y' or permission == 'Y':
-        print '\n\n**** All of these folders will be copied to %s\n' % args.o
-        for i in all_files:
-            print i
-        permission =  raw_input('\n**** These are the directories that will be copied. \n**** If this looks ok, please press Y, otherwise, type N\n' )
-        while permission not in ('Y','y','N','n'):
-            permission =  raw_input('\n**** These are the directories that will be copied. \n**** If this looks ok, please press Y, otherwise, type N\n')
-        if permission == 'n' or permission == 'N':
-            print 'Exiting at your command- Cheerio for now'
-            sys.exit()
-        elif permission =='y' or permission == 'Y':
-            print 'Ok so!'
     processed_dirs = []
     log_names = []
     for i in all_files:
