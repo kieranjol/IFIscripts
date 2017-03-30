@@ -31,7 +31,6 @@ def main():
                     help='full path of output directory', required=True)
     args = parser.parse_args()
     dirlist = []
-    permission = ''
     for source_directory in os.listdir(args.input):
         if os.path.isdir(
             os.path.join(args.input,source_directory)
@@ -44,6 +43,9 @@ def main():
     all_files = dirlist
     processed_dirs = []
     log_names = []
+    print '\n\n**** All of these folders will be copied to %s\n' % args.o
+    for i in all_files:
+        print i
     for i in all_files:
         if os.path.isdir(
             os.path.join(args.o, os.path.basename(i))
