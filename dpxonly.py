@@ -168,7 +168,16 @@ elif user == '3':
     time.sleep(1)
 
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
+space_counter = 0
 for source_directory in all_files:
+    for root,dirnames,filenames in os.walk(source_directory):
+        for folders in dirnames:
+            if ' ' in folders:
+                print 'Space found in %s - DELETE IT PLEASE' % os.path.join(root,folders)
+                space_counter += 1
+    if space_counter > 0:
+        sys.exit()
+
     for root,dirnames,filenames in os.walk(source_directory):
             source_directory = root
             if not file_check(source_directory) == 'TIFF':
