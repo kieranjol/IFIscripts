@@ -114,16 +114,21 @@ def copy_dir():
         subprocess.call(['robocopy',source, destination_final_path, '/E', '/XA:SH', '/XD', '.*', '/XD', '*System Volume Information*', '/XD', '$Recycle.bin', '/a-:SH', '/a+:R'])
         generate_log(log_name_source, 'EVENT = File Transfer - Windows O.S - Software=Robocopy')
     elif _platform == "darwin":
+        if args.l:
+           cmd = [ 'gcp','--preserve=mode,timestamps', '-nRv', source, destination_final_path]
+           generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=gcp')
+           subprocess.call(cmd) 
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
-        if rootpos == 'y':
-            if not os.path.isdir(destination + '/' + dirname):
-                os.makedirs(destination + '/' + dirname)
-            cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination + '/' + dirname]
         else:
-            cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination]
-        generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=rsync')
-        print cmd
-        subprocess.call(cmd)
+            if rootpos == 'y':
+                if not os.path.isdir(destination + '/' + dirname):
+                    os.makedirs(destination + '/' + dirname)
+                cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination + '/' + dirname]
+            else:
+                cmd = ['rsync','-rtv', '--exclude=.*', '--exclude=.*/', '--stats','--progress', source, destination]
+            generate_log(log_name_source, 'EVENT = File Transfer - OSX - Software=rsync')
+            print cmd
+            subprocess.call(cmd)
     elif _platform == "linux2":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = [ 'cp','--preserve=mode,timestamps', '-nRv',source, destination_final_path]
@@ -201,6 +206,7 @@ parser = argparse.ArgumentParser(description='Copy directory with checksum compa
 parser.add_argument('source', help='Input directory')
 parser.add_argument('destination', help='Destination directory')
 parser.add_argument('-b', '-benchmark', action='store_true', help='display benchmark')
+parser.add_argument('-l', '-lto', action='store_true', help='use gcp instead of rsync on osx for SPEED on LTO')
 #parser.add_argument('-sha', '-sha512', action='store_true', help='use sha512 instead of md5')
 
 global rootpos

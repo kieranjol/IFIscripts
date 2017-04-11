@@ -29,6 +29,8 @@ def main():
     parser.add_argument(
                     '-o',
                     help='full path of output directory', required=True)
+    parser.add_argument(
+                    '-l', '-lto', action='store_true', help='use gcp instead of rsync on osx for SPEED on LTO')
     args = parser.parse_args()
     dirlist = []
     permission = ''
@@ -69,10 +71,16 @@ def main():
                 ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
             desktop_logs_dir = make_desktop_logs_dir()
             log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
-            moveit_cmd = [
-                sys.executable,
-                os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
-                os.path.join(args.input,i), args.o]
+            if args.l:
+                moveit_cmd = [
+                    sys.executable,
+                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),'-l',
+                    os.path.join(args.input,i), args.o]
+            else:
+                moveit_cmd = [
+                    sys.executable,
+                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
+                    os.path.join(args.input,i), args.o]
             subprocess.check_call(moveit_cmd)
             processed_dirs.append(os.path.basename(os.path.join(args.input,i)))
             log_names.append(log_name_source)
