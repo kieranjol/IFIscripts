@@ -89,10 +89,11 @@ if not os.path.isfile(manifest):
         print 'Generating source manifest'
         if args.f:
             hashlib_manifest(source, manifest,source)
+            shutil.move(log_name_source, source)
         else:
             hashlib_manifest(source, manifest,source_parent_dir)
         generate_log(log_name_source, 'EVENT = Generating source manifest')
-        shutil.move(log_name_source, source)
+
 
     except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
