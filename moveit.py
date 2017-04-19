@@ -64,7 +64,10 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)
-                    os.remove(path)
+                    try:
+                        os.remove(path)
+                    except OSError:
+                        print 'can\'t delete as source is read-only'
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile, path_to_remove):
     global manifest_generator
