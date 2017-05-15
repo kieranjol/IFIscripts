@@ -18,6 +18,7 @@ def main():
     if install_check('ifigit/ifiscripts'):
         os.chdir('ifigit/ifiscripts')
         print('Updating IFIScripts - Changing directory to %s and running `git pull`') %os.getcwd()
+        subprocess.call(['git', 'checkout', 'master'])
         subprocess.call(['git', 'pull'])
     if install_check('../premisviewer'):
         os.chdir('../premisviewer')
