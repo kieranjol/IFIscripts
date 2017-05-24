@@ -59,7 +59,7 @@ def get_input():
             codec =  get_mediainfo(
                 'codec', '--inform=Video;%Codec%',
                  test_files
-                 )
+                 ).rstrip()
             if codec != 'DV':
                 dv_test.append(test_files)
                 print 'DV file found, skipping'
