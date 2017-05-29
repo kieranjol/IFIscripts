@@ -146,7 +146,7 @@ for root,dirnames,filenames in os.walk(source_directory):
                                                 '-of', 'default=noprint_wrappers=1:nokey=1',
                                                 ]).rstrip()
 
-        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-pix_fmt', pix_fmt ,output_dirname +  '/video/' + output_filename + '.mkv']
+        ffv12dpx = ['ffmpeg','-report','-f','image2','-framerate','24', '-start_number', start_number, '-i', os.path.abspath(dpx_filename) ,'-strict', '-2','-c:v','ffv1','-level', '3', '-g', '1', '-slicecrc', '1', '-slices', '16', '-pix_fmt', pix_fmt ,output_dirname +  '/video/' + output_filename + '.mkv']
         print ffv12dpx
         transcode_start                     = datetime.datetime.now()
         transcode_start_machine_readable    = time.time()
