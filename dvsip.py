@@ -60,9 +60,9 @@ def get_input():
                 'codec', '--inform=Video;%Codec%',
                  test_files
                  ).rstrip()
-            if codec != 'DV':
+            if codec.rstrip() != 'DV':
                 dv_test.append(test_files)
-                print 'DV file found, skipping'
+                print 'Non-DV file found, skipping'
         for i in dv_test:
             if i in video_files:
                 video_files.remove(i)
