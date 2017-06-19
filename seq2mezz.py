@@ -30,11 +30,10 @@ def get_filenames(images, source_directory):
 def make_dv(ffmpeg_friendly_name, output):
     ffmpeg_friendly_name += '%06d.tiff'
     cmd = ['ffmpeg','-f','image2',
-           '-framerate','24',y
+           '-framerate','24',
            '-i', ffmpeg_friendly_name,
            '-c:v','prores',
-           '-profile', '3',
-           '-vf','copy',
+           '-profile:v', '3',
            output]
     print cmd
     subprocess.call(cmd)
