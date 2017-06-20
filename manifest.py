@@ -22,7 +22,10 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     generate_log(log_name_source, 'EVENT = Unwanted file removal - %s was removed' % path)
-                    os.remove(path)
+                    try:
+                        os.remove(path)
+                    except OSError:
+                        print 'can\'t delete as source is read-only'
 
 parser = argparse.ArgumentParser(description='Generate manifest with checksums for a directory'
                                  ' Written by Kieran O\'Leary.')
