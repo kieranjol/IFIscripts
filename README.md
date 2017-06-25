@@ -40,6 +40,7 @@ table of contents
 7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
+    * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
 8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
@@ -212,6 +213,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### giffer.py ###
 * Makes a 24fps 500px gif of the input file.
 * Usage: `giffer.py /path/to/input`
+
+### makeuuid.py ###
+* Prints a new UUID to the terminal via the UUID python module and the create_uuid() helper function within ififuncs.
+* Usage: `makeuuid.py`
 
 ## Experimental-Premis ##
 
