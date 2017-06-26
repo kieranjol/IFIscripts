@@ -9,6 +9,7 @@ import os
 import filecmp
 import hashlib
 import datetime
+import uuid
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email import encoders
@@ -344,3 +345,11 @@ def get_date_modified(filename):
     epoch_time = os.path.getmtime(filename)
     date_modified =  datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%dT%H:%M:%S")
     return date_modified
+
+
+def create_uuid():
+    '''
+    Returns a randonly generated UUID as a string
+    '''
+    new_uuid = str(uuid.uuid4())
+    return new_uuid
