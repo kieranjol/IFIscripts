@@ -41,6 +41,7 @@ table of contents
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
     * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
+    * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
 8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
@@ -217,6 +218,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### makeuuid.py ###
 * Prints a new UUID to the terminal via the UUID python module and the create_uuid() helper function within ififuncs.
 * Usage: `makeuuid.py`
+
+### durationcheck.py ###
+* Recursive search through subdirectories and provides total duration in minutes. Accepts multiple inputs but provides the total duration of all inputs.
+* Usage: `durationcheck.py /path/to/parent_folder` or `durationcheck.py /path/to/parent_folder1 /path/to/parent_folder2 /path/to/parent_folder3` 
 
 ## Experimental-Premis ##
 
