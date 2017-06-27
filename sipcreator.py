@@ -8,6 +8,8 @@ import ififuncs
 import sys
 import shutil
 import subprocess
+import time
+from masscopy import analyze_log
 
 
 def make_folder_path(path):
@@ -57,6 +59,18 @@ def consolidate_manifests(path):
             manifest_object.write(checksums)
 
 
+def consolidate_logs(lognames, path):
+    uuid = os.path.basename(path)
+    collective_manifest = []
+    new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_log.log')
+    for log in lognames:
+        with open(log, 'r') as fo:
+            log_lines = fo.readlines()
+        with open(new_log_textfile, 'ab') as log_object:
+            for lines in log_lines:
+                log_object.write(lines)
+
+
 def get_relative_filepaths(inputs):
     path_list = []
     for paths in inputs:
@@ -96,15 +110,36 @@ def main():
     print basename
     extract_checksums(args.m, path_list, basename)
     '''
+    log_names = []
     for t in args.i:
         print t
         moveit_cmd = [
                         sys.executable,
                         os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
                         t, os.path.join(sip_path, 'objects')]
+        log_name_source_ = os.path.basename(
+                t
+                ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
+        log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
+        log_names.append(log_name_source)
         subprocess.check_call(moveit_cmd)
+    for i in log_names:
+        if os.path.isfile(i):
+            print "%-*s   : %s" % (50,os.path.basename(i)[:-24], analyze_log(i))
+        else:
+            print i, 'can\'t find log file, trying again...'
+            for logs in os.listdir(desktop_logs_dir):
+                # look at log filename minus the seconds and '.log'
+                if os.path.basename(i)[:-7] in logs:
+                    # make sure that the alternate log filename is more recent
+                    if int(os.path.basename(logs)[-12:-4].replace('_','')) > int(os.path.basename(i)[-12:-4].replace('_','')):
+                        print 'trying to analyze %s' % logs
+                        print "%-*s   : %s" % (50,os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir,logs)))
     new_manifest = consolidate_manifests(sip_path)
     print sip_path
+    print log_names
+    consolidate_logs(log_names, sip_path)
     '''
     bring ubunutu and macbook to loopline,do transfers there
     take manifests, add uuid, put in correct location, delete orig manifests
