@@ -10,6 +10,7 @@ import time
 import argparse
 import getpass
 import hashlib
+import shutil
 from sys import platform as _platform
 from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
 
@@ -367,6 +368,9 @@ else:
         generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination,  %s files at source' % (destination_count, source_count))
     else:
         print ' %s files in your destination \n %s files at source' % (destination_count, source_count)
-
+manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
+if os.path.dirname(manifest) == desktop_manifest_dir:
+    os.rename(manifest, manifest_rename)
+    shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests' ))
 if args.b:
     display_benchmark()
