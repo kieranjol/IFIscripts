@@ -353,3 +353,12 @@ def create_uuid():
     '''
     new_uuid = str(uuid.uuid4())
     return new_uuid
+
+def make_folder_structure(path):
+    metadata_dir = "%s/metadata" % path
+    log_dir = "%s/logs" % path
+    data_dir = "%s/objects" % path
+    # Actually create the directories.
+    os.makedirs(metadata_dir)
+    os.makedirs(data_dir)
+    os.makedirs(log_dir)
