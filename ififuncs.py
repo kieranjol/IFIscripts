@@ -71,6 +71,19 @@ def get_mediainfo(var_type, type, filename):
     return var_type
 # example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 
+
+def get_milliseconds(filename):
+    '''
+    Returns a float with the duration of a file in milliseconds.
+    '''
+    milliseconds = get_mediainfo(
+        'miliseconds',
+        '--inform=General;%Duration%',
+        filename
+    )
+    return float(milliseconds)
+
+
 def send_gmail(email_to, attachment, subject, email_body, email_address, password):
     emailfrom = ""
     emailto = email_to
