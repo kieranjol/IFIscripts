@@ -91,6 +91,7 @@ def move_files(inputs, sip_path):
             print "%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))
         else:
             print i, 'can\'t find log file, trying again...'
+            log_names.remove(i)
             for logs in os.listdir(desktop_logs_dir):
                 # look at log filename minus the seconds and '.log'
                 if os.path.basename(i)[:-7] in logs:
@@ -103,6 +104,7 @@ def move_files(inputs, sip_path):
                             50, os.path.basename(logs)[:-24], analyze_log(
                                 os.path.join(desktop_logs_dir, logs))
                             )
+                        log_names.append(os.path.join(desktop_logs_dir, logs))
     consolidate_manifests(sip_path)
     consolidate_logs(log_names, sip_path)
 
@@ -130,6 +132,18 @@ def main():
     args = parser.parse_args()
     inputs = args.i
     sip_path = make_folder_path(os.path.join(args.o))
+    uuid = os.path.basename(sip_path)
+    new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_log.log')
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = sipcreator.py started'
+    )
+
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = Identifier assignement - type=UUID, value=%s, module=uuid.uuid4' % uuid
+    )
+
     move_files(inputs, sip_path)
 
 

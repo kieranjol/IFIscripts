@@ -16,6 +16,8 @@ def analyze_log(logfile):
                 outcome = 'success'
             if 'EVENT = File Transfer Outcome - Failure' in line:
                 outcome = 'failure'
+            if 'EVENT = Existing source manifest check - Failure' in line:
+                outcome = 'failure - might be outdated manifests in use'
         return outcome
 
 
