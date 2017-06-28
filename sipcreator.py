@@ -23,14 +23,14 @@ def make_folder_path(path):
     return path
 
 
-def consolidate_manifests(path):
+def consolidate_manifests(path, directory):
     '''
     Consolidates all manifests in the objects folder
     moves old manifests into logs
     renames manifest with uuid and updates paths in manifest textfile.
     '''
     uuid = os.path.basename(path)
-    objects_dir = os.path.join(path, 'objects')
+    objects_dir = os.path.join(path, directory)
     new_manifest_textfile = os.path.join(
         os.path.dirname(path), uuid + '_manifest.md5'
     )
@@ -42,15 +42,17 @@ def consolidate_manifests(path):
                     manifest_lines = fo.readlines()
                     for i in manifest_lines:
                         # This is what appends the new path to existing paths.
-                        new_manifest_path = uuid + '/objects/' + i[34:]
+                        new_manifest_path = uuid + '/%s/' % directory + i[34:]
                         collective_manifest.append(
                             i[:32] + '  ' + new_manifest_path
                         )
                 # Cut and paste old manifests into the log directory
+
                 shutil.move(objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
     with open(new_manifest_textfile, 'ab') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
+    return new_manifest_textfile
 
 
 def consolidate_logs(lognames, path):
@@ -107,7 +109,7 @@ def move_files(inputs, sip_path):
                                 os.path.join(desktop_logs_dir, logs))
                             )
                         log_names.append(os.path.join(desktop_logs_dir, logs))
-    consolidate_manifests(sip_path)
+
     consolidate_logs(log_names, sip_path)
 
 def get_metadata(path):
@@ -115,9 +117,9 @@ def get_metadata(path):
     Recursively create mediainfos and mediatraces for AV files.
     This should probably go in ififuncs as it could be used by other scripts.
     '''
-    for root, dirnames, filenames in os.walk(path):
+    for root, _, filenames in os.walk(path):
         for av_file in filenames:
-            if av_file.endswith(('.mov', 'MP4', '.mp4', '.MXF', '.dv', '.DV')):
+            if av_file.endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.dv', '.DV')):
                 if not av_file[0] == '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
@@ -126,9 +128,15 @@ def get_metadata(path):
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
                     print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
-                    ififuncs.make_mediainfo(inputxml, 'mediaxmlinput', os.path.join(root, av_file))
+                    ififuncs.make_mediainfo(
+                        inputxml, 'mediaxmlinput', os.path.join(root, av_file)
+                    )
                     print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
-                    ififuncs.make_mediatrace(inputtracexml, 'mediatracexmlinput', os.path.join(root, av_file))
+                    ififuncs.make_mediatrace(
+                        inputtracexml,
+                        'mediatracexmlinput',
+                        os.path.join(root, av_file)
+                    )
 
 
 def main():
@@ -169,8 +177,16 @@ def main():
         new_log_textfile,
         'EVENT = Identifier assignement - type=UUID, value=%s, module=uuid.uuid4' % uuid
     )
-
+    metadata_dir = os.path.join(sip_path, 'metadata')
+    logs_dir = os.path.join(sip_path, 'logs')
     move_files(inputs, sip_path)
     get_metadata(sip_path)
+    ififuncs.hashlib_manifest(metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir)
+    new_manifest_textfile = consolidate_manifests(sip_path, 'objects')
+    consolidate_manifests(sip_path, 'metadata')
+    ififuncs.hashlib_append(logs_dir, new_manifest_textfile, os.path.dirname(os.path.dirname(logs_dir)))
+    ififuncs.sort_manifest(new_manifest_textfile)
+
+
 if __name__ == '__main__':
     main()
