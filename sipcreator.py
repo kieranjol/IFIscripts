@@ -4,11 +4,11 @@ Generates SIPS by calling various microservices and functions.
 '''
 import os
 import argparse
-import ififuncs
 import sys
 import shutil
 import subprocess
 import time
+import ififuncs
 from masscopy import analyze_log
 
 
@@ -76,12 +76,13 @@ def move_files(inputs, sip_path):
     log_names = []
     for item in inputs:
         moveit_cmd = [
-                        sys.executable,
-                        os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
-                        item, os.path.join(sip_path, 'objects')]
+            sys.executable,
+            os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
+            item, os.path.join(sip_path, 'objects')
+        ]
         log_name_source_ = os.path.basename(
-                item,
-                ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+            item,
+        ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
         log_names.append(log_name_source)
@@ -97,8 +98,9 @@ def move_files(inputs, sip_path):
                 if os.path.basename(i)[:-7] in logs:
                     # make sure that the alternate log filename is more recent
                     if int(
-                        os.path.basename(logs)[-12:-4].replace('_', '')
-                    ) > int(os.path.basename(i)[-12:-4].replace('_', '')):
+                            os.path.basename(logs)[-12:-4].replace('_', '')
+                    ) > int(
+                        os.path.basename(i)[-12:-4].replace('_', '')):
                         print 'trying to analyze %s' % logs
                         print "%-*s   : %s" % (
                             50, os.path.basename(logs)[:-24], analyze_log(
@@ -107,6 +109,26 @@ def move_files(inputs, sip_path):
                         log_names.append(os.path.join(desktop_logs_dir, logs))
     consolidate_manifests(sip_path)
     consolidate_logs(log_names, sip_path)
+
+def get_metadata(path):
+    '''
+    Recursively create mediainfos and mediatraces for AV files.
+    This should probably go in ififuncs as it could be used by other scripts.
+    '''
+    for root, dirnames, filenames in os.walk(path):
+        for av_file in filenames:
+            if av_file.endswith(('.mov', 'MP4', '.mp4', '.MXF', '.dv', '.DV')):
+                if not av_file[0] == '.':
+                    inputxml = "%s/%s_mediainfo.xml" % (
+                        os.path.join(path, 'metadata'), os.path.basename(av_file)
+                        )
+                    inputtracexml = "%s/%s_mediatrace.xml" % (
+                        os.path.join(path, 'metadata'), os.path.basename(av_file)
+                        )
+                    print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
+                    ififuncs.make_mediainfo(inputxml, 'mediaxmlinput', os.path.join(root, av_file))
+                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+                    ififuncs.make_mediatrace(inputtracexml, 'mediatracexmlinput', os.path.join(root, av_file))
 
 
 def main():
@@ -145,7 +167,6 @@ def main():
     )
 
     move_files(inputs, sip_path)
-
-
+    get_metadata(sip_path)
 if __name__ == '__main__':
     main()
