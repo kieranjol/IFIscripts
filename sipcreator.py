@@ -153,6 +153,7 @@ def main():
     )
     args = parser.parse_args()
     inputs = args.i
+    user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o))
     uuid = os.path.basename(sip_path)
     new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_log.log')
@@ -160,7 +161,10 @@ def main():
         new_log_textfile,
         'EVENT = sipcreator.py started'
     )
-
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = User=%s' % user
+    )
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = Identifier assignement - type=UUID, value=%s, module=uuid.uuid4' % uuid
