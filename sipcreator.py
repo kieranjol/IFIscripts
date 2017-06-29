@@ -8,6 +8,7 @@ import sys
 import shutil
 import subprocess
 import time
+import datetime
 import ififuncs
 from masscopy import analyze_log
 
@@ -89,6 +90,15 @@ def move_files(inputs, sip_path):
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
         log_names.append(log_name_source)
         subprocess.check_call(moveit_cmd)
+    consolidate_logs(log_names, sip_path)
+    return log_names
+
+
+def log_report(log_names):
+    '''
+    Analyzes all the moveit.py logs on the desktop and print a report.
+    '''
+    desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     for i in log_names:
         if os.path.isfile(i):
             print "%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))
@@ -110,7 +120,6 @@ def move_files(inputs, sip_path):
                             )
                         log_names.append(os.path.join(desktop_logs_dir, logs))
 
-    consolidate_logs(log_names, sip_path)
 
 def get_metadata(path):
     '''
@@ -140,6 +149,10 @@ def get_metadata(path):
 
 
 def main():
+    '''
+    Launch all the functions for creating an IFI SIP.
+    '''
+    start = datetime.datetime.now()
     '''
     Generates SIPS by calling various microservices and functions.
     '''
@@ -179,13 +192,16 @@ def main():
     )
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
-    move_files(inputs, sip_path)
+    log_names = move_files(inputs, sip_path)
     get_metadata(sip_path)
     ififuncs.hashlib_manifest(metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects')
     consolidate_manifests(sip_path, 'metadata')
     ififuncs.hashlib_append(logs_dir, new_manifest_textfile, os.path.dirname(os.path.dirname(logs_dir)))
     ififuncs.sort_manifest(new_manifest_textfile)
+    log_report(log_names)
+    finish = datetime.datetime.now()
+    print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
 
 
 if __name__ == '__main__':
