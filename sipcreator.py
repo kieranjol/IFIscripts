@@ -120,7 +120,26 @@ def log_report(log_names):
                             )
                         log_names.append(os.path.join(desktop_logs_dir, logs))
 
-
+def parse_args(args_):
+    print args_
+    parser = argparse.ArgumentParser(
+        description='Wraps objects into an Irish Film Institute SIP'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        '-i', nargs='+',
+        help='full path of input directory', required=True
+    )
+    parser.add_argument(
+        '-o', '-output',
+        help='full path of output directory', required=True
+    )
+    parser.add_argument(
+        '-m', '-manifest',
+        help='full path to a pre-existing manifest'
+    )
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
 def get_metadata(path):
     '''
     Recursively create mediainfos and mediatraces for AV files.
@@ -148,31 +167,15 @@ def get_metadata(path):
                     )
 
 
-def main():
+def main(args_):
     '''
     Launch all the functions for creating an IFI SIP.
     '''
+    args = parse_args(args_)
     start = datetime.datetime.now()
     '''
     Generates SIPS by calling various microservices and functions.
     '''
-    parser = argparse.ArgumentParser(
-        description='Wraps objects into an Irish Film Institute SIP'
-        ' Written by Kieran O\'Leary.'
-    )
-    parser.add_argument(
-        '-i', nargs='+',
-        help='full path of input directory', required=True
-    )
-    parser.add_argument(
-        '-o', '-output',
-        help='full path of output directory', required=True
-    )
-    parser.add_argument(
-        '-m', '-manifest',
-        help='full path to a pre-existing manifest'
-    )
-    args = parser.parse_args()
     inputs = args.i
     user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o))
@@ -205,4 +208,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
