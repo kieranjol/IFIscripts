@@ -191,7 +191,7 @@ def main(args_):
     )
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = Identifier assignement - type=UUID, value=%s, module=uuid.uuid4' % uuid
+        'EVENT = eventType=Identifier assignement, eventIdentifierType=UUID, value=%s, module=uuid.uuid4' % uuid
     )
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
