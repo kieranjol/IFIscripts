@@ -11,6 +11,7 @@ table of contents
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
     * [prores.py](https://github.com/kieranjol/IFIscripts#prorespy)
+    * [concat.py](https://github.com/kieranjol/IFIscripts#concatpy)
 4. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
 	* [dcpaccess.py](https://github.com/kieranjol/IFIscripts#dcpaccesspy)
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
@@ -84,6 +85,11 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for single file - `prores.py filename.mov`
 * Usage for batch processing all videos in a directory - `prores.py directory_name`
 * This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `prores.py -h` to see all options
+
+### concat.py ###
+* Concatenate/join video files together using ffmpeg stream copy into a single Matroska container. As the streams are losslessly copied, the speed is quite fast.
+* Usage: `concat.py -i /path/to/filename1.mov /path/to/filename2.mov -o /path/to/destination_folder`
+* Warning - video files must have the same technical attributes such as codec, width, height, fps. Some characters in filenames will cause the script to fail. Some of these include quotes. The script will ask the user if quotes should be renamed with underscores. Also, a temporary concatenation textfile will be stored in your temp folder. Currently only tested on Ubuntu.
 
 ## Digital Cinema Package Scripts ##
 

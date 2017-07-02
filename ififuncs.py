@@ -10,6 +10,7 @@ import filecmp
 import hashlib
 import datetime
 import uuid
+import tempfile
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email import encoders
@@ -458,4 +459,54 @@ def sort_manifest(manifest_textfile):
             manifest_list = sorted(manifest_lines,  key=lambda x:(x[34:]))
             for i in manifest_list:
                 ba.write(i)
+
+def concat_textfile(video_files, concat_file):
+    '''
+    Create concat textfile for all files in video_files
+    a condition is needed elsewhere to ensure concat_file is empty
+    '''
+    for video in video_files:
+        with open(concat_file, 'ab') as textfile:
+            textfile.write('file \'%s\'\n' % video)
+
+
+def sanitise_filenames(video_files):
+    '''
+    this just replaces quotes with underscores.
+    only used right now to make concat scripts work.
+    The change should only happen if user says YES
+    previous and current filename should be logged.
+    Also there should be a better way of returning the list.
+    '''
+    overwrite = ''
+    renamed_files = []
+    for video in video_files:
+        if '\'' in video:
+            print 'A quote is in your filename %s , replace with underscore?' % video
+            while overwrite not in ('Y', 'y', 'N', 'n'):
+                overwrite = raw_input()
+                if overwrite not in ('Y', 'y', 'N', 'n'):
+                    print 'Incorrect input. Please enter Y or N'
+                if overwrite in ('Y', 'y'):
+                    rename = video.replace('\'', '_')
+                    os.rename(video, rename)
+                    renamed_files.append(rename)
+        else:
+            renamed_files.append(video)
+    return renamed_files
+
+
+def get_temp_concat(root_name):
+    '''
+    generates a temp file as a textfile for ffmpeg concatenation.
+    '''
+    temp_dir = tempfile.gettempdir()
+    video_concat_filename = os.path.basename(
+        root_name) + '_video_concat' + time.strftime("_%Y_%m_%dT%H_%M_%S")
+    # Slashes are significant for ffmpeg concat files.
+    if sys.platform == "win32":
+        video_concat_textfile = temp_dir + "\%s.txt" % video_concat_filename
+    else:
+        video_concat_textfile = temp_dir + "/%s.txt" % video_concat_filename
+    return video_concat_textfile
 
