@@ -5,21 +5,23 @@ table of contents
 -------------------
 
 1. [summary](https://github.com/kieranjol/IFIscripts#summary)
-2. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
+2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
+    * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreator)
+3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
     * [prores.py](https://github.com/kieranjol/IFIscripts#prorespy)
-3. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
+4. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
 	* [dcpaccess.py](https://github.com/kieranjol/IFIscripts#dcpaccesspy)
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
     * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)
-4. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
+5. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
     * [moveit.py](https://github.com/kieranjol/IFIscripts#moveitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
     * [batchfixity.py](https://github.com/kieranjol/IFIscripts#batchfixitypy)
-5. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
+6. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
     * [seq2prores.py](https://github.com/kieranjol/IFIscripts#seq2prorespy)
@@ -30,19 +32,19 @@ table of contents
     * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
     * [batchmetadata.py](https://github.com/kieranjol/IFIscripts#batchmetadata)
 	* [batchrename.py](https://github.com/kieranjol/IFIscripts#batchrename)
-5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
+7. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
-6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
+8. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
     * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
-7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
+9. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
     * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
     * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
-8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
+10. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
@@ -54,6 +56,15 @@ Scripts for use in the IFI Irish Film Archive. Scripts have been tested in OSX/W
 Most scripts take either a file or a directory as their input, for example `makeffv1.py filename.mov` or `premis.py path/to/folder_of_stuff`. (It's best to just drag and drop the folder or filename into the terminal)
 
 Note: Documentation template has been copied from [mediamicroservices](https://github.com/mediamicroservices/mm)
+
+## Arrangement ##
+
+### sipcreator.py ###
+* Accepts one or more directories as input and wraps them up in a directory structure in line with IFI procedures using `moveit.py`.
+* Folders will be stored in an objects directory. Directory structure is a parent directory named with a UUID, with three child directories (objects, logs metadata):
+* Checksums are stored for the package and metadata is extracted for the AV material in the objects. A log records the major events in the process.
+* Usage for one directory - `sipcreator.py -i /path/to/directory_name -o /path/to/output_folder`
+* Usage for more than one directory - `sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder`
 
 ## Transcodes ##
 
