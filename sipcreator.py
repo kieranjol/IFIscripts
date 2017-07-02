@@ -38,7 +38,7 @@ def consolidate_manifests(path, directory):
     collective_manifest = []
     for manifest in os.listdir(objects_dir):
         if manifest.endswith('.md5'):
-            if not manifest[0] == '.':
+            if manifest[0] != '.':
                 with open(os.path.join(objects_dir, manifest), 'r') as fo:
                     manifest_lines = fo.readlines()
                     for i in manifest_lines:
@@ -49,7 +49,9 @@ def consolidate_manifests(path, directory):
                         )
                 # Cut and paste old manifests into the log directory
 
-                shutil.move(objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
+                shutil.move(
+                    objects_dir + '/' +  manifest, os.path.join(path, 'logs')
+                )
     with open(new_manifest_textfile, 'ab') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
@@ -83,10 +85,10 @@ def move_files(inputs, sip_path):
             os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
             item, os.path.join(sip_path, 'objects')
         ]
+        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         log_name_source_ = os.path.basename(
             item,
         ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
         log_names.append(log_name_source)
         subprocess.check_call(moveit_cmd)
@@ -121,7 +123,9 @@ def log_report(log_names):
                         log_names.append(os.path.join(desktop_logs_dir, logs))
 
 def parse_args(args_):
-    print args_
+    '''
+    Parse command line arguments.
+    '''
     parser = argparse.ArgumentParser(
         description='Wraps objects into an Irish Film Institute SIP'
         ' Written by Kieran O\'Leary.'
@@ -140,6 +144,8 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+
 def get_metadata(path):
     '''
     Recursively create mediainfos and mediatraces for AV files.
@@ -147,8 +153,10 @@ def get_metadata(path):
     '''
     for root, _, filenames in os.walk(path):
         for av_file in filenames:
-            if av_file.endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.dv', '.DV')):
-                if not av_file[0] == '.':
+            if av_file.endswith(
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.dv', '.DV')
+            ):
+                if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
@@ -173,9 +181,6 @@ def main(args_):
     '''
     args = parse_args(args_)
     start = datetime.datetime.now()
-    '''
-    Generates SIPS by calling various microservices and functions.
-    '''
     inputs = args.i
     user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o))
@@ -189,18 +194,27 @@ def main(args_):
         new_log_textfile,
         'EVENT = User=%s' % user
     )
+    uuid_event = (
+        'EVENT = eventType=Identifier assignement,'
+        ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+    ) % uuid
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = eventType=Identifier assignement, eventIdentifierType=UUID, value=%s, module=uuid.uuid4' % uuid
+        uuid_event
     )
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)
     get_metadata(sip_path)
-    ififuncs.hashlib_manifest(metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir)
+    ififuncs.hashlib_manifest(
+        metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
+    )
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects')
     consolidate_manifests(sip_path, 'metadata')
-    ififuncs.hashlib_append(logs_dir, new_manifest_textfile, os.path.dirname(os.path.dirname(logs_dir)))
+    ififuncs.hashlib_append(
+        logs_dir, new_manifest_textfile,
+        os.path.dirname(os.path.dirname(logs_dir))
+    )
     ififuncs.sort_manifest(new_manifest_textfile)
     log_report(log_names)
     finish = datetime.datetime.now()
