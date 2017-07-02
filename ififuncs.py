@@ -221,6 +221,40 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
             fo.write(i + '\n')
 
 
+def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
+    file_count = 0
+    for root, directories, filenames in os.walk(manifest_dir):
+            filenames = [f for f in filenames if not f[0] == '.']
+            directories[:] = [d for d in directories if not d[0] == '.']
+            for files in filenames:
+                    print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+                    file_count +=1
+    manifest_generator = ''
+    md5_counter = 1
+    for root, directories, filenames in os.walk(manifest_dir):
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.']
+        for files in filenames:
+            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root,files), md5_counter, file_count)
+            md5 = hashlib_md5(os.path.join(root, files))
+            md5_counter +=1
+            root2 = os.path.abspath(root).replace(path_to_remove, '')
+            try:
+                if root2[0] == '/':
+                    root2 = root2[1:]
+                if root2[0] == '\\':
+                    root2 = root2[1:]
+            except: IndexError
+            manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+    manifest_list = manifest_generator.splitlines()
+    files_in_manifest = len(manifest_list)
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
+    with open(manifest_textfile,"ab") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
+
+
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
     if not os.path.isfile(manifest_textfile):
@@ -369,3 +403,59 @@ def create_uuid():
     '''
     new_uuid = str(uuid.uuid4())
     return new_uuid
+
+def make_folder_structure(path):
+    metadata_dir = "%s/metadata" % path
+    log_dir = "%s/logs" % path
+    #old_manifests_dir = "%s/logs/old_manifests" % path
+    data_dir = "%s/objects" % path
+    # Actually create the directories.
+    os.makedirs(metadata_dir)
+    os.makedirs(data_dir)
+    os.makedirs(log_dir)
+    #os.makedirs(old_manifests_dir)
+
+
+def get_user():
+    '''
+    Asks user who they are. Returns a string with their name
+    '''
+    user = ''
+    if user not in ('1','2', '3', '4', '5'):
+        user =  raw_input(
+            '\n\n**** Who are you?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+        )
+        while user not in ('1','2', '3', '4', '5'):
+            user =  raw_input(
+            '\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+        )
+    if user == '1':
+        user = 'Brian Cash'
+        time.sleep(1)
+    elif user == '2':
+        user = 'Gavin Martin'
+        time.sleep(1)
+    elif user == '3':
+        user = 'Kieran O\'Leary'
+        time.sleep(1)
+    elif user == '4':
+        user = 'Raelene Casey'
+        time.sleep(1)
+    elif user == '5':
+        user = 'Aoife Fitzmaurice'
+        time.sleep(1)
+    return user
+
+
+def sort_manifest(manifest_textfile):
+    '''
+    Sorts an md5 manifest in alphabetical order.
+    Some scripts like moveit.py will require a manifest to be ordered like this.
+    '''
+    with open(manifest_textfile,"r") as fo:
+        manifest_lines = fo.readlines()
+        with open(manifest_textfile,"wb") as ba:
+            manifest_list = sorted(manifest_lines,  key=lambda x:(x[34:]))
+            for i in manifest_list:
+                ba.write(i)
+
