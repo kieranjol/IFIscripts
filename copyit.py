@@ -127,16 +127,16 @@ def make_manifest(
             filenames = [
                 f for f in filenames if f[0] != '.'
             ]
+            for files in filenames:
+                checksum_list.append([root, files])
     elif os.path.isfile(manifest_dir):
-        filenames = [os.path.basename(manifest_dir)]
-        root = os.path.dirname(manifest_dir)
-        
-    for files in filenames:
+        checksum_list = [[os.path.dirname(manifest_dir), os.path.basename(manifest_dir)]]
+    for files in checksum_list:
         print 'Generating MD5 for %s - %d of %d' % (
             files, counter2, source_counter
             )
-        md5 = hashlib_md5(os.path.join(root, files))
-        root2 = root.replace(path_to_remove, '')
+        md5 = hashlib_md5(os.path.join(files[0], files[1]))
+        root2 = files[0].replace(path_to_remove, '')
         try:
             if root2[0] == '/':
                 root2 = root2[1:]
@@ -144,7 +144,7 @@ def make_manifest(
                 root2 = root2[1:]
         except: IndexError
         manifest_generator += md5[:32] + '  ' + os.path.join(
-            root2, files
+            root2, files[1]
             ).replace("\\", "/") + '\n'
         counter2 += 1
     manifest_list = manifest_generator.splitlines()
