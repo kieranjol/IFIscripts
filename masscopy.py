@@ -66,12 +66,12 @@ def main():
             if args.l:
                 moveit_cmd = [
                     sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),'-l',
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),'-l',
                     os.path.join(args.input,i), args.o]
             else:
                 moveit_cmd = [
                     sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
                     os.path.join(args.input,i), args.o]
             subprocess.check_call(moveit_cmd)
             processed_dirs.append(os.path.basename(os.path.join(args.input,i)))
