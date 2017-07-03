@@ -82,7 +82,7 @@ def move_files(inputs, sip_path):
     for item in inputs:
         moveit_cmd = [
             sys.executable,
-            os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
+            os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
             item, os.path.join(sip_path, 'objects')
         ]
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
