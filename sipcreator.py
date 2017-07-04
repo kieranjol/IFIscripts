@@ -183,6 +183,10 @@ def main(args_):
     )
     ififuncs.generate_log(
         new_log_textfile,
+        'eventDetail=sipcreator.py %s' % ififuncs.get_script_version('sipcreator.py')
+    )
+    ififuncs.generate_log(
+        new_log_textfile,
         'EVENT = User=%s' % user
     )
     uuid_event = (
