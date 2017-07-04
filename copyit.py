@@ -173,6 +173,7 @@ def copy_dir(
                 log_name_source,
                 'EVENT = File Transfer, status=started, agentName=Windows, module=shutil.copy2'
             )
+            print 'copying file with python/shutil'
             shutil.copy2(source, destination_final_path)
         else:
             subprocess.call([

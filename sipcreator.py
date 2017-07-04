@@ -66,7 +66,7 @@ def consolidate_logs(lognames, path):
     Saves it in the SIP
     '''
     uuid = os.path.basename(path)
-    new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_log.log')
+    new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_sip_log.log')
     for log in lognames:
         with open(log, 'r') as fo:
             log_lines = fo.readlines()
@@ -137,11 +137,18 @@ def parse_args(args_):
     return parsed_args
 
 
-def get_metadata(path):
+def get_metadata(path, new_log_textfile):
     '''
     Recursively create mediainfos and mediatraces for AV files.
     This should probably go in ififuncs as it could be used by other scripts.
     '''
+    mediainfo_version = 'mediainfo'
+    try:
+        mediainfo_process = subprocess.check_output([
+                'mediainfo', '--Version'
+            ])
+    except subprocess.CalledProcessError as grepexc:
+        mediainfo_version =  grepexc.output.rstrip().splitlines()[1]
     for root, _, filenames in os.walk(path):
         for av_file in filenames:
             if av_file.endswith(
@@ -158,11 +165,19 @@ def get_metadata(path):
                     ififuncs.make_mediainfo(
                         inputxml, 'mediaxmlinput', os.path.join(root, av_file)
                     )
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                    )
                     print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
                     ififuncs.make_mediatrace(
                         inputtracexml,
                         'mediatracexmlinput',
                         os.path.join(root, av_file)
+                    )
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
                     )
 
 
@@ -176,7 +191,7 @@ def main(args_):
     user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o))
     uuid = os.path.basename(sip_path)
-    new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_log.log')
+    new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = sipcreator.py started'
@@ -200,7 +215,7 @@ def main(args_):
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)
-    get_metadata(sip_path)
+    get_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
     )
