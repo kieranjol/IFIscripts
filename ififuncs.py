@@ -518,7 +518,7 @@ def get_script_version(scriptname):
     os.chdir(home)
     if os.path.isdir('ifigit/ifiscripts'):
         os.chdir('ifigit/ifiscripts')
-        print('Updating IFIScripts - Changing directory to %s and running `git pull`') %os.getcwd()
+        print("Changing directory to %s to extract script version`") %os.getcwd()
         script_version = subprocess.check_output([
             'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
         ])

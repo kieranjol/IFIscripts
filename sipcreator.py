@@ -187,7 +187,7 @@ def main(args_):
     )
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = User=%s' % user
+        'EVENT = agentName=%s' % user
     )
     uuid_event = (
         'EVENT = eventType=Identifier assignement,'

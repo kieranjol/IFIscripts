@@ -12,7 +12,7 @@ def analyze_log(logfile):
     with open(logfile, 'r') as fo:
         log_lines = fo.readlines()
         for line in log_lines:
-            if 'EVENT = File Transfer Judgement - Success ' in line:
+            if 'EVENT = File Transfer Judgement - Success' in line:
                 outcome = 'success'
             if 'EVENT = File Transfer Outcome - Failure' in line:
                 outcome = 'failure'

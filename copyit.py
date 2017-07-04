@@ -12,6 +12,7 @@ import time
 import argparse
 import hashlib
 import shutil
+import ififuncs
 from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
 
 
@@ -167,18 +168,25 @@ def copy_dir(
     are launched that copy paste source files to destination.
     '''
     if sys.platform == "win32":
-        subprocess.call([
-            'robocopy', source,
-            destination_final_path,
-            '/E', '/XA:SH',
-            '/XD', '.*',
-            '/XD', '*System Volume Information*',
-            '/XD', '$Recycle.bin', '/a-:SH', '/a+:R'
-        ])
-        generate_log(
-            log_name_source,
-            'EVENT = File Transfer - Windows O.S - Software=Robocopy'
-        )
+        if os.path.isfile(source):
+            generate_log(
+                log_name_source,
+                'EVENT = File Transfer, status=started, agentName=Windows, module=shutil.copy2'
+            )
+            shutil.copy2(source, destination_final_path)
+        else:
+            subprocess.call([
+                'robocopy', source,
+                destination_final_path,
+                '/E', '/XA:SH',
+                '/XD', '.*',
+                '/XD', '*System Volume Information*',
+                '/XD', '$Recycle.bin', '/a-:SH', '/a+:R'
+            ])
+            generate_log(
+                log_name_source,
+                'EVENT = File Transfer, status=started, agentName=Windows O.S, agentName=Robocopy'
+            )
     elif sys.platform == "darwin":
         if args.l:
             cmd = [
@@ -186,7 +194,7 @@ def copy_dir(
                 '-nRv', source, destination_final_path
             ]
             generate_log(
-                log_name_source, 'EVENT = File Transfer - OSX - Software=gcp'
+                log_name_source, 'EVENT = File Transfer, status=started, agentName=OSX - agentName=gcp'
             )
             subprocess.call(cmd)
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
@@ -207,7 +215,7 @@ def copy_dir(
                     '--stats', '--progress', source, destination
                 ]
             generate_log(
-                log_name_source, 'EVENT = File Transfer - OSX - Software=rsync'
+                log_name_source, 'EVENT = File Transfer, status=started, agentName=OSX, agentName=rsync'
             )
             print cmd
             subprocess.call(cmd)
@@ -218,10 +226,13 @@ def copy_dir(
             '-nRv', source, destination_final_path
         ]
         generate_log(
-            log_name_source, 'EVENT = File Transfer - Linux- Software=cp'
+            log_name_source, 'EVENT = File Transfer, status=started, agentName=Linux, agentName=cp'
         )
         subprocess.call(cmd)
-
+    generate_log(
+                log_name_source,
+                'EVENT = File Transfer, status=completed'
+            )
 
 def diff_report(file1, file2, log_name_source):
     '''
@@ -360,7 +371,10 @@ def setup(args_):
     log_name_filename = dirname + time.strftime("_%Y_%m_%dT%H_%M_%S")
     desktop_logs_dir = make_desktop_logs_dir()
     log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_filename)
-    generate_log(log_name_source, 'move.py started.')
+    generate_log(log_name_source, 'copyit.py started.')
+    ififuncs.generate_log(
+        log_name_source,
+        'eventDetail=copyit.py %s' % ififuncs.get_script_version('copyit.py'))
     generate_log(log_name_source, 'Source: %s' % source)
     generate_log(log_name_source, 'Destination: %s'  % destination)
     return args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir
@@ -458,7 +472,7 @@ def make_destination_manifest(
     if overwrite_destination_manifest not in ('N', 'n'):
         if overwrite_destination_manifest == None:
             generate_log(
-                log_name_source, 'EVENT = Destination Manifest Generation'
+                log_name_source, 'EVENT = Generating destination manifest: status=started, eventType=message digest calculation, module=hashlib'
             )
         else:
             generate_log(
@@ -471,11 +485,18 @@ def make_destination_manifest(
                 destination_final_path,
                 manifest_destination, destination
             )
+            generate_log(
+                log_name_source,
+                'EVENT = Generating destination manifest: status=completed'
+            )
         else:
             files_in_manifest = make_manifest(
                 destination_final_path,
                 manifest_destination, destination
             )
+            generate_log(
+                log_name_source,
+                'EVENT = Generating destination manifest: status=completed')
     else:
         generate_log(
             log_name_source,
@@ -489,14 +510,14 @@ def verify_copy(manifest, manifest_destination, log_name_source, overwrite_desti
         print "Your files have reached their destination and the checksums match"
         generate_log(
             log_name_source,
-            'EVENT = File Transfer Judgement - Success'
+            'EVENT = File Transfer Judgement - Success, eventOutcome=pass'
         )
     else:
         print "***********YOUR CHECKSUMS DO NOT MATCH*************"
         if overwrite_destination_manifest not in ('N', 'n'):
             generate_log(
                 log_name_source,
-                'EVENT = File Transfer Outcome - Failure'
+                'EVENT = File Transfer Outcome - Failure, eventOutcome=fail'
             )
             print ' There are: \n %s files in your destination manifest \n' % files_in_manifest
             print ' %s files in your destination \n %s files at source' % (
@@ -520,7 +541,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args):
     elif not os.path.isfile(manifest):
         try:
             print 'Generating source manifest'
-            generate_log(log_name_source, 'EVENT = Generating source manifest')
+            generate_log(log_name_source, 'EVENT = Generating source manifest: status=started, eventType=message digest calculation, module=hashlib')
             if rootpos == 'y':
                 make_manifest(
                     args.source, manifest, args.source
@@ -530,6 +551,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args):
                     args.source, manifest,
                     os.path.dirname(args.source)
                 )
+            generate_log(log_name_source, 'EVENT = Generating source manifest: status=completed')
         except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
             sys.exit()
