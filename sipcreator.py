@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import time
 import datetime
+import copyit
 import ififuncs
 from masscopy import analyze_log
 
@@ -80,18 +81,8 @@ def move_files(inputs, sip_path):
     '''
     log_names = []
     for item in inputs:
-        moveit_cmd = [
-            sys.executable,
-            os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
-            item, os.path.join(sip_path, 'objects')
-        ]
-        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
-        log_name_source_ = os.path.basename(
-            item,
-        ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-        log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
-        log_names.append(log_name_source)
-        subprocess.check_call(moveit_cmd)
+        log_name = copyit.main([item, os.path.join(sip_path, 'objects')])
+        log_names.append(log_name)
     consolidate_logs(log_names, sip_path)
     return log_names
 

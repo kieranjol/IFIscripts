@@ -94,6 +94,7 @@ def make_manifest(
     '''
     Generates a checksum text manifest.
     '''
+    checksum_list = []
     manifest_generator = ''
     source_counter = 0
     for root, directories, filenames in os.walk(manifest_dir):
@@ -600,6 +601,6 @@ def main(args_):
     if os.path.dirname(manifest) == desktop_manifest_dir:
         os.rename(manifest, manifest_rename)
         shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests' ))
-
+    return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
