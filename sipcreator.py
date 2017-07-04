@@ -25,7 +25,7 @@ def make_folder_path(path):
     return path
 
 
-def consolidate_manifests(path, directory):
+def consolidate_manifests(path, directory, new_log_textfile):
     '''
     Consolidates all manifests in the objects folder
     moves old manifests into logs
@@ -40,6 +40,10 @@ def consolidate_manifests(path, directory):
     for manifest in os.listdir(objects_dir):
         if manifest.endswith('.md5'):
             if manifest[0] != '.':
+                ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
+                    )
                 with open(os.path.join(objects_dir, manifest), 'r') as fo:
                     manifest_lines = fo.readlines()
                     for i in manifest_lines:
@@ -53,6 +57,10 @@ def consolidate_manifests(path, directory):
                 shutil.move(
                     objects_dir + '/' +  manifest, os.path.join(path, 'logs')
                 )
+                ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
+                    )
     with open(new_manifest_textfile, 'ab') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
@@ -219,8 +227,8 @@ def main(args_):
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
     )
-    new_manifest_textfile = consolidate_manifests(sip_path, 'objects')
-    consolidate_manifests(sip_path, 'metadata')
+    new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
+    consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
         logs_dir, new_manifest_textfile,
         os.path.dirname(os.path.dirname(logs_dir))
