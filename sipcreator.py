@@ -14,12 +14,15 @@ import ififuncs
 from masscopy import analyze_log
 
 
-def make_folder_path(path):
+def make_folder_path(path, args):
     '''
     Generates objects/logs/metadata/UUID folder structure in output.
     Returns the path.
     '''
-    representation_uuid = ififuncs.create_uuid()
+    if not args.u:
+        representation_uuid = ififuncs.create_uuid()
+    else:
+        representation_uuid = args.u
     path = os.path.join(path, representation_uuid)
     ififuncs.make_folder_structure(path)
     return path
@@ -141,6 +144,10 @@ def parse_args(args_):
         '-m', '-manifest',
         help='full path to a pre-existing manifest'
     )
+    parser.add_argument(
+        '-u', '-uuid',
+        help='Use a pre-existing UUID instead of a newly generated UUID.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -197,8 +204,26 @@ def main(args_):
     start = datetime.datetime.now()
     inputs = args.i
     user = ififuncs.get_user()
-    sip_path = make_folder_path(os.path.join(args.o))
-    uuid = os.path.basename(sip_path)
+    sip_path = make_folder_path(os.path.join(args.o), args)
+    if args.u:
+        if ififuncs.validate_uuid4(args.u) == None:
+            uuid = args.u
+            uuid_event = (
+                'EVENT = eventType=Identifier assignement,'
+                ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+            ) % uuid
+        else:
+            print 'exiting due to invalid UUID'
+            uuid_event = (
+                'EVENT = exiting due to invalud UUID supplied on the commmand line: %s' % uuid
+            )
+            uuid = False
+    else:
+        uuid = os.path.basename(sip_path)
+        uuid_event = (
+            'EVENT = eventType=Identifier assignement,'
+            ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+        ) % uuid
     new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
     ififuncs.generate_log(
         new_log_textfile,
@@ -212,14 +237,12 @@ def main(args_):
         new_log_textfile,
         'EVENT = agentName=%s' % user
     )
-    uuid_event = (
-        'EVENT = eventType=Identifier assignement,'
-        ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
-    ) % uuid
     ififuncs.generate_log(
         new_log_textfile,
         uuid_event
     )
+    if args.u == False:
+        sys.exit()
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)
