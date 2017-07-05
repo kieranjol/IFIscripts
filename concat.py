@@ -107,7 +107,7 @@ def main(args_):
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
     print uuid
     if args.s:
-        sipcreator.main(['-i', output_file, '-u', uuid, '-o', args.o])
+        sipcreator.main(['-i', output_file, '-u', uuid, '-user', user, '-o', args.o])
 
 if __name__ == '__main__':
     main(sys.argv[1:])

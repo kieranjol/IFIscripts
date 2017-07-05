@@ -148,6 +148,10 @@ def parse_args(args_):
         '-u', '-uuid',
         help='Use a pre-existing UUID instead of a newly generated UUID.'
     )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -203,7 +207,10 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
-    user = ififuncs.get_user()
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o), args)
     if args.u:
         if ififuncs.validate_uuid4(args.u) == None:
