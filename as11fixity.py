@@ -106,19 +106,6 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
             print 'No XML file exists.'
         #8.3
         
-        
-        dpp_xml_parse = etree.parse(full_xml_path)
-        dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
-        
-        #parsed values
-        series_title = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
-        prog_title = dpp_xml_parse.findtext('//ns:ProgrammeTitle', namespaces={'ns':dpp_xml_namespace })
-        ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
-        checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
-        #12
-     
-        
-        
         print "Generating md5 for ", filename
         
     #print digest_with_progress(full_path, 1024)  
@@ -144,8 +131,7 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
             append_csv(csv_report,(filename, series_title, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
          #14
         
-        #13
-        print 'Generating Report....  \n',
+       
 
         
         
