@@ -525,3 +525,32 @@ def get_script_version(scriptname):
     return script_version
 
 
+def validate_uuid4(uuid_string):
+
+    """
+    Validate that a UUID string is in
+    fact a valid uuid4.
+
+    Written by ShawnMilo
+    https://gist.github.com/ShawnMilo/7777304#file-validate_uuid4-py
+    """
+
+    try:
+        val = uuid.UUID(uuid_string, version=4)
+    except ValueError:
+        # If it's a value error, then the string 
+        # is not a valid hex code for a UUID.
+        return False
+
+def get_source_uuid():
+    '''
+    Asks user for uuid. A valid uuid must be provided.
+    '''
+    source_uuid = False
+    while source_uuid == False:
+        uuid =  raw_input(
+            '\n\n**** Please enter the UUID of the source representation\n\n'
+        )
+        source_uuid = validate_uuid4(uuid)
+    
+    return uuid

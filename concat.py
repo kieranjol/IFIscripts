@@ -7,6 +7,7 @@ import subprocess
 import os
 import argparse
 import ififuncs
+import time
 
 
 def parse_args(args_):
@@ -33,7 +34,7 @@ def parse_args(args_):
     return parsed_args
 
 
-def ffmpeg_concat(concat_file, args):
+def ffmpeg_concat(concat_file, args, uuid):
     '''
     Launch the actual ffmpeg concatenation command
     '''
@@ -41,7 +42,7 @@ def ffmpeg_concat(concat_file, args):
         'ffmpeg', '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy', '-map', '0:a?', '-map', '0:v',
-        os.path.join(args.o, 'output.mkv')
+        os.path.join(args.o, '%s.mkv' % uuid)
     ]
     print cmd
     subprocess.call(
@@ -73,14 +74,31 @@ def main(args_):
     '''
     Launches the functions that prepare and execute the concatenation.
     '''
+    uuid = ififuncs.create_uuid()
     args = parse_args(args_)
+
+    log_name_source = os.path.join(args.o, '%s_concat_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
+    ififuncs.generate_log(log_name_source, 'concat.py started.')
+    ififuncs.generate_log(
+        log_name_source,
+        'eventDetail=concat.py %s' % ififuncs.get_script_version('concat.py'))
+    user = ififuncs.get_user()
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = agentName=%s' % user
+    )
+    source_uuid = ififuncs.get_source_uuid()
+    ififuncs.generate_log(
+        log_name_source,
+        'Relationship, derivation, has source=%s' % source_uuid
+    )
     video_files = args.i
     concat_file = ififuncs.get_temp_concat('concat_stuff')
     if args.r:
         video_files = recursive_file_list(video_files)
     video_files = ififuncs.sanitise_filenames(video_files)
     ififuncs.concat_textfile(video_files, concat_file)
-    ffmpeg_concat(concat_file, args)
+    ffmpeg_concat(concat_file, args, uuid)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
