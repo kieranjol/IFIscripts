@@ -6,10 +6,9 @@ import sys
 import subprocess
 import os
 import argparse
+import time
 import sipcreator
 import ififuncs
-import time
-
 
 def parse_args(args_):
     '''
