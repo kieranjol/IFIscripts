@@ -6,6 +6,7 @@ import sys
 import subprocess
 import os
 import argparse
+import sipcreator
 import ififuncs
 import time
 
@@ -29,6 +30,10 @@ def parse_args(args_):
     parser.add_argument(
         '-r', '-recursive',
         help='recursively process all files in subdirectories. This could be potentially a disaster - so use with caution or with XDCAM', action='store_true'
+    )
+    parser.add_argument(
+        '-s', '-sip',
+        help='Run sipcreator.py on the resulting file.', action='store_true'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -99,6 +104,10 @@ def main(args_):
     video_files = ififuncs.sanitise_filenames(video_files)
     ififuncs.concat_textfile(video_files, concat_file)
     ffmpeg_concat(concat_file, args, uuid)
+    output_file = os.path.join(args.o, '%s.mkv' % uuid)
+    print uuid
+    if args.s:
+        sipcreator.main(['-i', output_file, '-u', uuid, '-o', args.o])
 
 if __name__ == '__main__':
     main(sys.argv[1:])
