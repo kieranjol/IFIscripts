@@ -267,7 +267,7 @@ def main(args_):
     log_report(log_names)
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
-
+    return new_log_textfile
 
 if __name__ == '__main__':
     main(sys.argv[1:])

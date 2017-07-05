@@ -106,8 +106,17 @@ def main(args_):
     ffmpeg_concat(concat_file, args, uuid)
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
     print uuid
+    with open(log_name_source, 'r') as concat_log:
+        concat_lines = concat_log.readlines()
     if args.s:
-        sipcreator.main(['-i', output_file, '-u', uuid, '-user', user, '-o', args.o])
+        sipcreator_log = sipcreator.main(['-i', output_file, '-u', uuid, '-user', user, '-o', args.o])
+        with open(sipcreator_log, 'r') as sipcreator_log_object:
+            sipcreator_lines = sipcreator_log_object.readlines()
+        with open(sipcreator_log, 'wb') as fo:
+            for lines in concat_lines:
+                fo.write(lines)
+            for remaining_lines in sipcreator_lines:
+                fo.write(remaining_lines)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
