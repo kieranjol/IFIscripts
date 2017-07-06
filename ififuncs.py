@@ -12,6 +12,7 @@ import datetime
 import uuid
 import tempfile
 from glob import glob
+from lxml import etree
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -554,3 +555,13 @@ def get_source_uuid():
         source_uuid = validate_uuid4(uuid)
     
     return uuid
+
+def get_contenttitletext(cpl):
+    '''
+    Returns the <ContentTitleText> element text from a DCP CPL.xml
+    '''
+    cpl_parse = etree.parse(cpl)
+    cpl_namespace = cpl_parse.xpath('namespace-uri(.)')
+    contenttitletext =  cpl_parse.findtext('//ns:ContentTitleText',namespaces={'ns': cpl_namespace})
+    return contenttitletext
+
