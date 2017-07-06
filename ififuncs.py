@@ -591,5 +591,17 @@ def ask_yes_no(question):
         elif answer in ('N,' 'n'):
             return 'N'
 
+def manifest_replace(manifest, to_be_replaced, replaced_with):
+    '''
+    Replace strings in a checksum manifest (or any textfile)
+    Ideally, this should never replace the checksum, just a path alteration.
+    Although this could be useful for changing the logs checksum value.
+    '''
+    with open(manifest, 'r') as fo:
+        original_lines = fo.readlines()
+    with open(manifest, 'wb') as ba:
+        for lines in original_lines:
+            new_lines = lines.replace(to_be_replaced, replaced_with)
+            ba.write(new_lines)
 
 

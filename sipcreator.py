@@ -218,6 +218,7 @@ def create_content_title_text(args, sip_path):
     dci_foldername = os.path.join(objects_dir, content_title_text)
     if ififuncs.ask_yes_no('Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)) == 'Y':
         os.rename(dcp_dirname, dci_foldername)
+    return content_title_text
 
 
 def main(args_):
@@ -288,8 +289,14 @@ def main(args_):
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
     if args.d:
-        create_content_title_text(args, sip_path)
+        content_title = create_content_title_text(args, sip_path)
+        ififuncs.manifest_replace(
+            new_manifest_textfile,
+            os.path.join('objects', os.path.basename(args.i[0])),
+            os.path.join('objects', content_title)
+        )
     return new_log_textfile
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
