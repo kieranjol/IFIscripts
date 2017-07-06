@@ -151,6 +151,10 @@ def parse_args(args_):
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.'
     )
+    parser.add_argument(
+        '-d', '-dcp', action='store_true',
+        help='Adds DCP specific processing, like creating objects subfolder with text extracted from <ContentTitleText> in the CPL.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -198,7 +202,14 @@ def get_metadata(path, new_log_textfile):
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
                     )
 
-
+def create_content_title_text(args, sip_path):
+    objects_dir = os.path.join(sip_path, 'objects')
+    print args.i
+    # assuming one input for now
+    cpl = ififuncs.find_cpl(args.i[0])
+    content_title_text = ififuncs.get_contenttitletext(cpl)
+    print content_title_text, 11
+    sys.exit()
 def main(args_):
     '''
     Launch all the functions for creating an IFI SIP.
@@ -211,6 +222,8 @@ def main(args_):
     else:
         user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o), args)
+    if args.d:
+        create_content_title_text(args, sip_path)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
             uuid = args.u

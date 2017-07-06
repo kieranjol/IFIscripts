@@ -565,3 +565,14 @@ def get_contenttitletext(cpl):
     contenttitletext =  cpl_parse.findtext('//ns:ContentTitleText',namespaces={'ns': cpl_namespace})
     return contenttitletext
 
+
+def find_cpl(source):
+    for root, _, filenames in os.walk(source):
+        for filename in filenames:
+            if filename.endswith('.xml'):
+                if filename[0] != '.':
+                    cpl_parse = etree.parse(os.path.join(root, filename))
+                    cpl_namespace = cpl_parse.xpath('namespace-uri(.)')
+                    if 'CPL' in cpl_namespace:
+                        return os.path.join(root, filename)
+
