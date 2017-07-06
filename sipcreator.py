@@ -174,7 +174,7 @@ def get_metadata(path, new_log_textfile):
     for root, _, filenames in os.walk(path):
         for av_file in filenames:
             if av_file.endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.dv', '.DV')
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV')
             ):
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
@@ -203,13 +203,23 @@ def get_metadata(path, new_log_textfile):
                     )
 
 def create_content_title_text(args, sip_path):
+    '''
+    DCPs are often delivered with inconsistent foldernames.
+    This will rename the parent folder with the value recorded in <ContentTitleText>
+    For example:
+    Original name: CHARBON-SMPTE-24
+    New name: CHARBON-SMPTE-24-INTEROP-SUBS_TST_S_XX-EN_FR_XX_2K_CHA-20120613_CHA_OV
+    Rename will only occur if user agrees.
+    '''
     objects_dir = os.path.join(sip_path, 'objects')
-    print args.i
-    # assuming one input for now
-    cpl = ififuncs.find_cpl(args.i[0])
+    cpl = ififuncs.find_cpl(objects_dir)
+    dcp_dirname = os.path.dirname(cpl)
     content_title_text = ififuncs.get_contenttitletext(cpl)
-    print content_title_text, 11
-    sys.exit()
+    dci_foldername = os.path.join(objects_dir, content_title_text)
+    if ififuncs.ask_yes_no('Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)) == 'Y':
+        os.rename(dcp_dirname, dci_foldername)
+
+
 def main(args_):
     '''
     Launch all the functions for creating an IFI SIP.
@@ -222,8 +232,6 @@ def main(args_):
     else:
         user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o), args)
-    if args.d:
-        create_content_title_text(args, sip_path)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
             uuid = args.u
@@ -279,6 +287,8 @@ def main(args_):
     log_report(log_names)
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+    if args.d:
+        create_content_title_text(args, sip_path)
     return new_log_textfile
 
 if __name__ == '__main__':
