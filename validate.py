@@ -106,6 +106,22 @@ def check_manifest(input):
     manifest = get_input(input)
     manifest_dict, missing_files = parse_manifest(manifest)
     validate(manifest_dict, manifest, missing_files)
+    return manifest
+def log_results(manifest, log, args):
+    basename = os.path.basename(manifest).replace('_manifest.md5', '')
+    logname = basename + '_sip_log.log'
+    sip_dir = os.path.join(
+        os.path.dirname(args.input), basename)
+    logs_dir = os.path.join(sip_dir, 'logs')
+    logfile = os.path.join(logs_dir, logname)
+    print logfile
+    if os.path.isfile(logfile):
+        with open(log, 'r') as fo:
+            validate_log = fo.readlines()
+        with open(logfile, 'ab') as ba:
+            for lines in validate_log:
+                ba.write(lines)
+
 
 def main():
     parser = make_parser()
@@ -116,8 +132,8 @@ def main():
     root = logging.getLogger()
     logging.basicConfig(filename=log, filemode='a',level=logging.INFO)
     logging.info('Started at %s using the following workstation: %s' % (time.strftime("%Y-%m-%dT%H:%M:%S "), getpass.getuser()))
-
     #root.setLevel(logging.DEBUG)
-    check_manifest(args.input)
+    manifest = check_manifest(args.input)
+    log_results(manifest, log, args)
 if __name__ == '__main__':
    main()

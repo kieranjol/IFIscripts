@@ -7,7 +7,6 @@ import argparse
 import sys
 import shutil
 import subprocess
-import time
 import datetime
 import copyit
 import ififuncs
@@ -44,9 +43,9 @@ def consolidate_manifests(path, directory, new_log_textfile):
         if manifest.endswith('.md5'):
             if manifest[0] != '.':
                 ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
-                    )
+                    new_log_textfile,
+                    'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
+                )
                 with open(os.path.join(objects_dir, manifest), 'r') as fo:
                     manifest_lines = fo.readlines()
                     for i in manifest_lines:
@@ -61,9 +60,9 @@ def consolidate_manifests(path, directory, new_log_textfile):
                     objects_dir + '/' +  manifest, os.path.join(path, 'logs')
                 )
                 ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
-                    )
+                    new_log_textfile,
+                    'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
+                )
     with open(new_manifest_textfile, 'ab') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
@@ -148,6 +147,10 @@ def parse_args(args_):
         '-u', '-uuid',
         help='Use a pre-existing UUID instead of a newly generated UUID.'
     )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -159,9 +162,9 @@ def get_metadata(path, new_log_textfile):
     '''
     mediainfo_version = 'mediainfo'
     try:
-        mediainfo_process = subprocess.check_output([
-                'mediainfo', '--Version'
-            ])
+        subprocess.check_output([
+            'mediainfo', '--Version'
+        ])
     except subprocess.CalledProcessError as grepexc:
         mediainfo_version =  grepexc.output.rstrip().splitlines()[1]
     for root, _, filenames in os.walk(path):
@@ -203,10 +206,13 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
-    user = ififuncs.get_user()
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
     sip_path = make_folder_path(os.path.join(args.o), args)
     if args.u:
-        if ififuncs.validate_uuid4(args.u) == None:
+        if ififuncs.validate_uuid4(args.u) is None:
             uuid = args.u
             uuid_event = (
                 'EVENT = eventType=Identifier assignement,'
@@ -241,7 +247,7 @@ def main(args_):
         new_log_textfile,
         uuid_event
     )
-    if args.u == False:
+    if args.u is False:
         sys.exit()
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
@@ -260,7 +266,7 @@ def main(args_):
     log_report(log_names)
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
-
+    return new_log_textfile
 
 if __name__ == '__main__':
     main(sys.argv[1:])

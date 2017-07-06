@@ -623,7 +623,7 @@ def main(args_):
     manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
     if os.path.dirname(manifest) == desktop_manifest_dir:
         os.rename(manifest, manifest_rename)
-        shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests' ))
+        shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
     return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
