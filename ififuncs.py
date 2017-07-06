@@ -576,3 +576,20 @@ def find_cpl(source):
                     if 'CPL' in cpl_namespace:
                         return os.path.join(root, filename)
 
+def ask_yes_no(question):
+    '''
+    Returns Y or N. The question variable is just a string.
+    '''
+    answer = ''
+    print '\n', question, '\n', 'enter Y or N'
+    while answer not in ('Y', 'y', 'N', 'n'):
+        answer = raw_input()
+        if answer not in ('Y', 'y', 'N', 'n'):
+            print 'Incorrect input. Please enter Y or N'
+        if answer in ('Y', 'y'):
+            return 'Y'
+        elif answer in ('N,' 'n'):
+            return 'N'
+
+
+
