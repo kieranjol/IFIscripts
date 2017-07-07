@@ -228,7 +228,6 @@ def main(args_):
     '''
     args = parse_args(args_)
     start = datetime.datetime.now()
-    
     inputs = args.i
     if args.user:
         user = args.user
@@ -294,8 +293,8 @@ def main(args_):
         content_title = create_content_title_text(args, sip_path)
         ififuncs.manifest_replace(
             new_manifest_textfile,
-            os.path.join('objects', os.path.basename(args.i[0])),
-            os.path.join('objects', content_title)
+            os.path.join('objects', os.path.basename(args.i[0])).replace("\\", "/"),
+            os.path.join('objects', content_title).replace("\\", "/")
         )
     return new_log_textfile
 
