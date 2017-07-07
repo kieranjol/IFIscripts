@@ -6,6 +6,7 @@ import logging
 import argparse
 import time
 import getpass
+import ififuncs
 from ififuncs import make_desktop_logs_dir
 
 
@@ -108,20 +109,28 @@ def check_manifest(input):
     validate(manifest_dict, manifest, missing_files)
     return manifest
 def log_results(manifest, log, args):
+    updated_manifest = []
     basename = os.path.basename(manifest).replace('_manifest.md5', '')
     logname = basename + '_sip_log.log'
     sip_dir = os.path.join(
         os.path.dirname(args.input), basename)
     logs_dir = os.path.join(sip_dir, 'logs')
     logfile = os.path.join(logs_dir, logname)
-    print logfile
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
         with open(logfile, 'ab') as ba:
             for lines in validate_log:
                 ba.write(lines)
-
+    with open(manifest, 'r') as manifesto:
+        manifest_lines = manifesto.readlines()
+        for lines in manifest_lines:
+            if logname in lines:
+                lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
+            updated_manifest.append(lines)
+    with open(manifest, 'wb') as fo:
+        for lines in updated_manifest:
+            fo.write(lines)
 
 def main():
     parser = make_parser()
