@@ -217,7 +217,8 @@ def create_content_title_text(args, sip_path):
     content_title_text = ififuncs.get_contenttitletext(cpl)
     dci_foldername = os.path.join(objects_dir, content_title_text)
     if ififuncs.ask_yes_no('Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)) == 'Y':
-        os.rename(dcp_dirname, dci_foldername)
+        os.chdir(os.path.dirname(dcp_dirname))
+        os.rename(os.path.basename(dcp_dirname), content_title_text)
     return content_title_text
 
 
@@ -227,6 +228,7 @@ def main(args_):
     '''
     args = parse_args(args_)
     start = datetime.datetime.now()
+    
     inputs = args.i
     if args.user:
         user = args.user
