@@ -318,6 +318,18 @@ def check_overwrite_dir(dir2check):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_dir
 
+def check_for_sip(args):
+    '''
+    This checks if the input folder contains the actual payload, eg:
+    the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
+    '''
+    for filenames in os.listdir(args):
+        if 'manifest.md5' in filenames:
+            dircheck = filenames.replace('_manifest.md5', '')
+            if os.path.isdir(os.path.join(args, dircheck)):
+                print 'ifi sip found'
+                return os.path.join(args, dircheck)
+
 
 def setup(args_):
 
@@ -343,8 +355,18 @@ def setup(args_):
         help='use gcp instead of rsync on osx for SPEED on LTO'
     )
     rootpos = ''
+    dircheck = None
     args = parser.parse_args(args_)
-    source = args.source
+    if os.path.isdir(args.source):
+        dircheck = check_for_sip(args.source)
+    if dircheck != None:
+        if os.path.isdir(dircheck):
+            source = check_for_sip(args.source)
+            destination = os.path.join(args.destination, os.path.basename(args.source))
+            os.makedirs(destination)
+    else:
+        source = args.source
+        destination = args.destination
     normpath = os.path.normpath(source)
     #is there any benefit to this over os.path.basename
     dirname = os.path.split(os.path.basename(source))[1]
@@ -354,7 +376,7 @@ def setup(args_):
             'What do you want your destination folder to be called?\n'
         )
     relative_path = normpath.split(os.sep)[-1]
-    destination = args.destination # or hardcode
+    # or hardcode
     destination_final_path = os.path.join(destination, dirname)
     manifest_destination = destination + '/%s_manifest.md5' % dirname
     if os.path.isfile(manifest_destination):
@@ -419,7 +441,7 @@ def overwrite_check(
 
 def manifest_existence(
         manifest_root, manifest_sidecar,
-        manifest, source_count, file_list, log_name_source
+        manifest, source_count, file_list, log_name_source, args
     ):
     '''
     Checks for the three different kinds of source manifests:
@@ -445,7 +467,7 @@ def manifest_existence(
         manifest_info = manifest_file_count(manifest)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
-        proceed = 'y'
+        proceed = 'y' 
     if proceed == 'y':
         if source_count != count_in_manifest:
             print 'checking which files are different'
@@ -506,6 +528,7 @@ def make_destination_manifest(
     remove_bad_files(destination_final_path, log_name_source)
     return files_in_manifest
 
+
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
     if filecmp.cmp(manifest, manifest_destination, shallow=False):
         print "Your files have reached their destination and the checksums match"
@@ -531,7 +554,7 @@ def verify_copy(manifest, manifest_destination, log_name_source, overwrite_desti
             print ' %s files in your destination \n %s files at source' % (
                 destination_count, source_count
             )
-def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args):
+def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, source):
     if os.path.isfile(manifest_sidecar):
         print 'Manifest Sidecar exists - Source manifest Generation will be skipped.'
         generate_log(
@@ -549,8 +572,8 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args):
                 )
             else:
                 make_manifest(
-                    args.source, manifest,
-                    os.path.dirname(args.source)
+                    source, manifest,
+                    os.path.dirname(source)
                 )
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=completed')
         except OSError:
@@ -561,24 +584,33 @@ def main(args_):
     '''
     Launches the functions that will safely copy and paste your files.
     '''
+    dircheck = None
     args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir = setup(args_)
+    if os.path.isdir(args.source):
+        dircheck = check_for_sip(args.source)
+    if dircheck != None:
+        if os.path.isdir(dircheck):
+            source = check_for_sip(args.source)
+    else:
+        source = args.source
+        destination = args.destination
     overwrite_destination_manifest, overwrite_destination_dir = overwrite_check(
-        args.destination, log_name_source,
+        destination, log_name_source,
         destination_final_path, manifest_destination
     )
     remove_bad_files(
-        args.source, log_name_source
+        source, log_name_source
     )
     source_count, file_list = count_stuff(
-        args.source
+        source
     )
     manifest_existence(
         manifest_root, manifest_sidecar,
         manifest, source_count,
-        file_list, log_name_source
+        file_list, log_name_source, args
     )
     manifest_sidecar, manifest, rootpos = control_flow(
-        manifest_sidecar, log_name_source, manifest, rootpos, args
+        manifest_sidecar, log_name_source, manifest, rootpos, args, source
     )
     if overwrite_destination_dir not in ('N', 'n'):
         if overwrite_destination_dir != None:
@@ -587,7 +619,7 @@ def main(args_):
                 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.'
             )
         copy_dir(
-            args.source, destination_final_path,
+            source, destination_final_path,
             log_name_source, rootpos, destination, dirname, args
         )
     else:
