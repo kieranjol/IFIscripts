@@ -46,13 +46,14 @@ def ffmpeg_concat(concat_file, args, uuid):
         'ffmpeg', '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy', '-map', '0:a?', '-map', '0:v',
-        os.path.join(args.o, '%s.mkv' % uuid)
+        os.path.join(args.o, '%s.mkv' % uuid),
+        '-f', 'md5','-map', '0:a?', '-map', '0:v',  '-'
     ]
     print cmd
-    subprocess.call(
+    source_bitstream_md5 = subprocess.check_output(
         cmd
     )
-
+    return source_bitstream_md5
 
 def recursive_file_list(video_files):
     '''
@@ -71,7 +72,6 @@ def recursive_file_list(video_files):
                         recursive_list.append(os.path.join(root, filename))
     print recursive_list
     return recursive_list
-
 
 
 def main(args_):
@@ -102,8 +102,18 @@ def main(args_):
         video_files = recursive_file_list(video_files)
     video_files = ififuncs.sanitise_filenames(video_files)
     ififuncs.concat_textfile(video_files, concat_file)
-    ffmpeg_concat(concat_file, args, uuid)
+    source_bitstream_md5 = ffmpeg_concat(concat_file, args, uuid)
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
+    output_bitstream_md5 = subprocess.check_output([
+        'ffmpeg',
+        '-i', output_file,
+        '-f', 'md5','-map', '0:a?', '-map', '0:v',  '-'
+    ])
+    if source_bitstream_md5 == output_bitstream_md5:
+        print 'process appears to be lossless'
+        print source_bitstream_md5, output_bitstream_md5
+    else:
+        print 'something went wrong - not lossless!'
     print uuid
     with open(log_name_source, 'r') as concat_log:
         concat_lines = concat_log.readlines()
