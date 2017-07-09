@@ -112,26 +112,54 @@ def main(args_):
     )
     video_files = args.i
     concat_file = ififuncs.get_temp_concat('concat_stuff')
+    ififuncs.generate_log(
+        log_name_source,
+        'concatenation file=%s' % concat_file)
     if args.r:
         video_files = recursive_file_list(video_files)
     video_files = ififuncs.sanitise_filenames(video_files)
+    for source_files in video_files:
+        ififuncs.generate_log(
+            log_name_source,
+            'source_files = %s' % source_files)
     make_chapters(video_files)
     ififuncs.concat_textfile(video_files, concat_file)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = Concatenation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.mkv' % uuid))
     source_bitstream_md5 = ffmpeg_concat(concat_file, args, uuid)
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = Concatenation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.mkv' % uuid))
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
     output_bitstream_md5 = subprocess.check_output([
         'ffmpeg',
         '-i', output_file,
         '-f', 'md5', '-map', '0:v', '-map', '0:a?', '-c', 'copy', '-'
     ]).rstrip()
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
     if source_bitstream_md5 == output_bitstream_md5:
         print 'process appears to be lossless'
         print source_bitstream_md5, output_bitstream_md5
+        ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, eventOutcome=pass')
     else:
         print 'something went wrong - not lossless!'
         print source_bitstream_md5,output_bitstream_md5
-    print uuid
+        ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, eventOutcome=fail')
     subprocess.call(['mkvpropedit', output_file, '-c', 'chapters.txt'])
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = eventType=modification, agentName=mkvpropedit, eventDetail=Chapters added to file detailing start point of source clips.')
+    ififuncs.concat_textfile(video_files, concat_file)
     with open(log_name_source, 'r') as concat_log:
         concat_lines = concat_log.readlines()
     if args.s:
