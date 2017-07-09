@@ -73,6 +73,21 @@ def recursive_file_list(video_files):
     print recursive_list
     return recursive_list
 
+def make_chapters(video_files):
+    millis = ififuncs.get_milliseconds(video_files[0])
+    timestamp = ififuncs.convert_millis(int(millis))
+    chapter_list = [['00:00:00.000', os.path.basename(video_files[0])], [timestamp, os.path.basename(video_files[1])]]
+    for video in video_files[2:]:
+        millis += ififuncs.get_milliseconds(video)
+        timestamp = ififuncs.convert_millis(int(millis))
+        chapter_list.append([timestamp, os.path.basename(video)])
+    chapter_counter = 1
+    # uh use a real path/filename.
+    with open('chapters.txt', 'wb') as fo:
+        for i in chapter_list:
+            fo.write('CHAPTER%s=%s\nCHAPTER%sNAME=%s\n' % (str(chapter_counter).zfill(2), i[0], str(chapter_counter).zfill(2), i[1]))
+            chapter_counter += 1
+
 
 def main(args_):
     '''
@@ -100,6 +115,7 @@ def main(args_):
     if args.r:
         video_files = recursive_file_list(video_files)
     video_files = ififuncs.sanitise_filenames(video_files)
+    make_chapters(video_files)
     ififuncs.concat_textfile(video_files, concat_file)
     source_bitstream_md5 = ffmpeg_concat(concat_file, args, uuid)
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
@@ -115,6 +131,7 @@ def main(args_):
         print 'something went wrong - not lossless!'
         print source_bitstream_md5,output_bitstream_md5
     print uuid
+    subprocess.call(['mkvpropedit', output_file, '-c', 'chapters.txt'])
     with open(log_name_source, 'r') as concat_log:
         concat_lines = concat_log.readlines()
     if args.s:

@@ -85,6 +85,18 @@ def get_milliseconds(filename):
     )
     return float(milliseconds)
 
+def convert_millis(milli):
+    a = datetime.timedelta(milliseconds=milli)
+    b = str(a)
+    # no millseconds are present if there is no remainder. We need milliseconds!
+    if len(b) == 7:
+            b += '.000000'
+    timestamp = datetime.datetime.strptime(b, "%H:%M:%S.%f").time()
+    c = str(timestamp)
+    if len(c) == 8:
+            c += '.000000'
+    return str(c)[:-3]
+
 
 def send_gmail(email_to, attachment, subject, email_body, email_address, password):
     emailfrom = ""
