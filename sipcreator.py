@@ -13,7 +13,7 @@ import ififuncs
 from masscopy import analyze_log
 
 
-def make_folder_path(path, args):
+def make_folder_path(path, args, object_entry):
     '''
     Generates objects/logs/metadata/UUID folder structure in output.
     Returns the path.
@@ -22,13 +22,9 @@ def make_folder_path(path, args):
         representation_uuid = ififuncs.create_uuid()
     else:
         representation_uuid = args.u
-    if not args.oe:
-        print 'hihihihi'
-        path = os.path.join(path, representation_uuid)
-    elif args.oe:
-        oe_path = os.path.join(path, args.oe)
-        path = os.path.join(oe_path, representation_uuid)
-        print path
+    oe_path = os.path.join(path, object_entry)
+    path = os.path.join(oe_path, representation_uuid)
+    print path
     ififuncs.make_folder_structure(path)
     return path
 
@@ -245,8 +241,20 @@ def main(args_):
     else:
         user = ififuncs.get_user()
     if args.oe:
-        object_entry = args.oe
-    sip_path = make_folder_path(os.path.join(args.o), args)
+        if args.oe[:2] != 'oe':
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif len(args.oe[2:]) != 4:
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif not args.oe[2:].isdigit():
+           object_entry = ififuncs.get_object_entry()
+           print 'First two characters must be \'oe\' and last four characters must be four digits'
+        else:
+            object_entry = args.oe
+    else:
+        object_entry = ififuncs.get_object_entry()
+    sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
             uuid = args.u
