@@ -34,6 +34,9 @@ def parse_args(args_):
         '-s', '-sip',
         help='Run sipcreator.py on the resulting file.', action='store_true'
     )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.')
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -105,7 +108,10 @@ def main(args_):
     ififuncs.generate_log(
         log_name_source,
         'eventDetail=concat.py %s' % ififuncs.get_script_version('concat.py'))
-    user = ififuncs.get_user()
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
     ififuncs.generate_log(
         log_name_source,
         'EVENT = agentName=%s' % user
