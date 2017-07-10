@@ -77,10 +77,15 @@ def make_chapters(video_files):
     millis = ififuncs.get_milliseconds(video_files[0])
     timestamp = ififuncs.convert_millis(int(millis))
     chapter_list = [['00:00:00.000', os.path.basename(video_files[0])], [timestamp, os.path.basename(video_files[1])]]
-    for video in video_files[2:]:
+    count = 2
+    for video in video_files[1:]:
         millis += ififuncs.get_milliseconds(video)
         timestamp = ififuncs.convert_millis(int(millis))
-        chapter_list.append([timestamp, os.path.basename(video)])
+        if count == len(video_files):
+            continue
+        else:
+            chapter_list.append([timestamp, os.path.basename(video_files[count])])
+        count+=1
     chapter_counter = 1
     # uh use a real path/filename.
     with open('chapters.txt', 'wb') as fo:
