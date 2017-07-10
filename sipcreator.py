@@ -22,7 +22,13 @@ def make_folder_path(path, args):
         representation_uuid = ififuncs.create_uuid()
     else:
         representation_uuid = args.u
-    path = os.path.join(path, representation_uuid)
+    if not args.oe:
+        print 'hihihihi'
+        path = os.path.join(path, representation_uuid)
+    elif args.oe:
+        oe_path = os.path.join(path, args.oe)
+        path = os.path.join(oe_path, representation_uuid)
+        print path
     ififuncs.make_folder_structure(path)
     return path
 
@@ -155,6 +161,10 @@ def parse_args(args_):
         '-d', '-dcp', action='store_true',
         help='Adds DCP specific processing, like creating objects subfolder with text extracted from <ContentTitleText> in the CPL.'
     )
+    parser.add_argument(
+        '-oe',
+        help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -229,10 +239,13 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
+    print args
     if args.user:
         user = args.user
     else:
         user = ififuncs.get_user()
+    if args.oe:
+        object_entry = args.oe
     sip_path = make_folder_path(os.path.join(args.o), args)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
