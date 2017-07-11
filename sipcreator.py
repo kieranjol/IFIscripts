@@ -254,6 +254,7 @@ def main(args_):
             object_entry = args.oe
     else:
         object_entry = ififuncs.get_object_entry()
+    
     sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
@@ -285,6 +286,10 @@ def main(args_):
     )
     ififuncs.generate_log(
         new_log_textfile,
+        'Command line arguments: %s' % args
+    )
+    ififuncs.generate_log(
+        new_log_textfile,
         'EVENT = agentName=%s' % user
     )
     ififuncs.generate_log(
@@ -293,6 +298,12 @@ def main(args_):
     )
     if args.u is False:
         sys.exit()
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = eventType=Identifier assignement,'
+        ' eventIdentifierType=object entry, value=%s'
+        % object_entry
+    ) 
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)
