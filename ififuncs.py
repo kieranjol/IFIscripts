@@ -638,6 +638,35 @@ def manifest_replace(manifest, to_be_replaced, replaced_with):
             new_lines = lines.replace(to_be_replaced, replaced_with)
             ba.write(new_lines)
 
+def manifest_update(manifest, path):
+    '''
+    Adds a new entry to your manifest and sort.
+    '''
+    manifest_generator = ''
+    with open(manifest, 'r') as fo:
+        original_lines = fo.readlines()
+        md5 = hashlib_md5(path)
+        path_to_remove = os.path.dirname(os.path.dirname(os.path.dirname(path)))
+        root2 = os.path.abspath(path).replace(path_to_remove, '')
+        try:
+            if root2[0] == '/':
+                root2 = root2[1:]
+            if root2[0] == '\\':
+                root2 = root2[1:]
+        except: IndexError
+        print root2
+        manifest_generator +=    md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
+        print manifest_generator
+        for i in original_lines:
+            manifest_generator += i
+    manifest_list = manifest_generator.splitlines()
+    files_in_manifest = len(manifest_list)
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
+    with open(manifest,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
+
 def check_for_uuid(args):
     source_uuid = False
     while source_uuid == False:
