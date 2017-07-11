@@ -328,7 +328,7 @@ def main(args_):
             os.path.join('objects', os.path.basename(args.i[0])).replace("\\", "/"),
             os.path.join('objects', content_title).replace("\\", "/")
         )
-    return new_log_textfile
+    return new_log_textfile, new_manifest_textfile
 
 
 if __name__ == '__main__':

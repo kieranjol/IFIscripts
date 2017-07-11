@@ -7,6 +7,7 @@ import subprocess
 import os
 import argparse
 import time
+import shutil
 import sipcreator
 import ififuncs
 
@@ -49,8 +50,12 @@ def ffmpeg_concat(concat_file, args, uuid):
     '''
     Launch the actual ffmpeg concatenation command
     '''
+    fmd5_logfile = os.path.join(args.o, '%s_concat.log' % uuid).replace('\\', '\\\\').replace(':', '\:')
+    fmd5_env_dict = ififuncs.set_environment(fmd5_logfile)
+    print fmd5_logfile
+    print fmd5_env_dict
     cmd = [
-        'ffmpeg', '-f', 'concat', '-safe', '0',
+        'ffmpeg', '-report', '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy', '-map', '0:v', '-map', '0:a?',
         os.path.join(args.o, '%s.mkv' % uuid),
@@ -58,9 +63,9 @@ def ffmpeg_concat(concat_file, args, uuid):
     ]
     print cmd
     source_bitstream_md5 = subprocess.check_output(
-        cmd
+        cmd, env=fmd5_env_dict
     )
-    return source_bitstream_md5.rstrip()
+    return source_bitstream_md5.rstrip(), fmd5_logfile.replace('\\\\', '\\').replace('\:', ':')
 
 def recursive_file_list(video_files):
     '''
@@ -164,7 +169,7 @@ def main(args_):
     ififuncs.generate_log(
         log_name_source,
         'EVENT = Concatenation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.mkv' % uuid))
-    source_bitstream_md5 = ffmpeg_concat(concat_file, args, uuid)
+    source_bitstream_md5, fmd5_logfile = ffmpeg_concat(concat_file, args, uuid)
     output_file = os.path.join(args.o, '%s.mkv' % uuid)
     ififuncs.generate_log(
         log_name_source,
@@ -172,11 +177,13 @@ def main(args_):
     ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
+    validation_logfile = os.path.join(args.o, '%s_validation.log' % uuid).replace('\\', '\\\\').replace(':', '\:')
+    validation_env_dict = ififuncs.set_environment(validation_logfile)
     output_bitstream_md5 = subprocess.check_output([
-        'ffmpeg',
+        'ffmpeg', '-report',
         '-i', output_file,
         '-f', 'md5', '-map', '0:v', '-map', '0:a?', '-c', 'copy', '-'
-    ]).rstrip()
+    ], env=validation_env_dict).rstrip()
     ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
@@ -200,7 +207,12 @@ def main(args_):
     with open(log_name_source, 'r') as concat_log:
         concat_lines = concat_log.readlines()
     if not args.no_sip:
-        sipcreator_log = sipcreator.main(['-i', output_file, '-u', uuid, '-oe', object_entry, '-user', user, '-o', args.o])
+        sipcreator_log, sipcreator_manifest = sipcreator.main(['-i', output_file, '-u', uuid, '-oe', object_entry, '-user', user, '-o', args.o])
+        shutil.move(fmd5_logfile, os.path.dirname(sipcreator_log))
+        shutil.move(validation_logfile.replace('\\\\', '\\').replace('\:', ':'), os.path.dirname(sipcreator_log))
+        logs_dir = os.path.dirname(sipcreator_log)
+        ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5_logfile)))
+        ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir,(os.path.basename(validation_logfile.replace('\\\\', '\\').replace('\:', ':')))))
         with open(sipcreator_log, 'r') as sipcreator_log_object:
             sipcreator_lines = sipcreator_log_object.readlines()
         with open(sipcreator_log, 'wb') as fo:
