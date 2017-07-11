@@ -638,4 +638,34 @@ def manifest_replace(manifest, to_be_replaced, replaced_with):
             new_lines = lines.replace(to_be_replaced, replaced_with)
             ba.write(new_lines)
 
+def check_for_uuid(args):
+    source_uuid = False
+    while source_uuid == False:
+        if validate_uuid4(os.path.basename(args.i[0])) != False:
+            return os.path.basename(args.i[0])
+        else:
+            returned_dir = check_for_sip(args.i)
+            print returned_dir
+            if returned_dir == None:
+                return False
+            uuid_check = os.path.basename(returned_dir)
+            if validate_uuid4(uuid_check) != False:
+                return uuid_check
+            else:
+                return source_uuid
 
+
+def check_for_sip(args):
+    '''
+    This checks if the input folder contains the actual payload, eg:
+    the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
+    Just realised that args.i can be a list, but for our main concat workflow, a single dir will be passed.
+    Hence the args[0]
+    Also choose a better variable name than args as args=/a/path here.
+    '''
+    for filenames in os.listdir(args[0]):
+        if 'manifest.md5' in filenames:
+            dircheck = filenames.replace('_manifest.md5', '')
+            if os.path.isdir(os.path.join(args[0], dircheck)):
+                print 'ifi sip found'
+                return os.path.join(args[0], dircheck)

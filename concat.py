@@ -31,12 +31,16 @@ def parse_args(args_):
         help='recursively process all files in subdirectories. This could be potentially a disaster - so use with caution or with XDCAM', action='store_true'
     )
     parser.add_argument(
-        '-s', '-sip',
-        help='Run sipcreator.py on the resulting file.', action='store_true'
+        '--no-sip',
+        help='Do not run sipcreator.py on the resulting file.', action='store_true'
     )
     parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-oe',
+        help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -103,20 +107,42 @@ def main(args_):
     '''
     uuid = ififuncs.create_uuid()
     args = parse_args(args_)
+    print args
     log_name_source = os.path.join(args.o, '%s_concat_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
     ififuncs.generate_log(log_name_source, 'concat.py started.')
     ififuncs.generate_log(
         log_name_source,
         'eventDetail=concat.py %s' % ififuncs.get_script_version('concat.py'))
+    ififuncs.generate_log(
+        log_name_source,
+        'Command line arguments: %s' % args
+    )
     if args.user:
         user = args.user
     else:
         user = ififuncs.get_user()
+    if args.oe:
+        if args.oe[:2] != 'oe':
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif len(args.oe[2:]) != 4:
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif not args.oe[2:].isdigit():
+           object_entry = ififuncs.get_object_entry()
+           print 'First two characters must be \'oe\' and last four characters must be four digits'
+        else:
+            object_entry = args.oe
+    else:
+        object_entry = ififuncs.get_object_entry()
     ififuncs.generate_log(
         log_name_source,
         'EVENT = agentName=%s' % user
     )
-    source_uuid = ififuncs.get_source_uuid()
+    source_uuid_check = ififuncs.check_for_uuid(args)
+    if source_uuid_check == False:
+        source_uuid = ififuncs.get_source_uuid()
+    else: source_uuid = source_uuid_check
     ififuncs.generate_log(
         log_name_source,
         'Relationship, derivation, has source=%s' % source_uuid
@@ -173,8 +199,8 @@ def main(args_):
     ififuncs.concat_textfile(video_files, concat_file)
     with open(log_name_source, 'r') as concat_log:
         concat_lines = concat_log.readlines()
-    if args.s:
-        sipcreator_log = sipcreator.main(['-i', output_file, '-u', uuid, '-user', user, '-o', args.o])
+    if not args.no_sip:
+        sipcreator_log = sipcreator.main(['-i', output_file, '-u', uuid, '-oe', object_entry, '-user', user, '-o', args.o])
         with open(sipcreator_log, 'r') as sipcreator_log_object:
             sipcreator_lines = sipcreator_log_object.readlines()
         with open(sipcreator_log, 'wb') as fo:
