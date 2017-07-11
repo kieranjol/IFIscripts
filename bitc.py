@@ -210,7 +210,7 @@ def make_h264(filename, args, filter_list):
     else:
         crf_value = '23'
     if args.o:
-        output = args.o + '/' + filename + "_h264.mov"
+        output = args.o + '/' + os.path.basename(filename) + "_h264.mov"
     else:
         output = filename + "_h264.mov"
     ffmpeg_args = [
