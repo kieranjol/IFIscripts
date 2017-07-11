@@ -220,6 +220,7 @@ def main(args_):
                 fo.write(lines)
             for remaining_lines in sipcreator_lines:
                 fo.write(remaining_lines)
+        ififuncs.checksum_replace(sipcreator_manifest, sipcreator_log)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

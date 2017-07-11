@@ -698,3 +698,22 @@ def check_for_sip(args):
             if os.path.isdir(os.path.join(args[0], dircheck)):
                 print 'ifi sip found'
                 return os.path.join(args[0], dircheck)
+
+def checksum_replace(manifest, logname):
+    '''
+    Update a value in a checksum manifest.
+    Variables just refer to lognames right now, which is the only thing that needs to change at the moment.
+    '''
+    updated_manifest = []
+    new_checksum = hashlib_md5(logname)
+    with open(manifest, 'r') as manifesto:
+        manifest_lines = manifesto.readlines()
+        print manifest_lines, 11
+        for lines in manifest_lines:
+            if os.path.basename(logname) in lines:
+                lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
+            updated_manifest.append(lines)
+    print updated_manifest, 22
+    with open(manifest, 'wb') as fo:
+        for lines in updated_manifest:
+            fo.write(lines)
