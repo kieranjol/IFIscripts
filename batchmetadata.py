@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+'''
+'Traverses through subdirectories finding images sequences
+and creating mediainfo and medatrace xml reports.
+'''
 import sys
 import os
-import subprocess
 import argparse
 from glob import glob
 try:
@@ -13,14 +16,23 @@ except ImportError:
 
 
 def make_parser():
-    parser = argparse.ArgumentParser(description='Traverses through subdirectories finding images sequences and creating mediainfo and medatrace xml reports.'
-                                 ' Written by Kieran O\'Leary.')
+    '''
+    Accepts command line inputs.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Traverses through subdirectories finding images sequences and creating mediainfo and medatrace xml reports.'
+        ' Written by Kieran O\'Leary.'
+    )
     parser.add_argument('input', help='file path of parent directory')
     return parser
 
 
-def check_files(input):
-    for root, dirs, filenames in os.walk(input):
+def create_metadata(source):
+    '''
+    Recursively finds image sequences and creates mediainfo/mediatrace in parent
+    directory.
+    '''
+    for root, _, _ in os.walk(source):
         os.chdir(root)
         tiff_check = glob('*.tiff')
         dpx_check = glob('*.dpx')
@@ -42,13 +54,16 @@ def check_files(input):
 
 
 def main():
+    '''
+    Launches all the functions.
+    '''
     parser = make_parser()
     args = parser.parse_args()
-    input = args.input
-    if not os.path.isdir(input):
+    source = args.input
+    if not os.path.isdir(source):
         print 'This script takes a directory/folder as input. Please rerun the script. Exiting.'
         sys.exit()
-    check_files(input)
+    create_metadata(source)
 
 
 if __name__ == '__main__':
