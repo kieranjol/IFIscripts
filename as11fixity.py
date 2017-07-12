@@ -12,6 +12,8 @@ from datetime import datetime
 import hashlib
 import time
 from time import sleep
+import unidecode
+import codecs
 
 #1
 
@@ -104,6 +106,11 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
             print 'No XML file exists.'
         #8.3
         
+        print "Generating md5 for ", filename
+        
+    #print digest_with_progress(full_path, 1024)  
+        mxf_checksum = str(digest_with_progress(full_path, 1024))
+                
         
         dpp_xml_parse = etree.parse(full_xml_path)
         dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
@@ -114,24 +121,16 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
         ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
         checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
         #12
-     
         
-        
-        print "Generating md5 for ", filename
-        
-    #print digest_with_progress(full_path, 1024)  
-        mxf_checksum = str(digest_with_progress(full_path, 1024))
         #13
-        print 'Generating Report....  \n',
-
+        print 'Generating Report....  \n'
+       
+        if mxf_checksum == checksum:            
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))       
+        else:            
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))         #14
         
-        
-
-        if mxf_checksum == checksum:
-            append_csv(csv_report,(filename, series_title, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
-        else:
-            append_csv(csv_report,(filename, series_title, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
-         #14
+       
 
 print "Report complete - Time elaspsed : ", datetime.now() - startTime
         
