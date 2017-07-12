@@ -7,24 +7,29 @@ import argparse
 import sys
 import shutil
 import subprocess
-import time
 import datetime
+import copyit
 import ififuncs
 from masscopy import analyze_log
 
 
-def make_folder_path(path):
+def make_folder_path(path, args, object_entry):
     '''
     Generates objects/logs/metadata/UUID folder structure in output.
     Returns the path.
     '''
-    representation_uuid = ififuncs.create_uuid()
-    path = os.path.join(path, representation_uuid)
+    if not args.u:
+        representation_uuid = ififuncs.create_uuid()
+    else:
+        representation_uuid = args.u
+    oe_path = os.path.join(path, object_entry)
+    path = os.path.join(oe_path, representation_uuid)
+    print path
     ififuncs.make_folder_structure(path)
     return path
 
 
-def consolidate_manifests(path, directory):
+def consolidate_manifests(path, directory, new_log_textfile):
     '''
     Consolidates all manifests in the objects folder
     moves old manifests into logs
@@ -39,6 +44,10 @@ def consolidate_manifests(path, directory):
     for manifest in os.listdir(objects_dir):
         if manifest.endswith('.md5'):
             if manifest[0] != '.':
+                ififuncs.generate_log(
+                    new_log_textfile,
+                    'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
+                )
                 with open(os.path.join(objects_dir, manifest), 'r') as fo:
                     manifest_lines = fo.readlines()
                     for i in manifest_lines:
@@ -51,6 +60,10 @@ def consolidate_manifests(path, directory):
 
                 shutil.move(
                     objects_dir + '/' +  manifest, os.path.join(path, 'logs')
+                )
+                ififuncs.generate_log(
+                    new_log_textfile,
+                    'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
                 )
     with open(new_manifest_textfile, 'ab') as manifest_object:
         for checksums in collective_manifest:
@@ -65,7 +78,7 @@ def consolidate_logs(lognames, path):
     Saves it in the SIP
     '''
     uuid = os.path.basename(path)
-    new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_log.log')
+    new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_sip_log.log')
     for log in lognames:
         with open(log, 'r') as fo:
             log_lines = fo.readlines()
@@ -80,18 +93,8 @@ def move_files(inputs, sip_path):
     '''
     log_names = []
     for item in inputs:
-        moveit_cmd = [
-            sys.executable,
-            os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
-            item, os.path.join(sip_path, 'objects')
-        ]
-        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
-        log_name_source_ = os.path.basename(
-            item,
-        ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-        log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
-        log_names.append(log_name_source)
-        subprocess.check_call(moveit_cmd)
+        log_name = copyit.main([item, os.path.join(sip_path, 'objects')])
+        log_names.append(log_name)
     consolidate_logs(log_names, sip_path)
     return log_names
 
@@ -142,19 +145,42 @@ def parse_args(args_):
         '-m', '-manifest',
         help='full path to a pre-existing manifest'
     )
+    parser.add_argument(
+        '-u', '-uuid',
+        help='Use a pre-existing UUID instead of a newly generated UUID.'
+    )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
+    parser.add_argument(
+        '-d', '-dcp', action='store_true',
+        help='Adds DCP specific processing, like creating objects subfolder with text extracted from <ContentTitleText> in the CPL.'
+    )
+    parser.add_argument(
+        '-oe',
+        help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def get_metadata(path):
+def get_metadata(path, new_log_textfile):
     '''
     Recursively create mediainfos and mediatraces for AV files.
     This should probably go in ififuncs as it could be used by other scripts.
     '''
+    mediainfo_version = 'mediainfo'
+    try:
+        subprocess.check_output([
+            'mediainfo', '--Version'
+        ])
+    except subprocess.CalledProcessError as grepexc:
+        mediainfo_version =  grepexc.output.rstrip().splitlines()[1]
     for root, _, filenames in os.walk(path):
         for av_file in filenames:
             if av_file.endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.dv', '.DV')
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV')
             ):
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
@@ -167,12 +193,39 @@ def get_metadata(path):
                     ififuncs.make_mediainfo(
                         inputxml, 'mediaxmlinput', os.path.join(root, av_file)
                     )
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                    )
                     print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
                     ififuncs.make_mediatrace(
                         inputtracexml,
                         'mediatracexmlinput',
                         os.path.join(root, av_file)
                     )
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                    )
+
+def create_content_title_text(args, sip_path):
+    '''
+    DCPs are often delivered with inconsistent foldernames.
+    This will rename the parent folder with the value recorded in <ContentTitleText>
+    For example:
+    Original name: CHARBON-SMPTE-24
+    New name: CHARBON-SMPTE-24-INTEROP-SUBS_TST_S_XX-EN_FR_XX_2K_CHA-20120613_CHA_OV
+    Rename will only occur if user agrees.
+    '''
+    objects_dir = os.path.join(sip_path, 'objects')
+    cpl = ififuncs.find_cpl(objects_dir)
+    dcp_dirname = os.path.dirname(cpl)
+    content_title_text = ififuncs.get_contenttitletext(cpl)
+    dci_foldername = os.path.join(objects_dir, content_title_text)
+    if ififuncs.ask_yes_no('Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)) == 'Y':
+        os.chdir(os.path.dirname(dcp_dirname))
+        os.rename(os.path.basename(dcp_dirname), content_title_text)
+    return content_title_text
 
 
 def main(args_):
@@ -182,35 +235,84 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
-    user = ififuncs.get_user()
-    sip_path = make_folder_path(os.path.join(args.o))
-    uuid = os.path.basename(sip_path)
-    new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_log.log')
+    print args
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
+    if args.oe:
+        if args.oe[:2] != 'oe':
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif len(args.oe[2:]) != 4:
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+        elif not args.oe[2:].isdigit():
+           object_entry = ififuncs.get_object_entry()
+           print 'First two characters must be \'oe\' and last four characters must be four digits'
+        else:
+            object_entry = args.oe
+    else:
+        object_entry = ififuncs.get_object_entry()
+    
+    sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
+    if args.u:
+        if ififuncs.validate_uuid4(args.u) is None:
+            uuid = args.u
+            uuid_event = (
+                'EVENT = eventType=Identifier assignement,'
+                ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+            ) % uuid
+        else:
+            print 'exiting due to invalid UUID'
+            uuid_event = (
+                'EVENT = exiting due to invalud UUID supplied on the commmand line: %s' % uuid
+            )
+            uuid = False
+    else:
+        uuid = os.path.basename(sip_path)
+        uuid_event = (
+            'EVENT = eventType=Identifier assignement,'
+            ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+        ) % uuid
+    new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = sipcreator.py started'
     )
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = User=%s' % user
+        'eventDetail=sipcreator.py %s' % ififuncs.get_script_version('sipcreator.py')
     )
-    uuid_event = (
-        'EVENT = eventType=Identifier assignement,'
-        ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
-    ) % uuid
+    ififuncs.generate_log(
+        new_log_textfile,
+        'Command line arguments: %s' % args
+    )
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = agentName=%s' % user
+    )
     ififuncs.generate_log(
         new_log_textfile,
         uuid_event
     )
+    if args.u is False:
+        sys.exit()
+    ififuncs.generate_log(
+        new_log_textfile,
+        'EVENT = eventType=Identifier assignement,'
+        ' eventIdentifierType=object entry, value=%s'
+        % object_entry
+    ) 
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)
-    get_metadata(sip_path)
+    get_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
     )
-    new_manifest_textfile = consolidate_manifests(sip_path, 'objects')
-    consolidate_manifests(sip_path, 'metadata')
+    new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
+    consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
         logs_dir, new_manifest_textfile,
         os.path.dirname(os.path.dirname(logs_dir))
@@ -219,6 +321,14 @@ def main(args_):
     log_report(log_names)
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+    if args.d:
+        content_title = create_content_title_text(args, sip_path)
+        ififuncs.manifest_replace(
+            new_manifest_textfile,
+            os.path.join('objects', os.path.basename(args.i[0])).replace("\\", "/"),
+            os.path.join('objects', content_title).replace("\\", "/")
+        )
+    return new_log_textfile, new_manifest_textfile
 
 
 if __name__ == '__main__':

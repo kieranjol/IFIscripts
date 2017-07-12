@@ -12,6 +12,7 @@ import datetime
 import uuid
 import tempfile
 from glob import glob
+from lxml import etree
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.message import Message
@@ -83,6 +84,18 @@ def get_milliseconds(filename):
         filename
     )
     return float(milliseconds)
+
+def convert_millis(milli):
+    a = datetime.timedelta(milliseconds=milli)
+    b = str(a)
+    # no millseconds are present if there is no remainder. We need milliseconds!
+    if len(b) == 7:
+            b += '.000000'
+    timestamp = datetime.datetime.strptime(b, "%H:%M:%S.%f").time()
+    c = str(timestamp)
+    if len(c) == 8:
+            c += '.000000'
+    return str(c)[:-3]
 
 
 def send_gmail(email_to, attachment, subject, email_body, email_address, password):
@@ -510,3 +523,197 @@ def get_temp_concat(root_name):
         video_concat_textfile = temp_dir + "/%s.txt" % video_concat_filename
     return video_concat_textfile
 
+def get_script_version(scriptname):
+    '''
+    uses git to get SHA:DATETIME for a script
+    '''
+    home = os.path.expanduser("~/")
+    os.chdir(home)
+    if os.path.isdir('ifigit/ifiscripts'):
+        os.chdir('ifigit/ifiscripts')
+        print("Changing directory to %s to extract script version`") %os.getcwd()
+        script_version = subprocess.check_output([
+            'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
+        ])
+    return script_version
+
+
+def validate_uuid4(uuid_string):
+
+    """
+    Validate that a UUID string is in
+    fact a valid uuid4.
+
+    Written by ShawnMilo
+    https://gist.github.com/ShawnMilo/7777304#file-validate_uuid4-py
+    """
+
+    try:
+        val = uuid.UUID(uuid_string, version=4)
+    except ValueError:
+        # If it's a value error, then the string 
+        # is not a valid hex code for a UUID.
+        return False
+
+def get_source_uuid():
+    '''
+    Asks user for uuid. A valid uuid must be provided.
+    '''
+    source_uuid = False
+    while source_uuid == False:
+        uuid =  raw_input(
+            '\n\n**** Please enter the UUID of the source representation\n\n'
+        )
+        source_uuid = validate_uuid4(uuid)
+    
+    return uuid
+
+def get_object_entry():
+    '''
+    Asks user for an Object Entry number. A valid Object Entry (OE####) must be provided.
+    '''
+    object_entry = False
+    while object_entry == False:
+        object_entry =  raw_input(
+            '\n\n**** Please enter the object entry number of the representation\n\n'
+        )
+        if object_entry[:2] != 'oe':
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = False
+        elif len(object_entry[2:]) != 4:
+                object_entry = False
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+        elif not object_entry[2:].isdigit():
+                object_entry = False
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+        else:
+            return object_entry
+
+
+def get_contenttitletext(cpl):
+    '''
+    Returns the <ContentTitleText> element text from a DCP CPL.xml
+    '''
+    cpl_parse = etree.parse(cpl)
+    cpl_namespace = cpl_parse.xpath('namespace-uri(.)')
+    contenttitletext =  cpl_parse.findtext('//ns:ContentTitleText',namespaces={'ns': cpl_namespace})
+    return contenttitletext
+
+
+def find_cpl(source):
+    for root, _, filenames in os.walk(source):
+        for filename in filenames:
+            if filename.endswith('.xml'):
+                if filename[0] != '.':
+                    cpl_parse = etree.parse(os.path.join(root, filename))
+                    cpl_namespace = cpl_parse.xpath('namespace-uri(.)')
+                    if 'CPL' in cpl_namespace:
+                        return os.path.join(root, filename)
+
+def ask_yes_no(question):
+    '''
+    Returns Y or N. The question variable is just a string.
+    '''
+    answer = ''
+    print '\n', question, '\n', 'enter Y or N'
+    while answer not in ('Y', 'y', 'N', 'n'):
+        answer = raw_input()
+        if answer not in ('Y', 'y', 'N', 'n'):
+            print 'Incorrect input. Please enter Y or N'
+        if answer in ('Y', 'y'):
+            return 'Y'
+        elif answer in ('N,' 'n'):
+            return 'N'
+
+def manifest_replace(manifest, to_be_replaced, replaced_with):
+    '''
+    Replace strings in a checksum manifest (or any textfile)
+    Ideally, this should never replace the checksum, just a path alteration.
+    Although this could be useful for changing the logs checksum value.
+    '''
+    with open(manifest, 'r') as fo:
+        original_lines = fo.readlines()
+    with open(manifest, 'wb') as ba:
+        for lines in original_lines:
+            new_lines = lines.replace(to_be_replaced, replaced_with)
+            ba.write(new_lines)
+
+def manifest_update(manifest, path):
+    '''
+    Adds a new entry to your manifest and sort.
+    '''
+    manifest_generator = ''
+    with open(manifest, 'r') as fo:
+        original_lines = fo.readlines()
+        md5 = hashlib_md5(path)
+        path_to_remove = os.path.dirname(os.path.dirname(os.path.dirname(path)))
+        root2 = os.path.abspath(path).replace(path_to_remove, '')
+        try:
+            if root2[0] == '/':
+                root2 = root2[1:]
+            if root2[0] == '\\':
+                root2 = root2[1:]
+        except: IndexError
+        print root2
+        manifest_generator +=    md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
+        print manifest_generator
+        for i in original_lines:
+            manifest_generator += i
+    manifest_list = manifest_generator.splitlines()
+    files_in_manifest = len(manifest_list)
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
+    with open(manifest,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
+
+def check_for_uuid(args):
+    source_uuid = False
+    while source_uuid == False:
+        if validate_uuid4(os.path.basename(args.i[0])) != False:
+            return os.path.basename(args.i[0])
+        else:
+            returned_dir = check_for_sip(args.i)
+            print returned_dir
+            if returned_dir == None:
+                return False
+            uuid_check = os.path.basename(returned_dir)
+            if validate_uuid4(uuid_check) != False:
+                return uuid_check
+            else:
+                return source_uuid
+
+
+def check_for_sip(args):
+    '''
+    This checks if the input folder contains the actual payload, eg:
+    the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
+    Just realised that args.i can be a list, but for our main concat workflow, a single dir will be passed.
+    Hence the args[0]
+    Also choose a better variable name than args as args=/a/path here.
+    '''
+    for filenames in os.listdir(args[0]):
+        if 'manifest.md5' in filenames:
+            dircheck = filenames.replace('_manifest.md5', '')
+            if os.path.isdir(os.path.join(args[0], dircheck)):
+                print 'ifi sip found'
+                return os.path.join(args[0], dircheck)
+
+def checksum_replace(manifest, logname):
+    '''
+    Update a value in a checksum manifest.
+    Variables just refer to lognames right now, which is the only thing that needs to change at the moment.
+    '''
+    updated_manifest = []
+    new_checksum = hashlib_md5(logname)
+    with open(manifest, 'r') as manifesto:
+        manifest_lines = manifesto.readlines()
+        print manifest_lines, 11
+        for lines in manifest_lines:
+            if os.path.basename(logname) in lines:
+                lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
+            updated_manifest.append(lines)
+    print updated_manifest, 22
+    with open(manifest, 'wb') as fo:
+        for lines in updated_manifest:
+            fo.write(lines)

@@ -61,11 +61,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ## Arrangement ##
 
 ### sipcreator.py ###
-* Accepts one or more directories as input and wraps them up in a directory structure in line with IFI procedures using `moveit.py`.
-* Folders will be stored in an objects directory. Directory structure is a parent directory named with a UUID, with three child directories (objects, logs metadata):
-* Checksums are stored for the package and metadata is extracted for the AV material in the objects. A log records the major events in the process.
+* Accepts one or more files or directories as input and wraps them up in a directory structure in line with IFI procedures using `copyit.py`.
+* Source objects will be stored in an /objects directory. Directory structure is: parent directory named with a UUID, with three child directories (objects, logs metadata):
+* Metadata is extracted for the AV material and MD5 checksums are stored for the entire package. A log records the major events in the process.
 * Usage for one directory - `sipcreator.py -i /path/to/directory_name -o /path/to/output_folder`
 * Usage for more than one directory - `sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder`
+* Run `sipcreator.py -h` for all options.
 
 ## Transcodes ##
 
@@ -87,10 +88,11 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `prores.py -h` to see all options
 
 ### concat.py ###
-* Concatenate/join video files together using ffmpeg stream copy into a single Matroska container. As the streams are losslessly copied, the speed is quite fast.
+* Concatenate/join video files together using ffmpeg stream copy into a single Matroska container. Each source clip will have its own chapter marker. As the streams are copied, the speed is quite fast.
 * Usage: `concat.py -i /path/to/filename1.mov /path/to/filename2.mov -o /path/to/destination_folder`
+* A lossless verification process will also run, which takes stream level checksums of all streams and compares the values. This is not very reliable at the moment.
 * Warning - video files must have the same technical attributes such as codec, width, height, fps. Some characters in filenames will cause the script to fail. Some of these include quotes. The script will ask the user if quotes should be renamed with underscores. Also, a temporary concatenation textfile will be stored in your temp folder. Currently only tested on Ubuntu.
-
+* Dependencies: mkvpropedit, ffmpeg.
 ## Digital Cinema Package Scripts ##
 
 ### dcpaccess.py ###
@@ -112,8 +114,8 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ## Fixity Scripts ##
 
-### moveit.py ###
-* Copies a directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories.
+### copyit.py ###
+* Copies a file or directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories.
 * Usage: ` moveit.py source_dir destination_dir`
 * Dependencies:  OSX requires gcp - `brew install coreutils`
 

@@ -12,7 +12,7 @@ def analyze_log(logfile):
     with open(logfile, 'r') as fo:
         log_lines = fo.readlines()
         for line in log_lines:
-            if 'EVENT = File Transfer Judgement - Success ' in line:
+            if 'EVENT = File Transfer Judgement - Success' in line:
                 outcome = 'success'
             if 'EVENT = File Transfer Outcome - Failure' in line:
                 outcome = 'failure'
@@ -66,12 +66,12 @@ def main():
             if args.l:
                 moveit_cmd = [
                     sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),'-l',
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),'-l',
                     os.path.join(args.input,i), args.o]
             else:
                 moveit_cmd = [
                     sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/moveit.py"),
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
                     os.path.join(args.input,i), args.o]
             subprocess.check_call(moveit_cmd)
             processed_dirs.append(os.path.basename(os.path.join(args.input,i)))
