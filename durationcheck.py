@@ -16,7 +16,7 @@ def main():
     for parent_directory in all_files:
         for root, dirnames, filenames in os.walk(parent_directory):
             for filename in filenames:
-                if filename.endswith(('.MP4', '.mov')):
+                if filename.endswith(('.MP4', '.mov', '.mkv')):
                     milliseconds = get_milliseconds(
                         os.path.join(root, filename)
                     )
