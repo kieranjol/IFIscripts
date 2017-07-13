@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+'''
+Launches copyit.py for subfolders that have md5 anifests.
+'''
 import sys
 import os
 import subprocess
@@ -8,6 +11,9 @@ from ififuncs import make_desktop_logs_dir
 
 
 def analyze_log(logfile):
+    '''
+    Analyzes logfiles on the desktop and summarises the outcome.
+    '''
     outcome = ''
     with open(logfile, 'r') as fo:
         log_lines = fo.readlines()
@@ -20,75 +26,115 @@ def analyze_log(logfile):
                 outcome = 'failure - might be outdated manifests in use'
         return outcome
 
-
-def main():
-    parser = argparse.ArgumentParser(description='Performs moveit.py in a batch'
-                                ' Written by Kieran O\'Leary.')
+def parse_args():
+    '''
+    Accepts command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Performs moveit.py in a batch'
+        ' Written by Kieran O\'Leary.')
     parser.add_argument(
-                    'input',
-                    help='full path of input directory'
-                    )
+        'input',
+        help='full path of input directory'
+    )
     parser.add_argument(
-                    '-o',
-                    help='full path of output directory', required=True)
+        '-o',
+        help='full path of output directory',
+        required=True)
     parser.add_argument(
-                    '-l', '-lto', action='store_true', help='use gcp instead of rsync on osx for SPEED on LTO')
+        '-l', '-lto',
+        action='store_true',
+        help='use gcp instead of rsync on osx for SPEED on LTO')
     args = parser.parse_args()
+    return args
+
+
+def find_manifest(args):
+    '''
+    This function tries to find a manifest.
+    It looks one folder beneath the input folder for a checksum manifest
+    with a folder that has a matching name.
+    '''
+    # Creates an empty list called dirlist.
     dirlist = []
-    for source_directory in os.listdir(args.input):
+    # Creates a list of items in your input called directory_contents.
+    directory_contents = os.listdir(args.input)
+    # lists all contents of your input and analyzes each one in a `for loop`.
+    for item in directory_contents:
+        # checks if each item is a directory.
         if os.path.isdir(
-            os.path.join(args.input,source_directory)
+                os.path.join(args.input, item) # Get absolute path
             ):
+            # Guesses what the manifest filename should be
             manifest = os.path.join(
-                args.input,source_directory
-                ) + '_manifest.md5'
+                args.input, item
+            ) + '_manifest.md5'
+            # checks if the manifest exists
             if os.path.isfile(manifest):
-                dirlist.append(os.path.join(args.input, source_directory))
-    all_files = dirlist
-    processed_dirs = []
-    log_names = []
-    print '\n\n**** All of these folders will be copied to %s\n' % args.o
-    for i in all_files:
-        print i
-    for i in all_files:
-        if os.path.isdir(
-            os.path.join(args.o, os.path.basename(i))
-            ):
-            print(
-                '%s already exists, skipping'
-                 ) % (os.path.join(args.o, os.path.basename(i)))
-        else:
-            log_name_source_ = os.path.basename(
-                os.path.join(args.input,i)
-                ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
-            desktop_logs_dir = make_desktop_logs_dir()
-            log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
-            if args.l:
-                moveit_cmd = [
-                    sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),'-l',
-                    os.path.join(args.input,i), args.o]
-            else:
-                moveit_cmd = [
-                    sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
-                    os.path.join(args.input,i), args.o]
-            subprocess.check_call(moveit_cmd)
-            processed_dirs.append(os.path.basename(os.path.join(args.input,i)))
-            log_names.append(log_name_source)
-            print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
+                #if the manifest exists, add to dirlist
+                dirlist.append(os.path.join(args.input, item))
+                # this process will repeat until all items are analysed.
+    return dirlist # the dirlist is sent back out to the rest of the script.
+
+
+def analyze_reports(log_names, desktop_logs_dir):
+    '''
+    Tries to locate copyit.py logs on the desktop and analyzes them.
+    '''
     print 'SUMMARY REPORT'
     for i in log_names:
         if os.path.isfile(i):
-            print "%-*s   : %s" % (50,os.path.basename(i)[:-24], analyze_log(i))
+            print "%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))
         else:
             print i, 'can\'t find log file, trying again...'
             for logs in os.listdir(desktop_logs_dir):
                 # look at log filename minus the seconds and '.log'
                 if os.path.basename(i)[:-7] in logs:
                     # make sure that the alternate log filename is more recent
-                    if int(os.path.basename(logs)[-12:-4].replace('_','')) > int(os.path.basename(i)[-12:-4].replace('_','')):
+                    if int(os.path.basename(logs)[-12:-4].replace('_', '')) > int(os.path.basename(i)[-12:-4].replace('_', '')):
                         print 'trying to analyze %s' % logs
-                        print "%-*s   : %s" % (50,os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir,logs)))
+                        print "%-*s   : %s" % (50, os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir, logs)))
+
+
+def main():
+    '''
+    Launches the other functions wihch attempt to run multiple copyit.py
+    instances if manifests and matching sidecar directories are found
+    inside of the input directory.
+    '''
+    args = parse_args()
+    all_files = find_manifest(args)
+    processed_dirs = []
+    log_names = []
+    print '\n\n**** All of these folders will be copied to %s\n' % args.o
+    for i in all_files:
+        print i
+    for i in all_files:
+        absolute_path = os.path.join(args.o, os.path.basename(i))
+        if os.path.isdir(absolute_path):
+            print('%s already exists, skipping') % (absolute_path)
+        else:
+            log_name_source_ = os.path.basename(
+                os.path.join(args.input, i)
+                ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+            desktop_logs_dir = make_desktop_logs_dir()
+            log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
+            if args.l:
+                moveit_cmd = [
+                    sys.executable,
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"), '-l',
+                    os.path.join(args.input, i), args.o]
+            else:
+                moveit_cmd = [
+                    sys.executable,
+                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
+                    os.path.join(args.input, i), args.o]
+            subprocess.check_call(moveit_cmd)
+            processed_dirs.append(os.path.basename(os.path.join(args.input, i)))
+            log_names.append(log_name_source)
+            print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
+            analyze_reports(log_names, desktop_logs_dir)
+
+
 if __name__ == '__main__':
     main()
