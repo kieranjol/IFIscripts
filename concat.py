@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''
-Concatenates video files using ffmpeg stream copy
+Concatenates video files using FFmpeg stream copy.
+Uses mkvpropedit to insert chapter markers for each source file.
+Optionally wraps the file into a package structure with checksum manifests.
 '''
 import sys
 import subprocess
@@ -48,7 +50,7 @@ def parse_args(args_):
 
 def ffmpeg_concat(concat_file, args, uuid):
     '''
-    Launch the actual ffmpeg concatenation command
+    Launch the actual ffmpeg concatenation command.
     '''
     fmd5_logfile = os.path.join(args.o, '%s_concat.log' % uuid).replace('\\', '\\\\').replace(':', '\:')
     fmd5_env_dict = ififuncs.set_environment(fmd5_logfile)
@@ -69,7 +71,7 @@ def ffmpeg_concat(concat_file, args, uuid):
 
 def recursive_file_list(video_files):
     '''
-    Recursively search through directories for AV files and add to list.
+    Recursively searches through directories for AV files and adds to a list.
     '''
     # check if all inputs are actually directories
     recursive_list = []
@@ -86,6 +88,10 @@ def recursive_file_list(video_files):
     return recursive_list
 
 def make_chapters(video_files):
+    '''
+    Use mkvpropedit to insert chapter markers for each source video.
+    Each chapter's name will reflect the source filename of each clip.
+    '''
     millis = ififuncs.get_milliseconds(video_files[0])
     timestamp = ififuncs.convert_millis(int(millis))
     chapter_list = [['00:00:00.000', os.path.basename(video_files[0])], [timestamp, os.path.basename(video_files[1])]]
