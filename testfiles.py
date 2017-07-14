@@ -1,14 +1,36 @@
 #!/usr/bin/env python
-import sys
+'''
+Creates some test video files via ffmpeg.
+Usage: testfiles.py -o path/to/dir
+Run testfiles.py -h for help.
+Written by Kieran O'Leary.
+'''
 import subprocess
 import os
+import argparse
+
+def parse_args():
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Creates some test video files via ffmpeg'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        '-o', '-output',
+        help='full path of output directory', required=True
+    )
+    parsed_args = parser.parse_args()
+    return parsed_args
 
 
 def main():
     '''
     Creates three v210/mov tesfiles in a test_files subdirectory
     '''
-    output_dir = os.path.join(sys.argv[1], 'test_files')
+    args = parse_args()
+    output_dir = os.path.join(args.o, 'test_files')
     bars_cmd = [
         'ffmpeg', '-f', 'lavfi', '-i', 'testsrc',
         '-c:v', 'v210', '-t', '20', os.path.join(output_dir, 'bars.mov')
@@ -26,6 +48,7 @@ def main():
     subprocess.call(bars_cmd)
     subprocess.call(mandel_cmd)
     subprocess.call(life_cmd)
+
 
 if __name__ == '__main__':
     main()
