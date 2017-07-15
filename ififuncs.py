@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 import subprocess
 import sys
-import base64
 import time
 import smtplib
 import mimetypes
@@ -11,40 +11,50 @@ import hashlib
 import datetime
 import uuid
 import tempfile
+import csv
 from glob import glob
-from lxml import etree
 from email.mime.multipart import MIMEMultipart
-from email import encoders
-from email.message import Message
 from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
-import csv
+from lxml import etree
 
 def diff_textfiles(source_textfile, other_textfile):
+    '''
+    Compares two textfiles. Returns strings that indicate losslessness.
+    '''
     if filecmp.cmp(source_textfile, other_textfile, shallow=False):
         print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
         return 'lossless'
 
     else:
-    	print "CHECKSUM MISMATCH - Further information on the next line!!!"
+        print "CHECKSUM MISMATCH - Further information on the next line!!!"
         return 'lossy'
-    	#sys.exit()                 # Script will exit the loop if transcode is not lossless.
 
 
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
-  with open(xmlfilename, "w+") as fo:
-  	xmlvariable = subprocess.check_output(['mediainfo',
-  						'-f',
-  						'--language=raw','--File_TestContinuousFileNames=0', # Use verbose output.
-  						'--output=XML',
-  						inputfilename])       #input filename
-  	fo.write(xmlvariable)
+    '''
+    Writes a verbose mediainfo XML output.
+    '''
+    mediainfo_cmd = [
+        'mediainfo',
+        '-f',
+        '--language=raw',
+        '--File_TestContinuousFileNames=0',
+        '--output=XML',
+        inputfilename
+    ]
+    with open(xmlfilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(mediainfo_cmd)
+        fo.write(xmlvariable)
 
 
 def make_qctools(input):
-
+    '''
+    Runs an ffprobe process that stores QCTools XML info as a variable.
+    A file is not actually created here.
+    '''
     qctools_args = ['ffprobe', '-f', 'lavfi', '-i',]
     qctools_args += ["movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1:round=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1,astats=metadata=1:reset=1:length=0.4[out1]" % input]
     qctools_args += ['-show_frames', '-show_versions', '-of', 'xml=x=1:q=1', '-noprivate']
@@ -54,24 +64,45 @@ def make_qctools(input):
 
 
 def write_qctools_gz(qctoolsxml, sourcefile):
+    '''
+    This accepts a variable containing XML that is written to a file.
+    '''
     with open(qctoolsxml, "w+") as fo:
         fo.write(make_qctools(sourcefile))
     subprocess.call(['gzip', qctoolsxml])
 
 
 def get_audio_stream_count():
-    audio_stream_count = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=index', '-of', 'flat', sys.argv[1]]).splitlines()
+    '''
+    Returns the number of audio streams in the form of an INT.
+    '''
+    ffprobe_cmd = [
+        'ffprobe', '-v',
+        'error', '-select_streams', 'a',
+        '-show_entries', 'stream=index', '-of', 'flat',
+        sys.argv[1]
+    ]
+    audio_stream_count = subprocess.check_output(ffprobe_cmd).splitlines()
     return len(audio_stream_count)
 
 
 def get_mediainfo(var_type, type, filename):
-    var_type = subprocess.check_output(['mediainfo',
-                                        '--Language=raw',
-                                        '--Full',
-                                        type,
-                                        filename ]).replace('\n', '')
+    '''
+    Uses mediainfo to extract a single item of metadata
+    example:
+    duration =  get_mediainfo(
+        'duration', '--inform=General;%Duration_String4%', sys.argv[1]
+    )
+    '''
+    mediainfo_cmd = [
+        'mediainfo',
+        '--Language=raw',
+        '--Full',
+        type,
+        filename
+    ]
+    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '')
     return var_type
-# example - duration =  get_mediainfo('duration', '--inform=General;%Duration_String4%', sys.argv[1] )
 
 
 def get_milliseconds(filename):
@@ -86,27 +117,31 @@ def get_milliseconds(filename):
     return float(milliseconds)
 
 def convert_millis(milli):
+    '''
+    Accepts milliseconds and returns this value as HH:MM:SS.NNN
+    '''
     a = datetime.timedelta(milliseconds=milli)
     b = str(a)
     # no millseconds are present if there is no remainder. We need milliseconds!
     if len(b) == 7:
-            b += '.000000'
+        b += '.000000'
     timestamp = datetime.datetime.strptime(b, "%H:%M:%S.%f").time()
     c = str(timestamp)
     if len(c) == 8:
-            c += '.000000'
+        c += '.000000'
     return str(c)[:-3]
 
 
 def send_gmail(email_to, attachment, subject, email_body, email_address, password):
+    '''
+    Rarely used but working emailer.
+    '''
     emailfrom = ""
     emailto = email_to
     #emailto = ", ".join(emailto)
     fileToSend = attachment
     username = email_address
     password = password
-
-
     msg = MIMEMultipart()
     msg["From"]    = emailfrom
     msg["To"]      = ", ".join(emailto)
@@ -114,13 +149,10 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
     msg.preamble   = "testtesttest"
     body = MIMEText(email_body)
     msg.attach(body)
-
     ctype, encoding = mimetypes.guess_type(fileToSend)
     if ctype is None or encoding is not None:
         ctype = "application/octet-stream"
-
     maintype, subtype = ctype.split("/", 1)
-
     if maintype == "text":
         fp = open(fileToSend)
         # Note: we should handle calculating the charset
@@ -140,8 +172,6 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
         attachment.set_payload(fp.read())
     attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)
     msg.attach(attachment)
-
-
     server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
     server_ssl.ehlo() # optional, called by login()
     server_ssl.login(username, password)
@@ -153,9 +183,9 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
     print 'successfully sent the mail'
 
 def frames_to_seconds(audio_entry_point):
-    audio_frame_count  = float(audio_entry_point)
-    audio_frame_count  = float(audio_frame_count) / 24.000 # Change to EditRate variable.
-    audio_frame_count  = round(audio_frame_count, 3)
+    audio_frame_count = float(audio_entry_point)
+    audio_frame_count = float(audio_frame_count) / 24.000 # Change to EditRate variable.
+    audio_frame_count = round(audio_frame_count, 3)
     return audio_frame_count
 
 
@@ -168,56 +198,61 @@ def set_environment(logfile):
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
-        with open(log,"wb") as fo:
+        with open(log, "wb") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
-            + getpass.getuser()
-            + ' ' + what2log + ' \n')
+                     + getpass.getuser()
+                     + ' ' + what2log + ' \n')
     else:
-        with open(log,"ab") as fo:
+        with open(log, "ab") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
-            + getpass.getuser()
-            + ' ' + what2log + ' \n')
+                     + getpass.getuser()
+                     + ' ' + what2log + ' \n')
 
 
 def hashlib_md5(filename):
-   read_size = 0
-   last_percent_done = 0
-   m = hashlib.md5()
-   total_size = os.path.getsize(filename)
-   with open(str(filename), 'rb') as f:
-       while True:
-           buf = f.read(2**20)
-           if not buf:
-               break
-           read_size += len(buf)
-           m.update(buf)
-           percent_done = 100 * read_size / total_size
-           if percent_done > last_percent_done:
-               sys.stdout.write('[%d%%]\r' % percent_done)
-               sys.stdout.flush()
+    '''
+    uses hashlib to return an MD5 checksum of an input filename
+    '''
+    read_size = 0
+    last_percent_done = 0
+    m = hashlib.md5()
+    total_size = os.path.getsize(filename)
+    with open(str(filename), 'rb') as f:
+        while True:
+            buf = f.read(2**20)
+            if not buf:
+                break
+            read_size += len(buf)
+            m.update(buf)
+            percent_done = 100 * read_size / total_size
+            if percent_done > last_percent_done:
+                sys.stdout.write('[%d%%]\r' % percent_done)
+                sys.stdout.flush()
+                last_percent_done = percent_done
+    md5_output = m.hexdigest()
+    return md5_output
 
-
-               last_percent_done = percent_done
-   md5_output = m.hexdigest()
-   return md5_output
 
 def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
+    '''
+    Creates an MD5 manifest with relative filepaths.
+    '''
     file_count = 0
-    for root, directories, filenames in os.walk(manifest_dir):
-            filenames = [f for f in filenames if not f[0] == '.']
-            directories[:] = [d for d in directories if not d[0] == '.']
-            for files in filenames:
-                    print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
-                    file_count +=1
-    manifest_generator = ''
-    md5_counter = 1
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root,files), md5_counter, file_count)
+            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            file_count += 1
+    manifest_generator = ''
+    md5_counter = 1
+    for root, directories, filenames in os.walk(manifest_dir):
+        filenames = [f for f in filenames if f[0] != '.']
+        directories[:] = [d for d in directories if d[0] != '.']
+        for files in filenames:
+            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
             md5 = hashlib_md5(os.path.join(root, files))
-            md5_counter +=1
+            md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
             try:
                 if root2[0] == '/':
@@ -225,33 +260,36 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
                 if root2[0] == '\\':
                     root2 = root2[1:]
             except: IndexError
-            manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+            manifest_generator += md5[:32] + '  ' + os.path.join(root2, files).replace("\\", "/") + '\n'
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
-    with open(manifest_textfile,"wb") as fo:
+    manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
+    with open(manifest_textfile, "wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
 
 def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
+    '''
+    Lazy rehash of hashlib_manifest, except this just adds files to an existing manifest.
+    '''
     file_count = 0
     for root, directories, filenames in os.walk(manifest_dir):
-            filenames = [f for f in filenames if not f[0] == '.']
-            directories[:] = [d for d in directories if not d[0] == '.']
-            for files in filenames:
-                    print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
-                    file_count +=1
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.']
+        for files in filenames:
+            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            file_count += 1
     manifest_generator = ''
     md5_counter = 1
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root,files), md5_counter, file_count)
+            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
             md5 = hashlib_md5(os.path.join(root, files))
-            md5_counter +=1
+            md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
             try:
                 if root2[0] == '/':
@@ -259,12 +297,12 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
                 if root2[0] == '\\':
                     root2 = root2[1:]
             except: IndexError
-            manifest_generator +=    md5[:32] + '  ' + os.path.join(root2,files).replace("\\", "/") + '\n'
+            manifest_generator += md5[:32] + '  ' + os.path.join(root2, files).replace("\\", "/") + '\n'
     manifest_list = manifest_generator.splitlines()
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
-    with open(manifest_textfile,"ab") as fo:
+    manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
+    with open(manifest_textfile, "ab") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -277,8 +315,8 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         manifest_list = manifest_generator.splitlines()
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
-        manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
-        with open(manifest_textfile,"wb") as fo:
+        manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
+        with open(manifest_textfile, "wb") as fo:
             for i in manifest_list:
                 fo.write(i + '\n')
         return files_in_manifest
@@ -287,11 +325,14 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         sys.exit()
 def make_mediatrace(tracefilename, xmlvariable, inputfilename):
     with open(tracefilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(['mediainfo',
-                        '-f',
-                        '--Details=1','--File_TestContinuousFileNames=0', # Use verbose output.
-                        '--output=XML',
-                        inputfilename])       #input filename
+        mediatrace_cmd = [
+            'mediainfo',
+            '-f',
+            '--Details=1', '--File_TestContinuousFileNames=0', # Use verbose output.
+            '--output=XML',
+            inputfilename
+        ]
+        xmlvariable = subprocess.check_output(mediatrace_cmd)       #input filename
         fo.write(xmlvariable)
 
 
@@ -300,18 +341,22 @@ def check_overwrite(file2check):
     if os.path.isfile(file2check):
         print 'A manifest already exists at your destination. Overwrite? Y/N?'
         overwrite_destination_manifest = ''
-        while overwrite_destination_manifest not in ('Y','y','N','n'):
+        while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
             overwrite_destination_manifest = raw_input()
-            if overwrite_destination_manifest not in ('Y','y','N','n'):
+            if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
                 print 'Incorrect input. Please enter Y or N'
         return overwrite_destination_manifest
 def manifest_file_count(manifest2check):
+    '''
+    Checks how many entries are in a manifest
+    '''
     if os.path.isfile(manifest2check):
         print 'A manifest already exists'
         with open(manifest2check, "r") as fo:
             manifest_lines = [line.split(',') for line in fo.readlines()]
-            count_in_manifest =  len(manifest_lines)
+            count_in_manifest = len(manifest_lines)
     return count_in_manifest
+
 
 def create_csv(csv_file, *args):
     f = open(csv_file, 'wb')
@@ -369,13 +414,16 @@ def get_image_sequence_files(directory):
     return images
 
 def get_ffmpeg_friendly_name(images):
+    '''
+    Parses image sequence filenames so that they are easily passed to ffmpeg.
+    '''
     if '864000' in images[0]:
         start_number = '864000'
     elif len(images[0].split("_")[-1].split(".")) > 2:
         start_number = images[0].split("_")[-1].split(".")[1]
     else:
         start_number = images[0].split("_")[-1].split(".")[0]
-    container               = images[0].split(".")[-1]
+    container = images[0].split(".")[-1]
     if len(images[0].split("_")[-1].split(".")) > 2:
         numberless_filename = images[0].split(".")
     else:
@@ -388,7 +436,7 @@ def get_ffmpeg_friendly_name(images):
             ffmpeg_friendly_name += i + '.'
         print ffmpeg_friendly_name
     else:
-        while  counter <len(numberless_filename) :
+        while  counter < len(numberless_filename):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
             counter += 1
     return ffmpeg_friendly_name, container, start_number
@@ -407,7 +455,7 @@ def get_date_modified(filename):
 
         """
     epoch_time = os.path.getmtime(filename)
-    date_modified =  datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%dT%H:%M:%S")
+    date_modified = datetime.datetime.fromtimestamp(epoch_time).strftime("%Y-%m-%dT%H:%M:%S")
     return date_modified
 
 
@@ -419,6 +467,9 @@ def create_uuid():
     return new_uuid
 
 def make_folder_structure(path):
+    '''
+    Makes logs, objects, metadata directories in the supplied path
+    '''
     metadata_dir = "%s/metadata" % path
     log_dir = "%s/logs" % path
     #old_manifests_dir = "%s/logs/old_manifests" % path
@@ -435,14 +486,14 @@ def get_user():
     Asks user who they are. Returns a string with their name
     '''
     user = ''
-    if user not in ('1','2', '3', '4', '5'):
-        user =  raw_input(
+    if user not in ('1', '2', '3', '4', '5'):
+        user = raw_input(
             '\n\n**** Who are you?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
         )
-        while user not in ('1','2', '3', '4', '5'):
-            user =  raw_input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
-        )
+        while user not in ('1', '2', '3', '4', '5'):
+            user = raw_input(
+                '\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+            )
     if user == '1':
         user = 'Brian Cash'
         time.sleep(1)
@@ -466,10 +517,10 @@ def sort_manifest(manifest_textfile):
     Sorts an md5 manifest in alphabetical order.
     Some scripts like moveit.py will require a manifest to be ordered like this.
     '''
-    with open(manifest_textfile,"r") as fo:
+    with open(manifest_textfile, "r") as fo:
         manifest_lines = fo.readlines()
         with open(manifest_textfile,"wb") as ba:
-            manifest_list = sorted(manifest_lines,  key=lambda x:(x[34:]))
+            manifest_list = sorted(manifest_lines, key=lambda x: (x[34:]))
             for i in manifest_list:
                 ba.write(i)
 
@@ -549,9 +600,9 @@ def validate_uuid4(uuid_string):
     """
 
     try:
-        val = uuid.UUID(uuid_string, version=4)
+        uuid.UUID(uuid_string, version=4)
     except ValueError:
-        # If it's a value error, then the string 
+        # If it's a value error, then the string
         # is not a valid hex code for a UUID.
         return False
 
@@ -560,32 +611,31 @@ def get_source_uuid():
     Asks user for uuid. A valid uuid must be provided.
     '''
     source_uuid = False
-    while source_uuid == False:
-        uuid =  raw_input(
+    while source_uuid is False:
+        uuid_ = raw_input(
             '\n\n**** Please enter the UUID of the source representation\n\n'
         )
-        source_uuid = validate_uuid4(uuid)
-    
-    return uuid
+        source_uuid = validate_uuid4(uuid_)
+    return uuid_
 
 def get_object_entry():
     '''
     Asks user for an Object Entry number. A valid Object Entry (OE####) must be provided.
     '''
     object_entry = False
-    while object_entry == False:
-        object_entry =  raw_input(
+    while object_entry is False:
+        object_entry = raw_input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
         if object_entry[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = False
         elif len(object_entry[2:]) != 4:
-                object_entry = False
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = False
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
         elif not object_entry[2:].isdigit():
-                object_entry = False
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = False
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
         else:
             return object_entry
 
@@ -596,11 +646,14 @@ def get_contenttitletext(cpl):
     '''
     cpl_parse = etree.parse(cpl)
     cpl_namespace = cpl_parse.xpath('namespace-uri(.)')
-    contenttitletext =  cpl_parse.findtext('//ns:ContentTitleText',namespaces={'ns': cpl_namespace})
+    contenttitletext = cpl_parse.findtext('//ns:ContentTitleText', namespaces={'ns': cpl_namespace})
     return contenttitletext
 
 
 def find_cpl(source):
+    '''
+    Recursively searchs through all files in order to find a DCI DCP CPL XML.
+    '''
     for root, _, filenames in os.walk(source):
         for filename in filenames:
             if filename.endswith('.xml'):
@@ -655,27 +708,31 @@ def manifest_update(manifest, path):
                 root2 = root2[1:]
         except: IndexError
         print root2
-        manifest_generator +=    md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
+        manifest_generator += md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
         print manifest_generator
         for i in original_lines:
             manifest_generator += i
     manifest_list = manifest_generator.splitlines()
-    files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
-    manifest_list = sorted(manifest_list,  key=lambda x:(x[34:]))
+    manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
     with open(manifest,"wb") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
 def check_for_uuid(args):
+    '''
+    Tries to check if a filepath contains a UUID.
+    Returns false if an invalid UUID is found
+    Returns the UUID if a UUID is found.
+    '''
     source_uuid = False
-    while source_uuid == False:
+    while source_uuid is False:
         if validate_uuid4(os.path.basename(args.i[0])) != False:
             return os.path.basename(args.i[0])
         else:
             returned_dir = check_for_sip(args.i)
             print returned_dir
-            if returned_dir == None:
+            if returned_dir is None:
                 return False
             uuid_check = os.path.basename(returned_dir)
             if validate_uuid4(uuid_check) != False:
