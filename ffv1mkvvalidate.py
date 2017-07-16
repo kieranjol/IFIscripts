@@ -22,6 +22,10 @@ def log_results(manifest, log, parent_dir):
     logs_dir = os.path.join(sip_dir, 'logs')
     logfile = os.path.join(logs_dir, logname)
     print logfile
+    ififuncs.generate_log(
+        log,
+        'EVENT = Logs consolidation - Log from %s merged into %s' % (log, logfile)
+    )
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
