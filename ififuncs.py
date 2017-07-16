@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+'''
+A collection of functions that other scripts can use.
+
+'''
 import subprocess
 import sys
 import time
@@ -48,6 +52,21 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     with open(xmlfilename, "w+") as fo:
         xmlvariable = subprocess.check_output(mediainfo_cmd)
         fo.write(xmlvariable)
+
+
+def make_mediaconch(full_path, mediaconch_xmlfile):
+    '''
+    Creates a mediaconch implementation check XML report.
+    '''
+    mediaconch_cmd = [
+        'mediaconch',
+        '-fx',
+        full_path
+    ]
+    print 'Mediaconch is analyzing %s' % full_path
+    mediaconch_output = subprocess.check_output(mediaconch_cmd)
+    with open(mediaconch_xmlfile, 'wb') as xmlfile:
+        xmlfile.write(mediaconch_output)
 
 
 def make_qctools(input):

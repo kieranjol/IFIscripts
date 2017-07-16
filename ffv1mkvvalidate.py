@@ -61,12 +61,12 @@ def log_results(manifest, log, parent_dir):
         for lines in updated_manifest:
             fo.write(lines)
 
-def launch_mediaconch(source, user):
+def launch_mediaconch(full_path, user):
     '''
     Run mediaconch on files.
     '''
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
-    log_name_source_ = os.path.basename(source) + time.strftime("_%Y_%m_%dT%H_%M_%S")
+    log_name_source_ = os.path.basename(full_path) + time.strftime("_%Y_%m_%dT%H_%M_%S")
     log_name_source = "%s/%s_mediaconch_validation.log" % (desktop_logs_dir, log_name_source_)
     ififuncs.generate_log(
         log_name_source,
@@ -81,31 +81,25 @@ def launch_mediaconch(source, user):
         'eventDetail=ffv1mkvvalidate.py %s' % ififuncs.get_script_version('ffv1mkvvalidate.py')
     )
     mediaconch_version = subprocess.check_output(['mediaconch', '-v']).rstrip()
-
     ififuncs.generate_log(
         log_name_source,
         'agentName=mediaconch, agentversion=%s' % mediaconch_version
     )
-    full_path = source
     filename = os.path.basename(full_path)
     object_dir = os.path.dirname(full_path)
     parent_dir = os.path.dirname(object_dir)
     sip_root = os.path.dirname(parent_dir)
-    manifest = os.path.join(sip_root, os.path.basename(parent_dir) + '_manifest.md5')
     metadata_dir = os.path.join(parent_dir, 'metadata')
+    manifest = os.path.join(
+        sip_root, os.path.basename(parent_dir) + '_manifest.md5'
+    )
     if os.path.isdir(metadata_dir):
         mediaconch_xmlfile_basename = '%s_mediaconch_validation.xml' % filename
-        mediaconch_xmlfile = os.path.join(metadata_dir, mediaconch_xmlfile_basename)
+        mediaconch_xmlfile = os.path.join(
+            metadata_dir, mediaconch_xmlfile_basename
+        )
         if not os.path.isfile(mediaconch_xmlfile):
-            mediaconch_cmd = [
-                'mediaconch',
-                '-fx',
-                full_path
-            ]
-            print 'Mediaconch is analyzing %s' % full_path
-            mediaconch_output = subprocess.check_output(mediaconch_cmd)
-            with open(mediaconch_xmlfile, 'wb') as xmlfile:
-                xmlfile.write(mediaconch_output)
+            ififuncs.make_mediaconch(full_path, mediaconch_xmlfile)
             ififuncs.manifest_update(manifest, mediaconch_xmlfile)
         else:
             print 'mediaconch xml already exists'
@@ -134,24 +128,25 @@ def main():
     user = ififuncs.get_user()
     for root, _, filenames in os.walk(sys.argv[1]):
         for filename in filenames:
-            if filename[0] != '.':
-                if filename.endswith('.mkv'):
-                    log_name_source, mediaconch_xmlfile, manifest, parent_dir = launch_mediaconch(
-                        os.path.join(root, filename), user
+            if filename[0] != '.' and filename.endswith('.mkv'):
+                log_name_source, mediaconch_xmlfile, manifest, parent_dir = launch_mediaconch(
+                    os.path.join(root, filename), user
+                )
+                validation_outcome = parse_mediaconch(mediaconch_xmlfile)
+                print str(validation_outcome)
+                if int(validation_outcome['fail_count']) > 0:
+                    print 'Validation failed!'
+                    event_outcome = 'fail'
+                elif int(validation_outcome['fail_count']) == 0:
+                    print 'validation successful'
+                    event_outcome = 'pass'
+                ififuncs.generate_log(
+                    log_name_source,
+                    'EVENT = eventType=validation, eventOutcome=%s, eventDetail=%s' % (
+                        event_outcome, str(validation_outcome)
                     )
-                    validation_outcome = parse_mediaconch(mediaconch_xmlfile)
-                    print str(validation_outcome)
-                    if int(validation_outcome['fail_count']) > 0:
-                        print 'Validation failed!'
-                        event_outcome = 'fail'
-                    elif int(validation_outcome['fail_count']) == 0:
-                        print 'validation successful'
-                        event_outcome = 'pass'
-                    ififuncs.generate_log(
-                        log_name_source,
-                        'EVENT = eventType=validation, eventOutcome=%s, eventDetail=%s' % (event_outcome, str(validation_outcome))
-                    )
-                    log_results(manifest, log_name_source, parent_dir)
+                )
+                log_results(manifest, log_name_source, parent_dir)
 
 
 if __name__ == '__main__':
