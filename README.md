@@ -6,7 +6,7 @@ table of contents
 
 1. [summary](https://github.com/kieranjol/IFIscripts#summary)
 2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
-    * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreator)
+    * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
 3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -35,6 +35,7 @@ table of contents
 	* [batchrename.py](https://github.com/kieranjol/IFIscripts#batchrename)
 7. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
+    * [ffv1mkvvalidate.py](https://github.com/kieranjol/IFIscripts#ffv1mkvvalidatespy)
 8. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
@@ -200,6 +201,13 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Generate QCTools xml.gz sidecar files which will load immediately in QCTools.
 * Usage for single file - `qctools.py filename.mov`
 * Usage for batch processing all videos in a directory - `qctools.py directory_name`
+
+
+### ffv1mkvvalidate.py ###
+* Validates Matroska files using mediaconch.
+* An XML report will be written to the metadata directory.
+* A log will appear on the desktop, which will be merged into the SIP log in /logs.
+* Usage for batch processing all videos in a directory - `ffv1mkvvalidate.py directory_name`
 
 ## Specific Workflows ##
 
