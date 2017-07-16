@@ -55,7 +55,7 @@ def launch_mediaconch(source, user):
     )
     ififuncs.generate_log(
         log_name_source,
-        'eventDetail=mediaconchvalidation.py %s' % ififuncs.get_script_version('ffv1mkvvalidate.py')
+        'eventDetail=ffv1mkvvalidate.py %s' % ififuncs.get_script_version('ffv1mkvvalidate.py')
     )
     mediaconch_version = subprocess.check_output(['mediaconch', '-v']).rstrip()
 
