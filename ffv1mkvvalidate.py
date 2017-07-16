@@ -47,18 +47,16 @@ def launch_mediaconch(source, user):
     log_name_source = "%s/%s_mediaconch_validation.log" % (desktop_logs_dir, log_name_source_)
     ififuncs.generate_log(
         log_name_source,
-        'EVENT = mediaconchvalidation.py started'
+        'EVENT = ffv1mkvvalidate.py started'
     )
     ififuncs.generate_log(
         log_name_source,
-        'EVENT = agentName=%s' % user
+        'agentName=%s' % user
     )
-    '''
     ififuncs.generate_log(
         log_name_source,
-        'eventDetail=mediaconchvalidation.py %s' % ififuncs.get_script_version('mediaconchvalidation.py')
+        'eventDetail=mediaconchvalidation.py %s' % ififuncs.get_script_version('ffv1mkvvalidate.py')
     )
-    '''
     mediaconch_version = subprocess.check_output(['mediaconch', '-v']).rstrip()
 
     ififuncs.generate_log(
