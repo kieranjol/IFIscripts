@@ -10,6 +10,26 @@ import time
 from lxml import etree
 import ififuncs
 
+
+def logname_check(basename, logs_dir):
+    '''
+    Currently we have a few different logname patterns in our packages.
+    This attempts to return the appropriate one.
+    '''
+    makeffv1_logfile = os.path.join(
+        logs_dir, basename +'.mov_log.log')
+    sipcreator_logfile = os.path.join(
+        logs_dir, basename + '_sip_log.log')
+    mkv_log = os.path.join(
+        logs_dir, basename +'.mkv_log.log')
+    if os.path.isfile(makeffv1_logfile):
+        return makeffv1_logfile
+    if os.path.isfile(sipcreator_logfile):
+        return sipcreator_logfile
+    if os.path.isfile(mkv_log):
+        return mkv_log
+
+
 def log_results(manifest, log, parent_dir):
     '''
     Updates the existing log file. This is copy pasted from validate.py.
@@ -17,11 +37,10 @@ def log_results(manifest, log, parent_dir):
     '''
     updated_manifest = []
     basename = os.path.basename(manifest).replace('_manifest.md5', '')
-    logname = basename + '.mov_log.log'
     sip_dir = parent_dir
     logs_dir = os.path.join(sip_dir, 'logs')
+    logname = logname_check(basename, logs_dir)
     logfile = os.path.join(logs_dir, logname)
-    print logfile
     ififuncs.generate_log(
         log,
         'EVENT = Logs consolidation - Log from %s merged into %s' % (log, logfile)
@@ -35,7 +54,7 @@ def log_results(manifest, log, parent_dir):
     with open(manifest, 'r') as manifesto:
         manifest_lines = manifesto.readlines()
         for lines in manifest_lines:
-            if logname in lines:
+            if os.path.basename(logname) in lines:
                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
             updated_manifest.append(lines)
     with open(manifest, 'wb') as fo:
