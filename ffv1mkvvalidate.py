@@ -17,7 +17,7 @@ def log_results(manifest, log, parent_dir):
     '''
     updated_manifest = []
     basename = os.path.basename(manifest).replace('_manifest.md5', '')
-    logname = basename + '.mkv_log.log'
+    logname = basename + '.mov_log.log'
     sip_dir = parent_dir
     logs_dir = os.path.join(sip_dir, 'logs')
     logfile = os.path.join(logs_dir, logname)
