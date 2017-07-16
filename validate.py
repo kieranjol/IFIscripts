@@ -143,15 +143,15 @@ def log_results(manifest, log, args):
         with open(logfile, 'ab') as ba:
             for lines in validate_log:
                 ba.write(lines)
-    with open(manifest, 'r') as manifesto:
-        manifest_lines = manifesto.readlines()
-        for lines in manifest_lines:
-            if logname in lines:
-                lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
-            updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
-        for lines in updated_manifest:
-            fo.write(lines)
+        with open(manifest, 'r') as manifesto:
+            manifest_lines = manifesto.readlines()
+            for lines in manifest_lines:
+                if logname in lines:
+                    lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
+                updated_manifest.append(lines)
+        with open(manifest, 'wb') as fo:
+            for lines in updated_manifest:
+                fo.write(lines)
 
 def main():
     parser = make_parser()
