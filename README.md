@@ -17,7 +17,7 @@ table of contents
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
     * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)
 5. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
-    * [moveit.py](https://github.com/kieranjol/IFIscripts#moveitpy)
+    * [copyit.py](https://github.com/kieranjol/IFIscripts#copyitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
