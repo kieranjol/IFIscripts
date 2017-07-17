@@ -62,6 +62,13 @@ def find_manifest(args):
     # lists all contents of your input and analyzes each one in a `for loop`.
     for item in directory_contents:
         full_path = os.path.join(args.input, item)
+        manifest = os.path.join(
+            args.input, item
+        ) + '_manifest.md5'
+        # checks if the manifest exists
+        if os.path.isfile(manifest):
+            #if the manifest exists, add to dirlist
+            dirlist.append(full_path)
         # checks if each item is a directory.
         if os.path.isdir(full_path):
             directories = os.listdir(full_path)
@@ -75,15 +82,6 @@ def find_manifest(args):
                         )
                     if os.path.isfile(manifest):
                         dirlist.append(os.path.dirname(full_subdirectory_path))
-                else:
-                    # Guesses what the manifest filename should be
-                    manifest = os.path.join(
-                        args.input, item
-                    ) + '_manifest.md5'
-                    # checks if the manifest exists
-                    if os.path.isfile(manifest):
-                        #if the manifest exists, add to dirlist
-                        dirlist.append(full_path)
     print dirlist
     return dirlist # the dirlist is sent back out to the rest of the script.
 
