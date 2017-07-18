@@ -7,6 +7,7 @@ import os
 import subprocess
 import argparse
 import time
+import copyit
 from ififuncs import make_desktop_logs_dir
 
 
@@ -123,24 +124,14 @@ def main():
         if os.path.isdir(absolute_path):
             print('%s already exists, skipping') % (absolute_path)
         else:
-            log_name_source_ = os.path.basename(
-                os.path.join(args.input, i)
-                ) + time.strftime("_%Y_%m_%dT%H_%M_%S")
             desktop_logs_dir = make_desktop_logs_dir()
-            log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
             if args.l:
-                moveit_cmd = [
-                    sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"), '-l',
-                    os.path.join(args.input, i), args.o]
+                log_name = copyit.main(['-l', os.path.join(args.input, i), args.o])
+                log_names.append(log_name)
             else:
-                moveit_cmd = [
-                    sys.executable,
-                    os.path.expanduser("~/ifigit/ifiscripts/copyit.py"),
-                    os.path.join(args.input, i), args.o]
-            subprocess.check_call(moveit_cmd)
+                log_name = copyit.main([ os.path.join(args.input, i), args.o])
+                log_names.append(log_name)
             processed_dirs.append(os.path.basename(os.path.join(args.input, i)))
-            log_names.append(log_name_source)
             print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
             analyze_reports(log_names, desktop_logs_dir)
 
