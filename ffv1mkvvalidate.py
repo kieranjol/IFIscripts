@@ -60,14 +60,39 @@ def log_results(manifest, log, parent_dir):
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)
-
-def launch_mediaconch(full_path, user):
+def setup(full_path, user):
     '''
-    Run mediaconch on files.
+    Sets up filepaths for the rest of the script.
+    This also checks if a mediaconch xml already exists.
     '''
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     log_name_source_ = os.path.basename(full_path) + time.strftime("_%Y_%m_%dT%H_%M_%S")
     log_name_source = "%s/%s_mediaconch_validation.log" % (desktop_logs_dir, log_name_source_)
+    filename = os.path.basename(full_path)
+    object_dir = os.path.dirname(full_path)
+    parent_dir = os.path.dirname(object_dir)
+    sip_root = os.path.dirname(parent_dir)
+    metadata_dir = os.path.join(parent_dir, 'metadata')
+    manifest = os.path.join(
+        sip_root, os.path.basename(parent_dir) + '_manifest.md5'
+    )
+    if os.path.isdir(metadata_dir):
+        mediaconch_xmlfile_basename = '%s_mediaconch_validation.xml' % filename
+        mediaconch_xmlfile = os.path.join(
+            metadata_dir, mediaconch_xmlfile_basename
+        )
+        if os.path.isfile(mediaconch_xmlfile):
+            print 'mediaconch xml already exists'
+            return 'skipping'
+    else:
+        print 'no metadata directory found. Exiting.'
+    return log_name_source, user, mediaconch_xmlfile, manifest, full_path, parent_dir
+
+
+def launch_mediaconch(log_name_source, user, mediaconch_xmlfile, manifest, full_path):
+    '''
+    Run mediaconch on files.
+    '''
     ififuncs.generate_log(
         log_name_source,
         'EVENT = ffv1mkvvalidate.py started'
@@ -85,27 +110,10 @@ def launch_mediaconch(full_path, user):
         log_name_source,
         'agentName=mediaconch, agentversion=%s' % mediaconch_version
     )
-    filename = os.path.basename(full_path)
-    object_dir = os.path.dirname(full_path)
-    parent_dir = os.path.dirname(object_dir)
-    sip_root = os.path.dirname(parent_dir)
-    metadata_dir = os.path.join(parent_dir, 'metadata')
-    manifest = os.path.join(
-        sip_root, os.path.basename(parent_dir) + '_manifest.md5'
-    )
-    if os.path.isdir(metadata_dir):
-        mediaconch_xmlfile_basename = '%s_mediaconch_validation.xml' % filename
-        mediaconch_xmlfile = os.path.join(
-            metadata_dir, mediaconch_xmlfile_basename
-        )
-        if not os.path.isfile(mediaconch_xmlfile):
-            ififuncs.make_mediaconch(full_path, mediaconch_xmlfile)
-            ififuncs.manifest_update(manifest, mediaconch_xmlfile)
-        else:
-            print 'mediaconch xml already exists'
-    else:
-        print 'no metadata directory found. Exiting.'
-    return log_name_source, mediaconch_xmlfile, manifest, parent_dir
+    if not os.path.isfile(mediaconch_xmlfile):
+        ififuncs.make_mediaconch(full_path, mediaconch_xmlfile)
+        ififuncs.manifest_update(manifest, mediaconch_xmlfile)
+
 
 def parse_mediaconch(mediaconch_xml):
     '''
@@ -129,27 +137,31 @@ def main():
     for root, _, filenames in os.walk(sys.argv[1]):
         for filename in filenames:
             if filename[0] != '.' and filename.endswith('.mkv'):
-                log_name_source, mediaconch_xmlfile, manifest, parent_dir = launch_mediaconch(
-                    os.path.join(root, filename), user
-                )
-                validation_outcome = parse_mediaconch(mediaconch_xmlfile)
-                print str(validation_outcome)
-                if int(validation_outcome['fail_count']) > 0:
-                    print 'Validation failed!'
-                    event_outcome = 'fail'
-                elif int(validation_outcome['fail_count']) == 0:
-                    print 'validation successful'
-                    event_outcome = 'pass'
-                ififuncs.generate_log(
-                    log_name_source,
-                    'EVENT = eventType=validation, eventOutcome=%s, eventDetail=%s' % (
-                        event_outcome, str(validation_outcome)
+                if setup(os.path.join(root, filename), user) == 'skipping':
+                    continue
+                else:
+                    log_name_source, user, mediaconch_xmlfile, manifest, full_path, parent_dir = setup(
+                        os.path.join(root, filename), user
                     )
-                )
-                log_results(manifest, log_name_source, parent_dir)
+                    launch_mediaconch(
+                        log_name_source, user, mediaconch_xmlfile, manifest, full_path,
+                    )
+                    validation_outcome = parse_mediaconch(mediaconch_xmlfile)
+                    print str(validation_outcome)
+                    if int(validation_outcome['fail_count']) > 0:
+                        print 'Validation failed!'
+                        event_outcome = 'fail'
+                    elif int(validation_outcome['fail_count']) == 0:
+                        print 'validation successful'
+                        event_outcome = 'pass'
+                    ififuncs.generate_log(
+                        log_name_source,
+                        'EVENT = eventType=validation, eventOutcome=%s, eventDetail=%s' % (
+                            event_outcome, str(validation_outcome)
+                        )
+                    )
+                    log_results(manifest, log_name_source, parent_dir)
 
 
 if __name__ == '__main__':
     main()
-
-
