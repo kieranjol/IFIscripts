@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 '''
-Concatenates video files using FFmpeg stream copy.
+Concatenates video files using FFmpeg stream copy for general use but
+particularly for XDCAM workflows in the IFI Irish Film Institute.
 Uses mkvpropedit to insert chapter markers for each source file.
 Optionally wraps the file into a package structure with checksum manifests.
+
+Written by Kieran O'Leary.
 '''
 import sys
 import subprocess
@@ -150,7 +153,11 @@ def main(args_):
         log_name_source,
         'EVENT = agentName=%s' % user
     )
-    source_uuid_check = ififuncs.check_for_uuid(args)
+    source_uuid_check = ''
+    if os.path.isfile(args.i[0]):
+        source_uuid = ififuncs.get_source_uuid()
+    elif os.path.isdir(args.i[0]):
+        source_uuid_check = ififuncs.check_for_uuid(args)
     if source_uuid_check == False:
         source_uuid = ififuncs.get_source_uuid()
     else: source_uuid = source_uuid_check
