@@ -726,9 +726,7 @@ def manifest_update(manifest, path):
             if root2[0] == '\\':
                 root2 = root2[1:]
         except: IndexError
-        print root2
         manifest_generator += md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
-        print manifest_generator
         for i in original_lines:
             manifest_generator += i
     manifest_list = manifest_generator.splitlines()
@@ -750,7 +748,6 @@ def check_for_uuid(args):
             return os.path.basename(args.i[0])
         else:
             returned_dir = check_for_sip(args.i)
-            print returned_dir
             if returned_dir is None:
                 return False
             uuid_check = os.path.basename(returned_dir)
@@ -784,12 +781,10 @@ def checksum_replace(manifest, logname):
     new_checksum = hashlib_md5(logname)
     with open(manifest, 'r') as manifesto:
         manifest_lines = manifesto.readlines()
-        print manifest_lines, 11
         for lines in manifest_lines:
             if os.path.basename(logname) in lines:
                 lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
             updated_manifest.append(lines)
-    print updated_manifest, 22
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)
