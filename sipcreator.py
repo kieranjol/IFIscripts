@@ -205,7 +205,7 @@ def get_metadata(path, new_log_textfile):
                     )
                     ififuncs.generate_log(
                         new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
 
 def create_content_title_text(args, sip_path):
