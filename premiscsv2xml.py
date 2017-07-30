@@ -47,6 +47,7 @@ def setup_xml(object_dictionaries):
     '''
     namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
     premis_namespace = "http://www.loc.gov/premis/v3"
+    xsi_namespace = "http://www.w3.org/2001/XMLSchema-instance"
     premis = etree.fromstring(namespace)
     doc = etree.ElementTree(premis)
     for objects in object_dictionaries:
@@ -56,6 +57,9 @@ def setup_xml(object_dictionaries):
         object_parent = create_unit(
             0, premis, 'object'
         )
+        object_parent.attrib[
+            "{%s}type" % xsi_namespace
+        ] = "premis:%s" % objects['objectCategory']
         object_identifier_uuid = create_unit(
             2, object_parent, 'objectIdentifier'
         )
@@ -65,12 +69,8 @@ def setup_xml(object_dictionaries):
         object_identifier_uuid_value = create_unit(
             2, object_identifier_uuid, 'objectIdentifierValue'
         )
-        object_category = create_unit(
-            4, object_parent, 'objectCategory'
-        )
         add_value(id_list[0], object_identifier_uuid_type)
         add_value(id_list[1], object_identifier_uuid_value)
-        add_value(objects['objectCategory'], object_category)
         if objects['objectCategory'] == 'file':
             object_characteristics = create_unit(
                 10, object_parent, 'objectCharacteristics'
