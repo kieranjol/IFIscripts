@@ -7,22 +7,25 @@ table of contents
 1. [summary](https://github.com/kieranjol/IFIscripts#summary)
 2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreator)
-3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
+3. [PREMIS](https://github.com/kieranjol/IFIscripts#PREMIS)
+    * [premisobjects.py](https://github.com/kieranjol/IFIscripts#premisobjectspy)
+    * [premiscsv.py](https://github.com/kieranjol/IFIscripts#premiscsvpy)
+4. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
     * [prores.py](https://github.com/kieranjol/IFIscripts#prorespy)
     * [concat.py](https://github.com/kieranjol/IFIscripts#concatpy)
-4. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
+5. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
 	* [dcpaccess.py](https://github.com/kieranjol/IFIscripts#dcpaccesspy)
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
     * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)
-5. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
+6. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
     * [copyit.py](https://github.com/kieranjol/IFIscripts#copyitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
     * [batchfixity.py](https://github.com/kieranjol/IFIscripts#batchfixitypy)
-6. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
+7. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
     * [seq2prores.py](https://github.com/kieranjol/IFIscripts#seq2prorespy)
@@ -33,19 +36,19 @@ table of contents
     * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
     * [batchmetadata.py](https://github.com/kieranjol/IFIscripts#batchmetadata)
 	* [batchrename.py](https://github.com/kieranjol/IFIscripts#batchrename)
-7. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
+8. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
-8. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
+9. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
     * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
-9. [Misc](https://github.com/kieranjol/IFIscripts#misc)
+10. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
     * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
     * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
-10. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
+11. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
@@ -67,6 +70,22 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for one directory - `sipcreator.py -i /path/to/directory_name -o /path/to/output_folder`
 * Usage for more than one directory - `sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder`
 * Run `sipcreator.py -h` for all options.
+
+## PREMIS ##
+
+### premisobjects.py ###
+* Creates a somewhat PREMIS compliant CSV file describing objects in a package. A seperate script will need to be written in order to transform these CSV files into XML.
+* As the flat CSV structure prevents maintaining some of the complex relationships between units, some semantic units have been merged, for example:`relationship_structural_includes` is really a combination of the `relationshipType` and `relationshipSubType` units, which each have the values: `Structural` and `Includes` respectively.
+* Assumptions for now: representation UUID already exists as part of the SIP/AIP folder structure. Find a way to supply this, probably via argparse.
+* For more information, run `pydoc premisobjects `
+* Usage: `premiscsv.py path/to/SIP path/to/manifest.md5`
+
+### premiscsv.py ###
+* Extracts preservation events from an IFI plain text log file and converts to a CSV using the PREMIS data dictionary.
+* For more information, run `pydoc premiscsv`
+* Usage: - `premiscsv.py path/to/logfile.log`
+
+
 
 ## Transcodes ##
 
