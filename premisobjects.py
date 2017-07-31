@@ -72,36 +72,37 @@ def file_description(source, manifest, representation_uuid):
     item_ids = []
     for root, _, filenames in os.walk(source):
         if os.path.basename(root) == 'objects':
-            filenames = [f for f in filenames if f[0] != '.']
-            for item in filenames:
-                item_uuid = ififuncs.create_uuid()
-                full_path = os.path.join(root, item)
-                item_dictionary = {}
-                item_dictionary['objectIdentifier'] = ['UUID', item_uuid]
-                item_dictionary['objectCategory'] = 'file'
-                item_dictionary['size'] = str(os.path.getsize(full_path))
-                item_dictionary['originalName'] = item
-                item_dictionary['relationship_structural_isincludedin'] = representation_uuid
-                item_ids.append(item_uuid)
-                file_data = [
-                    item_dictionary['objectIdentifier'],
-                    item_dictionary['objectCategory'],
-                    'md5', get_checksum(manifest, item), 'internal',
-                    item_dictionary['size'], '', '',
-                    '', '',
-                    '', '',
-                    '', '',
-                    '',
-                    '', '',
-                    '',
-                    '', '',
-                    '',
-                    item_dictionary['relationship_structural_isincludedin'],
-                    '',
-                    '',
-                    ''
-                ]
-                ififuncs.append_csv('cle.csv', file_data)
+            for root, _, filenames in os.walk(root):
+                filenames = [f for f in filenames if f[0] != '.']
+                for item in filenames:
+                    item_uuid = ififuncs.create_uuid()
+                    full_path = os.path.join(root, item)
+                    item_dictionary = {}
+                    item_dictionary['objectIdentifier'] = ['UUID', item_uuid]
+                    item_dictionary['objectCategory'] = 'file'
+                    item_dictionary['size'] = str(os.path.getsize(full_path))
+                    item_dictionary['originalName'] = item
+                    item_dictionary['relationship_structural_isincludedin'] = representation_uuid
+                    item_ids.append(item_uuid)
+                    file_data = [
+                        item_dictionary['objectIdentifier'],
+                        item_dictionary['objectCategory'],
+                        'md5', get_checksum(manifest, item), 'internal',
+                        item_dictionary['size'], '', '',
+                        '', '',
+                        '', '',
+                        '', '',
+                        '',
+                        '', '',
+                        '',
+                        '', '',
+                        '',
+                        item_dictionary['relationship_structural_isincludedin'],
+                        '',
+                        '',
+                        ''
+                    ]
+                    ififuncs.append_csv('cle.csv', file_data)
     return item_ids
 def representation_description(representation_uuid, item_ids):
     '''
@@ -142,7 +143,7 @@ def intellectual_entity_description():
     intellectual_entity_dictionary = {}
     intellectual_entity_dictionary['objectIdentifier'] = ['UUID', ififuncs.create_uuid()]
     intellectual_entity_dictionary['objectCategory'] = 'intellectual entity'
-    print intellectual_entity_dictionary
+    #print intellectual_entity_dictionary
 def find_representation_uuid(source):
     '''
     This extracts the representation UUID from a directory name.
