@@ -104,11 +104,12 @@ def main():
     csv_file = sys.argv[1]
     object_dictionaries = extract_metadata(csv_file)
     setup_xml(object_dictionaries)
+    '''
     for x in object_dictionaries:
         for i in x:
             if x[i] != '':
                 print i, x[i]
         print '\n'
-
+    '''
 if __name__ == '__main__':
     main()
