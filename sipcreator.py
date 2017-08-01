@@ -207,7 +207,35 @@ def get_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
-
+             
+            elif av_file.endswith(
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png')
+            ):
+                if av_file[0] != '.':
+                    inputxml = "%s/%s_exiftool.xml" % (
+                        os.path.join(path, 'metadata'), os.path.basename(av_file)
+                        )
+                    inputtracexml = "%s/%s_siegfried.json" % (
+                        os.path.join(path, 'metadata'), os.path.basename(av_file)
+                        )
+                    ififuncs.make_siegfried(
+                        inputtracexml,
+                        os.path.join(root, av_file)
+                    )
+                    print 'Generating exiftool xml of input file and saving it in %s' % inputxml
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                    )
+                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+                    ififuncs.make_exiftool(
+                        inputxml,
+                        os.path.join(root, av_file)
+                    )
+                    ififuncs.generate_log(
+                        new_log_textfile,
+                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
+                    )
 def create_content_title_text(args, sip_path):
     '''
     DCPs are often delivered with inconsistent foldernames.
