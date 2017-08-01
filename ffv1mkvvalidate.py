@@ -18,12 +18,20 @@ def logname_check(basename, logs_dir):
     '''
     makeffv1_logfile = os.path.join(
         logs_dir, basename +'.mov_log.log')
+    generic_logfile = os.path.join(
+        logs_dir, basename +'_log.log')
+    mxf_logfile = os.path.join(
+        logs_dir, basename +'.mxf_log.log')
     sipcreator_logfile = os.path.join(
         logs_dir, basename + '_sip_log.log')
     mkv_log = os.path.join(
         logs_dir, basename +'.mkv_log.log')
     if os.path.isfile(makeffv1_logfile):
         return makeffv1_logfile
+    if os.path.isfile(generic_logfile):
+        return generic_logfile
+    if os.path.isfile(mxf_logfile):
+        return mxf_logfile
     if os.path.isfile(sipcreator_logfile):
         return sipcreator_logfile
     if os.path.isfile(mkv_log):
@@ -76,6 +84,9 @@ def setup(full_path, user):
     manifest = os.path.join(
         sip_root, os.path.basename(parent_dir) + '_manifest.md5'
     )
+    if not os.path.isfile(manifest):
+        print 'manifest does not exist %s' % manifest
+        return 'skipping'
     if os.path.isdir(metadata_dir):
         mediaconch_xmlfile_basename = '%s_mediaconch_validation.xml' % filename
         mediaconch_xmlfile = os.path.join(
