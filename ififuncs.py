@@ -486,13 +486,13 @@ def get_user():
     Asks user who they are. Returns a string with their name
     '''
     user = ''
-    if user not in ('1', '2', '3', '4', '5'):
+    if user not in ('1', '2', '3', '4', '5', '6'):
         user = raw_input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+            '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n6. Felix Meehan\n'
         )
-        while user not in ('1', '2', '3', '4', '5'):
+        while user not in ('1', '2', '3', '4', '5', '6'):
             user = raw_input(
-                '\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+                '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n6. Felix Meehan\n'
             )
     if user == '1':
         user = 'Brian Cash'
@@ -508,6 +508,10 @@ def get_user():
         time.sleep(1)
     elif user == '5':
         user = 'Aoife Fitzmaurice'
+        time.sleep(1)
+    elif user == '6':
+        user = 'Felix Meehan'
+        print 'Cork baiiiiiiii'
         time.sleep(1)
     return user
 
