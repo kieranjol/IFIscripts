@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import time
+import argparse
 from lxml import etree
 import ififuncs
 
@@ -139,13 +140,30 @@ def parse_mediaconch(mediaconch_xml):
     )
     return validation_outcome[0].attrib
 
-
+def parse_args():
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Recursively validates all MKV files using mediaconch'
+        'Report is written in XML format to the metadata folder and'
+        'manifests and logs are updated'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        'input',
+        help='full path of input directory. All mkv files will be processed.'
+    )
+    parsed_args = parser.parse_args()
+    return parsed_args
 def main():
     '''
     Launches the functions that will validate your FFV1/MKV files.
     '''
+    args = parse_args()
+    source = args.input
     user = ififuncs.get_user()
-    for root, _, filenames in os.walk(sys.argv[1]):
+    for root, _, filenames in os.walk(source):
         for filename in filenames:
             if filename[0] != '.' and filename.endswith('.mkv'):
                 if setup(os.path.join(root, filename), user) == 'skipping':
