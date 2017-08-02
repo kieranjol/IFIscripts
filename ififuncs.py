@@ -12,6 +12,7 @@ import datetime
 import uuid
 import tempfile
 import csv
+import json
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -774,3 +775,18 @@ def checksum_replace(manifest, logname):
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)
+
+def get_pronom_format(filename):
+    '''
+    Uses siegfried to return a tuple that contains:
+    pronom_id, authority, siegfried version
+    '''
+    siegfried_json = subprocess.check_output(
+        ['sf', '-json', filename]
+    )
+    json_object = json.loads(siegfried_json)
+    pronom_id = str(json_object['files'][0]['matches'][0]['id'])
+    authority = str(json_object['files'][0]['matches'][0]['ns'])
+    version = str(json_object['siegfried'])
+    return (pronom_id, authority, version)
+
