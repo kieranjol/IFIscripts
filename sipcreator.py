@@ -172,9 +172,9 @@ def get_metadata(path, new_log_textfile):
     '''
     mediainfo_version = 'mediainfo'
     try:
-        subprocess.check_output([
+        mediainfo_version = subprocess.check_output([
             'mediainfo', '--Version'
-        ])
+        ]).rstrip()
     except subprocess.CalledProcessError as grepexc:
         mediainfo_version =  grepexc.output.rstrip().splitlines()[1]
     for root, _, filenames in os.walk(path):
@@ -209,9 +209,23 @@ def get_metadata(path, new_log_textfile):
                     )
              
             elif av_file.endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png')
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml')
             ):
                 if av_file[0] != '.':
+                    exiftool_version = 'exiftool'
+                    try:
+                        exiftool_version = subprocess.check_output([
+                            'exiftool', '-ver'
+                        ])
+                    except subprocess.CalledProcessError as grepexc:
+                        exiftool_version =  grepexc.output.rstrip().splitlines()[1]
+                    siegfried_version = 'siegfried'
+                    try:
+                        siegfried_version = subprocess.check_output([
+                            'sf', '-version'
+                        ])
+                    except subprocess.CalledProcessError as grepexc:
+                        siegfried_version =  grepexc.output.rstrip().splitlines()[1]
                     inputxml = "%s/%s_exiftool.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
@@ -225,7 +239,7 @@ def get_metadata(path, new_log_textfile):
                     print 'Generating exiftool xml of input file and saving it in %s' % inputxml
                     ififuncs.generate_log(
                         new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
                     )
                     print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
                     ififuncs.make_exiftool(
@@ -234,7 +248,7 @@ def get_metadata(path, new_log_textfile):
                     )
                     ififuncs.generate_log(
                         new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
+                        'EVENT = Format identification - eventType=format identification, eventDetail=Format identification via PRONOM signatures using Siegfried, eventOutcome=%s, agentName=%s' % (inputtracexml, siegfried_version)
                     )
 def create_content_title_text(args, sip_path):
     '''
@@ -294,7 +308,7 @@ def main(args_):
         else:
             print 'exiting due to invalid UUID'
             uuid_event = (
-                'EVENT = exiting due to invalud UUID supplied on the commmand line: %s' % uuid
+                'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % uuid
             )
             uuid = False
     else:
