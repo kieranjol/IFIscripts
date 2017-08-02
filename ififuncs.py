@@ -677,6 +677,8 @@ def get_object_entry():
         object_entry = raw_input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
+        if object_entry[:4] == 'scoe':
+            return object_entry
         if object_entry[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = False
