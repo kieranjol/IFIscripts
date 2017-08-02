@@ -209,7 +209,7 @@ def get_metadata(path, new_log_textfile):
                     )
              
             elif av_file.endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml')
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt')
             ):
                 if av_file[0] != '.':
                     exiftool_version = 'exiftool'
