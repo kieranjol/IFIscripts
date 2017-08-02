@@ -49,6 +49,7 @@ def make_skeleton_csv():
         'objectCategory',
         'messageDigestAlgorithm', 'messageDigest', 'messageDigestOriginator',
         'size',	'formatName', 'formatVersion',
+        'formatRegistryName', 'formatRegistryKey', 'formatRegistryRole',
         'objectCharacteristicsExtension', 'originalName',
         'contentLocationType', 'contentLocationValue',
         'relatedObjectIdentifierType', 'relatedObjectIdentifierValue',
@@ -77,6 +78,9 @@ def file_description(source, manifest, representation_uuid):
                 for item in filenames:
                     item_uuid = ififuncs.create_uuid()
                     full_path = os.path.join(root, item)
+                    pronom_id, authority, version = ififuncs.get_pronom_format(
+                        full_path
+                    )
                     item_dictionary = {}
                     item_dictionary['objectIdentifier'] = ['UUID', item_uuid]
                     item_dictionary['objectCategory'] = 'file'
@@ -89,6 +93,7 @@ def file_description(source, manifest, representation_uuid):
                         item_dictionary['objectCategory'],
                         'md5', get_checksum(manifest, item), 'internal',
                         item_dictionary['size'], '', '',
+                        authority, pronom_id, 'identification',
                         '', '',
                         '', '',
                         '', '',
@@ -118,6 +123,7 @@ def representation_description(representation_uuid, item_ids):
     representation_data = [
         representation_dictionary['objectIdentifier'],
         representation_dictionary['objectCategory'],
+        '', '', '',
         '', '', '',
         '', '', '',
         '', '',

@@ -81,6 +81,21 @@ def setup_xml(object_dictionaries):
             size = create_unit(
                 1, object_characteristics, 'size'
             )
+            format_ = create_unit(
+                2, object_characteristics, 'format'
+            )
+            format_registry = create_unit(
+                1, format_, 'formatRegistry'
+            )
+            format_registry_name = create_unit(
+                0, format_registry, 'formatRegistryName'
+            )
+            format_registry_key = create_unit(
+                1, format_registry, 'formatRegistryKey'
+            )
+            format_registry_role = create_unit(
+                2, format_registry, 'formatRegistryRole'
+            )
             size.text = objects['size']
             message_digest_algorithm = create_unit(
                 0, fixity, 'messageDigestAlgorithm'
@@ -94,6 +109,9 @@ def setup_xml(object_dictionaries):
             message_digest_originator.text = objects['messageDigestOriginator']
             message_digest.text = objects['messageDigest']
             message_digest_algorithm.text = objects['messageDigestAlgorithm']
+            format_registry_name.text = objects['formatRegistryName']
+            format_registry_key.text = objects['formatRegistryKey']
+            format_registry_role.text = objects['formatRegistryRole']
     print(etree.tostring(doc, pretty_print=True))
     return premis_namespace, doc, premis
 def main():
