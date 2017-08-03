@@ -27,14 +27,14 @@ import ififuncs
 
 def get_checksum(manifest, filename):
     '''
-    Extracts checksum from manifest, rather than generating a fresh one.
+    Extracts the checksum and path within a manifest, returning both as a tuple.
     '''
     if os.path.isfile(manifest):
         with open(manifest, 'r') as manifest_object:
             manifest_lines = manifest_object.readlines()
             for md5 in manifest_lines:
                 if filename in md5:
-                    return md5[:32]
+                    return md5[:32], md5[34:]
 
 
 def make_skeleton_csv():
@@ -63,7 +63,7 @@ def make_skeleton_csv():
         'relationship_structural_hasroot',
         'relationship_derivation_hassource'
     ]
-    ififuncs.create_csv('cle.csv', premis_object_units)
+    ififuncs.create_csv('objects.csv', premis_object_units)
 
 
 def file_description(source, manifest, representation_uuid):
@@ -76,6 +76,7 @@ def file_description(source, manifest, representation_uuid):
             for root, _, filenames in os.walk(root):
                 filenames = [f for f in filenames if f[0] != '.']
                 for item in filenames:
+                    md5, urn = get_checksum(manifest, item)
                     item_uuid = ififuncs.create_uuid()
                     full_path = os.path.join(root, item)
                     pronom_id, authority, version = ififuncs.get_pronom_format(
@@ -91,11 +92,11 @@ def file_description(source, manifest, representation_uuid):
                     file_data = [
                         item_dictionary['objectIdentifier'],
                         item_dictionary['objectCategory'],
-                        'md5', get_checksum(manifest, item), 'internal',
+                        'md5', md5, 'internal',
                         item_dictionary['size'], '', '',
                         authority, pronom_id, 'identification',
-                        '', '',
-                        '', '',
+                        '', item,
+                        'urn', urn,
                         '', '',
                         '',
                         '', '',
@@ -107,7 +108,7 @@ def file_description(source, manifest, representation_uuid):
                         '',
                         ''
                     ]
-                    ififuncs.append_csv('cle.csv', file_data)
+                    ififuncs.append_csv('objects.csv', file_data)
     return item_ids
 def representation_description(representation_uuid, item_ids):
     '''
@@ -139,7 +140,7 @@ def representation_description(representation_uuid, item_ids):
         '',
         ''
     ]
-    ififuncs.append_csv('cle.csv', representation_data)
+    ififuncs.append_csv('objects.csv', representation_data)
 
 
 def intellectual_entity_description():
