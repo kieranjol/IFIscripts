@@ -5,8 +5,19 @@ to a CSV using the PREMIS data dictionary
 '''
 import os
 import sys
+import csv
 # from lxml import etree
 import ififuncs
+
+def extract_metadata(csv_file):
+    '''
+    Read the PREMIS csv and store the metadata in a list of dictionaries.
+    '''
+    object_dictionaries = []
+    input_file = csv.DictReader(open(csv_file))
+    for rows in input_file:
+        object_dictionaries.append(rows)
+    return object_dictionaries
 def find_events(logfile):
     '''
     A very hacky attempt to extract the relevant preservation events from our
@@ -24,6 +35,10 @@ def find_events(logfile):
                 manifest_event = line_fragment.replace(
                     'eventDetail', ''
                 ).replace('\n', '').split('=')[1]
+    object_info = extract_metadata('objects.csv')
+    object_locations = {}
+    for i in object_info:
+        object_locations[i['contentLocationValue']] = i['objectIdentifier'].split(', ')[1].replace(']', '')
     for log_entry in log_lines:
         valid_entries = [
             'eventType',
@@ -75,6 +90,17 @@ def find_events(logfile):
                         )[1].replace(', agentName=mediainfo', '').replace('\n', '')
                         if 'eventDetail=Mediatrace' in log_entry:
                             event_outcome = event_outcome.replace('mediainfo.xml', 'mediatrace.xml')
+                        for x in object_locations:
+                            '''
+                            This is trying to get the UUID of the source object
+                            that relates to the mediainfo xmls. This is
+                            achieved via a dictionary.
+                            '''
+                            if 'objects' in x:
+                                a = os.path.basename(event_outcome).replace('_mediainfo.xml', '').replace('_mediatrace.xml', '')[:-1]
+                                b = os.path.basename(x)
+                                if a == b:
+                                    linking_object_identifier_value = object_locations[x].replace('\'','')
                 if (break_loop == 'continue') or (event_type == ''):
                     continue
                 print event_type

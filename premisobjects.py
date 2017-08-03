@@ -33,8 +33,9 @@ def get_checksum(manifest, filename):
         with open(manifest, 'r') as manifest_object:
             manifest_lines = manifest_object.readlines()
             for md5 in manifest_lines:
-                if filename in md5:
-                    return md5[:32], md5[34:]
+                if 'objects' in md5:
+                    if filename in md5:
+                        return md5[:32], md5[34:].rstrip()
 
 
 def make_skeleton_csv():
