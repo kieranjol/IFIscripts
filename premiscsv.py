@@ -67,6 +67,9 @@ def find_events(logfile):
                         event_outcome_detail_note = 'Submission Information Package'
                     if ('eventDetail=Mediatrace' in log_entry) or ('eventDetail=Technical' in log_entry):
                         event_type = 'metadata extraction'
+                        event_detail = log_entry.split(
+                            'eventDetail=', 1
+                        )[1].split(',')[0]
                         event_outcome = log_entry.split(
                             'eventOutcome=', 1
                         )[1].replace(', agentName=mediainfo', '').replace('\n', '')
@@ -85,7 +88,7 @@ def find_events(logfile):
                     '', 'UUID',
                     linking_object_identifier_value, ''
                 ]
-                ififuncs.append_csv('bla.csv', event_row)
+                ififuncs.append_csv('events.csv', event_row)
 
 def make_events_csv():
     '''
@@ -104,12 +107,13 @@ def make_events_csv():
         'linkingAgentIdentifierRole', 'linkingObjectIdentifierType',
         'linkingObjectIdentifierValue', 'linkingObjectRole'
     ]
-    ififuncs.create_csv('bla.csv', premis_events)
+    ififuncs.create_csv('events.csv', premis_events)
 
 def main():
     '''
     Launches all the other functions when run from the command line.
     '''
+    make_events_csv()
     logfile = sys.argv[1]
     find_events(logfile)
 
