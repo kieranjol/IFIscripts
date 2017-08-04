@@ -73,7 +73,19 @@ def setup_xml(object_dictionaries):
         add_value(id_list[1], object_identifier_uuid_value)
         if objects['objectCategory'] == 'file':
             object_characteristics = create_unit(
-                10, object_parent, 'objectCharacteristics'
+                5, object_parent, 'objectCharacteristics'
+            )
+            storage = create_unit(
+                7, object_parent, 'storage'
+            )
+            content_location = create_unit(
+                0, storage, 'contentLocation'
+            )
+            content_location_type = create_unit(
+                0, content_location, 'contentLocationType'
+            )
+            content_location_value = create_unit(
+                1, content_location, 'contentLocationValue'
             )
             fixity = create_unit(
                 0, object_characteristics, 'fixity'
@@ -112,6 +124,8 @@ def setup_xml(object_dictionaries):
             format_registry_name.text = objects['formatRegistryName']
             format_registry_key.text = objects['formatRegistryKey']
             format_registry_role.text = objects['formatRegistryRole']
+            content_location_type.text = objects['contentLocationType']
+            content_location_value.text = objects['contentLocationValue']
     print(etree.tostring(doc, pretty_print=True))
     return premis_namespace, doc, premis
 def main():

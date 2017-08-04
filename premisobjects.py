@@ -77,7 +77,7 @@ def file_description(source, manifest, representation_uuid):
             for root, _, filenames in os.walk(root):
                 filenames = [f for f in filenames if f[0] != '.']
                 for item in filenames:
-                    md5, urn = get_checksum(manifest, item)
+                    md5, uri = get_checksum(manifest, item)
                     item_uuid = ififuncs.create_uuid()
                     full_path = os.path.join(root, item)
                     pronom_id, authority, version = ififuncs.get_pronom_format(
@@ -97,7 +97,7 @@ def file_description(source, manifest, representation_uuid):
                         item_dictionary['size'], '', '',
                         authority, pronom_id, 'identification',
                         '', item,
-                        'urn', urn,
+                        'uri', uri,
                         '', '',
                         '',
                         '', '',
