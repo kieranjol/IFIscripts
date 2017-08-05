@@ -126,6 +126,20 @@ def setup_xml(object_dictionaries, event_dictionaries):
             format_registry_role.text = objects['formatRegistryRole']
             content_location_type.text = objects['contentLocationType']
             content_location_value.text = objects['contentLocationValue']
+        linked_events = objects['linkingEventIdentifierValue'].split('|')
+        for event in linked_events:
+            if event != '':
+                linking_event_identifier = create_unit(
+                        99, object_parent, 'linkingEventIdentifier'
+                    )
+                linking_event_identifier_type = create_unit(
+                        1, linking_event_identifier, 'linkingEventIdentifierType'
+                    )
+                linking_event_identifier_value = create_unit(
+                        2, linking_event_identifier, 'linkingEventIdentifierValue'
+                    )
+                linking_event_identifier_type.text = 'UUID'
+                linking_event_identifier_value.text = event
     for x in event_dictionaries:
         event_parent = create_unit(
                 99, premis, 'event'
