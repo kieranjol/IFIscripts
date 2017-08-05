@@ -40,7 +40,7 @@ def create_unit(index, parent, unitname):
     parent.insert(index, unitname)
     return unitname
 
-def setup_xml(object_dictionaries):
+def setup_xml(object_dictionaries, event_dictionaries):
     '''
     This should just create the PREMIS lxml object.
     Actual metadata generation should be moved to other functions.
@@ -126,6 +126,29 @@ def setup_xml(object_dictionaries):
             format_registry_role.text = objects['formatRegistryRole']
             content_location_type.text = objects['contentLocationType']
             content_location_value.text = objects['contentLocationValue']
+    for x in event_dictionaries:
+        event_parent = create_unit(
+                99, premis, 'event'
+            )
+        event_identifier_uuid = create_unit(
+            1, event_parent, 'eventIdentifier'
+        )
+        event_identifier_uuid_type = create_unit(
+            1, event_identifier_uuid, 'eventIdentifierType'
+        )
+        event_identifier_uuid_value = create_unit(
+            2, event_identifier_uuid, 'eventIdentifierValue'
+        )
+        event_type = create_unit(
+            1, event_parent, 'eventType'
+        )
+        event_date_time = create_unit(
+            1, event_parent, 'eventDateTime'
+        )
+        event_identifier_uuid_type.text = x['eventIdentifierType']
+        event_identifier_uuid_value.text = x['eventIdentifierValue']
+        event_type.text = x['eventType']
+        event_date_time.text = x['eventDateTime']
     print(etree.tostring(doc, pretty_print=True))
     return premis_namespace, doc, premis
 def main():
@@ -134,8 +157,10 @@ def main():
     For debugging purposes, the contents of the CSV is printed to screen.
     '''
     csv_file = sys.argv[1]
+    events_csv = sys.argv[2]
     object_dictionaries = extract_metadata(csv_file)
-    setup_xml(object_dictionaries)
+    event_dictionaries = extract_metadata(events_csv)
+    setup_xml(object_dictionaries, event_dictionaries)
     '''
     for x in object_dictionaries:
         for i in x:
