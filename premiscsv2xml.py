@@ -145,10 +145,31 @@ def setup_xml(object_dictionaries, event_dictionaries):
         event_date_time = create_unit(
             2, event_parent, 'eventDateTime'
         )
+        event_detail_information = create_unit(
+            3, event_parent, 'eventDetailInformation'
+        )
+        event_detail = create_unit(
+            1, event_detail_information, 'eventDetail'
+        )
+        event_outcome_information = create_unit(
+            4, event_parent, 'eventOutcomeInformation'
+        )
+        event_outcome = create_unit(
+            1, event_outcome_information, 'eventOutcome'
+        )
+        event_outcome_detail = create_unit(
+            2, event_outcome_information, 'eventOutcomeDetail'
+        )
+        event_outcome_detail_note = create_unit(
+            1, event_outcome_detail, 'eventOutcomeDetailNote'
+        )
         event_identifier_uuid_type.text = x['eventIdentifierType']
         event_identifier_uuid_value.text = x['eventIdentifierValue']
         event_type.text = x['eventType']
         event_date_time.text = x['eventDateTime']
+        event_detail.text = x['eventDetail']
+        event_outcome.text = x['eventOutcome']
+        event_outcome_detail_note.text = x['eventOutcomeDetailNote']
     print(etree.tostring(doc, pretty_print=True))
     return premis_namespace, doc, premis
 def main():
