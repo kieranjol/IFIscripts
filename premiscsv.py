@@ -116,6 +116,53 @@ def find_events(logfile):
                 ]
                 ififuncs.append_csv('events.csv', event_row)
 
+def update_objects():
+    '''
+    Update the object description with the linkingEventIdentifiers
+    '''
+    link_dict = {}
+    event_dicts = extract_metadata('events.csv')
+    for i in event_dicts:
+        a =  i['eventIdentifierValue']
+        try:
+            link_dict[i['linkingObjectIdentifierValue']]  += a + '|'
+        except KeyError:
+            link_dict[i['linkingObjectIdentifierValue']]  = a + '|'
+    print link_dict
+    object_dicts = extract_metadata('objects.csv')
+    for x in object_dicts:
+        for link in link_dict:
+
+            if link ==  x['objectIdentifier'].split(', ')[1].replace(']', '').replace('\'',''):
+                x['linkingEventIdentifierValue'] = link_dict[link]
+    premis_object_units = [
+        'objectIdentifier',
+        'objectCategory',
+        'messageDigestAlgorithm', 'messageDigest', 'messageDigestOriginator',
+        'size',	'formatName', 'formatVersion',
+        'formatRegistryName', 'formatRegistryKey', 'formatRegistryRole',
+        'objectCharacteristicsExtension', 'originalName',
+        'contentLocationType', 'contentLocationValue',
+        'relatedObjectIdentifierType', 'relatedObjectIdentifierValue',
+        'relatedObjectSequence',
+        'relatedEventIdentifierType', 'relatedEventIdentifierValue',
+        'relatedEventSequence',
+        'linkingEventIdentifierType', 'linkingEventIdentifierValue',
+        'relationship_structural_includes',
+        'relationship_structural_isincludedin',
+        'relationship_structural_represents',
+        'relationship_structural_hasroot',
+        'relationship_derivation_hassource'
+    ]
+    with open('mycsvfile.csv', 'wb') as f:
+        counter = 0
+        for i in object_dicts:
+            w = csv.DictWriter(f, fieldnames=premis_object_units)
+            if counter == 0:
+                w.writeheader()
+            counter += 1
+            w.writerow(i)
+
 def make_events_csv():
     '''
     Generates a CSV with PREMIS-esque headings. Currently it's just called
@@ -142,6 +189,7 @@ def main():
     make_events_csv()
     logfile = sys.argv[1]
     find_events(logfile)
+    update_objects()
 
 if __name__ == '__main__':
     main()
