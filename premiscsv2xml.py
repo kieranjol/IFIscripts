@@ -143,7 +143,7 @@ def setup_xml(object_dictionaries, event_dictionaries):
             1, event_parent, 'eventType'
         )
         event_date_time = create_unit(
-            1, event_parent, 'eventDateTime'
+            2, event_parent, 'eventDateTime'
         )
         event_identifier_uuid_type.text = x['eventIdentifierType']
         event_identifier_uuid_value.text = x['eventIdentifierValue']
