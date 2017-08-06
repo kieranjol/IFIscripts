@@ -6,18 +6,11 @@ to a CSV using the PREMIS data dictionary
 import os
 import sys
 import csv
+import shutil
 # from lxml import etree
 import ififuncs
 
-def extract_metadata(csv_file):
-    '''
-    Read the PREMIS csv and store the metadata in a list of dictionaries.
-    '''
-    object_dictionaries = []
-    input_file = csv.DictReader(open(csv_file))
-    for rows in input_file:
-        object_dictionaries.append(rows)
-    return object_dictionaries
+
 def find_events(logfile):
     '''
     A very hacky attempt to extract the relevant preservation events from our
@@ -35,7 +28,7 @@ def find_events(logfile):
                 manifest_event = line_fragment.replace(
                     'eventDetail', ''
                 ).replace('\n', '').split('=')[1]
-    object_info = extract_metadata('objects.csv')
+    object_info = ififuncs.extract_metadata('objects.csv')
     object_locations = {}
     for i in object_info:
         object_locations[i['contentLocationValue']] = i['objectIdentifier'].split(', ')[1].replace(']', '')
@@ -121,7 +114,7 @@ def update_objects():
     Update the object description with the linkingEventIdentifiers
     '''
     link_dict = {}
-    event_dicts = extract_metadata('events.csv')
+    event_dicts = ififuncs.extract_metadata('events.csv')
     for i in event_dicts:
         a =  i['eventIdentifierValue']
         try:
@@ -129,7 +122,7 @@ def update_objects():
         except KeyError:
             link_dict[i['linkingObjectIdentifierValue']]  = a + '|'
     print link_dict
-    object_dicts = extract_metadata('objects.csv')
+    object_dicts = ififuncs.extract_metadata('objects.csv')
     for x in object_dicts:
         for link in link_dict:
 
@@ -162,6 +155,7 @@ def update_objects():
                 w.writeheader()
             counter += 1
             w.writerow(i)
+    shutil.move('mycsvfile.csv', 'objects.csv')
 
 def make_events_csv():
     '''

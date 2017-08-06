@@ -790,3 +790,34 @@ def get_pronom_format(filename):
     version = str(json_object['siegfried'])
     return (pronom_id, authority, version)
 
+def get_checksum(manifest, filename):
+    '''
+    Extracts the checksum and path within a manifest, returning both as a tuple.
+    '''
+    if os.path.isfile(manifest):
+        with open(manifest, 'r') as manifest_object:
+            manifest_lines = manifest_object.readlines()
+            for md5 in manifest_lines:
+                if 'objects' in md5:
+                    if filename in md5:
+                        return md5[:32], md5[34:].rstrip()
+
+def find_representation_uuid(source):
+    '''
+    This extracts the representation UUID from a directory name.
+    This should be moved to ififuncs as it can be used by other scripts.
+    '''
+    for root, _, _ in os.walk(source):
+        if 'objects' in root:
+            return os.path.basename(os.path.dirname(root))
+
+def extract_metadata(csv_file):
+    '''
+    Read the PREMIS csv and store the metadata in a list of dictionaries.
+    '''
+    object_dictionaries = []
+    input_file = csv.DictReader(open(csv_file))
+    for rows in input_file:
+        object_dictionaries.append(rows)
+    return object_dictionaries
+

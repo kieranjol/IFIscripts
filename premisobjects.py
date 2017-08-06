@@ -25,17 +25,7 @@ import sys
 import ififuncs
 
 
-def get_checksum(manifest, filename):
-    '''
-    Extracts the checksum and path within a manifest, returning both as a tuple.
-    '''
-    if os.path.isfile(manifest):
-        with open(manifest, 'r') as manifest_object:
-            manifest_lines = manifest_object.readlines()
-            for md5 in manifest_lines:
-                if 'objects' in md5:
-                    if filename in md5:
-                        return md5[:32], md5[34:].rstrip()
+
 
 
 def make_skeleton_csv():
@@ -77,7 +67,7 @@ def file_description(source, manifest, representation_uuid):
             for root, _, filenames in os.walk(root):
                 filenames = [f for f in filenames if f[0] != '.']
                 for item in filenames:
-                    md5, uri = get_checksum(manifest, item)
+                    md5, uri = ififuncs.get_checksum(manifest, item)
                     item_uuid = ififuncs.create_uuid()
                     full_path = os.path.join(root, item)
                     pronom_id, authority, version = ififuncs.get_pronom_format(
@@ -152,14 +142,6 @@ def intellectual_entity_description():
     intellectual_entity_dictionary['objectIdentifier'] = ['UUID', ififuncs.create_uuid()]
     intellectual_entity_dictionary['objectCategory'] = 'intellectual entity'
     #print intellectual_entity_dictionary
-def find_representation_uuid(source):
-    '''
-    This extracts the representation UUID from a directory name.
-    This should be moved to ififuncs as it can be used by other scripts.
-    '''
-    for root, _, _ in os.walk(source):
-        if 'objects' in root:
-            return os.path.basename(os.path.dirname(root))
 
 
 def main():
@@ -169,7 +151,7 @@ def main():
     make_skeleton_csv()
     source = sys.argv[1]
     manifest = sys.argv[2]
-    representation_uuid = find_representation_uuid(source)
+    representation_uuid = ififuncs.find_representation_uuid(source)
     item_ids = file_description(source, manifest, representation_uuid)
     #intellectual_entity_description()
     representation_description(representation_uuid, item_ids)
