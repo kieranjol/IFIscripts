@@ -128,7 +128,7 @@ def describe_objects(premis, object_dictionaries):
                 )
                 linking_event_identifier_type.text = 'UUID'
                 linking_event_identifier_value.text = event
-    return premis, linked_events
+    return premis
 def describe_events(premis, event_dictionaries):
     '''
     Converts the CSV object metadata into PREMIS XML.
@@ -192,12 +192,7 @@ def main():
     premis = setup_xml()
     premis = describe_objects(premis, object_dictionaries)
     describe_events(premis, event_dictionaries)
-    '''
-    for x in object_dictionaries:
-        for i in x:
-            if x[i] != '':
-                print i, x[i]
-        print '\n'
-    '''
+
+
 if __name__ == '__main__':
     main()

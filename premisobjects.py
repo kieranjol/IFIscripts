@@ -12,7 +12,6 @@ Structural and Includes respectively.
 todo:
 Document identifier assignment for files and IE. Probably in events sheet?
 Allow for derivation to be entered
-Link with events sheet
 Link mediainfo xml in /metadata to the objectCharacteristicsExtension field.
 
 
