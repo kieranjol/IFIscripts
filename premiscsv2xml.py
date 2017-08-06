@@ -7,12 +7,6 @@ import csv
 from lxml import etree
 import ififuncs
 
-def add_value(value, element):
-    '''
-    Useless helper function - remove!
-    '''
-    element.text = value
-
 
 def write_premis(doc, premisxml):
     '''
@@ -60,8 +54,8 @@ def setup_xml(object_dictionaries, event_dictionaries):
         object_identifier_uuid_value = create_unit(
             2, object_identifier_uuid, 'objectIdentifierValue'
         )
-        add_value(id_list[0], object_identifier_uuid_type)
-        add_value(id_list[1], object_identifier_uuid_value)
+        object_identifier_uuid_type.text = id_list[0]
+        object_identifier_uuid_value.text = id_list[1]
         if objects['objectCategory'] == 'file':
             object_characteristics = create_unit(
                 5, object_parent, 'objectCharacteristics'
