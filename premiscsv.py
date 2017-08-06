@@ -7,11 +7,12 @@ import os
 import sys
 import csv
 import shutil
+import argparse
 # from lxml import etree
 import ififuncs
 
 
-def find_events(logfile):
+def find_events(logfile, objects_csv, output):
     '''
     A very hacky attempt to extract the relevant preservation events from our
     log files.
@@ -107,14 +108,14 @@ def find_events(logfile):
                     '', 'UUID',
                     linking_object_identifier_value, ''
                 ]
-                ififuncs.append_csv('events.csv', event_row)
+                ififuncs.append_csv(output, event_row)
 
-def update_objects():
+def update_objects(output, objects_csv):
     '''
     Update the object description with the linkingEventIdentifiers
     '''
     link_dict = {}
-    event_dicts = ififuncs.extract_metadata('events.csv')
+    event_dicts = ififuncs.extract_metadata(output)
     for i in event_dicts:
         a =  i['eventIdentifierValue']
         try:
@@ -122,7 +123,7 @@ def update_objects():
         except KeyError:
             link_dict[i['linkingObjectIdentifierValue']]  = a + '|'
     print link_dict
-    object_dicts = ififuncs.extract_metadata('objects.csv')
+    object_dicts = ififuncs.extract_metadata(objects_csv)
     for x in object_dicts:
         for link in link_dict:
 
@@ -155,9 +156,9 @@ def update_objects():
                 w.writeheader()
             counter += 1
             w.writerow(i)
-    shutil.move('mycsvfile.csv', 'objects.csv')
+    shutil.move('mycsvfile.csv', objects_csv)
 
-def make_events_csv():
+def make_events_csv(output):
     '''
     Generates a CSV with PREMIS-esque headings. Currently it's just called
     'bla.csv' but it will probably be called:
@@ -174,16 +175,45 @@ def make_events_csv():
         'linkingAgentIdentifierRole', 'linkingObjectIdentifierType',
         'linkingObjectIdentifierValue', 'linkingObjectRole'
     ]
-    ififuncs.create_csv('events.csv', premis_events)
+    ififuncs.create_csv(output, premis_events)
 
-def main():
+def parse_args(args_):
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Describes events using PREMIS data dictionary via CSV'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        '-i',
+        help='full path of a log textfile', required=True
+    )
+    parser.add_argument(
+        '-o',
+        help='full path of output csv', required=True
+    )
+    parser.add_argument(
+        '-object_csv',
+        help='full path of object description csv', required=True
+    )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
+def main(args_):
     '''
     Launches all the other functions when run from the command line.
     '''
-    make_events_csv()
-    logfile = sys.argv[1]
-    find_events(logfile)
-    update_objects()
+    args = parse_args(args_)
+    logfile = args.i
+    output = args.o
+    objects_csv = args.object_csv
+    make_events_csv(output)
+    find_events(logfile, objects_csv, output)
+    update_objects(output, objects_csv)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

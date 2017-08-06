@@ -21,13 +21,14 @@ SIP/AIP folder structure. Find a way to supply this, probably via argparse.
 
 import os
 import sys
+import argparse
 import ififuncs
 
 
 
 
 
-def make_skeleton_csv():
+def make_skeleton_csv(output):
     '''
     Generates a CSV with PREMIS-esque headings. Currently it's just called
     'cle.csv' but it will probably be called:
@@ -53,10 +54,10 @@ def make_skeleton_csv():
         'relationship_structural_hasroot',
         'relationship_derivation_hassource'
     ]
-    ififuncs.create_csv('objects.csv', premis_object_units)
+    ififuncs.create_csv(output, premis_object_units)
 
 
-def file_description(source, manifest, representation_uuid):
+def file_description(source, manifest, representation_uuid, output):
     '''
     Generate PREMIS descriptions for items and write to CSV.
     '''
@@ -98,9 +99,9 @@ def file_description(source, manifest, representation_uuid):
                         '',
                         ''
                     ]
-                    ififuncs.append_csv('objects.csv', file_data)
+                    ififuncs.append_csv(output, file_data)
     return item_ids
-def representation_description(representation_uuid, item_ids):
+def representation_description(representation_uuid, item_ids, output):
     '''
     Generate PREMIS descriptions for a representation and write to CSV.
     '''
@@ -130,7 +131,7 @@ def representation_description(representation_uuid, item_ids):
         '',
         ''
     ]
-    ififuncs.append_csv('objects.csv', representation_data)
+    ififuncs.append_csv(output, representation_data)
 
 
 def intellectual_entity_description():
@@ -142,19 +143,46 @@ def intellectual_entity_description():
     intellectual_entity_dictionary['objectCategory'] = 'intellectual entity'
     #print intellectual_entity_dictionary
 
-
-def main():
+def parse_args(args_):
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Describes objects using PREMIS data dictionary using CSV'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        '-i',
+        help='full path of input directory', required=True
+    )
+    parser.add_argument(
+        '-o', '-output',
+        help='full path of output directory', required=True
+    )
+    parser.add_argument(
+        '-m', '-manifest',
+        help='full path to a pre-existing manifest', required=True
+    )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
+def main(args_):
     '''
     Launches all the other functions when run from the command line.
     '''
-    make_skeleton_csv()
-    source = sys.argv[1]
-    manifest = sys.argv[2]
+    args = parse_args(args_)
+    source = args.i
+    output = args.o
+    manifest = args.m
+    make_skeleton_csv(output)
     representation_uuid = ififuncs.find_representation_uuid(source)
-    item_ids = file_description(source, manifest, representation_uuid)
+    item_ids = file_description(source, manifest, representation_uuid, output)
     #intellectual_entity_description()
-    representation_description(representation_uuid, item_ids)
+    representation_description(representation_uuid, item_ids, output)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 
