@@ -25,6 +25,7 @@ def create_unit(index, parent, unitname):
     parent.insert(index, unitname)
     return unitname
 
+
 def setup_xml():
     '''
     This should just create the PREMIS lxml object.
@@ -33,6 +34,7 @@ def setup_xml():
     namespace = '<premis:premis xmlns:premis="http://www.loc.gov/premis/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/premis/v3 https://www.loc.gov/standards/premis/premis.xsd" version="3.0"></premis:premis>'
     premis = etree.fromstring(namespace)
     return premis
+
 
 def describe_objects(premis, object_dictionaries):
     '''
@@ -130,6 +132,8 @@ def describe_objects(premis, object_dictionaries):
                 linking_event_identifier_type.text = 'UUID'
                 linking_event_identifier_value.text = event
     return premis
+
+
 def describe_events(premis, event_dictionaries):
     '''
     Converts the CSV object metadata into PREMIS XML.
@@ -180,6 +184,7 @@ def describe_events(premis, event_dictionaries):
         event_outcome_detail_note.text = x['eventOutcomeDetailNote']
     print(etree.tostring(premis, pretty_print=True))
 
+
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -202,6 +207,8 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+
 def main(args_):
     '''
     Launches all the other functions when run from the command line.

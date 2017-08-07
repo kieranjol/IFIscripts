@@ -12,7 +12,7 @@ import argparse
 import ififuncs
 
 
-def find_events(logfile, objects_csv, output):
+def find_events(logfile, output):
     '''
     A very hacky attempt to extract the relevant preservation events from our
     log files.
@@ -32,7 +32,9 @@ def find_events(logfile, objects_csv, output):
     object_info = ififuncs.extract_metadata('objects.csv')
     object_locations = {}
     for i in object_info:
-        object_locations[i['contentLocationValue']] = i['objectIdentifier'].split(', ')[1].replace(']', '')
+        object_locations[
+            i['contentLocationValue']
+        ] = i['objectIdentifier'].split(', ')[1].replace(']', '')
     for log_entry in log_lines:
         valid_entries = [
             'eventType',
@@ -94,7 +96,7 @@ def find_events(logfile, objects_csv, output):
                                 a = os.path.basename(event_outcome).replace('_mediainfo.xml', '').replace('_mediatrace.xml', '')[:-1]
                                 b = os.path.basename(x)
                                 if a == b:
-                                    linking_object_identifier_value = object_locations[x].replace('\'','')
+                                    linking_object_identifier_value = object_locations[x].replace('\'', '')
                 if (break_loop == 'continue') or (event_type == ''):
                     continue
                 print event_type
@@ -110,6 +112,7 @@ def find_events(logfile, objects_csv, output):
                 ]
                 ififuncs.append_csv(output, event_row)
 
+
 def update_objects(output, objects_csv):
     '''
     Update the object description with the linkingEventIdentifiers
@@ -117,17 +120,16 @@ def update_objects(output, objects_csv):
     link_dict = {}
     event_dicts = ififuncs.extract_metadata(output)
     for i in event_dicts:
-        a =  i['eventIdentifierValue']
+        a = i['eventIdentifierValue']
         try:
-            link_dict[i['linkingObjectIdentifierValue']]  += a + '|'
+            link_dict[i['linkingObjectIdentifierValue']] += a + '|'
         except KeyError:
-            link_dict[i['linkingObjectIdentifierValue']]  = a + '|'
+            link_dict[i['linkingObjectIdentifierValue']] = a + '|'
     print link_dict
     object_dicts = ififuncs.extract_metadata(objects_csv)
     for x in object_dicts:
         for link in link_dict:
-
-            if link ==  x['objectIdentifier'].split(', ')[1].replace(']', '').replace('\'',''):
+            if link == x['objectIdentifier'].split(', ')[1].replace(']', '').replace('\'', ''):
                 x['linkingEventIdentifierValue'] = link_dict[link]
     premis_object_units = [
         'objectIdentifier',
@@ -158,6 +160,7 @@ def update_objects(output, objects_csv):
             w.writerow(i)
     shutil.move('mycsvfile.csv', objects_csv)
 
+
 def make_events_csv(output):
     '''
     Generates a CSV with PREMIS-esque headings. Currently it's just called
@@ -176,6 +179,7 @@ def make_events_csv(output):
         'linkingObjectIdentifierValue', 'linkingObjectRole'
     ]
     ififuncs.create_csv(output, premis_events)
+
 
 def parse_args(args_):
     '''
@@ -203,6 +207,8 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+
 def main(args_):
     '''
     Launches all the other functions when run from the command line.
@@ -212,8 +218,9 @@ def main(args_):
     output = args.o
     objects_csv = args.object_csv
     make_events_csv(output)
-    find_events(logfile, objects_csv, output)
+    find_events(logfile, output)
     update_objects(output, objects_csv)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

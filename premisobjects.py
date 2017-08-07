@@ -25,13 +25,10 @@ import argparse
 import ififuncs
 
 
-
-
-
 def make_skeleton_csv(output):
     '''
     Generates a CSV with PREMIS-esque headings. Currently it's just called
-    'cle.csv' but it will probably be called:
+    'objects.csv' but it will probably be called:
     UUID_premisobjects.csv
     and sit in the metadata directory.
     '''
@@ -70,6 +67,7 @@ def file_description(source, manifest, representation_uuid, output):
                     md5, uri = ififuncs.get_checksum(manifest, item)
                     item_uuid = ififuncs.create_uuid()
                     full_path = os.path.join(root, item)
+                    print 'Using Siegfriend to analyze %s' % item
                     pronom_id, authority, version = ififuncs.get_pronom_format(
                         full_path
                     )
@@ -143,6 +141,7 @@ def intellectual_entity_description():
     intellectual_entity_dictionary['objectCategory'] = 'intellectual entity'
     #print intellectual_entity_dictionary
 
+
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -169,6 +168,8 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+
 def main(args_):
     '''
     Launches all the other functions when run from the command line.
@@ -182,6 +183,7 @@ def main(args_):
     item_ids = file_description(source, manifest, representation_uuid, output)
     #intellectual_entity_description()
     representation_description(representation_uuid, item_ids, output)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
