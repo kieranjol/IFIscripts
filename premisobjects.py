@@ -10,7 +10,8 @@ relationshipType and relationshipSubType units, which each have the values:
 Structural and Includes respectively.
 
 todo:
-Document identifier assignment for files and IE. Probably in events sheet?
+Document identifier assignment for files and IE. Probably in events sheet?\
+This would ideally just add to the log in the helper script.
 Allow for derivation to be entered
 Link mediainfo xml in /metadata to the objectCharacteristicsExtension field.
 
@@ -60,50 +61,47 @@ def file_description(source, manifest, representation_uuid, output):
     '''
     item_ids = []
     for root, _, filenames in os.walk(source):
-        if os.path.basename(root) == 'objects':
-            for root, _, filenames in os.walk(root):
-                filenames = [f for f in filenames if f[0] != '.']
-                for item in filenames:
-                    md5, uri = ififuncs.get_checksum(manifest, item)
-                    item_uuid = ififuncs.create_uuid()
-                    full_path = os.path.join(root, item)
-                    print 'Using Siegfriend to analyze %s' % item
-                    pronom_id, authority, version = ififuncs.get_pronom_format(
-                        full_path
-                    )
-                    item_dictionary = {}
-                    item_dictionary['objectIdentifier'] = ['UUID', item_uuid]
-                    item_dictionary['objectCategory'] = 'file'
-                    item_dictionary['size'] = str(os.path.getsize(full_path))
-                    item_dictionary['originalName'] = item
-                    item_dictionary['relationship_structural_isincludedin'] = representation_uuid
-                    item_ids.append(item_uuid)
-                    file_data = [
-                        item_dictionary['objectIdentifier'],
-                        item_dictionary['objectCategory'],
-                        'md5', md5, 'internal',
-                        item_dictionary['size'], '', '',
-                        authority, pronom_id, 'identification',
-                        '', item,
-                        'uri', uri,
-                        '', '',
-                        '',
-                        '', '',
-                        '',
-                        '', '',
-                        '',
-                        item_dictionary['relationship_structural_isincludedin'],
-                        '',
-                        '',
-                        ''
-                    ]
-                    ififuncs.append_csv(output, file_data)
+        filenames = [f for f in filenames if f[0] != '.']
+        for item in filenames:
+            md5, uri = ififuncs.get_checksum(manifest, item)
+            item_uuid = ififuncs.create_uuid()
+            full_path = os.path.join(root, item)
+            print 'Using Siegfriend to analyze %s' % item
+            pronom_id, authority, version = ififuncs.get_pronom_format(
+                full_path
+            )
+            item_dictionary = {}
+            item_dictionary['objectIdentifier'] = ['UUID', item_uuid]
+            item_dictionary['objectCategory'] = 'file'
+            item_dictionary['size'] = str(os.path.getsize(full_path))
+            item_dictionary['originalName'] = item
+            item_dictionary['relationship_structural_isincludedin'] = representation_uuid
+            item_ids.append(item_uuid)
+            file_data = [
+                item_dictionary['objectIdentifier'],
+                item_dictionary['objectCategory'],
+                'md5', md5, 'internal',
+                item_dictionary['size'], '', '',
+                authority, pronom_id, 'identification',
+                '', item,
+                'uri', uri,
+                '', '',
+                '',
+                '', '',
+                '',
+                '', '',
+                '',
+                item_dictionary['relationship_structural_isincludedin'],
+                '',
+                '',
+                ''
+            ]
+            ififuncs.append_csv(output, file_data)
     return item_ids
 def representation_description(representation_uuid, item_ids, output):
     '''
     Generate PREMIS descriptions for a representation and write to CSV.
     '''
-
     representation_dictionary = {}
     representation_dictionary['objectIdentifier'] = ['UUID', representation_uuid]
     representation_dictionary['objectCategory'] = 'representation'
@@ -152,7 +150,7 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-i',
-        help='full path of input directory', required=True
+        help='full path of input objects directory', required=True
     )
     parser.add_argument(
         '-o', '-output',
