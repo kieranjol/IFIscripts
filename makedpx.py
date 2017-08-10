@@ -17,6 +17,7 @@ from ififuncs import hashlib_manifest
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
 from ififuncs import generate_log
+from ififuncs import make_desktop_logs_dir
 from premis import make_premis
 from premis import write_premis
 from premis import make_agent
@@ -138,8 +139,8 @@ parser.add_argument(
                     help='full path of output directory', required=True)
 args = parser.parse_args()
 print args
-
-csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
+desktop_logs_dir = make_desktop_logs_dir()
+csv_report_filename = os.path.join(desktop_logs_dir, 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv')
 
 #permission for correct directories sought from user
 permission = ''
