@@ -71,14 +71,16 @@ def make_framemd5(directory, log_filename_alteration, args):
             ffmpeg_friendly_name + time.strftime("%Y_%m_%dT%H_%M_%S")
         )
         basename = ffmpeg_friendly_name
+    logs_dir = output_dirname + '/logs'
+    objects_dir = output_dirname + '/objects'
+    metadata_dir = output_dirname + '/metadata'
     try:
         os.makedirs(output_dirname)
-        os.makedirs(output_dirname + '/logs')
-        os.makedirs(output_dirname + '/md5')
-        os.makedirs(output_dirname + '/video')
-        os.makedirs(output_dirname + '/xml_files')
+        os.makedirs(logs_dir)
+        os.makedirs(objects_dir)
+        os.makedirs(metadata_dir)
     except: OSError
-    output = output_dirname + '/md5/%ssource.framemd5' % (basename)
+    output = output_dirname + '/metadata/%ssource.framemd5' % (basename)
     logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
     logfile = "\'" + logfile + "\'"
     env_dict = set_environment(logfile)
@@ -193,7 +195,7 @@ def main():
             '-slicecrc', '1',
             '-slices', '16',
             '-pix_fmt', pix_fmt,
-            output_dirname +  '/video/' + output_filename + '.mkv'
+            output_dirname +  '/objects/' + output_filename + '.mkv'
         ]
         print ffv12dpx
         transcode_start = datetime.datetime.now()
@@ -206,10 +208,10 @@ def main():
         manifest_textfile = os.path.join(
             os.path.dirname(output_dirname), parent_basename + '_manifest.md5'
         )
-        ffv1_path = output_dirname +  '/video/'  + output_filename + '.mkv'
+        ffv1_path = output_dirname +  '/objects/'  + output_filename + '.mkv'
         width = get_mediainfo('duration', '--inform=Video;%Width%', ffv1_path)
         height = get_mediainfo('duration', '--inform=Video;%Height%', ffv1_path)
-        ffv1_md5 = output_dirname +  '/md5/' + image_seq_without_container + 'ffv1.framemd5'
+        ffv1_md5 = output_dirname +  '/metadata/' + image_seq_without_container + 'ffv1.framemd5'
         ffv1_fmd5_cmd = [
             'ffmpeg',
             '-i', ffv1_path,
