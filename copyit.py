@@ -71,6 +71,7 @@ def remove_bad_files(root_dir, log_name_source):
     '''
     Stolen and adapted from Ben Fino-Radin. Removes annoying files.
     '''
+    print 'Checking if any .Ds_Stores/Thumbs.db or Desktop.ini files exist'
     rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
     for root, _, files in os.walk(root_dir):
         for name in files:
@@ -98,6 +99,7 @@ def make_manifest(
     checksum_list = []
     manifest_generator = ''
     source_counter = 0
+    print 'Counting the amount of files to be processed.'
     for root, directories, filenames in os.walk(manifest_dir):
         directories[:] = [
             d for d in directories if d[0] != '.'
@@ -239,6 +241,7 @@ def diff_report(file1, file2, log_name_source):
     '''
     Analyzes checksum manifests in order to find mismatches.
     '''
+    print 'Comparing manifests to verify file transfer'
     with open(file1, 'r') as file1_manifest:
         sourcelist = file1_manifest.readlines()
     with open(file2, 'r') as file2_manifest:
@@ -332,7 +335,6 @@ def check_for_sip(args):
 
 
 def setup(args_):
-
     '''
     Sets a bunch of filename variables and parses command line.
     some examples:
@@ -441,7 +443,7 @@ def overwrite_check(
 
 def manifest_existence(
         manifest_root, manifest_sidecar,
-        manifest, source_count, file_list, log_name_source, args
+        manifest, source_count, file_list, log_name_source
     ):
     '''
     Checks for the three different kinds of source manifests:
@@ -607,7 +609,7 @@ def main(args_):
     manifest_existence(
         manifest_root, manifest_sidecar,
         manifest, source_count,
-        file_list, log_name_source, args
+        file_list, log_name_source
     )
     manifest_sidecar, manifest, rootpos = control_flow(
         manifest_sidecar, log_name_source, manifest, rootpos, args, source
