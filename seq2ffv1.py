@@ -9,7 +9,6 @@ Create framemd5 values of the source sequence
 Transcode to a single FFV1 in Matroska file
 Create framemd5 values for the FFV1 in Matroska file
 Verify losslessness (There will most likely be a warning about pixel aspect ratio - https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
-Create md5 manifest of everything in your output directory
 Generate CSV log that will be saved to your desktop
 '''
 import subprocess
@@ -19,7 +18,6 @@ import datetime
 import time
 import itertools
 from ififuncs import diff_textfiles
-from ififuncs import make_manifest
 from ififuncs import get_mediainfo
 from ififuncs import create_csv
 from ififuncs import append_csv
@@ -126,10 +124,10 @@ def remove_bad_files(root_dir):
                 if name == i:
                     print '***********************' + 'removing: ' + path
                     os.remove(path)
-def main():
+
+def setup():
     '''
-    Overly long main function that does most of the heavy lifting.
-    This needs to be broken up into smaller functions.
+    Sets up a lot of the variables and filepaths.
     '''
     csv_report_filename = os.path.join(
         os.path.expanduser("~/Desktop/"),
@@ -140,7 +138,6 @@ def main():
     parser.add_argument('source_directory', help='Input directory')
     parser.add_argument('destination', help='Destination directory')
     args = parser.parse_args()
-    source_directory = args.source_directory
     create_csv(csv_report_filename, (
         'Sequence Name', 'Lossless?',
         'Start time', 'Finish Time',
@@ -151,6 +148,90 @@ def main():
         'Sequence Type', 'Width',
         'Height', 'Compression Ratio'
         ))
+    return args, csv_report_filename
+
+def make_ffv1(
+        start_number,
+        dpx_filename,
+        output_dirname,
+        output_filename,
+        image_seq_without_container,
+        parent_basename,
+        env_dict
+    ):
+    '''
+    This launches the image sequence to FFV1/Matroska process
+    as well as framemd5 losslessness verification.
+    '''
+    ffprobe_cmd = [
+        'ffprobe',
+        '-start_number', start_number,
+        '-i', os.path.abspath(dpx_filename),
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries',
+        'stream=pix_fmt',
+        '-of', 'default=noprint_wrappers=1:nokey=1'
+    ]
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    ffv12dpx = [
+        'ffmpeg', '-report',
+        '-f', 'image2',
+        '-framerate', '24',
+        '-start_number', start_number,
+        '-i', os.path.abspath(dpx_filename),
+        '-strict', '-2',
+        '-c:v', 'ffv1',
+        '-level', '3',
+        '-g', '1',
+        '-slicecrc', '1',
+        '-slices', '16',
+        '-pix_fmt', pix_fmt,
+        output_dirname +  '/objects/' + output_filename + '.mkv'
+    ]
+    print ffv12dpx
+    transcode_start = datetime.datetime.now()
+    transcode_start_machine = time.time()
+    subprocess.call(ffv12dpx, env=env_dict)
+    transcode_finish = datetime.datetime.now()
+    transcode_finish_machine = time.time()
+    transcode_time = transcode_finish_machine - transcode_start_machine
+    manifest_textfile = os.path.join(
+        os.path.dirname(output_dirname), parent_basename + '_manifest.md5'
+    )
+    ffv1_path = output_dirname +  '/objects/'  + output_filename + '.mkv'
+    width = get_mediainfo('duration', '--inform=Video;%Width%', ffv1_path)
+    height = get_mediainfo('duration', '--inform=Video;%Height%', ffv1_path)
+    ffv1_md5 = output_dirname +  '/metadata/' + image_seq_without_container + 'ffv1.framemd5'
+    ffv1_fmd5_cmd = [
+        'ffmpeg',
+        '-i', ffv1_path,
+        '-pix_fmt', pix_fmt,
+        '-f', 'framemd5',
+        ffv1_md5
+    ]
+    ffv1_fmd5_logfile = os.path.join(
+        output_dirname, '/logs/%s_ffv1_framemd5.log' % output_filename
+    )
+    ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
+    ffv1_fmd5_env_dict = set_environment(ffv1_fmd5_logfile)
+    subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
+    finish = datetime.datetime.now()
+    return (
+        ffv1_path, ffv1_md5,
+        transcode_time, pix_fmt,
+        width, height,
+        finish, transcode_start,
+        transcode_finish
+    )
+
+def main():
+    '''
+    Overly long main function that does most of the heavy lifting.
+    This needs to be broken up into smaller functions.
+    '''
+    args, csv_report_filename = setup()
+    source_directory = args.source_directory
     for root, _, filenames in os.walk(source_directory):
         source_directory = root # + '/tiff_scans'
         total_size = 0
@@ -168,64 +249,19 @@ def main():
         dpx_filename = info[5]
         sequence_length = info[7]
         output_filename = image_seq_without_container[:-1]
+        parent_basename = os.path.basename(output_dirname)
         logfile = output_dirname + '/logs/%s_ffv1_transcode.log' % output_filename
         logfile = "\'" + logfile + "\'"
         env_dict = set_environment(logfile)
-        ffprobe_cmd = [
-            'ffprobe',
-            '-start_number', start_number,
-            '-i', os.path.abspath(dpx_filename),
-            '-v', 'error',
-            '-select_streams', 'v:0',
-            '-show_entries',
-            'stream=pix_fmt',
-            '-of', 'default=noprint_wrappers=1:nokey=1'
-        ]
-        pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
-        ffv12dpx = [
-            'ffmpeg', '-report',
-            '-f', 'image2',
-            '-framerate', '24',
-            '-start_number', start_number,
-            '-i', os.path.abspath(dpx_filename),
-            '-strict', '-2',
-            '-c:v', 'ffv1',
-            '-level', '3',
-            '-g', '1',
-            '-slicecrc', '1',
-            '-slices', '16',
-            '-pix_fmt', pix_fmt,
-            output_dirname +  '/objects/' + output_filename + '.mkv'
-        ]
-        print ffv12dpx
-        transcode_start = datetime.datetime.now()
-        transcode_start_machine = time.time()
-        subprocess.call(ffv12dpx, env=env_dict)
-        transcode_finish = datetime.datetime.now()
-        transcode_finish_machine = time.time()
-        transcode_time = transcode_finish_machine - transcode_start_machine
-        parent_basename = os.path.basename(output_dirname)
-        manifest_textfile = os.path.join(
-            os.path.dirname(output_dirname), parent_basename + '_manifest.md5'
+        ffv1_path, ffv1_md5, transcode_time, pix_fmt, width, height, finish, transcode_start, transcode_finish = make_ffv1(
+            start_number,
+            dpx_filename,
+            output_dirname,
+            output_filename,
+            image_seq_without_container,
+            parent_basename,
+            env_dict
         )
-        ffv1_path = output_dirname +  '/objects/'  + output_filename + '.mkv'
-        width = get_mediainfo('duration', '--inform=Video;%Width%', ffv1_path)
-        height = get_mediainfo('duration', '--inform=Video;%Height%', ffv1_path)
-        ffv1_md5 = output_dirname +  '/metadata/' + image_seq_without_container + 'ffv1.framemd5'
-        ffv1_fmd5_cmd = [
-            'ffmpeg',
-            '-i', ffv1_path,
-            '-pix_fmt', pix_fmt,
-            '-f', 'framemd5',
-            ffv1_md5
-        ]
-        ffv1_fmd5_logfile = os.path.join(
-            output_dirname, '/logs/%s_ffv1_framemd5.log' % output_filename
-        )
-        ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
-        ffv1_fmd5_env_dict = set_environment(ffv1_fmd5_logfile)
-        subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
-        finish = datetime.datetime.now()
         ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio = float(total_size) / float(os.path.getsize(ffv1_path))
         judgement = diff_textfiles(source_textfile, ffv1_md5)
@@ -282,7 +318,6 @@ def main():
                 width, height,
                 comp_ratio
             ))
-        make_manifest(args.destination, os.path.basename(output_dirname), manifest_textfile)
 
 if __name__ == '__main__':
     main()
