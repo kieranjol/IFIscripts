@@ -28,18 +28,26 @@ def parse_args():
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.'
     )
+    parser.add_argument(
+        '-object_csv', required=True,
+        help='full path of objects csv'
+    )
+    parser.add_argument(
+        '-event_csv', required=True,
+        help='full path of events csv'
+    )
     parsed_args = parser.parse_args()
     return parsed_args
 
 
-def launch_scripts(source):
+def launch_scripts(source, args):
     '''
     Launches premisobjects, logs2premis and premiscsv2xml in input directory
     '''
     for root, _, _ in os.walk(source):
         if os.path.basename(root) == 'objects':
-            objects_csv = 'kelvin.csv'
-            events_csv = 'temp.csv'
+            objects_csv = args.object_csv
+            events_csv = args.event_csv
             uuid_dir = os.path.dirname(root)
             logs_dir = os.path.join(
                 uuid_dir, 'logs'
@@ -67,7 +75,7 @@ def main():
     '''
     args = parse_args()
     source = args.input
-    launch_scripts(source)
+    launch_scripts(source, args)
 
 if __name__ == '__main__':
     main()
