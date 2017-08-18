@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+'''
+A collection of functions that other scripts can use.
+
+'''
 import subprocess
 import sys
 import time
@@ -49,6 +53,21 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     with open(xmlfilename, "w+") as fo:
         xmlvariable = subprocess.check_output(mediainfo_cmd)
         fo.write(xmlvariable)
+
+
+def make_mediaconch(full_path, mediaconch_xmlfile):
+    '''
+    Creates a mediaconch implementation check XML report.
+    '''
+    mediaconch_cmd = [
+        'mediaconch',
+        '-fx',
+        full_path
+    ]
+    print 'Mediaconch is analyzing %s' % full_path
+    mediaconch_output = subprocess.check_output(mediaconch_cmd)
+    with open(mediaconch_xmlfile, 'wb') as xmlfile:
+        xmlfile.write(mediaconch_output)
 
 
 def make_qctools(input):
@@ -487,13 +506,13 @@ def get_user():
     Asks user who they are. Returns a string with their name
     '''
     user = ''
-    if user not in ('1', '2', '3', '4', '5'):
+    if user not in ('1', '2', '3', '4', '5', '6'):
         user = raw_input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+            '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n6. Felix Meehan\n'
         )
-        while user not in ('1', '2', '3', '4', '5'):
+        while user not in ('1', '2', '3', '4', '5', '6'):
             user = raw_input(
-                '\n\n**** Who are you?\nPress 1,2,3,4,5\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n'
+                '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Brian Cash\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Aoife Fitzmaurice\n6. Felix Meehan\n'
             )
     if user == '1':
         user = 'Brian Cash'
@@ -509,6 +528,10 @@ def get_user():
         time.sleep(1)
     elif user == '5':
         user = 'Aoife Fitzmaurice'
+        time.sleep(1)
+    elif user == '6':
+        user = 'Felix Meehan'
+        print 'Cork baiiiiiiii'
         time.sleep(1)
     return user
 
@@ -708,9 +731,7 @@ def manifest_update(manifest, path):
             if root2[0] == '\\':
                 root2 = root2[1:]
         except: IndexError
-        print root2
         manifest_generator += md5[:32] + '  ' + root2.replace("\\", "/") + '\n'
-        print manifest_generator
         for i in original_lines:
             manifest_generator += i
     manifest_list = manifest_generator.splitlines()
@@ -732,7 +753,6 @@ def check_for_uuid(args):
             return os.path.basename(args.i[0])
         else:
             returned_dir = check_for_sip(args.i)
-            print returned_dir
             if returned_dir is None:
                 return False
             uuid_check = os.path.basename(returned_dir)
@@ -766,12 +786,10 @@ def checksum_replace(manifest, logname):
     new_checksum = hashlib_md5(logname)
     with open(manifest, 'r') as manifesto:
         manifest_lines = manifesto.readlines()
-        print manifest_lines, 11
         for lines in manifest_lines:
             if os.path.basename(logname) in lines:
                 lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
             updated_manifest.append(lines)
-    print updated_manifest, 22
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)

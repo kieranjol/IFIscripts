@@ -39,6 +39,7 @@ table of contents
 8. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
 9. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
+    * [ffv1mkvvalidate.py](https://github.com/kieranjol/IFIscripts#ffv1mkvvalidatespy)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
@@ -219,6 +220,13 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Generate QCTools xml.gz sidecar files which will load immediately in QCTools.
 * Usage for single file - `qctools.py filename.mov`
 * Usage for batch processing all videos in a directory - `qctools.py directory_name`
+
+
+### ffv1mkvvalidate.py ###
+* Validates Matroska files using mediaconch.
+* An XML report will be written to the metadata directory.
+* A log will appear on the desktop, which will be merged into the SIP log in /logs.
+* Usage for batch processing all videos in a directory - `ffv1mkvvalidate.py directory_name`
 
 ## Specific Workflows ##
 

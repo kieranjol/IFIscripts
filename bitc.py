@@ -126,19 +126,19 @@ def get_filenames(args):
     # Input, either file or firectory, that we want to process.
     # Store the directory containing the input file/directory.
     wd = os.path.dirname(cli_input)
+    video_files = []
     if wd == '':
         cli_input = os.path.join(os.getcwd(), args.input)
     # Check if input is a file.
     # AFAIK, os.path.isfile only works if full path isn't present.
     if os.path.isfile(cli_input):
-        video_files = []                       # Create empty list
         video_files.append(cli_input)  # Add filename to list
     # Check if input is a directory.
     elif os.path.isdir(cli_input):
         for files in os.listdir(cli_input):
             if files.endswith(('.mov', '.mp4', '.mxf', '.mkv', '.avi')):
                 if files[0] != '.':
-                    files.append(video_files)
+                    video_files.append(os.path.join(cli_input,files))
     # Prints some stuff if input isn't a file or directory.
     else:
         print "Your input isn't a file or a directory."
