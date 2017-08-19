@@ -9,7 +9,9 @@ table of contents
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreator)
 3. [PREMIS](https://github.com/kieranjol/IFIscripts#PREMIS)
     * [premisobjects.py](https://github.com/kieranjol/IFIscripts#premisobjectspy)
-    * [premiscsv.py](https://github.com/kieranjol/IFIscripts#premiscsvpy)
+    * [logs2premis.py](https://github.com/kieranjol/IFIscripts#logs2premispy)
+    * [makepremis.py](https://github.com/kieranjol/IFIscripts#makepremispremispy)
+    * [premiscsv2xml.py](https://github.com/kieranjol/IFIscripts#premiscsv2xmlpy)
 4. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -74,18 +76,28 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ## PREMIS ##
 
+### makepremis.py ###
+* Creates PREMIS CSV and XML descriptions by launching other IFIscripts, such as logs2premis.py, premisobjects.py, premiscsv2xml.py.
+* Assumptions for now: representation UUID already exists as part of the SIP/AIP folder structure. Find a way to supply this, probably via argparse.
+* For more information, run `pydoc makepremis `
+* Usage: `makepremis.py -event_csv path/to/events.csv -object_csv path/to/objects.csv`
+
 ### premisobjects.py ###
 * Creates a somewhat PREMIS compliant CSV file describing objects in a package. A seperate script will need to be written in order to transform these CSV files into XML.
-* As the flat CSV structure prevents maintaining some of the complex relationships between units, some semantic units have been merged, for example:`relationship_structural_includes` is really a combination of the `relationshipType` and `relationshipSubType` units, which each have the values: `Structural` and `Includes` respectively.
+* As the flat CSV structure prevents maintaining some of the relationships between units, some semantic units have been merged, for example:`relationship_structural_includes` is really a combination of the `relationshipType` and `relationshipSubType` units, which each have the values: `Structural` and `Includes` respectively.
 * Assumptions for now: representation UUID already exists as part of the SIP/AIP folder structure. Find a way to supply this, probably via argparse.
-* For more information, run `pydoc premisobjects `
-* Usage: `premiscsv.py path/to/SIP path/to/manifest.md5`
+* For more information, run `pydoc premisobjects`
+* Usage: `premisobjects.py -i path/to/SIP -m path/to/manifest.md5 -o path/to/output.csv`
 
-### premiscsv.py ###
+### logs2premis.py ###
 * Extracts preservation events from an IFI plain text log file and converts to a CSV using the PREMIS data dictionary.
 * For more information, run `pydoc premiscsv`
-* Usage: - `premiscsv.py path/to/logfile.log`
+* Usage: - `premiscsv.py -i  path/to/logfile.log -o path/to/output.csv -object_csv path/to/objects.csv`
 
+### premiscsv2xml.py ###
+* Transforms PREMIS csv files into XML.
+* For more information, run `pydoc premiscsv2xml`
+* Usage: `premiscsv2xml.py -ev path/to/events.csv -i path/to/objects.csv`
 
 
 ## Transcodes ##
