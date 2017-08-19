@@ -26,14 +26,11 @@ from ififuncs import get_ffmpeg_friendly_name
 
 
 
-def read_non_comment_lines(infile):
+def read_lines(infile):
     '''
-    This looks like I just copy pasted from stack overflow.
-    There is a commented line here that actually negates the usefulness of this
-    function, in that it doesn't discard commented lines. To be investgated.
+    Returns line number and text from an textfile.
     '''
     for lineno, line in enumerate(infile):
-        #if line[:1] != "#":
         yield lineno, line
 
 
@@ -267,10 +264,10 @@ def main():
         judgement = diff_textfiles(source_textfile, ffv1_md5)
         fps = float(sequence_length) / float(transcode_time)
         checksum_mismatches = []
-        with open(source_textfile) as f1:
-            with open(ffv1_md5) as f2:
+        with open(source_textfile) as source_md5_object:
+            with open(ffv1_md5) as ffv1_md5_object:
                 for (lineno1, line1), (lineno2, line2) in itertools.izip(
-                        read_non_comment_lines(f1), read_non_comment_lines(f2)
+                        read_lines(source_md5_object), read_lines(ffv1_md5_object)
                 ):
                     if line1 != line2:
                         if 'sar' in line1:
