@@ -39,33 +39,7 @@ def make_framemd5(directory, log_filename_alteration, args):
     '''
     Apparently this makes framemd5s. But it clearly does a lot more.
     '''
-    images = get_image_sequence_files(directory)
-    if images == 'none':
-        return 'none'
-    sequence_length = len(images)
-    ffmpeg_friendly_name, container, start_number = get_ffmpeg_friendly_name(images)
-    output_parent_directory = args.destination
-    if start_number == '864000':
-        output_dirname = os.path.join(
-            output_parent_directory,
-            os.path.basename(directory) + time.strftime("%Y_%m_%dT%H_%M_%S")
-        )
-        basename = os.path.basename(directory)
-    else:
-        output_dirname = os.path.join(
-            output_parent_directory,
-            ffmpeg_friendly_name + time.strftime("%Y_%m_%dT%H_%M_%S")
-        )
-        basename = ffmpeg_friendly_name
-    logs_dir = output_dirname + '/logs'
-    objects_dir = output_dirname + '/objects'
-    metadata_dir = output_dirname + '/metadata'
-    try:
-        os.makedirs(output_dirname)
-        os.makedirs(logs_dir)
-        os.makedirs(objects_dir)
-        os.makedirs(metadata_dir)
-    except: OSError
+    sequence_length, basename, ffmpeg_friendly_name, start_number, images, container, output_dirname = make_folder_structure(directory, args)
     output = output_dirname + '/metadata/%ssource.framemd5' % (basename)
     logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
     logfile = "\'" + logfile + "\'"
@@ -121,8 +95,12 @@ def setup():
         os.path.expanduser("~/Desktop/"),
         'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
     )
-    parser = argparse.ArgumentParser(description='Transcode all DPX or TIFF image sequence in the subfolders of your source directory to FFV1 Version 3 in a Matroska Container. A CSV report is generated on your desktop.'
-                                     ' Written by Kieran O\'Leary.')
+    parser = argparse.ArgumentParser(description='Transcode all DPX or TIFF'
+                                    ' image sequence in the subfolders of your'
+                                    ' source directory to FFV1 Version 3'
+                                    ' in a Matroska Container.'
+                                    'CSV report is generated on your desktop.'
+                                    ' Written by Kieran O\'Leary.')
     parser.add_argument('source_directory', help='Input directory')
     parser.add_argument('destination', help='Destination directory')
     args = parser.parse_args()
@@ -137,6 +115,37 @@ def setup():
         'Height', 'Compression Ratio'
         ))
     return args, csv_report_filename
+
+
+def make_folder_structure(directory, args):
+    images = get_image_sequence_files(directory)
+    if images == 'none':
+        return 'none'
+    sequence_length = len(images)
+    ffmpeg_friendly_name, container, start_number = get_ffmpeg_friendly_name(images)
+    output_parent_directory = args.destination
+    if start_number == '864000':
+        output_dirname = os.path.join(
+            output_parent_directory,
+            os.path.basename(directory) + time.strftime("%Y_%m_%dT%H_%M_%S")
+        )
+        basename = os.path.basename(directory)
+    else:
+        output_dirname = os.path.join(
+            output_parent_directory,
+            ffmpeg_friendly_name + time.strftime("%Y_%m_%dT%H_%M_%S")
+        )
+        basename = ffmpeg_friendly_name
+    logs_dir = output_dirname + '/logs'
+    objects_dir = output_dirname + '/objects'
+    metadata_dir = output_dirname + '/metadata'
+    try:
+        os.makedirs(output_dirname)
+        os.makedirs(logs_dir)
+        os.makedirs(objects_dir)
+        os.makedirs(metadata_dir)
+    except: OSError
+    return sequence_length, basename, ffmpeg_friendly_name, start_number, images, container, output_dirname
 
 def make_ffv1(
         start_number,
@@ -213,15 +222,9 @@ def make_ffv1(
         transcode_finish
     )
 
-def main():
-    '''
-    Overly long main function that does most of the heavy lifting.
-    This needs to be broken up into smaller functions.
-    '''
-    args, csv_report_filename = setup()
-    source_directory = args.source_directory
-    for root, _, filenames in os.walk(source_directory):
-        source_directory = root # + '/tiff_scans'
+def run_loop(args, csv_report_filename):
+    for root, _, filenames in os.walk(args.source_directory):
+        source_directory = root
         total_size = 0
         start = datetime.datetime.now()
         info = make_framemd5(source_directory, 'dpx_framemd5', args)
@@ -306,6 +309,14 @@ def main():
                 width, height,
                 comp_ratio
             ))
+def main():
+    '''
+    Overly long main function that does most of the heavy lifting.
+    This needs to be broken up into smaller functions.
+    '''
+    args, csv_report_filename = setup()
+    run_loop(args, csv_report_filename)
+
 
 if __name__ == '__main__':
     main()
