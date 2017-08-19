@@ -12,6 +12,8 @@ from datetime import datetime
 import hashlib
 import time
 from time import sleep
+import unidecode
+import codecs
 
 #1
 
@@ -75,7 +77,7 @@ def digest_with_progress(filename, chunk_size):
     f.close()
     return digest.hexdigest()
 
-create_csv(csv_report, ('Filename' , 'Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
+create_csv(csv_report, ('Filename' , 'Series_Title', 'Prog_Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
 #6
 
 if checkfile == True:
@@ -104,34 +106,31 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
             print 'No XML file exists.'
         #8.3
         
+        print "Generating md5 for ", filename
+        
+    #print digest_with_progress(full_path, 1024)  
+        mxf_checksum = str(digest_with_progress(full_path, 1024))
+                
         
         dpp_xml_parse = etree.parse(full_xml_path)
         dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
         
         #parsed values
-        checksum = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
+        series_title = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
         prog_title = dpp_xml_parse.findtext('//ns:ProgrammeTitle', namespaces={'ns':dpp_xml_namespace })
         ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
         checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
         #12
-     
         
-        
-        print "Generating md5 for ", filename
-        
-    #print digest_with_progress(full_path, 1024)  
-        mxf_checksum = str(digest_with_progress(full_path, 1024))
         #13
-print 'Generating Report....  \n',
-
+        print 'Generating Report....  \n'
+       
+        if mxf_checksum == checksum:            
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))       
+        else:            
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))         #14
         
-        
-
-if mxf_checksum == checksum:
-    append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
-else:
-    append_csv(csv_report,(filename, prog_title, ep_num, checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
-         #14
+       
 
 print "Report complete - Time elaspsed : ", datetime.now() - startTime
         

@@ -5,21 +5,24 @@ table of contents
 -------------------
 
 1. [summary](https://github.com/kieranjol/IFIscripts#summary)
-2. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
+2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
+    * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
+3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
     * [prores.py](https://github.com/kieranjol/IFIscripts#prorespy)
-3. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
+    * [concat.py](https://github.com/kieranjol/IFIscripts#concatpy)
+4. [Digital Cinema Package Scripts](https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts)
 	* [dcpaccess.py](https://github.com/kieranjol/IFIscripts#dcpaccesspy)
     * [dcpfixity.py](https://github.com/kieranjol/IFIscripts#dcpfixitypy)
     * [dcpsubs2srt.py](https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy)
-4. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
-    * [moveit.py](https://github.com/kieranjol/IFIscripts#moveitpy)
+5. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
+    * [copyit.py](https://github.com/kieranjol/IFIscripts#copyitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
     * [batchfixity.py](https://github.com/kieranjol/IFIscripts#batchfixitypy)
-5. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
+6. [Image Sequences](https://github.com/kieranjol/IFIscripts#image-sequences)
     * [makedpx.py](https://github.com/kieranjol/IFIscripts#makedpxpy)
     * [seq2ffv1.py](https://github.com/kieranjol/IFIscripts#seq2ffv1py)
     * [seq2prores.py](https://github.com/kieranjol/IFIscripts#seq2prorespy)
@@ -30,14 +33,20 @@ table of contents
     * [seq2dv.py](https://github.com/kieranjol/IFIscripts#seq2dvpy)
     * [batchmetadata.py](https://github.com/kieranjol/IFIscripts#batchmetadata)
 	* [batchrename.py](https://github.com/kieranjol/IFIscripts#batchrename)
-5. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
+7. [Quality Control](https://github.com/kieranjol/IFIscripts#quality-control)
     * [qctools.py](https://github.com/kieranjol/IFIscripts#qctoolspy)
-6. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
+    * [ffv1mkvvalidate.py](https://github.com/kieranjol/IFIscripts#ffv1mkvvalidatespy)
+8. [Specific Workflows](https://github.com/kieranjol/IFIscripts#specific-workflows)
     * [mezzaninecheck.py](https://github.com/kieranjol/IFIscripts#mezzaninecheckpy)
-7. [Misc](https://github.com/kieranjol/IFIscripts#misc)
+    * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
+    * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
+    * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
+9. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
-8. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
+    * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
+    * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
+10. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
@@ -49,6 +58,16 @@ Scripts for use in the IFI Irish Film Archive. Scripts have been tested in OSX/W
 Most scripts take either a file or a directory as their input, for example `makeffv1.py filename.mov` or `premis.py path/to/folder_of_stuff`. (It's best to just drag and drop the folder or filename into the terminal)
 
 Note: Documentation template has been copied from [mediamicroservices](https://github.com/mediamicroservices/mm)
+
+## Arrangement ##
+
+### sipcreator.py ###
+* Accepts one or more files or directories as input and wraps them up in a directory structure in line with IFI procedures using `copyit.py`.
+* Source objects will be stored in an /objects directory. Directory structure is: parent directory named with a UUID, with three child directories (objects, logs metadata):
+* Metadata is extracted for the AV material and MD5 checksums are stored for the entire package. A log records the major events in the process.
+* Usage for one directory - `sipcreator.py -i /path/to/directory_name -o /path/to/output_folder`
+* Usage for more than one directory - `sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder`
+* Run `sipcreator.py -h` for all options.
 
 ## Transcodes ##
 
@@ -69,6 +88,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for batch processing all videos in a directory - `prores.py directory_name`
 * This script has many extra options, such as deinterlacing, quality settings, rescaling. Use `prores.py -h` to see all options
 
+### concat.py ###
+* Concatenate/join video files together using ffmpeg stream copy into a single Matroska container. Each source clip will have its own chapter marker. As the streams are copied, the speed is quite fast.
+* Usage: `concat.py -i /path/to/filename1.mov /path/to/filename2.mov -o /path/to/destination_folder`
+* A lossless verification process will also run, which takes stream level checksums of all streams and compares the values. This is not very reliable at the moment.
+* Warning - video files must have the same technical attributes such as codec, width, height, fps. Some characters in filenames will cause the script to fail. Some of these include quotes. The script will ask the user if quotes should be renamed with underscores. Also, a temporary concatenation textfile will be stored in your temp folder. Currently only tested on Ubuntu.
+* Dependencies: mkvpropedit, ffmpeg.
 ## Digital Cinema Package Scripts ##
 
 ### dcpaccess.py ###
@@ -90,8 +115,8 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 
 ## Fixity Scripts ##
 
-### moveit.py ###
-* Copies a directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories.
+### copyit.py ###
+* Copies a file or directory, creating a md5 manifest at source and destination and comparing the two. Skips hidden files and directories.
 * Usage: ` moveit.py source_dir destination_dir`
 * Dependencies:  OSX requires gcp - `brew install coreutils`
 
@@ -177,12 +202,35 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for single file - `qctools.py filename.mov`
 * Usage for batch processing all videos in a directory - `qctools.py directory_name`
 
+
+### ffv1mkvvalidate.py ###
+* Validates Matroska files using mediaconch.
+* An XML report will be written to the metadata directory.
+* A log will appear on the desktop, which will be merged into the SIP log in /logs.
+* Usage for batch processing all videos in a directory - `ffv1mkvvalidate.py directory_name`
+
 ## Specific Workflows ##
 
 ### mezzaninecheck.py ###
 * Checks folders in order to see if either 0 or >1 files exist in a mezzanine/objects folder.
 * 
-* Usage: `treatedaudio.py /path/to/parent_folder`
+* Usage: `mezzaninecheck.py /path/to/parent_folder`
+
+### loopline.py ###
+* Workflow specific to the Loopline project.
+* makeffv1.py and bitc.py are run on the input, unless a DV file is present, in which case bitc.py and dvsip.py will be run.
+* A proxies folder for the h264 files will be created within your parent folder if it does not already exist.
+* Usage: `loopline.py /path/to/parent_folder` or `loopline.py /path/to/file`
+
+### masscopy.py ###
+* Copies all directories in your input location using moveit.py ONLY if a manifest sidecar already exists.
+* This is useful if a lot of SIPs produced by makeffv1 are created and you want to move them all to another location while harnessing the pre-existing checksum manifest.
+* WARNING - It is essential to check the log file on the desktop/ifiscripts_logs for each folder that transferred!!
+* Usage: `masscopy.py /path/to/parent_folder -o /path/to/destination_folder`
+
+### dvsip.py ###
+* Creates SIP for DV video files. Generates objects/logs/metadata dirs and creates mediatrace, mediainfo, framemd5, logfiles, MD5 sidecar and moves the DV file into the objects directory.
+* Usage: `dvsip.py /path/to/parent_folder` or `dvsip.py /path/to/file`
 
 ## Misc ##
 
@@ -193,6 +241,14 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### giffer.py ###
 * Makes a 24fps 500px gif of the input file.
 * Usage: `giffer.py /path/to/input`
+
+### makeuuid.py ###
+* Prints a new UUID to the terminal via the UUID python module and the create_uuid() helper function within ififuncs.
+* Usage: `makeuuid.py`
+
+### durationcheck.py ###
+* Recursive search through subdirectories and provides total duration in minutes. Accepts multiple inputs but provides the total duration of all inputs.
+* Usage: `durationcheck.py /path/to/parent_folder` or `durationcheck.py /path/to/parent_folder1 /path/to/parent_folder2 /path/to/parent_folder3` 
 
 ## Experimental-Premis ##
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import lxml.etree as ET
 import subprocess
 import sys
 import os
@@ -17,13 +16,6 @@ from ififuncs import hashlib_manifest
 from ififuncs import diff_textfiles
 from ififuncs import make_manifest
 from ififuncs import generate_log
-from ififuncs import make_desktop_logs_dir
-from premis import make_premis
-from premis import write_premis
-from premis import make_agent
-from premis import make_event
-from premis import setup_xml
-from premis import create_unit
 
 
 '''''
@@ -139,8 +131,8 @@ parser.add_argument(
                     help='full path of output directory', required=True)
 args = parser.parse_args()
 print args
-desktop_logs_dir = make_desktop_logs_dir()
-csv_report_filename = os.path.join(desktop_logs_dir, 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv')
+
+csv_report_filename = os.path.expanduser("~/Desktop/") + 'dpx_transcode_report' + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.csv'
 
 #permission for correct directories sought from user
 permission = ''
@@ -176,7 +168,16 @@ elif user == '3':
     time.sleep(1)
 
 create_csv(csv_report_filename, ('Sequence Name', 'Lossless?', 'Start time', 'Finish Time'))
+space_counter = 0
 for source_directory in all_files:
+    for root,dirnames,filenames in os.walk(source_directory):
+        for folders in dirnames:
+            if ' ' in folders:
+                print 'Space found in %s - DELETE IT PLEASE' % os.path.join(root,folders)
+                space_counter += 1
+    if space_counter > 0:
+        sys.exit()
+
     for root,dirnames,filenames in os.walk(source_directory):
             source_directory = root
             if not file_check(source_directory) == 'TIFF':
@@ -184,17 +185,14 @@ for source_directory in all_files:
                 continue
 
             root_dir = os.path.dirname(os.path.dirname(root))
-            general_log = root_dir + '/logs/image/%s_image_log.log' % os.path.basename(root_dir)
+            general_log = root_dir + '/logs/image/%s__second_pass_image_log.log' % os.path.basename(root_dir)
             generate_log(general_log, 'Input = %s' % root)
-            remove_bad_files(source_directory)
             source_parent_dir           = os.path.dirname(source_directory)
             normpath                    = os.path.normpath(source_directory)
             relative_path               = normpath.split(os.sep)[-1]
             split_path                  = os.path.split(os.path.basename(source_directory))[1]
             start                       = datetime.datetime.now()
             source_manifest             = root_dir + '/%s_manifest.md5' % relative_path
-            generate_log(general_log, 'Generating source manifest via md5deep and storing as  %s' % source_manifest)
-            make_manifest(root_dir, root_dir, source_manifest)
             info                        = make_framemd5(source_directory, 'tiff', 'tiff_framemd5')
             output_dirname              = info[0]
             source_textfile             = info[1]
@@ -222,9 +220,4 @@ for source_directory in all_files:
             source_metadata_dir = root_dir + '/metadata/image'
             shutil.copy(source_textfile, source_metadata_dir + '/%s' % os.path.basename(source_textfile))
             finish = datetime.datetime.now()
-            '''
-            begin premis
-            '''
-            premis_log(source_parent_dir, source_directory)
-
             append_csv(csv_report_filename, (parent_basename,judgement, start, finish))
