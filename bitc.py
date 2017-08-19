@@ -60,11 +60,13 @@ def set_options():
     )
     parser.add_argument(
         '-crf',
-        help='Set quality. Default is 23, lower number = large file/high quality, high number = small file/poor quality'
+        help='Set quality. Default is 23, lower number ='
+        ' large file/high quality, high number = small file/poor quality'
     )
     parser.add_argument(
         '-o',
-        help='Set output directory. The default directory is the same directory as input.'
+        help='Set output directory.'
+        'The default directory is the same directory as input.'
     )
     parser.add_argument(
         '-scale',
@@ -138,7 +140,7 @@ def get_filenames(args):
         for files in os.listdir(cli_input):
             if files.endswith(('.mov', '.mp4', '.mxf', '.mkv', '.avi')):
                 if files[0] != '.':
-                    video_files.append(os.path.join(cli_input,files))
+                    video_files.append(os.path.join(cli_input, files))
     # Prints some stuff if input isn't a file or directory.
     else:
         print "Your input isn't a file or a directory."
@@ -159,12 +161,20 @@ def setup_drawtext(args, filename):
         font_path = "fontfile=/usr/share/fonts/truetype/freefont/FreeSerifBold.ttf"
     elif sys.platform == "win32":
         font_path = "'fontfile=C\:\\\Windows\\\Fonts\\\\'arial.ttf'"
-    # Get starting timecode in a raw state that requires processing further on in the script.
-    timecode_test_raw = getffprobe('timecode_test_raw', 'format_tags=timecode:stream_tags=timecode', filename)
-    framerate = getffprobe('get_frame_rate', 'stream=avg_frame_rate', filename).rstrip()
+    # Get starting timecode
+    timecode_test_raw = getffprobe(
+        'timecode_test_raw',
+        'format_tags=timecode:stream_tags=timecode',
+        filename
+    )
+    framerate = getffprobe(
+        'get_frame_rate',
+        'stream=avg_frame_rate',
+        filename
+    ).rstrip()
     # This tests if there is actually a timecode present in the file.
     if not timecode_test_raw:
-        # The timecode needs to be phrased in a way unique to each operating system.
+        # The timecode needs to be phrased in a way unique to each O.S.
         # Note the backslashes.
         # This section makes up a timecode if none is present in the file.
         if sys.platform == "darwin" or sys.platform == "linux2":

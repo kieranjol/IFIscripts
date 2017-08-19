@@ -2,11 +2,8 @@
 '''
 Launches copyit.py for subfolders that have md5 anifests.
 '''
-import sys
 import os
-import subprocess
 import argparse
-import time
 import copyit
 from ififuncs import make_desktop_logs_dir
 
@@ -79,7 +76,9 @@ def find_manifest(args):
                 )
                 if os.path.isdir(full_subdirectory_path):
                     manifest = os.path.join(
-                        os.path.dirname(full_subdirectory_path), subdirectories + '_manifest.md5'
+                        os.path.dirname(
+                            full_subdirectory_path
+                        ), subdirectories + '_manifest.md5'
                         )
                     if os.path.isfile(manifest):
                         dirlist.append(os.path.dirname(full_subdirectory_path))
@@ -101,7 +100,8 @@ def analyze_reports(log_names, desktop_logs_dir):
                 # look at log filename minus the seconds and '.log'
                 if os.path.basename(i)[:-7] in logs:
                     # make sure that the alternate log filename is more recent
-                    if int(os.path.basename(logs)[-12:-4].replace('_', '')) > int(os.path.basename(i)[-12:-4].replace('_', '')):
+                    if int(
+                        os.path.basename(logs)[-12:-4].replace('_', '')) > int(os.path.basename(i)[-12:-4].replace('_', '')):
                         print 'trying to analyze %s' % logs
                         print "%-*s   : %s" % (50, os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir, logs)))
 
@@ -126,10 +126,14 @@ def main():
         else:
             desktop_logs_dir = make_desktop_logs_dir()
             if args.l:
-                log_name = copyit.main(['-l', os.path.join(args.input, i), args.o])
+                log_name = copyit.main(
+                    ['-l', os.path.join(args.input, i), args.o]
+                )
                 log_names.append(log_name)
             else:
-                log_name = copyit.main([ os.path.join(args.input, i), args.o])
+                log_name = copyit.main(
+                    [os.path.join(args.input, i), args.o]
+                )
                 log_names.append(log_name)
             processed_dirs.append(os.path.basename(os.path.join(args.input, i)))
             print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
