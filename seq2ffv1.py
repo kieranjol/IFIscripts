@@ -17,6 +17,7 @@ import argparse
 import datetime
 import time
 import itertools
+import ififuncs
 from ififuncs import diff_textfiles
 from ififuncs import get_mediainfo
 from ififuncs import create_csv
@@ -32,16 +33,6 @@ def read_lines(infile):
     '''
     for lineno, line in enumerate(infile):
         yield lineno, line
-
-
-def set_environment(logfile):
-    '''
-    Sets environment variable for ffmpeg logfile. Should be moved to ififuncs.
-    '''
-    env_dict = os.environ.copy()
-    # https://github.com/imdn/scripts/blob/0dd89a002d38d1ff6c938d6f70764e6dd8815fdd/ffmpy.py#L272
-    env_dict['FFREPORT'] = 'file={}:level=48'.format(logfile)
-    return env_dict
 
 
 def make_framemd5(directory, log_filename_alteration, args):
@@ -78,7 +69,7 @@ def make_framemd5(directory, log_filename_alteration, args):
     output = output_dirname + '/metadata/%ssource.framemd5' % (basename)
     logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
     logfile = "\'" + logfile + "\'"
-    env_dict = set_environment(logfile)
+    env_dict = ififuncs.set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
     start_number_length = len(start_number)
     number_regex = "%0" + str(start_number_length) + 'd.'
@@ -208,10 +199,10 @@ def make_ffv1(
         ffv1_md5
     ]
     ffv1_fmd5_logfile = os.path.join(
-        output_dirname, '/logs/%s_ffv1_framemd5.log' % output_filename
+        output_dirname, 'logs/%s_ffv1_framemd5.log' % output_filename
     )
     ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
-    ffv1_fmd5_env_dict = set_environment(ffv1_fmd5_logfile)
+    ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
     subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
     finish = datetime.datetime.now()
     return (
@@ -249,7 +240,7 @@ def main():
         parent_basename = os.path.basename(output_dirname)
         logfile = output_dirname + '/logs/%s_ffv1_transcode.log' % output_filename
         logfile = "\'" + logfile + "\'"
-        env_dict = set_environment(logfile)
+        env_dict = ififuncs.set_environment(logfile)
         ffv1_path, ffv1_md5, transcode_time, pix_fmt, width, height, finish, transcode_start, transcode_finish = make_ffv1(
             start_number,
             dpx_filename,
