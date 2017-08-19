@@ -2,13 +2,17 @@
 
 '''
 Usage: seq2ffv1.py source_parent_directory output_directory
-The script will look through all subdirectories beneath the source_parent_directory for a DPX or image sequence.
+The script will look through all subdirectories beneath the
+source_parent_directory for a DPX or image sequence.
 The script will then:
-Create folder structure for each image sequence in your designated output_directory
+Create folder structure for each image sequence in
+your designated output_directory.
 Create framemd5 values of the source sequence
 Transcode to a single FFV1 in Matroska file
 Create framemd5 values for the FFV1 in Matroska file
-Verify losslessness (There will most likely be a warning about pixel aspect ratio - https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
+Verify losslessness
+(There will most likely be a warning about pixel aspect ratio
+- https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
 Generate CSV log that will be saved to your desktop
 '''
 import subprocess
@@ -39,9 +43,19 @@ def make_framemd5(directory, log_filename_alteration, args):
     '''
     Apparently this makes framemd5s. But it clearly does a lot more.
     '''
-    sequence_length, basename, ffmpeg_friendly_name, start_number, images, container, output_dirname = make_folder_structure(directory, args)
+    (
+    sequence_length,
+    basename,
+    ffmpeg_friendly_name,
+    start_number,
+    images,
+    container,
+    output_dirname) = make_folder_structure(directory, args)
     output = output_dirname + '/metadata/%ssource.framemd5' % (basename)
-    logfile = output_dirname + '/logs/%s%s.log' % (basename, log_filename_alteration)
+    logfile = output_dirname + '/logs/%s%s.log' % (
+        basename,
+        log_filename_alteration
+    )
     logfile = "\'" + logfile + "\'"
     env_dict = ififuncs.set_environment(logfile)
     image_seq_without_container = ffmpeg_friendly_name
@@ -118,11 +132,16 @@ def setup():
 
 
 def make_folder_structure(directory, args):
+    '''
+    Creates output folder structure and sets more variables
+    '''
     images = get_image_sequence_files(directory)
     if images == 'none':
         return 'none'
     sequence_length = len(images)
-    ffmpeg_friendly_name, container, start_number = get_ffmpeg_friendly_name(images)
+    (ffmpeg_friendly_name,
+    container,
+    start_number) = get_ffmpeg_friendly_name(images)
     output_parent_directory = args.destination
     if start_number == '864000':
         output_dirname = os.path.join(
@@ -144,8 +163,15 @@ def make_folder_structure(directory, args):
         os.makedirs(logs_dir)
         os.makedirs(objects_dir)
         os.makedirs(metadata_dir)
-    except: OSError
-    return sequence_length, basename, ffmpeg_friendly_name, start_number, images, container, output_dirname
+    except OSError:
+        print 'directories already exist'
+    return (sequence_length,
+            basename,
+            ffmpeg_friendly_name,
+            start_number,
+            images,
+            container,
+            output_dirname)
 
 def make_ffv1(
         start_number,
@@ -153,7 +179,6 @@ def make_ffv1(
         output_dirname,
         output_filename,
         image_seq_without_container,
-        parent_basename,
         env_dict
     ):
     '''
@@ -193,13 +218,13 @@ def make_ffv1(
     transcode_finish = datetime.datetime.now()
     transcode_finish_machine = time.time()
     transcode_time = transcode_finish_machine - transcode_start_machine
-    manifest_textfile = os.path.join(
-        os.path.dirname(output_dirname), parent_basename + '_manifest.md5'
-    )
     ffv1_path = output_dirname +  '/objects/'  + output_filename + '.mkv'
     width = get_mediainfo('duration', '--inform=Video;%Width%', ffv1_path)
     height = get_mediainfo('duration', '--inform=Video;%Height%', ffv1_path)
-    ffv1_md5 = output_dirname +  '/metadata/' + image_seq_without_container + 'ffv1.framemd5'
+    ffv1_md5 = os.path.join(
+        output_dirname +  '/metadata',
+        image_seq_without_container + 'ffv1.framemd5'
+    )
     ffv1_fmd5_cmd = [
         'ffmpeg',
         '-i', ffv1_path,
@@ -223,6 +248,10 @@ def make_ffv1(
     )
 
 def run_loop(args, csv_report_filename):
+    '''
+    Launches a recursive loop to process all images sequences in your
+    subdirectories.
+    '''
     for root, _, filenames in os.walk(args.source_directory):
         source_directory = root
         total_size = 0
@@ -241,16 +270,26 @@ def run_loop(args, csv_report_filename):
         sequence_length = info[7]
         output_filename = image_seq_without_container[:-1]
         parent_basename = os.path.basename(output_dirname)
-        logfile = output_dirname + '/logs/%s_ffv1_transcode.log' % output_filename
+        logfile = os.path.join(
+            output_dirname,
+            'logs/%s_ffv1_transcode.log' % output_filename
+        )
         logfile = "\'" + logfile + "\'"
         env_dict = ififuncs.set_environment(logfile)
-        ffv1_path, ffv1_md5, transcode_time, pix_fmt, width, height, finish, transcode_start, transcode_finish = make_ffv1(
+        (ffv1_path,
+         ffv1_md5,
+         transcode_time,
+         pix_fmt,
+         width,
+         height,
+         finish,
+         transcode_start,
+         transcode_finish) = make_ffv1(
             start_number,
             dpx_filename,
             output_dirname,
             output_filename,
             image_seq_without_container,
-            parent_basename,
             env_dict
         )
         ffv1_size = os.path.getsize(ffv1_path)
@@ -260,47 +299,61 @@ def run_loop(args, csv_report_filename):
         checksum_mismatches = []
         with open(source_textfile) as source_md5_object:
             with open(ffv1_md5) as ffv1_md5_object:
-                for (lineno1, line1), (lineno2, line2) in itertools.izip(
-                        read_lines(source_md5_object), read_lines(ffv1_md5_object)
+                for (line1), (line2) in itertools.izip(
+                    read_lines(source_md5_object), read_lines(ffv1_md5_object)
                 ):
                     if line1 != line2:
                         if 'sar' in line1:
                             checksum_mismatches = ['sar']
                         else:
                             checksum_mismatches.append(1)
-        if len(checksum_mismatches) == 0:
-            print 'LOSSLESS'
-            append_csv(
-                csv_report_filename, (
-                    parent_basename, judgement,
-                    start, finish,
-                    transcode_start, transcode_finish,
-                    transcode_time, sequence_length,
-                    fps, total_size,
-                    ffv1_size, pix_fmt,
-                    container, width,
-                    height, comp_ratio
-                )
-            )
+        log_results(
+            checksum_mismatches,
+            csv_report_filename,
+            parent_basename,
+            judgement,
+            start, finish,
+            transcode_start, transcode_finish,
+            transcode_time, sequence_length,
+            fps, total_size,
+            ffv1_size, pix_fmt,
+            container, width,
+            height, comp_ratio)
 
-        elif len(checksum_mismatches) == 1:
-            if checksum_mismatches[0] == 'sar':
-                print 'Image content is lossless, Pixel Aspect Ratio has been altered - This is mostly likely because your source had no pixel aspect ratio information, and Matroska is specifying 1:1. https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html '
-                append_csv(csv_report_filename, (
-                    parent_basename, 'LOSSLESS - different PAR',
-                    start, finish, transcode_start,
-                    transcode_finish, transcode_time,
-                    sequence_length, fps,
-                    total_size, ffv1_size,
-                    pix_fmt, container,
-                    width, height,
-                    comp_ratio
-                )
-                          )
-        elif len(checksum_mismatches) > 1:
-            print 'NOT LOSSLESS'
-            append_csv(csv_report_filename, (
+
+def log_results(
+    checksum_mismatches,
+    csv_report_filename,
+    parent_basename,
+    judgement,
+    start, finish,
+    transcode_start, transcode_finish,
+    transcode_time, sequence_length,
+    fps, total_size,
+    ffv1_size, pix_fmt,
+    container, width,
+    height, comp_ratio
+):
+    if len(checksum_mismatches) == 0:
+        print 'LOSSLESS'
+        append_csv(
+            csv_report_filename, (
                 parent_basename, judgement,
+                start, finish,
+                transcode_start, transcode_finish,
+                transcode_time, sequence_length,
+                fps, total_size,
+                ffv1_size, pix_fmt,
+                container, width,
+                height, comp_ratio
+            )
+        )
+
+    elif len(checksum_mismatches) == 1:
+        if checksum_mismatches[0] == 'sar':
+            print 'Image content is lossless, Pixel Aspect Ratio has been altered - This is mostly likely because your source had no pixel aspect ratio information, and Matroska is specifying 1:1. https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html '
+            append_csv(csv_report_filename, (
+                parent_basename, 'LOSSLESS - different PAR',
                 start, finish, transcode_start,
                 transcode_finish, transcode_time,
                 sequence_length, fps,
@@ -308,7 +361,22 @@ def run_loop(args, csv_report_filename):
                 pix_fmt, container,
                 width, height,
                 comp_ratio
-            ))
+            )
+                      )
+    elif len(checksum_mismatches) > 1:
+        print 'NOT LOSSLESS'
+        append_csv(csv_report_filename, (
+            parent_basename, judgement,
+            start, finish, transcode_start,
+            transcode_finish, transcode_time,
+            sequence_length, fps,
+            total_size, ffv1_size,
+            pix_fmt, container,
+            width, height,
+            comp_ratio
+        ))
+
+
 def main():
     '''
     Overly long main function that does most of the heavy lifting.
