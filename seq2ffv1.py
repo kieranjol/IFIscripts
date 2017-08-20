@@ -44,7 +44,6 @@ def make_framemd5(directory, log_filename_alteration, args):
     Apparently this makes framemd5s. But it clearly does a lot more.
     '''
     (
-    sequence_length,
     basename,
     ffmpeg_friendly_name,
     start_number,
@@ -83,7 +82,7 @@ def make_framemd5(directory, log_filename_alteration, args):
         container,
         ffmpeg_friendly_name,
         number_regex,
-        sequence_length
+        len(images)
     ]
     return info
 
@@ -138,7 +137,6 @@ def make_folder_structure(directory, args):
     images = get_image_sequence_files(directory)
     if images == 'none':
         return 'none'
-    sequence_length = len(images)
     (ffmpeg_friendly_name,
     container,
     start_number) = get_ffmpeg_friendly_name(images)
@@ -165,8 +163,7 @@ def make_folder_structure(directory, args):
         os.makedirs(metadata_dir)
     except OSError:
         print 'directories already exist'
-    return (sequence_length,
-            basename,
+    return (basename,
             ffmpeg_friendly_name,
             start_number,
             images,
@@ -185,17 +182,11 @@ def make_ffv1(
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
-    ffprobe_cmd = [
-        'ffprobe',
-        '-start_number', start_number,
-        '-i', os.path.abspath(dpx_filename),
-        '-v', 'error',
-        '-select_streams', 'v:0',
-        '-show_entries',
-        'stream=pix_fmt',
-        '-of', 'default=noprint_wrappers=1:nokey=1'
-    ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+
+    pix_fmt = ififuncs.img_seq_pixfmt(
+        start_number,
+        os.path.abspath(dpx_filename)
+    )
     ffv12dpx = [
         'ffmpeg', '-report',
         '-f', 'image2',
@@ -269,13 +260,11 @@ def run_loop(args, csv_report_filename):
         dpx_filename = info[5]
         sequence_length = info[7]
         output_filename = image_seq_without_container[:-1]
-        parent_basename = os.path.basename(output_dirname)
         logfile = os.path.join(
             output_dirname,
             'logs/%s_ffv1_transcode.log' % output_filename
         )
         logfile = "\'" + logfile + "\'"
-        env_dict = ififuncs.set_environment(logfile)
         (ffv1_path,
          ffv1_md5,
          transcode_time,
@@ -290,9 +279,8 @@ def run_loop(args, csv_report_filename):
             output_dirname,
             output_filename,
             image_seq_without_container,
-            env_dict
+            ififuncs.set_environment(logfile)
         )
-        ffv1_size = os.path.getsize(ffv1_path)
         comp_ratio = float(total_size) / float(os.path.getsize(ffv1_path))
         judgement = diff_textfiles(source_textfile, ffv1_md5)
         fps = float(sequence_length) / float(transcode_time)
@@ -310,13 +298,13 @@ def run_loop(args, csv_report_filename):
         log_results(
             checksum_mismatches,
             csv_report_filename,
-            parent_basename,
+            os.path.basename(output_dirname),
             judgement,
             start, finish,
             transcode_start, transcode_finish,
             transcode_time, sequence_length,
             fps, total_size,
-            ffv1_size, pix_fmt,
+            os.path.getsize(ffv1_path), pix_fmt,
             container, width,
             height, comp_ratio)
 

@@ -792,3 +792,20 @@ def checksum_replace(manifest, logname):
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)
+
+def img_seq_pixfmt(start_number, path):
+    '''
+    Determine the pixel format of an image sequence
+    '''
+    ffprobe_cmd = [
+        'ffprobe',
+        '-start_number', start_number,
+        '-i', path,
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries',
+        'stream=pix_fmt',
+        '-of', 'default=noprint_wrappers=1:nokey=1'
+    ]
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    return pix_fmt
