@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''
 A collection of functions that other scripts can use.
 
@@ -459,7 +458,40 @@ def get_ffmpeg_friendly_name(images):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
             counter += 1
     return ffmpeg_friendly_name, container, start_number
-    
+
+def parse_image_sequence(images):
+    '''
+    Parses image sequence filenames so that they are easily passed to ffmpeg.
+    '''
+    if '864000' in images[0]:
+        start_number = '864000'
+    elif len(images[0].split("_")[-1].split(".")) > 2:
+        start_number = images[0].split("_")[-1].split(".")[1]
+    else:
+        start_number = images[0].split("_")[-1].split(".")[0]
+    container = images[0].split(".")[-1]
+    numberless_filename = images[0].split("_")[0:-1]
+    ffmpeg_friendly_name = ''
+    counter = 0
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+    else:
+        while counter < len(numberless_filename):
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
+
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        image_seq_without_container = ffmpeg_friendly_name[:-1] + ffmpeg_friendly_name[-1].replace('_', '.')
+        ffmpeg_friendly_name = image_seq_without_container
+    start_number_length = len(start_number)
+    number_regex = "%0" + str(start_number_length) + 'd.'
+    root_filename = ffmpeg_friendly_name
+    ffmpeg_friendly_name += number_regex + '%s' % container
+    return ffmpeg_friendly_name, start_number, root_filename
+
+
 def get_date_modified(filename):
     """Gets the date modified date of a filename in ISO8601 style.
 
@@ -809,3 +841,11 @@ def img_seq_pixfmt(start_number, path):
     ]
     pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
     return pix_fmt
+
+
+def read_lines(infile):
+    '''
+    Returns line number and text from an textfile.
+    '''
+    for lineno, line in enumerate(infile):
+        yield lineno, line
