@@ -172,11 +172,11 @@ def get_metadata(path, new_log_textfile):
     '''
     mediainfo_version = 'mediainfo'
     try:
-        subprocess.check_output([
+        mediainfo_version = subprocess.check_output([
             'mediainfo', '--Version'
-        ])
+        ]).rstrip()
     except subprocess.CalledProcessError as grepexc:
-        mediainfo_version =  grepexc.output.rstrip().splitlines()[1]
+        mediainfo_version = grepexc.output.rstrip().splitlines()[1]
     for root, _, filenames in os.walk(path):
         for av_file in filenames:
             if av_file.endswith(
@@ -207,8 +207,51 @@ def get_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
-
-def create_content_title_text(args, sip_path):
+            elif av_file.endswith(
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt')
+            ):
+                blacklist = ('siegfried', 'exiftool', 'mediainfo', 'mediatrace')
+                if av_file[0] != '.':
+                    if any(word in blacklist for word in av_file):
+                        exiftool_version = 'exiftool'
+                        try:
+                            exiftool_version = subprocess.check_output([
+                                'exiftool', '-ver'
+                            ])
+                        except subprocess.CalledProcessError as grepexc:
+                            exiftool_version = grepexc.output.rstrip().splitlines()[1]
+                        siegfried_version = 'siegfried'
+                        try:
+                            siegfried_version = subprocess.check_output([
+                                'sf', '-version'
+                            ])
+                        except subprocess.CalledProcessError as grepexc:
+                            siegfried_version = grepexc.output.rstrip().splitlines()[1]
+                        inputxml = "%s/%s_exiftool.xml" % (
+                            os.path.join(path, 'metadata'), os.path.basename(av_file)
+                            )
+                        inputtracexml = "%s/%s_siegfried.json" % (
+                            os.path.join(path, 'metadata'), os.path.basename(av_file)
+                            )
+                        ififuncs.make_siegfried(
+                            inputtracexml,
+                            os.path.join(root, av_file)
+                        )
+                        print 'Generating exiftool xml of input file and saving it in %s' % inputxml
+                        ififuncs.generate_log(
+                            new_log_textfile,
+                            'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
+                        )
+                        print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+                        ififuncs.make_exiftool(
+                            inputxml,
+                            os.path.join(root, av_file)
+                        )
+                        ififuncs.generate_log(
+                            new_log_textfile,
+                            'EVENT = Format identification - eventType=format identification, eventDetail=Format identification via PRONOM signatures using Siegfried, eventOutcome=%s, agentName=%s' % (inputtracexml, siegfried_version)
+                        )
+def create_content_title_text(sip_path):
     '''
     DCPs are often delivered with inconsistent foldernames.
     This will rename the parent folder with the value recorded in <ContentTitleText>
@@ -222,7 +265,9 @@ def create_content_title_text(args, sip_path):
     dcp_dirname = os.path.dirname(cpl)
     content_title_text = ififuncs.get_contenttitletext(cpl)
     dci_foldername = os.path.join(objects_dir, content_title_text)
-    if ififuncs.ask_yes_no('Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)) == 'Y':
+    if ififuncs.ask_yes_no(
+            'Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)
+    ) == 'Y':
         os.chdir(os.path.dirname(dcp_dirname))
         os.rename(os.path.basename(dcp_dirname), content_title_text)
     return content_title_text
@@ -248,13 +293,12 @@ def main(args_):
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = ififuncs.get_object_entry()
         elif not args.oe[2:].isdigit():
-           object_entry = ififuncs.get_object_entry()
-           print 'First two characters must be \'oe\' and last four characters must be four digits'
+            object_entry = ififuncs.get_object_entry()
+            print 'First two characters must be \'oe\' and last four characters must be four digits'
         else:
             object_entry = args.oe
     else:
         object_entry = ififuncs.get_object_entry()
-    
     sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
@@ -266,7 +310,7 @@ def main(args_):
         else:
             print 'exiting due to invalid UUID'
             uuid_event = (
-                'EVENT = exiting due to invalud UUID supplied on the commmand line: %s' % uuid
+                'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % uuid
             )
             uuid = False
     else:
@@ -303,7 +347,7 @@ def main(args_):
         'EVENT = eventType=Identifier assignement,'
         ' eventIdentifierType=object entry, value=%s'
         % object_entry
-    ) 
+    )
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path)

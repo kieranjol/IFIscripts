@@ -15,6 +15,7 @@ import datetime
 import uuid
 import tempfile
 import csv
+import json
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -52,6 +53,32 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         xmlvariable = subprocess.check_output(mediainfo_cmd)
         fo.write(xmlvariable)
 
+def make_exiftool(xmlfilename, inputfilename):
+    '''
+    Writes an exiftool XML output.
+    '''
+    exiftool_cmd = [
+        'exiftool',
+        '-X',
+        inputfilename
+    ]
+    with open(xmlfilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(exiftool_cmd)
+        fo.write(xmlvariable)
+def make_siegfried(xmlfilename, inputfilename):
+    '''
+    Writes a Siegfried/PRONOM json report.
+    '''
+    siegfried_cmd = [
+        'sf',
+        '-json',
+        inputfilename
+    ]
+    
+    with open(xmlfilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(siegfried_cmd)
+        parsed = json.loads(xmlvariable)
+        fo.write(json.dumps(parsed, indent=4, sort_keys=True))
 
 def make_mediaconch(full_path, mediaconch_xmlfile):
     '''
@@ -682,6 +709,8 @@ def get_object_entry():
         object_entry = raw_input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
+        if object_entry[:4] == 'scoe':
+            return object_entry
         if object_entry[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = False
