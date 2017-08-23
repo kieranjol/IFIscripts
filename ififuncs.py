@@ -589,7 +589,7 @@ def get_user():
         time.sleep(1)
     elif user == '6':
         user = 'Felix Meehan'
-        print 'Cork baiiiiiiii'
+        print 'Lime mortar > cement'
         time.sleep(1)
     return user
 
