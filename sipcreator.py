@@ -158,6 +158,10 @@ def parse_args(args_):
         help='Adds DCP specific processing, like creating objects subfolder with text extracted from <ContentTitleText> in the CPL.'
     )
     parser.add_argument(
+        '-quiet', action='store_true',
+        help='Quiet mode, suppresses the analyze_logs() report'
+    )
+    parser.add_argument(
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
     )
@@ -318,7 +322,8 @@ def main(args_):
         os.path.dirname(os.path.dirname(logs_dir))
     )
     ififuncs.sort_manifest(new_manifest_textfile)
-    log_report(log_names)
+    if not args.quiet:
+        log_report(log_names)
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
     if args.d:
