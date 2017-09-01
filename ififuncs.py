@@ -487,7 +487,8 @@ def parse_image_sequence(images):
         ffmpeg_friendly_name = image_seq_without_container
     start_number_length = len(start_number)
     number_regex = "%0" + str(start_number_length) + 'd.'
-    root_filename = ffmpeg_friendly_name
+    # remove trailing underscore
+    root_filename = ffmpeg_friendly_name[:-1]
     ffmpeg_friendly_name += number_regex + '%s' % container
     return ffmpeg_friendly_name, start_number, root_filename
 
