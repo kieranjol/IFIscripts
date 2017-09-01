@@ -356,6 +356,11 @@ def setup(args_):
         action='store_true',
         help='use gcp instead of rsync on osx for SPEED on LTO'
     )
+    parser.add_argument(
+        '-move',
+        action='store_true',
+        help='Move files instead of copying - much faster!'
+    )
     rootpos = ''
     dircheck = None
     args = parser.parse_args(args_)
@@ -620,10 +625,13 @@ def main(args_):
                 log_name_source,
                 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.'
             )
-        copy_dir(
-            source, destination_final_path,
-            log_name_source, rootpos, destination, dirname, args
-        )
+        if not args.move:
+            copy_dir(
+                source, destination_final_path,
+                log_name_source, rootpos, destination, dirname, args
+            )
+        else:
+            shutil.move(source, destination_final_path)
     else:
         generate_log(
             log_name_source,
