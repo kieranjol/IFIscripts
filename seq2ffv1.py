@@ -139,6 +139,7 @@ def make_ffv1(
         '-u',
         uuid,
         '-quiet',
+        '-move',
         '-user',
         'Kieran',
         '-oe',

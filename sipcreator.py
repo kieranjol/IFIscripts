@@ -87,13 +87,16 @@ def consolidate_logs(lognames, path):
                 log_object.write(lines)
 
 
-def move_files(inputs, sip_path):
+def move_files(inputs, sip_path, args):
     '''
     Runs moveit.py on all inputs
     '''
     log_names = []
     for item in inputs:
-        log_name = copyit.main([item, os.path.join(sip_path, 'objects')])
+        cmd = [item, os.path.join(sip_path, 'objects')]
+        if args.move:
+            cmd.append('-move')
+        log_name = copyit.main(cmd)
         log_names.append(log_name)
     consolidate_logs(log_names, sip_path)
     return log_names
@@ -160,6 +163,10 @@ def parse_args(args_):
     parser.add_argument(
         '-quiet', action='store_true',
         help='Quiet mode, suppresses the analyze_logs() report'
+    )
+    parser.add_argument(
+        '-move', action='store_true',
+        help='invokes the -move argument in copyit.py - moves instead of copy.'
     )
     parser.add_argument(
         '-oe',
@@ -310,7 +317,7 @@ def main(args_):
     ) 
     metadata_dir = os.path.join(sip_path, 'metadata')
     logs_dir = os.path.join(sip_path, 'logs')
-    log_names = move_files(inputs, sip_path)
+    log_names = move_files(inputs, sip_path, args)
     get_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
