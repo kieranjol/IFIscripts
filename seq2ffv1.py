@@ -59,9 +59,9 @@ def verify_losslessness(source_textfile, ffv1_md5):
     with open(source_textfile) as source_md5_object:
         with open(ffv1_md5) as ffv1_md5_object:
             for (line1), (line2) in itertools.izip(
-                ififuncs.read_lines(
-                    source_md5_object
-                ), ififuncs.read_lines(ffv1_md5_object)
+                    ififuncs.read_lines(
+                        source_md5_object
+                    ), ififuncs.read_lines(ffv1_md5_object)
             ):
                 if line1 != line2:
                     if 'sar' in line1:
@@ -179,10 +179,10 @@ def setup():
     Sets up a lot of the variables and filepaths.
     '''
     parser = argparse.ArgumentParser(description='Transcode all DPX or TIFF'
-                                    ' image sequence in the subfolders of your'
-                                    ' source directory to FFV1 Version 3'
-                                    ' in a Matroska Container.'
-                                    ' Written by Kieran O\'Leary.')
+                                     ' image sequence in the subfolders of your'
+                                     ' source directory to FFV1 Version 3'
+                                     ' in a Matroska Container.'
+                                     ' Written by Kieran O\'Leary.')
     parser.add_argument(
         'source_directory',
         help='Input directory'
