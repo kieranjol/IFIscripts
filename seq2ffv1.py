@@ -29,25 +29,32 @@ def run_loop(args):
     Launches a recursive loop to process all images sequences in your
     subdirectories.
     '''
+    verdicts = []
     for source_directory, _, _ in os.walk(args.source_directory):
         output_dirname = args.destination
         images = ififuncs.get_image_sequence_files(source_directory)
+        if images == 'none':
+            continue
         (ffmpeg_friendly_name,
          start_number, root_filename) = ififuncs.parse_image_sequence(images)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
-        make_ffv1(
+        judgement = make_ffv1(
             start_number,
             source_abspath,
             output_dirname,
             root_filename,
+            args
         )
+        verdicts.append([root_filename, judgement])
+        for verdict in verdicts:
+            print "%-*s   : %s" % (50, verdict[0], verdict[1])
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
     '''
     Compares two framemd5 documents in order to determine losslessness.
     '''
-    ififuncs.diff_textfiles(source_textfile, ffv1_md5)
+    judgement = ififuncs.diff_textfiles(source_textfile, ffv1_md5)
     checksum_mismatches = []
     with open(source_textfile) as source_md5_object:
         with open(ffv1_md5) as ffv1_md5_object:
@@ -61,18 +68,20 @@ def verify_losslessness(source_textfile, ffv1_md5):
                         checksum_mismatches = ['sar']
                     else:
                         checksum_mismatches.append(1)
-
+    return judgement
 def make_ffv1(
         start_number,
         source_abspath,
         output_dirname,
         root_filename,
+        args
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
-    object_entry = ififuncs.get_object_entry()
+    if not args.no_sip:
+        object_entry = ififuncs.get_object_entry()
     files_to_move = []
     pix_fmt = ififuncs.img_seq_pixfmt(
         start_number,
@@ -128,39 +137,42 @@ def make_ffv1(
     ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
     ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
     subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
-    verify_losslessness(source_textfile, ffv1_md5)
-    uuid = ififuncs.create_uuid()
-    sip_dir = os.path.join(
-        os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
-    )
-    sipcreator_log, sipcreator_manifest = sipcreator.main([
-        '-i',
-        ffv1_path,
-        '-u',
-        uuid,
-        '-quiet',
-        '-move',
-        '-user',
-        'Kieran',
-        '-oe',
-        object_entry,
-        '-o', os.path.dirname(ffv1_path)])
-    logs_dir = os.path.join(sip_dir, 'logs')
-    metadata_dir = os.path.join(sip_dir, 'metadata')
-    for files in files_to_move:
-        if files.endswith('.log'):
-            shutil.move(files, logs_dir)
-            ififuncs.manifest_update(
-                sipcreator_manifest,
-                os.path.join(logs_dir, os.path.basename(files))
-            )
-        elif files.endswith('.framemd5'):
-            shutil.move(files, metadata_dir)
-            ififuncs.manifest_update(
-                sipcreator_manifest,
-                os.path.join(metadata_dir, os.path.basename(files))
-            )
-    return source_textfile, ffv1_md5
+    judgement = verify_losslessness(source_textfile, ffv1_md5)
+    if args.no_sip:
+        return judgement
+    else:
+        uuid = ififuncs.create_uuid()
+        sip_dir = os.path.join(
+            os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
+        )
+        sipcreator_log, sipcreator_manifest = sipcreator.main([
+            '-i',
+            ffv1_path,
+            '-u',
+            uuid,
+            '-quiet',
+            '-move',
+            '-user',
+            'Kieran',
+            '-oe',
+            object_entry,
+            '-o', os.path.dirname(ffv1_path)])
+        logs_dir = os.path.join(sip_dir, 'logs')
+        metadata_dir = os.path.join(sip_dir, 'metadata')
+        for files in files_to_move:
+            if files.endswith('.log'):
+                shutil.move(files, logs_dir)
+                ififuncs.manifest_update(
+                    sipcreator_manifest,
+                    os.path.join(logs_dir, os.path.basename(files))
+                )
+            elif files.endswith('.framemd5'):
+                shutil.move(files, metadata_dir)
+                ififuncs.manifest_update(
+                    sipcreator_manifest,
+                    os.path.join(metadata_dir, os.path.basename(files))
+                )
+        return judgement
 
 def setup():
     '''
@@ -171,8 +183,18 @@ def setup():
                                     ' source directory to FFV1 Version 3'
                                     ' in a Matroska Container.'
                                     ' Written by Kieran O\'Leary.')
-    parser.add_argument('source_directory', help='Input directory')
-    parser.add_argument('destination', help='Destination directory')
+    parser.add_argument(
+        'source_directory',
+        help='Input directory'
+    )
+    parser.add_argument(
+        'destination',
+        help='Destination directory'
+    )
+    parser.add_argument(
+        '--no-sip',
+        help='Do not run sipcreator.py on the resulting file.', action='store_true'
+    )
     args = parser.parse_args()
     return args
 
