@@ -135,9 +135,11 @@ def make_manifest(
                 checksum_list.append([root, files])
     elif os.path.isfile(manifest_dir):
         checksum_list = [[os.path.dirname(manifest_dir), os.path.basename(manifest_dir)]]
+    if len(checksum_list) == 1:
+        source_counter = 1
     for files in checksum_list:
         print 'Generating MD5 for %s - %d of %d' % (
-            files, counter2, source_counter
+            os.path.join(files[0], files[1]), counter2, source_counter
             )
         md5 = hashlib_md5(os.path.join(files[0], files[1]))
         root2 = files[0].replace(path_to_remove, '')
@@ -422,6 +424,9 @@ def count_stuff(source):
         for files in filenames:
             source_count += 1
             file_list.append(files)
+    if os.path.isfile(source):
+        if len(file_list) == 0:
+            source_count = 1
     return source_count, file_list
 
 
