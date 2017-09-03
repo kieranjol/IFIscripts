@@ -13,7 +13,6 @@ Create framemd5 values for the FFV1 in Matroska file
 Verify losslessness
 (There will most likely be a warning about pixel aspect ratio
 - https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
-Generate CSV log that will be saved to your desktop
 '''
 import subprocess
 import os
@@ -21,6 +20,7 @@ import argparse
 import itertools
 import tempfile
 import shutil
+import time
 import ififuncs
 import sipcreator
 
@@ -29,6 +29,25 @@ def run_loop(args):
     Launches a recursive loop to process all images sequences in your
     subdirectories.
     '''
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
+    log_name_source = os.path.join(
+        args.destination, '%s_seq2ffv1_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S")
+    )
+    ififuncs.generate_log(log_name_source, 'seq2ffv1.py started.')
+    ififuncs.generate_log(
+        log_name_source,
+        'eventDetail=seq2ffv1.py %s' % ififuncs.get_script_version('seq2ffv1.py'))
+    ififuncs.generate_log(
+        log_name_source,
+        'Command line arguments: %s' % args
+    )
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = agentName=%s' % user
+    )
     verdicts = []
     for source_directory, _, _ in os.walk(args.source_directory):
         output_dirname = args.destination
@@ -43,11 +62,13 @@ def run_loop(args):
             source_abspath,
             output_dirname,
             root_filename,
-            args
+            args,
+            log_name_source
         )
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
             print "%-*s   : %s" % (50, verdict[0], verdict[1])
+    ififuncs.generate_log(log_name_source, 'seq2ffv1.py started.')
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
@@ -74,7 +95,8 @@ def make_ffv1(
         source_abspath,
         output_dirname,
         root_filename,
-        args
+        args,
+        log_name_source
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
@@ -100,6 +122,10 @@ def make_ffv1(
         temp_dir, root_filename + 'source.framemd5'
     )
     files_to_move.append(source_textfile)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = normalisation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+    )
     ffv12dpx = [
         'ffmpeg', '-report',
         '-f', 'image2',
@@ -116,6 +142,10 @@ def make_ffv1(
         ffv1_path,
         '-f', 'framemd5', source_textfile
     ]
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = normalisation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+    )
     print ffv12dpx
     subprocess.call(ffv12dpx, env=env_dict)
     ffv1_md5 = os.path.join(
@@ -123,6 +153,10 @@ def make_ffv1(
         root_filename + 'ffv1.framemd5'
     )
     files_to_move.append(ffv1_md5)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
+    )
     ffv1_fmd5_cmd = [
         'ffmpeg',
         '-i', ffv1_path,
@@ -138,6 +172,10 @@ def make_ffv1(
     ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
     subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
     judgement = verify_losslessness(source_textfile, ffv1_md5)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
+    )
     if args.no_sip:
         return judgement
     else:
@@ -195,13 +233,15 @@ def setup():
         '--no-sip',
         help='Do not run sipcreator.py on the resulting file.', action='store_true'
     )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.')
     args = parser.parse_args()
     return args
 
 def main():
     '''
     Overly long main function that does most of the heavy lifting.
-    This needs to be broken up into smaller functions.
     '''
     args = setup()
     run_loop(args)
