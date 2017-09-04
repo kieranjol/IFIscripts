@@ -47,11 +47,19 @@ def parse_args(args_):
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
     )
+    parser.add_argument(
+        '-mov',
+        help='Uses MOV container instead of Matroska', action='store_true'
+    )
+    parser.add_argument(
+        '-nochapters',
+        help='Skips the mkvpropedit chapter creation function', action='store_true'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def ffmpeg_concat(concat_file, args, uuid):
+def ffmpeg_concat(concat_file, args, uuid, container):
     '''
     Launch the actual ffmpeg concatenation command.
     '''
@@ -63,7 +71,7 @@ def ffmpeg_concat(concat_file, args, uuid):
         'ffmpeg', '-report', '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy', '-map', '0:v', '-map', '0:a?',
-        os.path.join(args.o, '%s.mkv' % uuid),
+        os.path.join(args.o, '%s.%s' % (uuid, container)),
         '-f', 'md5', '-map', '0:v', '-map', '0:a?','-c', 'copy',  '-'
     ]
     print cmd
@@ -124,6 +132,10 @@ def main(args_):
     print args
     log_name_source = os.path.join(args.o, '%s_concat_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
     ififuncs.generate_log(log_name_source, 'concat.py started.')
+    if args.mov:
+        container = 'mov'
+    else:
+        container = 'mkv'
     ififuncs.generate_log(
         log_name_source,
         'eventDetail=concat.py %s' % ififuncs.get_script_version('concat.py'))
@@ -181,12 +193,12 @@ def main(args_):
     ififuncs.concat_textfile(video_files, concat_file)
     ififuncs.generate_log(
         log_name_source,
-        'EVENT = Concatenation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.mkv' % uuid))
-    source_bitstream_md5, fmd5_logfile = ffmpeg_concat(concat_file, args, uuid)
-    output_file = os.path.join(args.o, '%s.mkv' % uuid)
+        'EVENT = Concatenation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.%s' % (uuid, container)))
+    source_bitstream_md5, fmd5_logfile = ffmpeg_concat(concat_file, args, uuid, container)
+    output_file = os.path.join(args.o, '%s.%s' % (uuid, container))
     ififuncs.generate_log(
         log_name_source,
-        'EVENT = Concatenation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.mkv' % uuid))
+        'EVENT = Concatenation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Source media concatenated into a single file output=%s' % os.path.join(args.o, '%s.%s' % (uuid, container)))
     ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
@@ -212,11 +224,14 @@ def main(args_):
         ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, eventOutcome=fail')
-    subprocess.call(['mkvpropedit', output_file, '-c', 'chapters.txt'])
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = eventType=modification, agentName=mkvpropedit, eventDetail=Chapters added to file detailing start point of source clips.')
-    ififuncs.concat_textfile(video_files, concat_file)
+    if args.nochapters != True:
+        subprocess.call(['mkvpropedit', output_file, '-c', 'chapters.txt'])
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = eventType=modification, agentName=mkvpropedit, eventDetail=Chapters added to file detailing start point of source clips.')
+        ififuncs.concat_textfile(video_files, concat_file)
+        with open(log_name_source, 'r') as concat_log:
+            concat_lines = concat_log.readlines()
     if not args.no_sip:
         sipcreator_log, sipcreator_manifest = sipcreator.main(['-i', output_file, '-u', uuid, '-oe', object_entry, '-user', user, '-o', args.o])
         shutil.move(fmd5_logfile, os.path.dirname(sipcreator_log))
