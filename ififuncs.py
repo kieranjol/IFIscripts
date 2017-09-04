@@ -850,3 +850,20 @@ def read_lines(infile):
     '''
     for lineno, line in enumerate(infile):
         yield lineno, line
+
+
+def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
+    '''
+    merges the contents of one log with another.
+    updates checksums in your manifest.
+    '''
+    with open(log_name_source, 'r') as concat_log:
+        concat_lines = concat_log.readlines()
+    with open(sipcreator_log, 'r') as sipcreator_log_object:
+        sipcreator_lines = sipcreator_log_object.readlines()
+    with open(sipcreator_log, 'wb') as fo:
+        for lines in concat_lines:
+            fo.write(lines)
+        for remaining_lines in sipcreator_lines:
+            fo.write(remaining_lines)
+    checksum_replace(sipcreator_manifest, sipcreator_log)

@@ -217,8 +217,6 @@ def main(args_):
         log_name_source,
         'EVENT = eventType=modification, agentName=mkvpropedit, eventDetail=Chapters added to file detailing start point of source clips.')
     ififuncs.concat_textfile(video_files, concat_file)
-    with open(log_name_source, 'r') as concat_log:
-        concat_lines = concat_log.readlines()
     if not args.no_sip:
         sipcreator_log, sipcreator_manifest = sipcreator.main(['-i', output_file, '-u', uuid, '-oe', object_entry, '-user', user, '-o', args.o])
         shutil.move(fmd5_logfile, os.path.dirname(sipcreator_log))
@@ -226,14 +224,7 @@ def main(args_):
         logs_dir = os.path.dirname(sipcreator_log)
         ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5_logfile)))
         ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir,(os.path.basename(validation_logfile.replace('\\\\', '\\').replace('\:', ':')))))
-        with open(sipcreator_log, 'r') as sipcreator_log_object:
-            sipcreator_lines = sipcreator_log_object.readlines()
-        with open(sipcreator_log, 'wb') as fo:
-            for lines in concat_lines:
-                fo.write(lines)
-            for remaining_lines in sipcreator_lines:
-                fo.write(remaining_lines)
-        ififuncs.checksum_replace(sipcreator_manifest, sipcreator_log)
+        ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
