@@ -328,10 +328,11 @@ def check_for_sip(args):
     '''
     for filenames in os.listdir(args):
         if 'manifest.md5' in filenames:
-            dircheck = filenames.replace('_manifest.md5', '')
-            if os.path.isdir(os.path.join(args, dircheck)):
-                print 'ifi sip found'
-                return os.path.join(args, dircheck)
+            if len(os.listdir(args)) == 1:
+                dircheck = filenames.replace('_manifest.md5', '')
+                if os.path.isdir(os.path.join(args, dircheck)):
+                    print 'ifi sip found'
+                    return os.path.join(args, dircheck)
 
 
 def setup(args_):
