@@ -329,8 +329,9 @@ def check_for_sip(args):
     '''
     remove_bad_files(args, None)
     for filenames in os.listdir(args):
+        # make sure that it's an IFI SIP.
         if 'manifest.md5' in filenames:
-            if len(os.listdir(args)) == 1:
+            if len(os.listdir(args)) == 2:
                 dircheck = filenames.replace('_manifest.md5', '')
                 if os.path.isdir(os.path.join(args, dircheck)):
                     print 'ifi sip found'
