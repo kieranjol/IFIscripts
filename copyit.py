@@ -79,10 +79,11 @@ def remove_bad_files(root_dir, log_name_source):
             for i in rm_these:
                 if name == i:
                     print '***********************' + 'removing: ' + path
-                    generate_log(
-                        log_name_source,
-                        'EVENT = Unwanted file removal - %s was removed' % path
-                    )
+                    if not log_name_source == None:
+                        generate_log(
+                            log_name_source,
+                            'EVENT = Unwanted file removal - %s was removed' % path
+                        )
                     try:
                         os.remove(path)
                     except OSError:
@@ -326,12 +327,15 @@ def check_for_sip(args):
     This checks if the input folder contains the actual payload, eg:
     the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
     '''
+    remove_bad_files(args, None)
     for filenames in os.listdir(args):
+        # make sure that it's an IFI SIP.
         if 'manifest.md5' in filenames:
-            dircheck = filenames.replace('_manifest.md5', '')
-            if os.path.isdir(os.path.join(args, dircheck)):
-                print 'ifi sip found'
-                return os.path.join(args, dircheck)
+            if len(os.listdir(args)) == 2:
+                dircheck = filenames.replace('_manifest.md5', '')
+                if os.path.isdir(os.path.join(args, dircheck)):
+                    print 'ifi sip found'
+                    return os.path.join(args, dircheck)
 
 
 def setup(args_):
