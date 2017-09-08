@@ -57,7 +57,7 @@ def run_loop(args):
         (ffmpeg_friendly_name,
          start_number, root_filename) = ififuncs.parse_image_sequence(images)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
-        judgement = make_ffv1(
+        judgement, sipcreator_log, sipcreator_manifest = make_ffv1(
             start_number,
             source_abspath,
             output_dirname,
@@ -68,7 +68,8 @@ def run_loop(args):
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
             print "%-*s   : %s" % (50, verdict[0], verdict[1])
-    ififuncs.generate_log(log_name_source, 'seq2ffv1.py started.')
+    ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
+    ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
@@ -210,7 +211,7 @@ def make_ffv1(
                     sipcreator_manifest,
                     os.path.join(metadata_dir, os.path.basename(files))
                 )
-        return judgement
+        return judgement, sipcreator_log, sipcreator_manifest
 
 def setup():
     '''
