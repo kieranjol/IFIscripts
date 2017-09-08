@@ -103,6 +103,7 @@ def make_ffv1(
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
+    uuid = ififuncs.create_uuid()
     if not args.no_sip:
         object_entry = ififuncs.get_object_entry()
     files_to_move = []
@@ -113,14 +114,14 @@ def make_ffv1(
     temp_dir = tempfile.gettempdir()
     logfile = os.path.join(
         temp_dir,
-        '%s_ffv1_transcode.log' % root_filename
+        '%s_ffv1_transcode.log' % uuid
     )
     files_to_move.append(logfile)
     logfile = "\'" + logfile + "\'"
     env_dict = ififuncs.set_environment(logfile)
-    ffv1_path = os.path.join(output_dirname, root_filename + '.mkv')
+    ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
     source_textfile = os.path.join(
-        temp_dir, root_filename + 'source.framemd5'
+        temp_dir, uuid + '_source.framemd5'
     )
     files_to_move.append(source_textfile)
     ififuncs.generate_log(
@@ -151,7 +152,7 @@ def make_ffv1(
     subprocess.call(ffv12dpx, env=env_dict)
     ffv1_md5 = os.path.join(
         temp_dir,
-        root_filename + 'ffv1.framemd5'
+        uuid + '_ffv1.framemd5'
     )
     files_to_move.append(ffv1_md5)
     ififuncs.generate_log(
@@ -159,14 +160,14 @@ def make_ffv1(
         'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
     )
     ffv1_fmd5_cmd = [
-        'ffmpeg',
+        'ffmpeg', '-report',
         '-i', ffv1_path,
         '-pix_fmt', pix_fmt,
         '-f', 'framemd5',
         ffv1_md5
     ]
     ffv1_fmd5_logfile = os.path.join(
-        temp_dir, '%s_ffv1_framemd5.log' % root_filename
+        temp_dir, '%s_ffv1_framemd5.log' % uuid
     )
     files_to_move.append(ffv1_fmd5_logfile)
     ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
@@ -180,7 +181,6 @@ def make_ffv1(
     if args.no_sip:
         return judgement
     else:
-        uuid = ififuncs.create_uuid()
         sip_dir = os.path.join(
             os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
         )
