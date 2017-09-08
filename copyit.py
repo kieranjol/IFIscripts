@@ -301,9 +301,7 @@ def manifest_file_count(manifest2check):
             manifest_files = []
             manifest_lines = [line.split(',') for line in fo.readlines()]
             for line in manifest_lines:
-                for a in line:
-                    a = a.split('\\')
-                    manifest_files.append(a[-1].rsplit()[0])
+                manifest_files.append(line[0][34:].rstrip())
             count_in_manifest = len(manifest_lines)
             manifest_info = [count_in_manifest, manifest_files]
     return manifest_info
@@ -415,12 +413,13 @@ def count_stuff(source):
     '''
     source_count = 0
     file_list = []
-    for _, directories, filenames in os.walk(source):
+    for root, directories, filenames in os.walk(source):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
             source_count += 1
-            file_list.append(files)
+            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            file_list.append(relative_path)
     return source_count, file_list
 
 
@@ -473,7 +472,7 @@ def manifest_existence(
         manifest_info = manifest_file_count(manifest)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
-        proceed = 'y' 
+        proceed = 'y'
     if proceed == 'y':
         if source_count != count_in_manifest:
             print 'checking which files are different'
