@@ -79,10 +79,11 @@ def remove_bad_files(root_dir, log_name_source):
             for i in rm_these:
                 if name == i:
                     print '***********************' + 'removing: ' + path
-                    generate_log(
-                        log_name_source,
-                        'EVENT = Unwanted file removal - %s was removed' % path
-                    )
+                    if not log_name_source == None:
+                        generate_log(
+                            log_name_source,
+                            'EVENT = Unwanted file removal - %s was removed' % path
+                        )
                     try:
                         os.remove(path)
                     except OSError:
@@ -302,9 +303,7 @@ def manifest_file_count(manifest2check):
             manifest_files = []
             manifest_lines = [line.split(',') for line in fo.readlines()]
             for line in manifest_lines:
-                for a in line:
-                    a = a.split('\\')
-                    manifest_files.append(a[-1].rsplit()[0])
+                manifest_files.append(line[0][34:].rstrip())
             count_in_manifest = len(manifest_lines)
             manifest_info = [count_in_manifest, manifest_files]
     return manifest_info
@@ -328,12 +327,15 @@ def check_for_sip(args):
     This checks if the input folder contains the actual payload, eg:
     the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
     '''
+    remove_bad_files(args, None)
     for filenames in os.listdir(args):
+        # make sure that it's an IFI SIP.
         if 'manifest.md5' in filenames:
-            dircheck = filenames.replace('_manifest.md5', '')
-            if os.path.isdir(os.path.join(args, dircheck)):
-                print 'ifi sip found'
-                return os.path.join(args, dircheck)
+            if len(os.listdir(args)) == 2:
+                dircheck = filenames.replace('_manifest.md5', '')
+                if os.path.isdir(os.path.join(args, dircheck)):
+                    print 'ifi sip found'
+                    return os.path.join(args, dircheck)
 
 
 def setup(args_):
@@ -418,12 +420,13 @@ def count_stuff(source):
     '''
     source_count = 0
     file_list = []
-    for _, directories, filenames in os.walk(source):
+    for root, directories, filenames in os.walk(source):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
             source_count += 1
-            file_list.append(files)
+            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            file_list.append(relative_path)
     if os.path.isfile(source):
         if len(file_list) == 0:
             source_count = 1
@@ -479,7 +482,7 @@ def manifest_existence(
         manifest_info = manifest_file_count(manifest)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
-        proceed = 'y' 
+        proceed = 'y'
     if proceed == 'y':
         if source_count != count_in_manifest:
             print 'checking which files are different'
