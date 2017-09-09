@@ -4,17 +4,12 @@ WORK IN PROGRESS WORKSHOP SCRIPT!!!
 '''
 
 import sys
-import subprocess
 import os
 import csv
-from glob import glob
 import hashlib
-import time
-from lxml import etree
 from datetime import datetime
-from time import sleep
+from lxml import etree
 import unidecode
-import codecs
 
 
 def create_csv(csv_file, *args):
@@ -77,7 +72,7 @@ def main():
         )
     if checkfile is True:
         print "CSV file already exists."
-    for dirpath, dirnames, filenames in os.walk(starting_dir):
+    for dirpath, _, filenames in os.walk(starting_dir):
         for filename in [f for f in filenames if f.endswith(".mxf")]:
             full_path = os.path.join(dirpath, filename)
             file_no_path = os.path.basename(full_path)
@@ -110,9 +105,31 @@ def main():
             )
             print 'Generating Report....  \n'
             if mxf_checksum == checksum:
-                append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
+                append_csv(
+                    csv_report,
+                    (
+                        filename,
+                        unidecode.unidecode(series_title),
+                        unidecode.unidecode(prog_title),
+                        unidecode.unidecode(ep_num),
+                        checksum,
+                        mxf_checksum,
+                        'CHECKSUM MATCHES!'
+                        )
+                )
             else:
-                append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
+                append_csv(
+                    csv_report,
+                    (
+                        filename,
+                        unidecode.unidecode(series_title),
+                        unidecode.unidecode(prog_title),
+                        unidecode.unidecode(ep_num),
+                        checksum,
+                        mxf_checksum,
+                        'CHECKSUM DOES NOT MATCH!'
+                        )
+                )
     print "Report complete - Time elaspsed : ", datetime.now() - startTime
 
 
