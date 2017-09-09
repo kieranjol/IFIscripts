@@ -33,110 +33,64 @@ def append_csv(csv_file, *args):
     finally:
         f.close()
 
+
+def digest_with_progress(filename, chunk_size):
+    read_size = 0
+    last_percent_done = 0
+    digest = hashlib.md5()
+    total_size = os.path.getsize(filename)
+    data = True
+    f = open(filename, 'rb')
+    while data:
+        # Read and update digest.
+        data = f.read(chunk_size)
+        read_size += len(data)
+        digest.update(data)
+        # Calculate progress.
+        percent_done = 100 * read_size / total_size
+        if percent_done > last_percent_done:
+            sys.stdout.write('[%d%%]\r' % percent_done) 
+            sys.stdout.flush()
+            last_percent_done = percent_done
+    f.close()
+    return digest.hexdigest()
+
+
 def main():
-    #1
-
-
-
-
     starting_dir = sys.argv[1]
-    #2
-
     startTime = datetime.now()
-
-
     csv_report_filename = os.path.basename(starting_dir) + "_report"
     csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename 
-
-    #5
-
     checkfile = os.path.isfile(csv_report)
-
-    #3
-
-
-
-    #6   
-    def digest_with_progress(filename, chunk_size):
-        read_size = 0
-        last_percent_done = 0
-        digest = hashlib.md5()
-        total_size = os.path.getsize(filename)
-
-        data = True
-        f = open(filename, 'rb')
-        while data:
-            # Read and update digest.
-            data = f.read(chunk_size)
-            read_size += len(data)
-            digest.update(data)
-
-            # Calculate progress.
-            percent_done = 100 * read_size / total_size
-            if percent_done > last_percent_done:
-                sys.stdout.write('[%d%%]\r' % percent_done) 
-                sys.stdout.flush()
-                
-                
-                last_percent_done = percent_done
-        f.close()
-        return digest.hexdigest()
-
     create_csv(csv_report, ('Filename' , 'Series_Title', 'Prog_Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
-    #6
-
     if checkfile == True:
         print "CSV file already exists."
-        
-    #3 
-
     for dirpath, dirnames, filenames in os.walk(starting_dir):
         for filename in [f for f in filenames if f.endswith(".mxf")]:
-            
             full_path = os.path.join(dirpath, filename)
-            #7
-            
             file_no_path = os.path.basename(full_path)
-            #8.1
-            
             file_no_extension = os.path.splitext(os.path.basename(file_no_path))[0]
-            #8.2
-            
             xml_file = file_no_extension + '.xml'
-            
             full_xml_path = os.path.join(dirpath,xml_file)
-            
             checkfile = os.path.isfile(os.path.join(dirpath,xml_file))
             if checkfile == False:
                 print 'No XML file exists.'
-            #8.3
-            
             print "Generating md5 for ", filename
-            
-        #print digest_with_progress(full_path, 1024)  
             mxf_checksum = str(digest_with_progress(full_path, 1024))
-                    
-            
             dpp_xml_parse = etree.parse(full_xml_path)
             dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
-            
             #parsed values
             series_title = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
             prog_title = dpp_xml_parse.findtext('//ns:ProgrammeTitle', namespaces={'ns':dpp_xml_namespace })
             ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
             checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
-            #12
-            
-            #13
             print 'Generating Report....  \n'
             if mxf_checksum == checksum:
                 append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
             else:
                 append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
-            
-           
-
     print "Report complete - Time elaspsed : ", datetime.now() - startTime
+
 
 if __name__ == '__main__':
     main()
