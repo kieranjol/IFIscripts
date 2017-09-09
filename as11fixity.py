@@ -6,12 +6,12 @@ WORK IN PROGRESS WORKSHOP SCRIPT!!!
 import sys
 import subprocess
 import os
-from glob import glob
 import csv
-from lxml import etree
-from datetime import datetime
+from glob import glob
 import hashlib
 import time
+from lxml import etree
+from datetime import datetime
 from time import sleep
 import unidecode
 import codecs
@@ -24,7 +24,8 @@ def create_csv(csv_file, *args):
         writer.writerow(*args)
     finally:
         f.close()
-        
+
+
 def append_csv(csv_file, *args):
     f = open(csv_file, 'ab')
     try:
@@ -49,7 +50,7 @@ def digest_with_progress(filename, chunk_size):
         # Calculate progress.
         percent_done = 100 * read_size / total_size
         if percent_done > last_percent_done:
-            sys.stdout.write('[%d%%]\r' % percent_done) 
+            sys.stdout.write('[%d%%]\r' % percent_done)
             sys.stdout.flush()
             last_percent_done = percent_done
     f.close()
@@ -60,10 +61,21 @@ def main():
     starting_dir = sys.argv[1]
     startTime = datetime.now()
     csv_report_filename = os.path.basename(starting_dir) + "_report"
-    csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename 
+    csv_report = os.path.expanduser("~/Desktop/%s.csv") % csv_report_filename
     checkfile = os.path.isfile(csv_report)
-    create_csv(csv_report, ('Filename' , 'Series_Title', 'Prog_Title' , 'Episode_Number' , 'Md5_From_Xml' , 'Md5_from_Mxf' , 'Checksum_Result'))
-    if checkfile == True:
+    create_csv(
+        csv_report,
+        (
+            'Filename',
+            'Series_Title',
+            'Prog_Title',
+            'Episode_Number',
+            'Md5_From_Xml',
+            'Md5_from_Mxf',
+            'Checksum_Result'
+            )
+        )
+    if checkfile is True:
         print "CSV file already exists."
     for dirpath, dirnames, filenames in os.walk(starting_dir):
         for filename in [f for f in filenames if f.endswith(".mxf")]:
@@ -71,8 +83,8 @@ def main():
             file_no_path = os.path.basename(full_path)
             file_no_extension = os.path.splitext(os.path.basename(file_no_path))[0]
             xml_file = file_no_extension + '.xml'
-            full_xml_path = os.path.join(dirpath,xml_file)
-            checkfile = os.path.isfile(os.path.join(dirpath,xml_file))
+            full_xml_path = os.path.join(dirpath, xml_file)
+            checkfile = os.path.isfile(os.path.join(dirpath, xml_file))
             if checkfile == False:
                 print 'No XML file exists.'
             print "Generating md5 for ", filename
@@ -80,10 +92,22 @@ def main():
             dpp_xml_parse = etree.parse(full_xml_path)
             dpp_xml_namespace = dpp_xml_parse.xpath('namespace-uri(.)')
             #parsed values
-            series_title = dpp_xml_parse.findtext('//ns:SeriesTitle', namespaces={'ns':dpp_xml_namespace })
-            prog_title = dpp_xml_parse.findtext('//ns:ProgrammeTitle', namespaces={'ns':dpp_xml_namespace })
-            ep_num = dpp_xml_parse.findtext('//ns:EpisodeTitleNumber', namespaces={'ns':dpp_xml_namespace })
-            checksum = dpp_xml_parse.findtext('//ns:MediaChecksumValue', namespaces={'ns':dpp_xml_namespace })
+            series_title = dpp_xml_parse.findtext(
+                '//ns:SeriesTitle',
+                namespaces={'ns':dpp_xml_namespace}
+            )
+            prog_title = dpp_xml_parse.findtext(
+                '//ns:ProgrammeTitle',
+                namespaces={'ns':dpp_xml_namespace}
+            )
+            ep_num = dpp_xml_parse.findtext(
+                '//ns:EpisodeTitleNumber',
+                namespaces={'ns':dpp_xml_namespace}
+            )
+            checksum = dpp_xml_parse.findtext(
+                '//ns:MediaChecksumValue',
+                namespaces={'ns':dpp_xml_namespace}
+            )
             print 'Generating Report....  \n'
             if mxf_checksum == checksum:
                 append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
