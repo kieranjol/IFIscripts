@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 WORK IN PROGRESS WORKSHOP SCRIPT!!!
 '''
@@ -124,11 +125,10 @@ for dirpath, dirnames, filenames in os.walk(starting_dir):
         
         #13
         print 'Generating Report....  \n'
-       
-        if mxf_checksum == checksum:            
-            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))       
-        else:            
-            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))         #14
+        if mxf_checksum == checksum:
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM MATCHES!'))
+        else:
+            append_csv(csv_report,(filename, unidecode.unidecode(series_title), unidecode.unidecode(prog_title), unidecode.unidecode(ep_num), checksum, mxf_checksum, 'CHECKSUM DOES NOT MATCH!'))
         
        
 
