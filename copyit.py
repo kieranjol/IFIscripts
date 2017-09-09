@@ -136,9 +136,11 @@ def make_manifest(
                 checksum_list.append([root, files])
     elif os.path.isfile(manifest_dir):
         checksum_list = [[os.path.dirname(manifest_dir), os.path.basename(manifest_dir)]]
+    if len(checksum_list) == 1:
+        source_counter = 1
     for files in checksum_list:
         print 'Generating MD5 for %s - %d of %d' % (
-            files, counter2, source_counter
+            os.path.join(files[0], files[1]), counter2, source_counter
             )
         md5 = hashlib_md5(os.path.join(files[0], files[1]))
         root2 = files[0].replace(path_to_remove, '')
@@ -358,6 +360,11 @@ def setup(args_):
         action='store_true',
         help='use gcp instead of rsync on osx for SPEED on LTO'
     )
+    parser.add_argument(
+        '-move',
+        action='store_true',
+        help='Move files instead of copying - much faster!'
+    )
     rootpos = ''
     dircheck = None
     args = parser.parse_args(args_)
@@ -420,6 +427,9 @@ def count_stuff(source):
             source_count += 1
             relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
             file_list.append(relative_path)
+    if os.path.isfile(source):
+        if len(file_list) == 0:
+            source_count = 1
     return source_count, file_list
 
 
@@ -623,10 +633,13 @@ def main(args_):
                 log_name_source,
                 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.'
             )
-        copy_dir(
-            source, destination_final_path,
-            log_name_source, rootpos, destination, dirname, args
-        )
+        if not args.move:
+            copy_dir(
+                source, destination_final_path,
+                log_name_source, rootpos, destination, dirname, args
+            )
+        else:
+            shutil.move(source, destination_final_path)
     else:
         generate_log(
             log_name_source,

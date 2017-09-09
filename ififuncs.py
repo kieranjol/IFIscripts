@@ -514,7 +514,8 @@ def parse_image_sequence(images):
         ffmpeg_friendly_name = image_seq_without_container
     start_number_length = len(start_number)
     number_regex = "%0" + str(start_number_length) + 'd.'
-    root_filename = ffmpeg_friendly_name
+    # remove trailing underscore
+    root_filename = ffmpeg_friendly_name[:-1]
     ffmpeg_friendly_name += number_regex + '%s' % container
     return ffmpeg_friendly_name, start_number, root_filename
 
@@ -878,3 +879,20 @@ def read_lines(infile):
     '''
     for lineno, line in enumerate(infile):
         yield lineno, line
+
+
+def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
+    '''
+    merges the contents of one log with another.
+    updates checksums in your manifest.
+    '''
+    with open(log_name_source, 'r') as concat_log:
+        concat_lines = concat_log.readlines()
+    with open(sipcreator_log, 'r') as sipcreator_log_object:
+        sipcreator_lines = sipcreator_log_object.readlines()
+    with open(sipcreator_log, 'wb') as fo:
+        for lines in concat_lines:
+            fo.write(lines)
+        for remaining_lines in sipcreator_lines:
+            fo.write(remaining_lines)
+    checksum_replace(sipcreator_manifest, sipcreator_log)
