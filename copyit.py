@@ -124,7 +124,13 @@ def make_manifest(
                 d for d in directories if d[0] != '.'
             ]
             directories[:] = [
-                d for d in directories if d[0] != 'System Volume Information'
+                d for d in directories if d != 'System Volume Information'
+            ]
+            directories[:] = [
+                d for d in directories if d != '$RECYCLE.BIN'
+            ]
+            directories[:] = [
+                d for d in directories if d != 'Seagate'
             ]
             filenames = [
                 f for f in filenames if os.path.basename(root) != 'System Volume Information'
