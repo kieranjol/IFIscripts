@@ -8,7 +8,7 @@ import subprocess
 
 
 def clamscan():
-    scan = subprocess.check_output([
+    scan = subprocess.call([
         'clamscan',
         '-r',
         starting_dir
