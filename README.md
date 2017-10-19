@@ -50,6 +50,7 @@ table of contents
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
+    * [viruscheck.py](https://github.com/kieranjol/IFIscripts#viruscheck.py)
 
 ## summary ##
 
@@ -263,3 +264,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### as11fixity.py ###
 * Work in progress script by @mahleranja and @ecodonohoe
 * There is a bash script in a different repository that works quite well for this purpose but that is OSX only.
+
+### viruscheck.py ###
+* Work in progress script by @ecodonohoe
+* Scans directories recursively using ClamAV
