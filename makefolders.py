@@ -11,7 +11,7 @@ def parse_args():
     Parse command line arguments.
     '''
     parser = argparse.ArgumentParser(
-        description='Wraps objects into an Irish Film Institute SIP'
+        description='Creates a folder structure for a film scanning workflow.'
         ' Written by Kieran O\'Leary.'
     )
     parser.add_argument(

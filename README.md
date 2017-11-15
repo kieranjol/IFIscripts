@@ -235,7 +235,7 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage: `dvsip.py /path/to/parent_folder` or `dvsip.py /path/to/file`
 
 ### makefolders.py ###
-* Creates Sa logs/objects/metadata folder structure with a UUID parent folder. This is specific to a film scanning workflow as there are seperate audio and image subfolders. You can specifiy the values on the command line or a terminal interview will appear which will prompt you for filmographic reference number, source accession number and title. Use `makefolders.py -h` for the full list of options.
+* Creates a logs/objects/metadata folder structure with a UUID parent folder. This is specific to a film scanning workflow as there are seperate audio and image subfolders. You can specifiy the values on the command line or a terminal interview will appear which will prompt you for filmographic reference number, source accession number and title. Use `makefolders.py -h` for the full list of options.
 * Usage: `makefolders.py -o /path/to/destination`
 
 ## Misc ##
