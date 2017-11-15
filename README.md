@@ -41,6 +41,7 @@ table of contents
     * [loopline.py](https://github.com/kieranjol/IFIscripts#looplinepy)
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
     * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
+    * [makefolders.py](https://github.com/kieranjol/IFIscripts#makefolderspy)
 9. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
@@ -232,6 +233,10 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 ### dvsip.py ###
 * Creates SIP for DV video files. Generates objects/logs/metadata dirs and creates mediatrace, mediainfo, framemd5, logfiles, MD5 sidecar and moves the DV file into the objects directory.
 * Usage: `dvsip.py /path/to/parent_folder` or `dvsip.py /path/to/file`
+
+### makefolders.py ###
+* Creates Sa logs/objects/metadata folder structure with a UUID parent folder. This is specific to a film scanning workflow as there are seperate audio and image subfolders. You can specifiy the values on the command line or a terminal interview will appear which will prompt you for filmographic reference number, source accession number and title. Use `makefolders.py -h` for the full list of options.
+* Usage: `makefolders.py -o /path/to/destination`
 
 ## Misc ##
 
