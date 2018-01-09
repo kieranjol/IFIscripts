@@ -605,7 +605,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, sou
                 )
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=completed')
         except OSError:
-            print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
+            print 'You do not have access to this directory. Perhaps it is read only, perhaps some files or folders have illegal characters, or the wrong file system\n'
             sys.exit()
     return manifest_sidecar, manifest, rootpos
 def main(args_):
