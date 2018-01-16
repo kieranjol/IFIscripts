@@ -30,11 +30,11 @@ def parse_args():
     )
     parser.add_argument(
         '-object_csv', required=True,
-        help='full path of objects csv'
+        help='full path and filename of the output objects CSV.'
     )
     parser.add_argument(
         '-event_csv', required=True,
-        help='full path of events csv'
+        help='full path and filename of the output events CSV'
     )
     parsed_args = parser.parse_args()
     return parsed_args

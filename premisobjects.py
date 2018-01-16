@@ -66,7 +66,7 @@ def file_description(source, manifest, representation_uuid, output):
             md5, uri = ififuncs.get_checksum(manifest, item)
             item_uuid = ififuncs.create_uuid()
             full_path = os.path.join(root, item)
-            print 'Using Siegfriend to analyze %s' % item
+            print 'Using Siegfried to analyze %s' % item
             pronom_id, authority, version = ififuncs.get_pronom_format(
                 full_path
             )
