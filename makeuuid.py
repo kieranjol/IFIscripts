@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''
-This script will create a new UUID  via ififuncs.create_uuid and print to terminal
+This script will create a new UUID
+via ififuncs.create_uuid and print to terminal
 '''
 from ififuncs import create_uuid
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''
 A collection of functions that other scripts can use.
 
@@ -54,6 +53,32 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         xmlvariable = subprocess.check_output(mediainfo_cmd)
         fo.write(xmlvariable)
 
+def make_exiftool(xmlfilename, inputfilename):
+    '''
+    Writes an exiftool XML output.
+    '''
+    exiftool_cmd = [
+        'exiftool',
+        '-X',
+        inputfilename
+    ]
+    with open(xmlfilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(exiftool_cmd)
+        fo.write(xmlvariable)
+def make_siegfried(xmlfilename, inputfilename):
+    '''
+    Writes a Siegfried/PRONOM json report.
+    '''
+    siegfried_cmd = [
+        'sf',
+        '-json',
+        inputfilename
+    ]
+    
+    with open(xmlfilename, "w+") as fo:
+        xmlvariable = subprocess.check_output(siegfried_cmd)
+        parsed = json.loads(xmlvariable)
+        fo.write(json.dumps(parsed, indent=4, sort_keys=True))
 
 def make_mediaconch(full_path, mediaconch_xmlfile):
     '''
@@ -460,7 +485,41 @@ def get_ffmpeg_friendly_name(images):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
             counter += 1
     return ffmpeg_friendly_name, container, start_number
-    
+
+def parse_image_sequence(images):
+    '''
+    Parses image sequence filenames so that they are easily passed to ffmpeg.
+    '''
+    if '864000' in images[0]:
+        start_number = '864000'
+    elif len(images[0].split("_")[-1].split(".")) > 2:
+        start_number = images[0].split("_")[-1].split(".")[1]
+    else:
+        start_number = images[0].split("_")[-1].split(".")[0]
+    container = images[0].split(".")[-1]
+    numberless_filename = images[0].split("_")[0:-1]
+    ffmpeg_friendly_name = ''
+    counter = 0
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        numberless_filename = images[0].split(".")[0:-1]
+        for i in numberless_filename[:-1]:
+            ffmpeg_friendly_name += i + '.'
+    else:
+        while counter < len(numberless_filename):
+            ffmpeg_friendly_name += numberless_filename[counter] + '_'
+            counter += 1
+
+    if len(images[0].split("_")[-1].split(".")) > 2:
+        image_seq_without_container = ffmpeg_friendly_name[:-1] + ffmpeg_friendly_name[-1].replace('_', '.')
+        ffmpeg_friendly_name = image_seq_without_container
+    start_number_length = len(start_number)
+    number_regex = "%0" + str(start_number_length) + 'd.'
+    # remove trailing underscore
+    root_filename = ffmpeg_friendly_name[:-1]
+    ffmpeg_friendly_name += number_regex + '%s' % container
+    return ffmpeg_friendly_name, start_number, root_filename
+
+
 def get_date_modified(filename):
     """Gets the date modified date of a filename in ISO8601 style.
 
@@ -531,7 +590,7 @@ def get_user():
         time.sleep(1)
     elif user == '6':
         user = 'Felix Meehan'
-        print 'Cork baiiiiiiii'
+        print 'Lime mortar > cement'
         time.sleep(1)
     return user
 
@@ -651,6 +710,8 @@ def get_object_entry():
         object_entry = raw_input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
+        if object_entry[:4] == 'scoe':
+            return object_entry
         if object_entry[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = False
@@ -839,3 +900,44 @@ def extract_metadata(csv_file):
         object_dictionaries.append(rows)
     return object_dictionaries
 
+def img_seq_pixfmt(start_number, path):
+    '''
+    Determine the pixel format of an image sequence
+    '''
+    ffprobe_cmd = [
+        'ffprobe',
+        '-start_number', start_number,
+        '-i', path,
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries',
+        'stream=pix_fmt',
+        '-of', 'default=noprint_wrappers=1:nokey=1'
+    ]
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    return pix_fmt
+
+
+def read_lines(infile):
+    '''
+    Returns line number and text from an textfile.
+    '''
+    for lineno, line in enumerate(infile):
+        yield lineno, line
+
+
+def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
+    '''
+    merges the contents of one log with another.
+    updates checksums in your manifest.
+    '''
+    with open(log_name_source, 'r') as concat_log:
+        concat_lines = concat_log.readlines()
+    with open(sipcreator_log, 'r') as sipcreator_log_object:
+        sipcreator_lines = sipcreator_log_object.readlines()
+    with open(sipcreator_log, 'wb') as fo:
+        for lines in concat_lines:
+            fo.write(lines)
+        for remaining_lines in sipcreator_lines:
+            fo.write(remaining_lines)
+    checksum_replace(sipcreator_manifest, sipcreator_log)

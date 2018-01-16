@@ -147,21 +147,19 @@ def find_cpl():
         return cpl_parse  
 
         
-def audio_delay_check(cpl_parse, cpl_namespace ):
-    # Check if there is an intended audio delay.    
-    count   = cpl_parse.xpath('count(//ns:MainSound/ns:EntryPoint)',namespaces={'ns': cpl_namespace} )
-    xmluuid_list               = cpl_parse.xpath('//ns:MainSound/ns:Id',namespaces={'ns': cpl_namespace})
-    print (xmluuid_list)  
-    EntryPoint_list          = cpl_parse.xpath('//ns:MainSound/ns:EntryPoint',namespaces={'ns': cpl_namespace})
-    dur_list                   = cpl_parse.xpath('//ns:MainSound/ns:Duration',namespaces={'ns': cpl_namespace})
-    dur_intrinsic_list         = cpl_parse.xpath('//ns:MainSound/ns:IntrinsicDuration',namespaces={'ns': cpl_namespace})    
+def delay_check(media_type,cpl_parse, cpl_namespace ):
+    # Check if there is an intended audio delay.
+    count   = cpl_parse.xpath('count(//ns:%s/ns:EntryPoint)' % media_type,namespaces={'ns': cpl_namespace} )
+    xmluuid_list               = cpl_parse.xpath('//ns:%s/ns:Id' % media_type,namespaces={'ns': cpl_namespace})
+    EntryPoint_list            = cpl_parse.xpath('//ns:%s/ns:EntryPoint' % media_type,namespaces={'ns': cpl_namespace})
+    dur_list                   = cpl_parse.xpath('//ns:%s/ns:Duration' % media_type,namespaces={'ns': cpl_namespace})
+    dur_intrinsic_list         = cpl_parse.xpath('//ns:%s/ns:IntrinsicDuration' % media_type,namespaces={'ns': cpl_namespace})
     counter = 0
     delays  = 0
+    audio_delay = {}
     while counter < count:
-        print (counter)
         audio_delay_values = []
         xmluuid = xmluuid_list[counter]
-        print (xmluuid.text, counter)
         EntryPoint = EntryPoint_list[counter]
         entrypoint_audio      = float(EntryPoint.text)
         if EntryPoint.text != '0':
@@ -181,11 +179,12 @@ def audio_delay_check(cpl_parse, cpl_namespace ):
         tail_delay = round(tail_delay, 3)
         audio_delay_values.append(tail_delay)
         audio_delay_values.append(file_paths[xmluuid.text][0])
+        # audio_delay stores [entrypoint, tail_delay, file_path]
         audio_delay[xmluuid.text] = audio_delay_values
-        counter += 1 
+        counter += 1
     test_list = []
     test_list.append(audio_delay)
-    test_list.append(delays)   
+    test_list.append(delays)
     return test_list
             
             
@@ -275,11 +274,14 @@ def concat():
                 dir_append    = dir + '/'
                 concat_string = 'file \'' 
                 concat_append = '\''
-            picture_files_fix1 = [dir_append + x for x in pic_mxfs]
+            if num_video_delays == 0:
+                picture_files_fix1 = [dir_append + x for x in pic_mxfs]
+            else:
+                picture_files_fix1 = [temp_dir + '/' + x + '.mkv' for x in pic_mxfs]
             # http://stackoverflow.com/a/2050721/2188572
             picture_files_fix2 = [concat_string + x for x in picture_files_fix1]
             finalpic           = [x + concat_append for x in picture_files_fix2]
-            if delays == 0:
+            if num_audio_delays == 0:
                 audio_files_fix1 = [dir_append + x  for x in aud_mxfs]
             else:
                 audio_files_fix1 = [temp_dir + '/' + x + '.mkv' for x in aud_mxfs]
@@ -450,23 +452,41 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             for sub_uuid in file_paths[sub_uuid_object.text]:            
                 subs.append(sub_uuid)
     
-        audio_delay_info = audio_delay_check(cpl_parse, cpl_namespace)
+        audio_delay_info = delay_check('MainSound',cpl_parse, cpl_namespace)
+        video_delay_info = delay_check('MainPicture',cpl_parse, cpl_namespace)
+
         audio_delay      = audio_delay_info[0]
-        delays           = audio_delay_info[1]
+        num_audio_delays  = audio_delay_info[1]
+        video_delay      = video_delay_info[0]
+        num_video_delays  = video_delay_info[1]
 
         if args.s:
             burn_subs()
         concat_list = concat()
         finalaudio  = concat_list[0]
         finalpic    = concat_list[1]
-        if delays == 0:
+        if num_audio_delays == 0:
             print( 'There were no audio delays.')
         else:
             for i in audio_delay:
+                print( 'rewrapping')
                 # Wrapping PCM in matroska as WAV has 4 gig limit.
-                subprocess.call(['ffmpeg','-ss',str(audio_delay[i][0]),'-c:v ','libopenjpeg',
+                rewrap = ['ffmpeg','-ss',str(audio_delay[i][0]),'-c:v ','libopenjpeg',
                 '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
-                '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv'])
+                '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv']
+                print rewrap
+                subprocess.call(rewrap)
+        if num_video_delays == 0:
+            print( 'There were no video delays.')
+        else:
+            for i in video_delay:
+                print( 'rewrapping')
+                # Wrapping PCM in matroska as WAV has 4 gig limit.
+                rewrap = ['ffmpeg','-ss',str(video_delay[i][0]),'-c:v ','libopenjpeg',
+                '-i',video_delay[i][2],'-t',str(video_delay[i][1]),
+                '-c:v','copy', temp_dir + '/'+ video_delay[i][2] + '.mkv']
+                print(rewrap)
+                subprocess.call(rewrap)        
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio) 
         command = ['ffmpeg','-f','concat','-safe', '0','-c:v ','libopenjpeg',

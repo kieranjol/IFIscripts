@@ -79,10 +79,11 @@ def remove_bad_files(root_dir, log_name_source):
             for i in rm_these:
                 if name == i:
                     print '***********************' + 'removing: ' + path
-                    generate_log(
-                        log_name_source,
-                        'EVENT = Unwanted file removal - %s was removed' % path
-                    )
+                    if not log_name_source == None:
+                        generate_log(
+                            log_name_source,
+                            'EVENT = Unwanted file removal - %s was removed' % path
+                        )
                     try:
                         os.remove(path)
                     except OSError:
@@ -105,7 +106,13 @@ def make_manifest(
             d for d in directories if d[0] != '.'
         ]
         directories[:] = [
-            d for d in directories if d[0] != 'System Volume Information'
+            d for d in directories if d != 'System Volume Information'
+        ]
+        directories[:] = [
+                d for d in directories if d != '$RECYCLE.BIN'
+        ]
+        directories[:] = [
+                d for d in directories if d != 'Seagate'
         ]
         filenames = [
             f for f in filenames if os.path.basename(root) != 'System Volume Information'
@@ -123,7 +130,13 @@ def make_manifest(
                 d for d in directories if d[0] != '.'
             ]
             directories[:] = [
-                d for d in directories if d[0] != 'System Volume Information'
+                d for d in directories if d != 'System Volume Information'
+            ]
+            directories[:] = [
+                d for d in directories if d != '$RECYCLE.BIN'
+            ]
+            directories[:] = [
+                d for d in directories if d != 'Seagate'
             ]
             filenames = [
                 f for f in filenames if os.path.basename(root) != 'System Volume Information'
@@ -135,9 +148,11 @@ def make_manifest(
                 checksum_list.append([root, files])
     elif os.path.isfile(manifest_dir):
         checksum_list = [[os.path.dirname(manifest_dir), os.path.basename(manifest_dir)]]
+    if len(checksum_list) == 1:
+        source_counter = 1
     for files in checksum_list:
         print 'Generating MD5 for %s - %d of %d' % (
-            files, counter2, source_counter
+            os.path.join(files[0], files[1]), counter2, source_counter
             )
         md5 = hashlib_md5(os.path.join(files[0], files[1]))
         root2 = files[0].replace(path_to_remove, '')
@@ -184,6 +199,7 @@ def copy_dir(
                 '/E', '/XA:SH',
                 '/XD', '.*',
                 '/XD', '*System Volume Information*',
+                '/XD', 'Seagate',
                 '/XD', '$Recycle.bin', '/a-:SH', '/a+:R'
             ])
             generate_log(
@@ -300,9 +316,7 @@ def manifest_file_count(manifest2check):
             manifest_files = []
             manifest_lines = [line.split(',') for line in fo.readlines()]
             for line in manifest_lines:
-                for a in line:
-                    a = a.split('\\')
-                    manifest_files.append(a[-1].rsplit()[0])
+                manifest_files.append(line[0][34:].rstrip())
             count_in_manifest = len(manifest_lines)
             manifest_info = [count_in_manifest, manifest_files]
     return manifest_info
@@ -326,12 +340,15 @@ def check_for_sip(args):
     This checks if the input folder contains the actual payload, eg:
     the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
     '''
+    remove_bad_files(args, None)
     for filenames in os.listdir(args):
+        # make sure that it's an IFI SIP.
         if 'manifest.md5' in filenames:
-            dircheck = filenames.replace('_manifest.md5', '')
-            if os.path.isdir(os.path.join(args, dircheck)):
-                print 'ifi sip found'
-                return os.path.join(args, dircheck)
+            if len(os.listdir(args)) == 2:
+                dircheck = filenames.replace('_manifest.md5', '')
+                if os.path.isdir(os.path.join(args, dircheck)):
+                    print 'ifi sip found'
+                    return os.path.join(args, dircheck)
 
 
 def setup(args_):
@@ -355,6 +372,11 @@ def setup(args_):
         '-l', '-lto',
         action='store_true',
         help='use gcp instead of rsync on osx for SPEED on LTO'
+    )
+    parser.add_argument(
+        '-move',
+        action='store_true',
+        help='Move files instead of copying - much faster!'
     )
     rootpos = ''
     dircheck = None
@@ -411,12 +433,16 @@ def count_stuff(source):
     '''
     source_count = 0
     file_list = []
-    for _, directories, filenames in os.walk(source):
+    for root, directories, filenames in os.walk(source):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
             source_count += 1
-            file_list.append(files)
+            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            file_list.append(relative_path)
+    if os.path.isfile(source):
+        if len(file_list) == 0:
+            source_count = 1
     return source_count, file_list
 
 
@@ -469,7 +495,7 @@ def manifest_existence(
         manifest_info = manifest_file_count(manifest)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
-        proceed = 'y' 
+        proceed = 'y'
     if proceed == 'y':
         if source_count != count_in_manifest:
             print 'checking which files are different'
@@ -579,7 +605,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, sou
                 )
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=completed')
         except OSError:
-            print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
+            print 'You do not have access to this directory. Perhaps it is read only, perhaps some files or folders have illegal characters, or the wrong file system\n'
             sys.exit()
     return manifest_sidecar, manifest, rootpos
 def main(args_):
@@ -620,10 +646,13 @@ def main(args_):
                 log_name_source,
                 'EVENT = File Transfer Overwrite - Destination directory already exists - Overwriting.'
             )
-        copy_dir(
-            source, destination_final_path,
-            log_name_source, rootpos, destination, dirname, args
-        )
+        if not args.move:
+            copy_dir(
+                source, destination_final_path,
+                log_name_source, rootpos, destination, dirname, args
+            )
+        else:
+            shutil.move(source, destination_final_path)
     else:
         generate_log(
             log_name_source,
