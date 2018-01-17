@@ -98,6 +98,23 @@ def file_description(source, manifest, representation_uuid, output):
             ]
             ififuncs.append_csv(output, file_data)
     return item_ids
+
+def build_relationships():
+    '''
+    Placeholder function that will produce a CSV containing the relationships 
+    within a PREMIS object description. 
+    '''
+    relationships = [
+        "relationship_uuid",
+        "objectIdentifierValue",
+        "relationshipType",
+        "relationshipSubType",
+        "relatedObjectIdentifierType",
+        "relatedObjectIdentifierValue",
+        "relatedEventIdentifierType",
+        "relatedEventIdentifierValue",
+        "relatedEventSequence"
+    ]
 def representation_description(representation_uuid, item_ids, output):
     '''
     Generate PREMIS descriptions for a representation and write to CSV.
