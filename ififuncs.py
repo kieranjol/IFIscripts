@@ -278,6 +278,30 @@ def hashlib_md5(filename):
     return md5_output
 
 
+def hashlib_sha512(filename):
+    '''
+    Note, this should eventually merged with the hashlib_md5 function.
+    uses hashlib to return an sha512 checksum of an input filename
+    '''
+    read_size = 0
+    last_percent_done = 0
+    m = hashlib.sha512()
+    total_size = os.path.getsize(filename)
+    with open(str(filename), 'rb') as f:
+        while True:
+            buf = f.read(2**20)
+            if not buf:
+                break
+            read_size += len(buf)
+            m.update(buf)
+            percent_done = 100 * read_size / total_size
+            if percent_done > last_percent_done:
+                sys.stdout.write('[%d%%]\r' % percent_done)
+                sys.stdout.flush()
+                last_percent_done = percent_done
+    sha512_output = m.hexdigest()
+    return sha512_output
+
 def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     '''
     Creates an MD5 manifest with relative filepaths.
@@ -314,6 +338,42 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
         for i in manifest_list:
             fo.write(i + '\n')
 
+def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
+    '''
+    Note: This should be merged with hashlib_manifest()
+    Creates a sha512 manifest with relative filepaths.
+    '''
+    file_count = 0
+    for root, directories, filenames in os.walk(manifest_dir):
+        filenames = [f for f in filenames if not f[0] == '.']
+        directories[:] = [d for d in directories if not d[0] == '.']
+        for files in filenames:
+            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            file_count += 1
+    manifest_generator = ''
+    md5_counter = 1
+    for root, directories, filenames in os.walk(manifest_dir):
+        filenames = [f for f in filenames if f[0] != '.']
+        directories[:] = [d for d in directories if d[0] != '.']
+        for files in filenames:
+            print 'Generating SHA512 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            sha512 = hashlib_sha512(os.path.join(root, files))
+            md5_counter += 1
+            root2 = os.path.abspath(root).replace(path_to_remove, '')
+            try:
+                if root2[0] == '/':
+                    root2 = root2[1:]
+                if root2[0] == '\\':
+                    root2 = root2[1:]
+            except: IndexError
+            manifest_generator += sha512[:128] + '  ' + os.path.join(root2, files).replace("\\", "/") + '\n'
+    manifest_list = manifest_generator.splitlines()
+    files_in_manifest = len(manifest_list)
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
+    with open(manifest_textfile, "wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
 
 def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     '''
