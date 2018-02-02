@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 '''
-Generates sidecar MD5 checksum manifest.
+Generates sidecar MD5 or SHA512 checksum manifest.
 '''
 import sys
 import os
 import argparse
 import time
 import shutil
+import ififuncs
 from ififuncs import generate_log
 from ififuncs import manifest_file_count
 from ififuncs import hashlib_manifest
@@ -55,7 +56,11 @@ def main():
         action='store_true',
         help='Felix Meehan workflow - places manifest inside of source directory'
     )
-
+    parser.add_argument(
+        '-sha512',
+        action='store_true',
+        help='Generates sha512 checksums instead of md5'
+    )
     args = parser.parse_args()
     source = args.source
     source_parent_dir = os.path.dirname(source)
@@ -65,18 +70,27 @@ def main():
         args.source
     )  + time.strftime("_%Y_%m_%dT%H_%M_%S")
     if args.s:
-        manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
+        if args.sha512:
+            manifest = source_parent_dir + '/%s_manifest-sha512.txt' % relative_path
+        else:
+            manifest = source_parent_dir + '/%s_manifest.md5' % relative_path
         log_name_source = source_parent_dir + '/%s.log' % log_name_source_
     elif args.f:
-        manifest = source + '/%s_manifest.md5' % relative_path
+        if args.sha512:
+            manifest = source_parent_dir + '/%s_manifest-sha512.txt' % relative_path
+        else:
+            manifest = source + '/%s_manifest.md5' % relative_path
         log_name_source = source_parent_dir + '/%s.log' % log_name_source_
     else:
-        manifest_ = '/%s_manifest.md5' % relative_path
+        if args.sha512:
+            manifest_ = manifest_ = '/%s_manifest-sha512.txt' % relative_path
+        else:
+            manifest_ = '/%s_manifest.md5' % relative_path
         desktop_manifest_dir = make_desktop_manifest_dir()
         manifest = "%s/%s" % (desktop_manifest_dir, manifest_)
         desktop_logs_dir = make_desktop_logs_dir()
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
-    generate_log(log_name_source, 'move.py started.')
+    generate_log(log_name_source, 'manifest.py started.')
     generate_log(log_name_source, 'Source: %s' % source)
     if os.path.isfile(source):
         print '\nFile checksum is not currently supported, only directories.\n'
@@ -104,10 +118,16 @@ def main():
         try:
             print 'Generating source manifest'
             if args.f:
-                hashlib_manifest(source, manifest, source)
+                if args.sha512:
+                    ififuncs.sha512_manifest(source, manifest, source)
+                else:
+                    hashlib_manifest(source, manifest, source)
                 shutil.move(log_name_source, source)
             else:
-                hashlib_manifest(source, manifest, source_parent_dir)
+                if args.sha512:
+                    ififuncs.sha512_manifest(source, manifest, source_parent_dir)
+                else:
+                    hashlib_manifest(source, manifest, source_parent_dir)
             generate_log(log_name_source, 'EVENT = Generating source manifest')
         except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
