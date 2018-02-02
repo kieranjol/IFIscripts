@@ -784,6 +784,26 @@ def get_object_entry():
         else:
             return object_entry
 
+def get_accession_number():
+    '''
+    Asks user for an accession number. A valid number (OE####) must be provided.
+    '''
+    accession_number = False
+    while accession_number is False:
+        accession_number = raw_input(
+            '\n\n**** Please enter the accession number of the representation\n\n'
+        )
+        if accession_number[:3] != 'aaa':
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            accession_number = False
+        elif len(accession_number[3:]) != 4:
+            accession_number = False
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+        elif not accession_number[3:].isdigit():
+            accession_number = False
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+        else:
+            return accession_number
 
 def get_contenttitletext(cpl):
     '''
