@@ -34,7 +34,7 @@ def remove_bad_files(root_dir, log_name_source):
                         os.remove(path)
                     except OSError:
                         print 'can\'t delete as source is read-only'
-def main():
+def main(args_):
     '''
     Overly long main function that makes a sidecar manifest.
     This needs to get broken up into smaller functions.
@@ -61,7 +61,7 @@ def main():
         action='store_true',
         help='Generates sha512 checksums instead of md5'
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args_)
     source = args.source
     source_parent_dir = os.path.dirname(source)
     normpath = os.path.normpath(source)
@@ -137,4 +137,4 @@ def main():
     print 'Manifest created in %s' % manifest
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
