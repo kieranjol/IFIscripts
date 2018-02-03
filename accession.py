@@ -9,6 +9,7 @@ MIT License
 import sys
 import os
 import ififuncs
+import manifest
 
 
 def main():
@@ -30,6 +31,8 @@ def main():
         if proceed == 'Y':
             os.rename(oe_path, accession_path)
         print oe_path, accession_path
+        new_uuid_path = os.path.join(accession_path, os.path.basename(uuid_directory))
+        manifest.main([new_uuid_path, '-sha512', '-s'])
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
 if __name__ == '__main__':
