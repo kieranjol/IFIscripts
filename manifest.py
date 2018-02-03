@@ -95,12 +95,12 @@ def main(args_):
     if os.path.isfile(source):
         print '\nFile checksum is not currently supported, only directories.\n'
         generate_log(log_name_source, 'Error: Attempted to generate manifest for file. Only Directories/Folders are currently supported')
-        generate_log(log_name_source, 'move.py exit')
+        generate_log(log_name_source, 'manifest.py exit')
         sys.exit()
     elif not os.path.isdir(source):
         print ' %s is either not a directory or it does not exist' % source
         generate_log(log_name_source, ' %s is either not a directory or it does not exist' % source)
-        generate_log(log_name_source, 'move.py exit')
+        generate_log(log_name_source, 'manifest.py exit')
         sys.exit()
     remove_bad_files(source, log_name_source)
     source_count = 0
@@ -117,6 +117,7 @@ def main(args_):
     if not os.path.isfile(manifest):
         try:
             print 'Generating source manifest'
+            generate_log(log_name_source, 'EVENT = Generating source manifest')
             if args.f:
                 if args.sha512:
                     ififuncs.sha512_manifest(source, manifest, source)
@@ -128,13 +129,13 @@ def main(args_):
                     ififuncs.sha512_manifest(source, manifest, source_parent_dir)
                 else:
                     hashlib_manifest(source, manifest, source_parent_dir)
-            generate_log(log_name_source, 'EVENT = Generating source manifest')
         except OSError:
             print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
             sys.exit()
     else:
         generate_log(log_name_source, 'EVENT = Existing source manifest check - Source manifest already exists. Script will exit. ')
     print 'Manifest created in %s' % manifest
+    generate_log(log_name_source, 'Manifest created in %s' % manifest)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
