@@ -91,6 +91,24 @@ def main(args_):
         desktop_logs_dir = make_desktop_logs_dir()
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
     generate_log(log_name_source, 'manifest.py started.')
+    if sys.platform == "win32":
+            generate_log(
+                log_name_source,
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=Windows'
+            )
+    if sys.platform == "darwin":
+            generate_log(
+                log_name_source,
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=OSX'
+            )
+    elif sys.platform == "linux2":
+        generate_log(
+                log_name_source,
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=Linux'
+            )
+    ififuncs.generate_log(
+        log_name_source,
+        'eventDetail=manifest.py %s' % ififuncs.get_script_version('manifest.py'))
     generate_log(log_name_source, 'Source: %s' % source)
     if os.path.isfile(source):
         print '\nFile checksum is not currently supported, only directories.\n'
