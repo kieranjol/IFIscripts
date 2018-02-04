@@ -154,6 +154,7 @@ def main(args_):
         generate_log(log_name_source, 'EVENT = Existing source manifest check - Source manifest already exists. Script will exit. ')
     print 'Manifest created in %s' % manifest
     generate_log(log_name_source, 'Manifest created in %s' % manifest)
+    return log_name_source
 
 if __name__ == '__main__':
     main(sys.argv[1:])
