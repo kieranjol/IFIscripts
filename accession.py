@@ -68,7 +68,7 @@ def main(args_):
         )
         ififuncs.generate_log(
             sipcreator_log,
-            'EVENT = eventType=Identifier assignement,'
+            'EVENT = eventType=Identifier assignment,'
             ' eventIdentifierType=accession number, value=%s'
             % accession_number
         )
