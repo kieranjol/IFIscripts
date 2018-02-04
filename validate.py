@@ -137,7 +137,10 @@ def check_manifest(input, log_name_source):
     return manifest
 def log_results(manifest, log, args):
     updated_manifest = []
-    basename = os.path.basename(manifest).replace('_manifest.md5', '')
+    if 'manifest-sha512.txt' in manifest:
+        basename = os.path.basename(manifest).replace('_manifest-sha512.txt', '')
+    else:
+        basename = os.path.basename(manifest).replace('_manifest.md5', '')
     logname = basename + '_sip_log.log'
     sip_dir = os.path.join(
         os.path.dirname(args.input), basename)
@@ -153,11 +156,15 @@ def log_results(manifest, log, args):
             manifest_lines = manifesto.readlines()
             for lines in manifest_lines:
                 if logname in lines:
-                    lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
+                    if 'manifest-sha512.txt' in manifest:
+                        lines = lines[:127].replace(lines[:127], ififuncs.hashlib_sha512(logfile)) + lines[128:]
+                    else:
+                        lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
                 updated_manifest.append(lines)
         with open(manifest, 'wb') as fo:
             for lines in updated_manifest:
                 fo.write(lines)
+
 
 def main():
     parser = make_parser()
