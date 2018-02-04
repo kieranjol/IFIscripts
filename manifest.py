@@ -90,21 +90,25 @@ def main(args_):
         manifest = "%s/%s" % (desktop_manifest_dir, manifest_)
         desktop_logs_dir = make_desktop_logs_dir()
         log_name_source = "%s/%s.log" % (desktop_logs_dir, log_name_source_)
+    if args.sha512:
+        module = 'hashlib.sha512'
+    else:
+        module = 'hashlib.md5'
     generate_log(log_name_source, 'manifest.py started.')
     if sys.platform == "win32":
             generate_log(
                 log_name_source,
-                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=Windows'
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=%s, agent=Windows' % module
             )
     if sys.platform == "darwin":
             generate_log(
                 log_name_source,
-                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=OSX'
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=%s, agent=OSX' % module
             )
     elif sys.platform == "linux2":
         generate_log(
                 log_name_source,
-                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=hashlib, agent=Linux'
+                'EVENT = Generating manifest: status=started, eventType=message digest calculation, module=%s, agent=Linux' % module
             )
     ififuncs.generate_log(
         log_name_source,
