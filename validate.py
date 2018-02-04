@@ -46,7 +46,10 @@ def parse_manifest(manifest, log_name_source):
         manifest_list = manifest_object.readlines()
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
-            path = entries[34:].replace('\r', '').replace('\n', '')
+            if 'manifest-sha512.txt' in manifest:
+                path = entries[130:].replace('\r', '').replace('\n', '')
+            else:
+                path = entries[34:].replace('\r', '').replace('\n', '')
             path = path.replace('\\', '/')
             if not os.path.isfile(path):
                 ififuncs.generate_log(
@@ -83,7 +86,10 @@ def validate(manifest_dict, manifest,missing_files, log_name_source):
 
     for i in sorted(manifest_dict.keys()):
         print 'Validating %s' % i
-        current_hash = hashlib_md5(i)
+        if 'manifest-sha512.txt' in manifest:
+            current_hash = ififuncs.hashlib_sha512(i)
+        else:
+            current_hash = hashlib_md5(i)
         if current_hash == manifest_dict[i]:
             print '%s has validated' % i
         else:
