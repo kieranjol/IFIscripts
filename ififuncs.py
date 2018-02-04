@@ -784,6 +784,26 @@ def get_object_entry():
         else:
             return object_entry
 
+def get_accession_number():
+    '''
+    Asks user for an accession number. A valid number (OE####) must be provided.
+    '''
+    accession_number = False
+    while accession_number is False:
+        accession_number = raw_input(
+            '\n\n**** Please enter the accession number of the representation\n\n'
+        )
+        if accession_number[:3] != 'aaa':
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            accession_number = False
+        elif len(accession_number[3:]) != 4:
+            accession_number = False
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+        elif not accession_number[3:].isdigit():
+            accession_number = False
+            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+        else:
+            return accession_number
 
 def get_contenttitletext(cpl):
     '''
@@ -956,3 +976,77 @@ def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
         for remaining_lines in sipcreator_lines:
             fo.write(remaining_lines)
     checksum_replace(sipcreator_manifest, sipcreator_log)
+
+def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
+    '''
+    merges the contents of one log with another.
+    updates checksums in your manifest.
+    This is almost identical to the merge_logs function,except that log_name_source
+    is appended to sipcreator_log,not prepended.
+    '''
+    with open(log_name_source, 'r') as concat_log:
+        concat_lines = concat_log.readlines()
+    with open(sipcreator_log, 'r') as sipcreator_log_object:
+        sipcreator_lines = sipcreator_log_object.readlines()
+    with open(sipcreator_log, 'wb') as fo:
+        for lines in sipcreator_lines:
+            fo.write(lines)
+        for remaining_lines in concat_lines:
+            fo.write(remaining_lines)
+    checksum_replace(sipcreator_manifest, sipcreator_log)
+def logname_check(basename, logs_dir):
+    '''
+    Currently we have a few different logname patterns in our packages.
+    This attempts to return the appropriate one.
+    '''
+    makeffv1_logfile = os.path.join(
+        logs_dir, basename +'.mov_log.log')
+    generic_logfile = os.path.join(
+        logs_dir, basename +'_log.log')
+    mxf_logfile = os.path.join(
+        logs_dir, basename +'.mxf_log.log')
+    sipcreator_logfile = os.path.join(
+        logs_dir, basename + '_sip_log.log')
+    mkv_log = os.path.join(
+        logs_dir, basename +'.mkv_log.log')
+    if os.path.isfile(makeffv1_logfile):
+        return makeffv1_logfile
+    if os.path.isfile(generic_logfile):
+        return generic_logfile
+    if os.path.isfile(mxf_logfile):
+        return mxf_logfile
+    if os.path.isfile(sipcreator_logfile):
+        return sipcreator_logfile
+    if os.path.isfile(mkv_log):
+        return mkv_log
+
+
+def log_results(manifest, log, parent_dir):
+    '''
+    Updates the existing log file.
+    '''
+    updated_manifest = []
+    basename = os.path.basename(manifest).replace('_manifest.md5', '')
+    sip_dir = parent_dir
+    logs_dir = os.path.join(sip_dir, 'logs')
+    logname = logname_check(basename, logs_dir)
+    logfile = os.path.join(logs_dir, logname)
+    ififuncs.generate_log(
+        log,
+        'EVENT = Logs consolidation - Log from %s merged into %s' % (log, logfile)
+    )
+    if os.path.isfile(logfile):
+        with open(log, 'r') as fo:
+            validate_log = fo.readlines()
+        with open(logfile, 'ab') as ba:
+            for lines in validate_log:
+                ba.write(lines)
+    with open(manifest, 'r') as manifesto:
+        manifest_lines = manifesto.readlines()
+        for lines in manifest_lines:
+            if os.path.basename(logname) in lines:
+                lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
+            updated_manifest.append(lines)
+    with open(manifest, 'wb') as fo:
+        for lines in updated_manifest:
+            fo.write(lines)

@@ -7,6 +7,7 @@ table of contents
 1. [summary](https://github.com/kieranjol/IFIscripts#summary)
 2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
+    * [accession.py](https://github.com/kieranjol/IFIscripts#accessionpy)
 3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -71,6 +72,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage for more than one directory - `sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder`
 * Run `sipcreator.py -h` for all options.
 
+### accession.py ###
+* Accessions a package that has been through the Object Entry procedure.
+* Currently this just works with packages that have been generated using `sipcreator.py`. SHA512 manifests are created,the OE number is replaced by an accession number, and the sipcreator logfile is updated with the various events that have taken place.
+* Usage for one directory - `accession.py /path/to/directory_name`
+* Run `accession.py -h` for all options.
+
 ## Transcodes ##
 
 ### makeffv1.py ###
@@ -123,16 +130,19 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Dependencies:  OSX requires gcp - `brew install coreutils`
 
 ### manifest.py ###
-* Creates relative md5 checksum manifest of a directory.
-* Usage: ` manifest.py directory`
+* Creates relative md5 or sha512 checksum manifest of a directory.
+* Usage: ` manifest.py directory` or for sha512 hashes: ` manifest.py -sha512 directory`
+* By default, these hashes are stored in a desktop directory, but use the `-s` option in order to generate a sidcecar in the same directory as your source.
+* Run `manifest.py -h` to see all options.
 
 ### sha512deep.py ###
 * Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now. name is a play on the hashdeep toolset.
 * Usage: ` sha512deep.py directory`
 
 ### validate.py ###
-* Validate md5 sidecar manifest. Currently the script expects two spaces between the checksum and the filename.
-* Usage: ` validate.py /path/to/manifest.md5`
+* Validate md5 or SHA512 sidecar manifests. Currently the script expects two spaces between the checksum and the filename.
+* In packages that have been generated with sipcreator.py, the results of the process will be added to the logfile and the checksum for the logfile will update within the md5 and sha512 manifests
+* Usage: ` validate.py /path/to/manifest.md5` or ` validate.py /path/to/_manifest-sha512.txt`
 
 ### batchfixity.py ###
 * Batch MD5 checksum generator. Accepts a parent folder as input and will generate manifest for each subfolder. Designed for a specific IFI Irish Film Archive workflow.

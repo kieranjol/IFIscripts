@@ -46,7 +46,10 @@ def parse_manifest(manifest, log_name_source):
         manifest_list = manifest_object.readlines()
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
-            path = entries[34:].replace('\r', '').replace('\n', '')
+            if 'manifest-sha512.txt' in manifest:
+                path = entries[130:].replace('\r', '').replace('\n', '')
+            else:
+                path = entries[34:].replace('\r', '').replace('\n', '')
             path = path.replace('\\', '/')
             if not os.path.isfile(path):
                 ififuncs.generate_log(
@@ -83,7 +86,10 @@ def validate(manifest_dict, manifest,missing_files, log_name_source):
 
     for i in sorted(manifest_dict.keys()):
         print 'Validating %s' % i
-        current_hash = hashlib_md5(i)
+        if 'manifest-sha512.txt' in manifest:
+            current_hash = ififuncs.hashlib_sha512(i)
+        else:
+            current_hash = hashlib_md5(i)
         if current_hash == manifest_dict[i]:
             print '%s has validated' % i
         else:
@@ -131,7 +137,11 @@ def check_manifest(input, log_name_source):
     return manifest
 def log_results(manifest, log, args):
     updated_manifest = []
-    basename = os.path.basename(manifest).replace('_manifest.md5', '')
+    if 'manifest-sha512.txt' in manifest:
+        basename = os.path.basename(manifest).replace('_manifest-sha512.txt', '')
+    else:
+        basename = os.path.basename(manifest).replace('_manifest.md5', '')
+    possible_manifests = [basename + '_manifest-sha512.txt', basename + '_manifest.md5']
     logname = basename + '_sip_log.log'
     sip_dir = os.path.join(
         os.path.dirname(args.input), basename)
@@ -143,15 +153,21 @@ def log_results(manifest, log, args):
         with open(logfile, 'ab') as ba:
             for lines in validate_log:
                 ba.write(lines)
-        with open(manifest, 'r') as manifesto:
-            manifest_lines = manifesto.readlines()
-            for lines in manifest_lines:
-                if logname in lines:
-                    lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
-                updated_manifest.append(lines)
-        with open(manifest, 'wb') as fo:
-            for lines in updated_manifest:
-                fo.write(lines)
+        for possible_manifest in possible_manifests:
+            if os.path.isfile(possible_manifest):
+                with open(possible_manifest, 'r') as manifesto:
+                    manifest_lines = manifesto.readlines()
+                    for lines in manifest_lines:
+                        if logname in lines:
+                            if 'manifest-sha512.txt' in possible_manifest:
+                                lines = lines[:127].replace(lines[:127], ififuncs.hashlib_sha512(logfile)) + lines[128:]
+                            else:
+                                lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
+                        updated_manifest.append(lines)
+                with open(possible_manifest, 'wb') as fo:
+                    for lines in updated_manifest:
+                        fo.write(lines)
+
 
 def main():
     parser = make_parser()
