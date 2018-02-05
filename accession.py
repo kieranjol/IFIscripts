@@ -24,6 +24,17 @@ def parse_args(args_):
     parser.add_argument(
         'source', help='Input directory'
     )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-number',
+        help='Enter the Accession number for the representation.The parent Object Entry number will be replaced with this name.'
+    )
+    parser.add_argument(
+        '-force',
+        help='Renames OE with accession number without confirmation.', action='store_true'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 def main(args_):
@@ -36,8 +47,24 @@ def main(args_):
     if uuid_directory is not None:
         oe_path = os.path.dirname(uuid_directory)
         oe_number = os.path.basename(oe_path)
-        user = ififuncs.get_user()
-        accession_number = ififuncs.get_accession_number()
+        if args.user:
+            user = args.user
+        else:
+            user = ififuncs.get_user()
+        if args.number:
+            if args.number[:3] != 'aaa':
+                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+                accession_number = ififuncs.get_accession_number()
+            elif len(args.number[3:]) != 4:
+                accession_number = ififuncs.get_accession_number()
+                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            elif not args.number[3:].isdigit():
+                accession_number = ififuncs.get_accession_number()
+                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            else:
+                accession_number = args.number
+        else:
+            accession_number = ififuncs.get_accession_number()
         accession_path = os.path.join(
             os.path.dirname(oe_path), accession_number
         )
@@ -45,9 +72,12 @@ def main(args_):
         new_uuid_path = os.path.join(accession_path, uuid)
         logs_dir = os.path.join(new_uuid_path, 'logs')
         sipcreator_log = os.path.join(logs_dir, uuid) + '_sip_log.log'
-        proceed = ififuncs.ask_yes_no(
-            'Do you want to rename %s with %s' % (oe_number, accession_number)
-        )
+        if args.force:
+            proceed = 'Y'
+        else:
+            proceed = ififuncs.ask_yes_no(
+                'Do you want to rename %s with %s' % (oe_number, accession_number)
+            )
         if proceed == 'Y':
             os.rename(oe_path, accession_path)
         ififuncs.generate_log(
