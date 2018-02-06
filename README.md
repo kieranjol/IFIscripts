@@ -63,6 +63,8 @@ Most scripts take either a file or a directory as their input, for example `make
 
 Note: Documentation template has been copied from [mediamicroservices](https://github.com/mediamicroservices/mm)
 
+NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_to_dfxml.py` has also been copied but has been customised in order to add command line arguments for optionally turning off checksum generation. For more context, see https://github.com/simsong/dfxml/pull/28
+
 ## Arrangement ##
 
 ### sipcreator.py ###
