@@ -20,6 +20,7 @@ table of contents
 5. [Fixity Scripts](https://github.com/kieranjol/IFIscripts#fixity-scripts)
     * [copyit.py](https://github.com/kieranjol/IFIscripts#copyitpy)
     * [manifest.py](https://github.com/kieranjol/IFIscripts#manifestpy)
+    * [makedfxml.py](https://github.com/kieranjol/IFIscripts#makedfxmlpy)
     * [sha512deep.py](https://github.com/kieranjol/IFIscripts#sha512deeppy)
     * [validate.py](https://github.com/kieranjol/IFIscripts#validatepy)
     * [batchfixity.py](https://github.com/kieranjol/IFIscripts#batchfixitypy)
@@ -134,6 +135,12 @@ Note: Documentation template has been copied from [mediamicroservices](https://g
 * Usage: ` manifest.py directory` or for sha512 hashes: ` manifest.py -sha512 directory`
 * By default, these hashes are stored in a desktop directory, but use the `-s` option in order to generate a sidcecar in the same directory as your source.
 * Run `manifest.py -h` to see all options.
+
+### makedfxml.py ###
+* Prints Digital Forensics XML to your terminal. Hashes are turned off for now as these will usually already exist in a manifest. The main purpose of this script is to preserve file system metadata such as date created/date modified/date accessed.
+* This is a launcher script for an edited version of 'https://github.com/simsong/dfxml/blob/master/python/walk_to_dfxml.py'. The edited version of `walk_to_dfxml.py` and the `Objects.py` library have been copied into this repository for the sake of convenience.
+* Usage: ` makedfxml.py directory`.
+* NOTE: This is currently a proof of concept. Further options, logging and integration into other scripts will be needed.q
 
 ### sha512deep.py ###
 * Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now. name is a play on the hashdeep toolset.
