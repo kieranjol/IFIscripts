@@ -8,7 +8,7 @@ import subprocess
 from lxml import etree
 
 
-def parse_args():
+def parse_args(args_):
     '''
     Parse command line arguments.
     '''
@@ -25,16 +25,16 @@ def parse_args():
         '-o',
         help='full path to an output XML file'
     )
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def main():
+def main(args_):
     '''
     Launches the functions that will print your digital forensics XML.
     Hashes are turned off by default.
     '''
-    args = parse_args()
+    args = parse_args(args_)
     if args.o:
         if not args.o.endswith("xml"):
             print 'output file must be XML'
@@ -51,4 +51,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
