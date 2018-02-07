@@ -882,6 +882,32 @@ def manifest_update(manifest, path):
         for i in manifest_list:
             fo.write(i + '\n')
 
+def sha512_update(manifest, path):
+    '''
+    Adds a new entry to your sha512 manifest and sort.
+    Yet another SHA512 script that needs to be merged with the MD5 functions.
+    '''
+    manifest_generator = ''
+    with open(manifest, 'r') as fo:
+        original_lines = fo.readlines()
+        sha512 = hashlib_sha512(path)
+        path_to_remove = os.path.dirname(os.path.dirname(os.path.dirname(path)))
+        root2 = os.path.abspath(path).replace(path_to_remove, '')
+        try:
+            if root2[0] == '/':
+                root2 = root2[1:]
+            if root2[0] == '\\':
+                root2 = root2[1:]
+        except: IndexError
+        manifest_generator += sha512[:128] + '  ' + root2.replace("\\", "/") + '\n'
+        for i in original_lines:
+            manifest_generator += i
+    manifest_list = manifest_generator.splitlines()
+    # http://stackoverflow.com/a/31306961/2188572
+    manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
+    with open(manifest,"wb") as fo:
+        for i in manifest_list:
+            fo.write(i + '\n')
 def check_for_uuid(args):
     '''
     Tries to check if a filepath contains a UUID.
