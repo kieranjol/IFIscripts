@@ -161,12 +161,13 @@ def log_results(manifest, log, args):
                         if logname in lines:
                             if 'manifest-sha512.txt' in possible_manifest:
                                 lines = lines[:127].replace(lines[:127], ififuncs.hashlib_sha512(logfile)) + lines[128:]
-                            else:
+                            elif '_manifest.md5' in possible_manifest:
                                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
                         updated_manifest.append(lines)
                 with open(possible_manifest, 'wb') as fo:
                     for lines in updated_manifest:
                         fo.write(lines)
+                updated_manifest = []
 
 
 def main():
