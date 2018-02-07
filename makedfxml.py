@@ -21,6 +21,10 @@ def parse_args():
         'input',
         help='full path of input directory.'
     )
+    parser.add_argument(
+        '-o',
+        help='full path to an output XML file'
+    )
     parsed_args = parser.parse_args()
     return parsed_args
 
@@ -31,12 +35,19 @@ def main():
     Hashes are turned off by default.
     '''
     args = parse_args()
+    if args.o:
+        if not args.o.endswith("xml"):
+            print 'output file must be XML'
     source = args.input
     os.chdir(source)
     output = subprocess.check_output(['walk_to_dfxml.py', '-n'])
     parser = etree.XMLParser(remove_blank_text=True)
-    premis = etree.fromstring((output), parser=parser)
-    print(etree.tostring(premis, pretty_print=True))
+    dfxml_out = etree.fromstring((output), parser=parser)
+    if args.o:
+        with open(args.o, 'w') as xml_doc:
+            xml_doc.write(etree.tostring(dfxml_out, pretty_print=True))
+    else:
+        print(etree.tostring(dfxml_out, pretty_print=True))
 
 
 if __name__ == '__main__':
