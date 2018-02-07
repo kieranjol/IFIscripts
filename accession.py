@@ -11,6 +11,7 @@ import os
 import argparse
 import ififuncs
 import manifest
+import makedfxml
 
 def parse_args(args_):
     '''
@@ -37,6 +38,15 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+def make_dfxml(args,new_uuid_path,uuid):
+    '''
+    Adds Digital Forensics XML to metadata folder and updates manifests.
+    '''
+    metadata = os.path.join(new_uuid_path, 'metadata')
+    dfxml = os.path.join(metadata, uuid + '_dfxml.xml')
+    makedfxml.main([new_uuid_path, '-o', dfxml])
+    return dfxml
+
 def main(args_):
     '''
     Launches the various functions that will accession a package
@@ -106,8 +116,14 @@ def main(args_):
             accession_path, uuid
             ) + '_manifest.md5'
         sha512_log = manifest.main([new_uuid_path, '-sha512', '-s'])
+        sha512_manifest = os.path.join(
+            os.path.dirname(new_uuid_path), uuid + '_manifest-sha512.txt'
+        )
         ififuncs.merge_logs_append(sha512_log, sipcreator_log, sip_manifest)
         os.remove(sha512_log)
+        dfxml = make_dfxml(args, new_uuid_path, uuid)
+        ififuncs.manifest_update(sip_manifest, dfxml)
+        ififuncs.sha512_update(sha512_manifest, dfxml)
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
 if __name__ == '__main__':
