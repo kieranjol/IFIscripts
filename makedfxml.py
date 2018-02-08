@@ -3,6 +3,7 @@
 Runs Digital Forensic XML.
 '''
 import os
+import sys
 import argparse
 import subprocess
 from lxml import etree
