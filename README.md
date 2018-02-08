@@ -142,7 +142,8 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * Prints Digital Forensics XML to your terminal. Hashes are turned off for now as these will usually already exist in a manifest. The main purpose of this script is to preserve file system metadata such as date created/date modified/date accessed.
 * This is a launcher script for an edited version of 'https://github.com/simsong/dfxml/blob/master/python/walk_to_dfxml.py'. The edited version of `walk_to_dfxml.py` and the `Objects.py` library have been copied into this repository for the sake of convenience.
 * Usage: ` makedfxml.py directory`.
-* NOTE: This is currently a proof of concept. Further options, logging and integration into other scripts will be needed.q
+* NOTE: This is currently a proof of concept. Further options, logging and integration into other scripts will be needed.
+* There may be a python3 related error on OSX if python is installed via homebrew. This can be fixed by typing `unset PYTHONPATH` in the terminal.
 
 ### sha512deep.py ###
 * Quick proof of concept sha512 checksum manifest generator as not many command line tools support sha512 right now. name is a play on the hashdeep toolset.
