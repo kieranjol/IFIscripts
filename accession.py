@@ -12,6 +12,7 @@ import argparse
 import ififuncs
 import manifest
 import makedfxml
+import validate
 
 def parse_args(args_):
     '''
@@ -23,7 +24,7 @@ def parse_args(args_):
         ' Written by Kieran O\'Leary.'
     )
     parser.add_argument(
-        'source', help='Input directory'
+        'input', help='Input directory'
     )
     parser.add_argument(
         '-user',
@@ -52,8 +53,8 @@ def main(args_):
     Launches the various functions that will accession a package
     '''
     args = parse_args(args_)
-    source = args.source
-    uuid_directory = ififuncs.check_for_sip([source])
+    input = args.input
+    uuid_directory = ififuncs.check_for_sip([input])
     if uuid_directory is not None:
         oe_path = os.path.dirname(uuid_directory)
         oe_number = os.path.basename(oe_path)
@@ -112,6 +113,12 @@ def main(args_):
             ' eventIdentifierType=accession number, value=%s'
             % accession_number
         )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = eventType=accession,'
+            ' eventIdentifierType=accession number, value=%s'
+            % accession_number
+        )
         sip_manifest = os.path.join(
             accession_path, uuid
             ) + '_manifest.md5'
@@ -122,6 +129,12 @@ def main(args_):
         ififuncs.merge_logs_append(sha512_log, sipcreator_log, sip_manifest)
         os.remove(sha512_log)
         dfxml = make_dfxml(args, new_uuid_path, uuid)
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
+        )
+        ififuncs.checksum_replace(sip_manifest, sipcreator_log, 'md5')
+        ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(sip_manifest, dfxml)
         ififuncs.sha512_update(sha512_manifest, dfxml)
     else:
