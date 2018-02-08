@@ -944,18 +944,24 @@ def check_for_sip(args):
                 print 'ifi sip found'
                 return os.path.join(args[0], dircheck)
 
-def checksum_replace(manifest, logname):
+def checksum_replace(manifest, logname, algorithm):
     '''
     Update a value in a checksum manifest.
     Variables just refer to lognames right now, which is the only thing that needs to change at the moment.
     '''
     updated_manifest = []
-    new_checksum = hashlib_md5(logname)
+    if algorithm == 'md5':
+        new_checksum = hashlib_md5(logname)
+    elif algorithm == 'sha512':
+        new_checksum = hashlib_sha512(logname)
     with open(manifest, 'r') as manifesto:
         manifest_lines = manifesto.readlines()
         for lines in manifest_lines:
             if os.path.basename(logname) in lines:
-                lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
+                if algorithm == 'md5':
+                    lines = lines[31:].replace(lines[31:], new_checksum + lines[32:])
+                elif algorithm == 'sha512':
+                    lines = lines[127:].replace(lines[127:], new_checksum + lines[128:])
             updated_manifest.append(lines)
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
@@ -1001,7 +1007,7 @@ def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
             fo.write(lines)
         for remaining_lines in sipcreator_lines:
             fo.write(remaining_lines)
-    checksum_replace(sipcreator_manifest, sipcreator_log)
+    checksum_replace(sipcreator_manifest, sipcreator_log, 'md5')
 
 def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
     '''
@@ -1019,7 +1025,7 @@ def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
             fo.write(lines)
         for remaining_lines in concat_lines:
             fo.write(remaining_lines)
-    checksum_replace(sipcreator_manifest, sipcreator_log)
+    checksum_replace(sipcreator_manifest, sipcreator_log, 'md5')
 def logname_check(basename, logs_dir):
     '''
     Currently we have a few different logname patterns in our packages.
