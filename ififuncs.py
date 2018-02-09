@@ -1082,3 +1082,24 @@ def log_results(manifest, log, parent_dir):
     with open(manifest, 'wb') as fo:
         for lines in updated_manifest:
             fo.write(lines)
+            
+def find_parent(sipcreator_log):
+    with open(sipcreator_log, 'r') as log_object:
+        log_lines = log_object.readlines()
+        for line in log_lines:
+            if "source=" in line:
+                print line.rstrip()[-36:]
+                if validate_uuid4(line.rstrip()[-36:]) is not False:
+                    print 'yo'
+
+def group_ids(source):
+    uuid_oe_list = []
+    for root, dirnames, _ in os.walk(source):
+        if os.path.basename(root)[:2] == 'oe':
+            if validate_uuid4(dirnames[0]) is not False:
+                a = {}
+                a[os.path.basename(root)] = dirnames[0]
+                uuid_oe_list.append(a)
+    print uuid_oe_list
+            
+        
