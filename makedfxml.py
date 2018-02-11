@@ -38,7 +38,7 @@ def main(args_):
     args = parse_args(args_)
     if args.o:
         if not args.o.endswith("xml"):
-            print 'output file must be XML'
+            print('output file must be XML')
     source = args.input
     os.chdir(source)
     output = subprocess.check_output(['walk_to_dfxml.py', '-n'])
@@ -46,9 +46,9 @@ def main(args_):
     dfxml_out = etree.fromstring((output), parser=parser)
     if args.o:
         with open(args.o, 'w') as xml_doc:
-            xml_doc.write(etree.tostring(dfxml_out, pretty_print=True))
+            xml_doc.write(etree.tostring(dfxml_out, pretty_print=True).decode('ascii'))
     else:
-        print(etree.tostring(dfxml_out, pretty_print=True))
+        print(etree.tostring(dfxml_out, pretty_print=True).decode('ascii'))
 
 
 if __name__ == '__main__':
