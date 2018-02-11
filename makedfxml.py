@@ -6,6 +6,7 @@ import os
 import sys
 import argparse
 import subprocess
+import walk_to_dfxml
 from lxml import etree
 
 
@@ -41,7 +42,7 @@ def main(args_):
             print('output file must be XML')
     source = args.input
     os.chdir(source)
-    output = subprocess.check_output(['walk_to_dfxml.py', '-n'])
+    output = walk_to_dfxml.main(['-n'])
     parser = etree.XMLParser(remove_blank_text=True)
     dfxml_out = etree.fromstring((output), parser=parser)
     if args.o:
