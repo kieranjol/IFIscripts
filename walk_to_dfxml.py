@@ -76,8 +76,7 @@ def filepath_to_fileobject(filepath, args):
                 with open(filepath, "rb") as in_fh:
                     chunk_size = 2**22
                     md5obj = hashlib.md5()
-                    sha1obj = hashlib.sha1()
-                    sha256obj = hashlib.sha256()
+                    sha512obj = hashlib.sha512()
                     any_error = False
                     while True:
                         buf = b""
@@ -93,8 +92,7 @@ def filepath_to_fileobject(filepath, args):
                             break
 
                         md5obj.update(buf)
-                        sha1obj.update(buf)
-                        sha256obj.update(buf)
+                        sha512obj.update(buf)
 
                     if not any_error:
                         fobj.md5 = md5obj.hexdigest()
