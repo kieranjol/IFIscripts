@@ -190,8 +190,7 @@ def main(args_):
     #Build output DFXML tree.
     for filepath in sorted(fileobjects_by_filepath.keys()):
         dobj.append(fileobjects_by_filepath[filepath])
-    dobj.print_dfxml()
-
+    return dobj.to_dfxml()
 def parse_args(args_):
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
