@@ -50,7 +50,7 @@ def test_write_capabilities(directory, log_name_source):
         os.close(temp[0]) # Needed for windows.
         os.remove(temp[1])
     elif os.path.isfile(directory):
-        print '\nFile transfer is not currently supported, only directories.\n'
+        print('\nFile transfer is not currently supported, only directories.\n')
         generate_log(
             log_name_source,
             'Error: Attempted file transfer. Source and Destination must be a directory'
@@ -58,7 +58,7 @@ def test_write_capabilities(directory, log_name_source):
         generate_log(log_name_source, 'move.py exit')
         sys.exit()
     else:
-        print ' %s is either not a directory or it does not exist' % directory
+        print(' %s is either not a directory or it does not exist' % directory)
         generate_log(
             log_name_source,
             ' %s is either not a directory or it does not exist' % directory
@@ -71,14 +71,14 @@ def remove_bad_files(root_dir, log_name_source):
     '''
     Stolen and adapted from Ben Fino-Radin. Removes annoying files.
     '''
-    print 'Checking if any .Ds_Stores/Thumbs.db or Desktop.ini files exist'
+    print('Checking if any .Ds_Stores/Thumbs.db or Desktop.ini files exist')
     rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
     for root, _, files in os.walk(root_dir):
         for name in files:
             path = os.path.join(root, name)
             for i in rm_these:
                 if name == i:
-                    print '***********************' + 'removing: ' + path
+                    print('***********************' + 'removing: ' + path)
                     if not log_name_source == None:
                         generate_log(
                             log_name_source,
@@ -87,7 +87,7 @@ def remove_bad_files(root_dir, log_name_source):
                     try:
                         os.remove(path)
                     except OSError:
-                        print 'can\'t delete as source is read-only'
+                        print('can\'t delete as source is read-only')
 
 
 def make_manifest(
@@ -100,7 +100,7 @@ def make_manifest(
     checksum_list = []
     manifest_generator = ''
     source_counter = 0
-    print 'Counting the amount of files to be processed.'
+    print('Counting the amount of files to be processed.')
     for root, directories, filenames in os.walk(manifest_dir):
         directories[:] = [
             d for d in directories if d[0] != '.'
@@ -151,8 +151,8 @@ def make_manifest(
     if len(checksum_list) == 1:
         source_counter = 1
     for files in checksum_list:
-        print 'Generating MD5 for %s - %d of %d' % (
-            os.path.join(files[0], files[1]), counter2, source_counter
+        print('Generating MD5 for %s - %d of %d' % (
+            os.path.join(files[0], files[1]), counter2, source_counter)
             )
         md5 = hashlib_md5(os.path.join(files[0], files[1]))
         root2 = files[0].replace(path_to_remove, '')
@@ -190,7 +190,7 @@ def copy_dir(
                 log_name_source,
                 'EVENT = File Transfer, status=started, agentName=Windows, module=shutil.copy2'
             )
-            print 'copying file with python/shutil'
+            print('copying file with python/shutil')
             shutil.copy2(source, destination_final_path)
         else:
             subprocess.call([
@@ -236,7 +236,7 @@ def copy_dir(
             generate_log(
                 log_name_source, 'EVENT = File Transfer, status=started, agentName=OSX, agentName=rsync'
             )
-            print cmd
+            print(cmd)
             subprocess.call(cmd)
     elif sys.platform == "linux2":
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
@@ -257,14 +257,14 @@ def diff_report(file1, file2, log_name_source):
     '''
     Analyzes checksum manifests in order to find mismatches.
     '''
-    print 'Comparing manifests to verify file transfer'
+    print('Comparing manifests to verify file transfer')
     with open(file1, 'r') as file1_manifest:
         sourcelist = file1_manifest.readlines()
     with open(file2, 'r') as file2_manifest:
         destlist = file2_manifest.readlines()
     for i in sourcelist:
         if i not in destlist:
-            print '%s was expected, but a different value was found in destination manifest' % i.rstrip()
+            print('%s was expected, but a different value was found in destination manifest' % i.rstrip())
             generate_log(
                 log_name_source,
                 'ERROR = %s was expected, but a different value was found in destination manifest' % i.rstrip())
@@ -286,7 +286,7 @@ def check_extra_files(file1, file2, log_name_source):
         sourcelist_files.append(source_files[32:])
     for i in destlist_files:
         if i not in sourcelist_files:
-            print '%s is in your destination manifest but is not in the source manifest' % i.rstrip()
+            print('%s is in your destination manifest but is not in the source manifest' % i.rstrip())
             generate_log(
                 log_name_source,
                 'ERROR = %s is in your destination manifest but is not in the source manifest' % i.rstrip())
@@ -297,12 +297,12 @@ def check_overwrite(file2check):
     Asks user if they want to overwrite pre-existing manifests.
     '''
     if os.path.isfile(file2check):
-        print 'A manifest already exists at your destination. Overwrite? Y/N?'
+        print('A manifest already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_manifest = ''
         while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
             overwrite_destination_manifest = raw_input()
             if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-                print 'Incorrect input. Please enter Y or N'
+                print('Incorrect input. Please enter Y or N')
         return overwrite_destination_manifest
 
 
@@ -311,7 +311,7 @@ def manifest_file_count(manifest2check):
     Checks an ixisting manifest for file count and file list
     '''
     if os.path.isfile(manifest2check):
-        print 'A manifest already exists - Checking if manifest is up to date'
+        print('A manifest already exists - Checking if manifest is up to date')
         with open(manifest2check, "r") as fo:
             manifest_files = []
             manifest_lines = [line.split(',') for line in fo.readlines()]
@@ -327,12 +327,12 @@ def check_overwrite_dir(dir2check):
     Asks user if they want to overwrite a pre-existing destination directory.
     '''
     if os.path.isdir(dir2check):
-        print 'A directory already exists at your destination. Overwrite? Y/N?'
+        print('A directory already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_dir = ''
         while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
             overwrite_destination_dir = raw_input()
             if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-                print 'Incorrect input. Please enter Y or N'
+                print('Incorrect input. Please enter Y or N')
         return overwrite_destination_dir
 
 def check_for_sip(args):
@@ -347,7 +347,7 @@ def check_for_sip(args):
             if len(os.listdir(args)) == 2:
                 dircheck = filenames.replace('_manifest.md5', '')
                 if os.path.isdir(os.path.join(args, dircheck)):
-                    print 'ifi sip found'
+                    print('ifi sip found')
                     return os.path.join(args, dircheck)
 
 
@@ -404,7 +404,7 @@ def setup(args_):
     destination_final_path = os.path.join(destination, dirname)
     manifest_destination = destination + '/%s_manifest.md5' % dirname
     if os.path.isfile(manifest_destination):
-        print 'Destination manifest already exists'
+        print('Destination manifest already exists')
     manifest_filename = '%s_manifest.md5' % dirname
     desktop_manifest_dir = make_desktop_manifest_dir()
     # manifest = desktop manifest, looks like this can get rewritten later.
@@ -456,7 +456,7 @@ def overwrite_check(
     try:
         test_write_capabilities(destination, log_name_source)
     except OSError:
-        print 'You cannot write to your destination!'
+        print('You cannot write to your destination!')
         generate_log(
             log_name_source,
             'EVENT = I/O Test - Failure - No write access to destination directory.'
@@ -479,34 +479,31 @@ def manifest_existence(
     manifest_files = []
     proceed = 'n'
     if os.path.isfile(manifest_root):
-        print '1'
         proceed = 'y'
         manifest_info = manifest_file_count(manifest_root)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
     elif os.path.isfile(manifest_sidecar):
-        print '2'
         manifest_info = manifest_file_count(manifest_sidecar)
         proceed = 'y'
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
     elif os.path.isfile(manifest):
-        print '3'
         manifest_info = manifest_file_count(manifest)
         count_in_manifest = manifest_info[0]
         manifest_files = manifest_info[1]
         proceed = 'y'
     if proceed == 'y':
         if source_count != count_in_manifest:
-            print 'checking which files are different'
+            print('checking which files are different')
             for i in file_list:
                 if i not in manifest_files:
-                    print i, 'is present in your source directory but not in the source manifest'
+                    print(i, 'is present in your source directory but not in the source manifest')
             for i in manifest_files:
                 if i not in file_list:
-                    print i, 'is present in manifest but is missing in your source files'
-            print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
-            print 'There are', source_count, 'files in your source directory', count_in_manifest, 'in the manifest'
+                    print(i, 'is present in manifest but is missing in your source files')
+            print('This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest')
+            print('There are', source_count, 'files in your source directory', count_in_manifest, 'in the manifest')
             generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')
             sys.exit()
     return proceed, count_in_manifest, manifest_files
@@ -530,7 +527,7 @@ def make_destination_manifest(
                 log_name_source,
                 'EVENT = Destination Manifest Overwrite - Destination manifest already exists - Overwriting.'
             )
-        print 'Generating destination manifest'
+        print('Generating destination manifest')
         if rootpos == 'y':
             files_in_manifest = make_manifest(
                 destination_final_path,
@@ -559,32 +556,32 @@ def make_destination_manifest(
 
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
     if filecmp.cmp(manifest, manifest_destination, shallow=False):
-        print "Your files have reached their destination and the checksums match"
+        print("Your files have reached their destination and the checksums match")
         generate_log(
             log_name_source,
             'EVENT = File Transfer Judgement - Success, eventOutcome=pass'
         )
     else:
-        print "***********YOUR CHECKSUMS DO NOT MATCH*************"
+        print("***********YOUR CHECKSUMS DO NOT MATCH*************")
         if overwrite_destination_manifest not in ('N', 'n'):
             generate_log(
                 log_name_source,
                 'EVENT = File Transfer Outcome - Failure, eventOutcome=fail'
             )
-            print ' There are: \n %s files in your destination manifest \n' % files_in_manifest
-            print ' %s files in your destination \n %s files at source' % (
-                destination_count, source_count
+            print(' There are: \n %s files in your destination manifest \n' % files_in_manifest)
+            print(' %s files in your destination \n %s files at source' % (
+                destination_count, source_count)
             )
             diff_report(manifest, manifest_destination, log_name_source)
             check_extra_files(manifest, manifest_destination, log_name_source)
             generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination,  %s files at source' % (destination_count, source_count))
         else:
-            print ' %s files in your destination \n %s files at source' % (
-                destination_count, source_count
+            print(' %s files in your destination \n %s files at source' % (
+                destination_count, source_count)
             )
 def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, source):
     if os.path.isfile(manifest_sidecar):
-        print 'Manifest Sidecar exists - Source manifest Generation will be skipped.'
+        print('Manifest Sidecar exists - Source manifest Generation will be skipped.')
         generate_log(
             log_name_source,
             'EVENT = Manifest sidecar exists - source manifest generation will be skipped'
@@ -592,7 +589,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, sou
         manifest = manifest_sidecar
     elif not os.path.isfile(manifest):
         try:
-            print 'Generating source manifest'
+            print('Generating source manifest')
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=started, eventType=message digest calculation, module=hashlib')
             if rootpos == 'y':
                 make_manifest(
@@ -605,7 +602,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, sou
                 )
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=completed')
         except OSError:
-            print 'You do not have access to this directory. Perhaps it is read only, perhaps some files or folders have illegal characters, or the wrong file system\n'
+            print('You do not have access to this directory. Perhaps it is read only, perhaps some files or folders have illegal characters, or the wrong file system\n')
             sys.exit()
     return manifest_sidecar, manifest, rootpos
 def main(args_):
