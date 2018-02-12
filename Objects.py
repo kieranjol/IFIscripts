@@ -1875,6 +1875,7 @@ class FileObject(object):
       "seq",
       "sha1",
       "sha256",
+      "sha512",
       "uid",
       "unalloc",
       "unused",
@@ -2123,6 +2124,8 @@ class FileObject(object):
                     self.sha1 = ce.text
                 elif ce.attrib["type"].lower() == "sha256":
                     self.sha256 = ce.text
+                elif ce.attrib["type"].lower() == "sha512":
+                    self.sha512 = ce.text
             elif ctn == "original_fileobject":
                 self.original_fileobject = FileObject()
                 self.original_fileobject.populate_from_Element(ce)
@@ -2326,6 +2329,7 @@ class FileObject(object):
         _append_hash("md5", self.md5)
         _append_hash("sha1", self.sha1)
         _append_hash("sha256", self.sha256)
+        _append_hash("sha512", self.sha512)
         _append_object("original_fileobject", self.original_fileobject, "delta:")
 
         if len(diffs_whittle_set) > 0:
@@ -2695,6 +2699,14 @@ class FileObject(object):
     @sha256.setter
     def sha256(self, val):
         self._sha256 = _strcast(val)
+    
+    @property
+    def sha512(self):
+        return self._sha512
+        
+    @sha512.setter
+    def sha512(self, val):
+        self._sha512 = _strcast(val)
 
     @property
     def uid(self):

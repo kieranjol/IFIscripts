@@ -513,6 +513,11 @@ class registry_cell_object:
         Return None. Meant to be overwritten.
         """
         return None
+    def sha512(self):
+        """
+        Return None. Meant to be overwritten.
+        """
+        return None
 
 class registry_key_object(registry_cell_object):
     def __init__(self):
@@ -587,6 +592,8 @@ class registry_value_object(registry_cell_object):
 
     def md5(self):
         return self._hash(hashlib.md5)
+    def sha512(self):
+        return self._hash(hashlib.sha512)
 
 class fileobject:
     """The base class for file objects created either through XML DOM or EXPAT"""
@@ -693,6 +700,9 @@ class fileobject:
     def md5(self):
         """Returns the MD5 in hex"""
         return self.tag("md5")
+    def sha512(self):
+        """Returns the SHA512 in hex"""
+        return self.tag("sha512")
 
     def fragments(self):
         """Returns number of file fragments"""
@@ -752,7 +762,7 @@ class fileobject:
             return False               # empty files are never present
         if imagefile==None:
             imagefile=self.imagefile # use this one
-        for hashname in ['md5','sha1','sha256']:
+        for hashname in ['md5','sha1','sha256', 'sha512']:
             oldhash = self.tag(hashname)
             if oldhash:
                 newhash = hashlib.new(hashname,self.contents(imagefile=imagefile)).hexdigest()
@@ -897,7 +907,7 @@ class fileobject_dom(fileobject):
             return True
         except IndexError:
             # Check for a hash tag with legacy API
-            if name in ['md5','sha1','sha256']:
+            if name in ['md5','sha1','sha256', 'sha512']:
                 for e in self.doc.getElementsByTagName('hashdigest'):
                     if e.getAttribute('type').lower()==name:
                         return True
