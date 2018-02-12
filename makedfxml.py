@@ -5,7 +5,6 @@ Runs Digital Forensic XML.
 import os
 import sys
 import argparse
-import subprocess
 import walk_to_dfxml
 from lxml import etree
 
@@ -42,7 +41,7 @@ def main(args_):
             print('output file must be XML')
     source = args.input
     os.chdir(source)
-    output = walk_to_dfxml.main(['-n'])
+    output = walk_to_dfxml.main([])
     parser = etree.XMLParser(remove_blank_text=True)
     dfxml_out = etree.fromstring((output), parser=parser)
     if args.o:
