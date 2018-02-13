@@ -96,8 +96,7 @@ def filepath_to_fileobject(filepath, args):
 
                     if not any_error:
                         fobj.md5 = md5obj.hexdigest()
-                        fobj.sha1 = sha1obj.hexdigest()
-                        fobj.sha256 = sha256obj.hexdigest()
+                        fobj.sha512 = sha512obj.hexdigest()
             except Exception as e:
                 if fobj.error is None:
                     fobj.error = ""
