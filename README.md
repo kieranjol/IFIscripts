@@ -139,6 +139,7 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * Run `manifest.py -h` to see all options.
 
 ### makedfxml.py ###
+* WARNING - until this issue is resolved, this script can not work with Windows: https://github.com/simsong/dfxml/issues/29
 * Prints Digital Forensics XML to your terminal. Hashes are turned off for now as these will usually already exist in a manifest. The main purpose of this script is to preserve file system metadata such as date created/date modified/date accessed.
 * This is a launcher script for an edited version of 'https://github.com/simsong/dfxml/blob/master/python/walk_to_dfxml.py'. The edited version of `walk_to_dfxml.py` and the `Objects.py` library have been copied into this repository for the sake of convenience.
 * Usage: ` makedfxml.py directory`.
