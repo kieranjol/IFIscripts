@@ -1083,9 +1083,10 @@ def log_results(manifest, log, parent_dir):
         for lines in updated_manifest:
             fo.write(lines)
 
-def find_parent(sipcreator_log):
+def find_parent(sipcreator_log,oe_uuid_dict):
     '''
-    Looks through a concat logfile in order to determine the parent uuid.
+    Looks through a concat logfile in order to determine the parent OE number.
+    This will also tell you if an object has no parent.
     '''
     with open(sipcreator_log, 'r') as log_object:
         line_check = ''
@@ -1094,21 +1095,21 @@ def find_parent(sipcreator_log):
             if "source=" in line:
                 if validate_uuid4(line.rstrip()[-36:]) is not False:
                     line_check = 'has_source'
-                    #return line.rstrip()[-36:]
-                    return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), line.rstrip()[-36:])
+                    for oe, uuid in oe_uuid_dict.iteritems():
+                        if uuid == line.rstrip()[-36:]:
+                            source = oe
+                    return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), oe)
         if line_check == '':
             return '%s just_a_parent ' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
                 
 
 def group_ids(source):
     '''''
-    groups a uuid with its parent uuid in a list of dictionaries
+    groups a uuid with its parent uuid in a dictionary
     '''
-    uuid_oe_list = []
+    uuid_oe_dict = {}
     for root, dirnames, _ in os.walk(source):
         if os.path.basename(root)[:2] == 'oe':
             if validate_uuid4(dirnames[0]) is not False:
-                a = {}
-                a[os.path.basename(root)] = dirnames[0]
-                uuid_oe_list.append(a)
-    return uuid_oe_list
+                uuid_oe_dict[os.path.basename(root)] = dirnames[0]
+    return uuid_oe_dict
