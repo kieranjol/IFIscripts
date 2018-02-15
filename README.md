@@ -8,6 +8,7 @@ table of contents
 2. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
     * [accession.py](https://github.com/kieranjol/IFIscripts#accessionpy)
+    * [order.py](https://github.com/kieranjol/IFIscripts#orderpy)
 3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -80,6 +81,17 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * Currently this just works with packages that have been generated using `sipcreator.py`. SHA512 manifests are created,the OE number is replaced by an accession number, and the sipcreator logfile is updated with the various events that have taken place.
 * Usage for one directory - `accession.py /path/to/directory_name`
 * Run `accession.py -h` for all options.
+
+
+### order.py ###
+* Audits logfiles to determine relationships, like is a package a derivative of another, or does a package have no parent.
+* This script can aid in automating large accessioning procedures that involve the accessioning of derivatives along with masters, eg a Camera Card and a concatenated derivative, or a master file and a mezzanine.
+* Eventually this should provide an ordered list that will determine the best order in which these packages should be accessioned by accession.py
+** Example output:
+** oe0001 not a child of another package
+** oe0008 has a parent: oe0001
+** oe0005 not a child of another package
+* Usage for one directory - `order.py /path/to/directory_name`
 
 ## Transcodes ##
 

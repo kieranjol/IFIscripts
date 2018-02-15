@@ -1100,7 +1100,7 @@ def find_parent(sipcreator_log,oe_uuid_dict):
                             source = oe
                     return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), oe)
         if line_check == '':
-            return '%s just_a_parent ' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
+            return '%s not a child of another package' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
                 
 
 def group_ids(source):
