@@ -1088,12 +1088,17 @@ def find_parent(sipcreator_log):
     Looks through a concat logfile in order to determine the parent uuid.
     '''
     with open(sipcreator_log, 'r') as log_object:
+        line_check = ''
         log_lines = log_object.readlines()
         for line in log_lines:
             if "source=" in line:
-                print line.rstrip()[-36:]
                 if validate_uuid4(line.rstrip()[-36:]) is not False:
-                    print 'yo'
+                    line_check = 'has_source'
+                    #return line.rstrip()[-36:]
+                    return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), line.rstrip()[-36:])
+        if line_check == '':
+            return '%s just_a_parent ' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
+                
 
 def group_ids(source):
     '''''
@@ -1106,4 +1111,4 @@ def group_ids(source):
                 a = {}
                 a[os.path.basename(root)] = dirnames[0]
                 uuid_oe_list.append(a)
-    print uuid_oe_list
+    return uuid_oe_list
