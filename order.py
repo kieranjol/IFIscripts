@@ -39,7 +39,7 @@ def main():
     best order in which these packages should be accessioned by accession.py
     '''
     directories = get_listings(sys.argv[1])
-    oe_uuid_dict = ififuncs.group_ids(sys.argv[1])
+    oe_uuid_dict = ififuncs.group_ids(os.path.dirname(sys.argv[1]))
     final_list = []
     for directory in directories:
         for root, _, filenames in os.walk(directory):
@@ -48,7 +48,12 @@ def main():
                     uuid_search = ififuncs.find_parent(
                         os.path.join(root, filename), oe_uuid_dict
                     )
-                    print uuid_search
+                    if 'not a child' in uuid_search:
+                        final_list.append(uuid_search[:6])
+                    elif 'has a parent' in uuid_search:
+                        parent = uuid_search[-7:-1]
+                        final_list.insert(final_list.index(parent) + 1, uuid_search[:6])
+
 
 if __name__ == '__main__':
     main()

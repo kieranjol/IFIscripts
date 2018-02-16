@@ -1098,7 +1098,7 @@ def find_parent(sipcreator_log,oe_uuid_dict):
                     for oe, uuid in oe_uuid_dict.iteritems():
                         if uuid == line.rstrip()[-36:]:
                             source = oe
-                    return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), source)
+                            return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), source)
         if line_check == '':
             return '%s not a child of another package' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
 
