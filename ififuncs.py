@@ -1113,3 +1113,25 @@ def group_ids(source):
             if validate_uuid4(dirnames[0]) is not False:
                 uuid_oe_dict[os.path.basename(root)] = dirnames[0]
     return uuid_oe_dict
+
+def convert_ms2frames(fps, ms):
+    # taken from https://github.com/atvKumar/Scene_Cut_Detection/blob/93622d250dc38907ee7d3ee8d925c4bfb76129b6/timecode_utils.py'
+    # I am worried that this does not produce 100% accurate values, however
+    # when the returned value is used as the source for convert_timecode(), 
+    # then the HH:MM:SS:FF value seems accurate.
+    """Converts Milliseconds to frames
+    :param: Video Frame Rate e.g '25'
+    :return: Integer (framerate)"""
+    return int(round(float(fps) / 1000 * float(ms)))
+
+
+def convert_timecode(fps, timecode):
+    #taken  fromhttps://github.com/atvKumar/Scene_Cut_Detection/blob/93622d250dc38907ee7d3ee8d925c4bfb76129b6/timecode_utils.py
+    """Converts HH:MM:SS.mm to HH:MM:SS:FF"""
+    timecode = timecode.strip()
+    hh, mm, ss_ms = timecode.split(':')
+    ss, ms = ss_ms.split('.')
+    ff = convert_ms2frames(fps, ms)
+    if len(str(ff)) < 2:
+        ff = str(ff).zfill(2)
+    return str(hh) + ':' + str(mm) + ':' + str(ss) + ':' + str(ff)
