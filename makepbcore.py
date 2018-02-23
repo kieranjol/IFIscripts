@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import os
 import subprocess
@@ -72,7 +74,9 @@ def make_csv(csv_filename):
         'Compression_Mode',
         'colour_primaries',
         'transfer_characteris',
-        'matrix_coefficients'
+        'matrix_coefficients',
+        'pix_fmt',
+        'audio_fmt'
     ])
 
 def main():
@@ -150,6 +154,8 @@ def main():
         "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
         root, pbcore_namespace
     )
+    pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
+    audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
     ms = 0
     for i in os.listdir(os.path.dirname(source)):
         if i.endswith('mov'):
@@ -252,7 +258,9 @@ def main():
         Compression_Mode,
         colour_primaries,
         transfer_characteris,
-        matrix_coefficients])
+        matrix_coefficients,
+        pix_fmt,
+        audio_fmt])
 if __name__ == '__main__':
     main()
 
