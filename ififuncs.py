@@ -984,6 +984,28 @@ def img_seq_pixfmt(start_number, path):
     pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
     return pix_fmt
 
+def get_ffmpeg_fmt(path, file_type):
+    '''
+    Determine the pixel format or audio format of a file
+    '''
+    if file_type == 'audio':
+        stream = 'a:0'
+        metadata = 'stream=codec_name'
+    if file_type == 'video':
+        stream = 'v:0'
+        metadata = 'stream=pix_fmt'
+    ffprobe_cmd = [
+        'ffprobe',
+        '-i', path,
+        '-v', 'error',
+        '-select_streams', stream, 
+        '-show_entries',
+        metadata,
+        '-of', 'default=noprint_wrappers=1:nokey=1'
+    ]
+    print ffprobe_cmd
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    return pix_fmt
 
 def read_lines(infile):
     '''
