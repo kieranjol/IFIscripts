@@ -18,7 +18,7 @@ def get_metadata(xpath_path, root, pbcore_namespace):
 
 
 def make_csv(csv_filename):
-    ififuncs.create_csv('bla.csv', [
+    ififuncs.create_csv(csv_filename, [
         'Reference Number',
         'Donor',
         'Edited By',
@@ -53,7 +53,6 @@ def make_csv(csv_filename):
         'instantColors',
         'instantLanguage',
         'instantAltMo',
-        'essenceDataRate_vid',
         'essenceTrackEncodvid',
         'essenceFrameRate',
         'essenceTrackSampling',
@@ -61,7 +60,6 @@ def make_csv(csv_filename):
         'essenceFrameSize',
         'essenceAspectRatio',
         'essenceTrackEncod_au',
-        'essenceDataRate_au',
         'essenceBitDepth_au',
         'instantiationDuratio',
         'instantiationChanCon',
@@ -79,6 +77,8 @@ def make_csv(csv_filename):
 
 def main():
     source = sys.argv[1]
+    csv_filename = 'blaa.csv'
+    make_csv(csv_filename)
     metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
     root = etree.fromstring(metadata)
     pbcore_namespace = root.xpath('namespace-uri(.)')
@@ -187,20 +187,18 @@ def main():
     instantColors =  ''
     instantLanguage =  ''
     instantAltMo =  'n/a'
-    essenceDataRate_vid =  ''
     essenceTrackEncodvid =  ''
     essenceBitDepth_vid =  ififuncs.get_mediainfo(
         'duration', '--inform=Video;%BitDepth%', source
     )
     essenceTrackEncod_au =  ''
-    essenceDataRate_au =  ''
     essenceBitDepth_au = ififuncs.get_mediainfo(
         'duration', '--inform=Audio;%BitDepth%', source
     )
     
     instantiationChanCon =  ''
 
-    ififuncs.append_csv('bla.csv', [
+    ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,
         Edited_By,
@@ -235,7 +233,6 @@ def main():
         instantColors,
         instantLanguage,
         instantAltMo,
-        essenceDataRate_vid,
         essenceTrackEncodvid,
         essenceFrameRate,
         essenceTrackSampling,
@@ -243,7 +240,6 @@ def main():
         essenceFrameSize,
         essenceAspectRatio,
         essenceTrackEncod_au,
-        essenceDataRate_au,
         essenceBitDepth_au,
         instantiationDuratio,
         instantiationChanCon,
