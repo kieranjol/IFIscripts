@@ -41,7 +41,7 @@ def make_csv(csv_filename):
         'CollectionTitle',
         'Created By',
         'instantiationIdentif',
-        'instantiationDate',
+        'instantiationDate_modified',
         'instantiationDimensi',
         'instantiationPhysica',
         'instantiationDigital',
@@ -81,6 +81,11 @@ def make_csv(csv_filename):
 
 def main():
     source = sys.argv[1]
+    if os.path.isfile(source):
+        source = sys.argv[1]
+    elif os.path.isdir(source):
+        source = ififuncs.recursive_file_list(sys.argv[1])
+    print source        
     csv_filename = 'blaa.csv'
     make_csv(csv_filename)
     metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
@@ -116,6 +121,10 @@ def main():
     )
     instantMediaty = get_metadata(
         "//ns:instantiationMediaType",
+        root, pbcore_namespace
+    )
+    instantFileSize = get_metadata(
+        "//ns:instantiationFileSize",
         root, pbcore_namespace
     )
     essenceFrameSize = get_metadata(
@@ -154,6 +163,11 @@ def main():
         "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
         root, pbcore_namespace
     )
+    instantiationDate_modified =  get_metadata(
+        "//ns:instantiationDate[@dateType='file modification']",
+        root, pbcore_namespace
+    )
+
     pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
     audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
     ms = 0
@@ -182,14 +196,14 @@ def main():
     CollectionTitle = ''
     Created_By = ''
     instantiationIdentif = ''
-    instantiationDate = ''
     instantiationDimensi = ''
     instantiationPhysica =  'n/a'
     instantiationLocatio =  ''
     instantGenerations =  ''
-    instantFileSize =  ''
     instantTimeStart =  ''
-    instantDataRate =  ''
+    instantDataRate =  str(round(float(ififuncs.get_mediainfo(
+        'OverallBitRate', '--inform=General;%OverallBitRate%', source
+    ))  / 1000 / 1000, 2)) + 'Mbps'
     instantColors =  ''
     instantLanguage =  ''
     instantAltMo =  'n/a'
@@ -225,7 +239,7 @@ def main():
         CollectionTitle,
         Created_By,
         instantiationIdentif,
-        instantiationDate,
+        instantiationDate_modified,
         instantiationDimensi,
         instantiationPhysica,
         instantiationDigital,
