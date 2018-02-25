@@ -85,7 +85,12 @@ def main():
     if os.path.isfile(source):
         source = sys.argv[1]
     elif os.path.isdir(source):
-        source = ififuncs.recursive_file_list(sys.argv[1])
+        # if multiple file are present, this script will treat them as a single
+        # instantiation/representation and get aggregate metadata about the whole
+        # package. For now, this will be a clumsy implementation - the first file
+        # will provide most metadata. Things like duration/bitrate/filesize
+        # will be calculated as a whole.
+        source = ififuncs.recursive_file_list(sys.argv[1])[0]
     print source        
     csv_filename = 'blaa.csv'
     make_csv(csv_filename)
@@ -108,6 +113,7 @@ def main():
         "//ns:essenceTrackAnnotation[@annotationType='color_primaries']",
         root, pbcore_namespace
     )
+    # get aggregate
     FrameCount = get_metadata(
         "//ns:essenceTrackAnnotation[@annotationType='FrameCount']",
         root, pbcore_namespace
@@ -124,6 +130,7 @@ def main():
         "//ns:instantiationMediaType",
         root, pbcore_namespace
     )
+    #get aggregate
     instantFileSize = get_metadata(
         "//ns:instantiationFileSize",
         root, pbcore_namespace
@@ -202,9 +209,11 @@ def main():
     instantiationLocatio =  ''
     instantGenerations =  ''
     instantTimeStart =  ''
+    # get aggregate
     instantDataRate =  str(round(float(ififuncs.get_mediainfo(
         'OverallBitRate', '--inform=General;%OverallBitRate%', source
     ))  / 1000 / 1000, 2)) + 'Mbps'
+    # get aggregate
     instantFileSize_gigs =  round(
         float(instantFileSize)  / 1024 / 1024 / 1024, 2
     )
