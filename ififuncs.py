@@ -1156,3 +1156,15 @@ def convert_timecode(fps, timecode):
     if len(str(ff)) < 2:
         ff = str(ff).zfill(2)
     return str(hh) + ':' + str(mm) + ':' + str(ss) + ':' + str(ff)
+
+
+def recursive_file_list(video_files):
+    '''
+    Recursively searches through directories for AV files and adds to a list.
+    '''
+    recursive_list = []
+    for root, _, filenames in os.walk(video_files):
+        for filename in filenames:
+            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf')):
+                recursive_list.append(os.path.join(root, filename))
+    return recursive_list
