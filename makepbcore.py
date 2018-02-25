@@ -50,6 +50,7 @@ def make_csv(csv_filename):
         'instantMediaty',
         'instantGenerations',
         'instantFileSize',
+        'instantFileSize_gigs',
         'instantTimeStart',
         'instantDataRate',
         'instantColors',
@@ -204,6 +205,9 @@ def main():
     instantDataRate =  str(round(float(ififuncs.get_mediainfo(
         'OverallBitRate', '--inform=General;%OverallBitRate%', source
     ))  / 1000 / 1000, 2)) + 'Mbps'
+    instantFileSize_gigs =  round(
+        float(instantFileSize)  / 1024 / 1024 / 1024, 2
+    )
     instantColors =  ''
     instantLanguage =  ''
     instantAltMo =  'n/a'
@@ -248,6 +252,7 @@ def main():
         instantMediaty,
         instantGenerations,
         instantFileSize,
+        instantFileSize_gigs,
         instantTimeStart,
         instantDataRate,
         instantColors,
