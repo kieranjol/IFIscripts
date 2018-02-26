@@ -22,6 +22,13 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         value = value[0].text
     return value
 
+def get_attributes(root, pbcore_namespace):
+    '''
+    Extracts values from PBCore2 XML MediaInfo outputs.
+    '''
+    value = root.xpath("ns:essenceTrackEncoding",
+        namespaces={'ns':pbcore_namespace})[0].attrib
+    print value
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -135,9 +142,11 @@ def main(args_):
             for track in track_type:
                 if track.text == 'Video':
                     essenceTrackEncodvid = get_metadata(
-            "ns:essenceTrackEncoding",
-            track.getparent(), pbcore_namespace
-        )
+                        "ns:essenceTrackEncoding",
+                        track.getparent(), pbcore_namespace
+                    )
+                    get_attributes(track.getparent(),pbcore_namespace)
+
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
