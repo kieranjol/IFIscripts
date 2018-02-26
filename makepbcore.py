@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+'''
+Describe AV objects using PBCore in CSV form.
+'''
 import sys
 import subprocess
 import argparse
@@ -14,7 +16,6 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         xpath_path,
         namespaces={'ns':pbcore_namespace}
     )
-
     if value == []:
         value = 'n/a'
     else:
@@ -127,8 +128,16 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
-        pbcore_namespace = root.xpath('namespace-uri(.)')
         print 'Analsying ', source
+        pbcore_namespace = root.xpath('namespace-uri(.)')
+        track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
+        if len(track_type) > 0:
+            for track in track_type:
+                if track.text == 'Video':
+                    essenceTrackEncodvid = get_metadata(
+            "ns:essenceTrackEncoding",
+            track.getparent(), pbcore_namespace
+        )
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -181,7 +190,6 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='PixelAspectRatio']",
             root, pbcore_namespace
         )
-
         instantiationStandar = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Format']",
             root, pbcore_namespace
@@ -239,7 +247,6 @@ def main(args_):
     instantColors = ''
     instantLanguage = ''
     instantAltMo = 'n/a'
-    essenceTrackEncodvid = ''
     essenceBitDepth_vid = ififuncs.get_mediainfo(
         'duration', '--inform=Video;%BitDepth%', source
     )
