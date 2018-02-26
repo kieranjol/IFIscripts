@@ -2,6 +2,7 @@
 
 import sys
 import subprocess
+import argparse
 from lxml import etree
 import ififuncs
 
@@ -20,7 +21,28 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         value = value[0].text
     return value
 
-
+def parse_args(args_):
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Describes AV objects using a combination of the PBCore 2 metadata standard and the IFI technical database.'
+        'This script takes a folder as input. Either a single file or multiple objects will be described.'
+        'This will produce a single PBCore CSV record per package, even if multiple objects are within a package.'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        'input', help='Input directory'
+    )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-number',
+        help='Enter the Accession number for the representation.'
+    )
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
 def make_csv(csv_filename):
     '''
     Writes a CSV with IFI database headings.
@@ -82,7 +104,7 @@ def make_csv(csv_filename):
         'audio_fmt'
     ])
 
-def main():
+def main(args_):
 
 
     # if multiple file are present, this script will treat them as a single
@@ -94,7 +116,8 @@ def main():
     # this could catch files that should not be in the package, eg. a 4:2:2
     # file in a 4:2:0 package..
     # yup - do it that way!
-    all_files = ififuncs.recursive_file_list(sys.argv[1])
+    args = parse_args(args_)
+    all_files = ififuncs.recursive_file_list(args.input)
     csv_filename = 'blaa.csv'
     make_csv(csv_filename)
     ms = 0
@@ -281,5 +304,5 @@ def main():
         pix_fmt,
         audio_fmt])
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 

@@ -9,6 +9,7 @@ table of contents
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
     * [accession.py](https://github.com/kieranjol/IFIscripts#accessionpy)
     * [order.py](https://github.com/kieranjol/IFIscripts#orderpy)
+    * [makepbcore.py](https://github.com/kieranjol/IFIscripts#makepbcorepy)
 3. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -92,6 +93,14 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 ** oe0008 has a parent: oe0001
 ** oe0005 not a child of another package
 * Usage for one directory - `order.py /path/to/directory_name`
+
+### makepbcore.py ###
+* Describes AV objects using a combination of the PBCore 2 metadata standard and the IFI technical database.
+* This script takes a folder as input. Either a single file or multiple objects will be described.
+* This will produce a single PBCore CSV record per package, even if multiple objects are within a package. The use case here is complex packages such as XDCAM/DCP, where we want a single metadata record for a multi-file object.
+* The CSV headings are written in such a way to allow for direct import into our SQL database.
+* Usage for one directory - `makepbcore.py /path/to/directory_name`
+* Run `makepbcore.py -h` for all options.
 
 ## Transcodes ##
 
