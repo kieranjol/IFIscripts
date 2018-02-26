@@ -48,12 +48,9 @@ def make_csv(csv_filename):
         'instantiationIdentif',
         'instantiationDate_modified',
         'instantiationDimensi',
-        'instantiationPhysica',
-        'instantiationDigital',
         'instantiationStandar',
         'instantiationLocatio',
         'instantMediaty',
-        'instantGenerations',
         'instantFileSize',
         'instantFileSize_gigs',
         'instantTimeStart',
@@ -108,6 +105,7 @@ def main():
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
         pbcore_namespace = root.xpath('namespace-uri(.)')
+        print 'Analsying ', source
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -160,10 +158,7 @@ def main():
             "//ns:essenceTrackAnnotation[@annotationType='PixelAspectRatio']",
             root, pbcore_namespace
         )
-        instantiationDigital = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Format_Commercial_IfAny']",
-            root, pbcore_namespace
-        )
+
         instantiationStandar = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Format']",
             root, pbcore_namespace
@@ -213,9 +208,7 @@ def main():
     Created_By = ''
     instantiationIdentif = ''
     instantiationDimensi = ''
-    instantiationPhysica = 'n/a'
     instantiationLocatio = ''
-    instantGenerations = ''
     instantTimeStart = ''
     instantFileSize_gigs = round(
         float(instantFileSize)  / 1024 / 1024 / 1024, 2
@@ -255,12 +248,9 @@ def main():
         instantiationIdentif,
         instantiationDate_modified,
         instantiationDimensi,
-        instantiationPhysica,
-        instantiationDigital,
         instantiationStandar,
         instantiationLocatio,
         instantMediaty,
-        instantGenerations,
         instantFileSize,
         instantFileSize_gigs,
         instantTimeStart,
