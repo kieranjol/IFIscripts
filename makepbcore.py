@@ -28,7 +28,7 @@ def get_attributes(root, pbcore_namespace):
     '''
     value = root.xpath("ns:essenceTrackEncoding",
         namespaces={'ns':pbcore_namespace})[0].attrib
-    print value
+    return value # a dict
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -145,8 +145,13 @@ def main(args_):
                         "ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
                     )
-                    get_attributes(track.getparent(),pbcore_namespace)
-
+                    vcodec_attributes = get_attributes(track.getparent(),pbcore_namespace)
+                elif track.text == 'Audio':
+                    essenceTrackEncod_au = get_metadata(
+                        "ns:essenceTrackEncoding",
+                        track.getparent(), pbcore_namespace
+                    )
+                    acodec_attributes = get_attributes(track.getparent(),pbcore_namespace)
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -259,7 +264,6 @@ def main(args_):
     essenceBitDepth_vid = ififuncs.get_mediainfo(
         'duration', '--inform=Video;%BitDepth%', source
     )
-    essenceTrackEncod_au = ''
     essenceBitDepth_au = ififuncs.get_mediainfo(
         'duration', '--inform=Audio;%BitDepth%', source
     )
