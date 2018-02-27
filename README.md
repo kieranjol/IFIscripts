@@ -51,6 +51,7 @@ table of contents
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
     * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
     * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
+    * [fakexdcam.py](https://github.com/kieranjol/IFIscripts#fakexdcam.py)
 10. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
@@ -297,6 +298,10 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 ### durationcheck.py ###
 * Recursive search through subdirectories and provides total duration in minutes. Accepts multiple inputs but provides the total duration of all inputs.
 * Usage: `durationcheck.py /path/to/parent_folder` or `durationcheck.py /path/to/parent_folder1 /path/to/parent_folder2 /path/to/parent_folder3` 
+
+### fakexdcam.py ###
+* Creates a fake XDCAM EX structure for testing purposes
+* Usage: `fakexdcam.py /path/to/output_folder`
 
 ## Experimental-Premis ##
 
