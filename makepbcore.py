@@ -29,6 +29,7 @@ def get_attributes(root, pbcore_namespace):
     value = root.xpath("ns:essenceTrackEncoding",
         namespaces={'ns':pbcore_namespace})[0].attrib
     return value # a dict
+
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -51,6 +52,7 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
 def make_csv(csv_filename):
     '''
     Writes a CSV with IFI database headings.
@@ -139,7 +141,7 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
-        print 'Analsying ', source
+        print('Analsying ', source)
         pbcore_namespace = root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
         if len(track_type) > 0:
