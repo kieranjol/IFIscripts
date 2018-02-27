@@ -109,7 +109,11 @@ def make_csv(csv_filename):
         'transfer_characteris',
         'matrix_coefficients',
         'pix_fmt',
-        'audio_fmt'
+        'audio_fmt',
+        'audio_codecid',
+        'video_codecid',
+        'video_codec_version',
+        'video_codec_profile'
     ])
 
 def main(args_):
@@ -230,6 +234,10 @@ def main(args_):
         )
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
+    audio_codecid = acodec_attributes['ref']
+    video_codecid = vcodec_attributes['ref']
+    video_codec_version = vcodec_attributes['version']
+    video_codec_profile = vcodec_attributes['annotation'][8:]
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
     Reference_Number = ''
@@ -322,7 +330,12 @@ def main(args_):
         transfer_characteris,
         matrix_coefficients,
         pix_fmt,
-        audio_fmt])
+        audio_fmt,
+        audio_codecid,
+        video_codecid,
+        video_codec_version,
+        video_codec_profile
+    ])
 if __name__ == '__main__':
     main(sys.argv[1:])
 
