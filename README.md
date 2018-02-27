@@ -50,13 +50,13 @@ table of contents
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
     * [makeuuid.py](https://github.com/kieranjol/IFIscripts#makeuuidpy)
-    * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheck.py)
-    * [fakexdcam.py](https://github.com/kieranjol/IFIscripts#fakexdcam.py)
+    * [durationcheck.py](https://github.com/kieranjol/IFIscripts#durationcheckpy)
+    * [fakexdcam.py](https://github.com/kieranjol/IFIscripts#fakexdcampy)
 10. [Experimental-Premis](https://github.com/kieranjol/IFIscripts#experimental-premis)
     * [premis.py](https://github.com/kieranjol/IFIscripts#premispy)
     * [revtmd.py](https://github.com/kieranjol/IFIscripts#revtmdpy)
     * [as11fixity.py](https://github.com/kieranjol/IFIscripts#as11fixitypy)
-    * [viruscheck.py](https://github.com/kieranjol/IFIscripts#viruscheck.py)
+    * [viruscheck.py](https://github.com/kieranjol/IFIscripts#viruscheckpy)
 
 ## summary ##
 
