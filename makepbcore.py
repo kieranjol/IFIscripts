@@ -293,7 +293,7 @@ def main(args_):
     instantiationLocatio = ''
     instantTimeStart = ''
     instantFileSize_gigs = round(
-        float(instantFileSize)  / 1024 / 1024 / 1024, 2
+        float(instantFileSize)  / 1024 / 1024 / 1024, 3
     )
     instantColors = ''
     instantLanguage = ''
