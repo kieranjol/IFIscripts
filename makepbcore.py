@@ -187,6 +187,7 @@ def main(args_):
         csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
     else:
         csv_filename = 'blaa.csv'
+    print ' - Metadata will be stored in %s' % csv_filename
     for filenames in os.listdir(args.input):
         if '_manifest.md5' in filenames:
             md5_manifest = os.path.join(args.input, filenames)
@@ -200,7 +201,7 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
-        print('Analysing  %s') % source
+        print(' - Analysing  %s') % source
         pbcore_namespace = root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
         if len(track_type) > 0:
@@ -405,7 +406,9 @@ def main(args_):
     ])
     if args.p:
         ififuncs.manifest_update(md5_manifest, csv_filename)
+        print ' - Updating %s with %s' % (md5_manifest, csv_filename)
         ififuncs.sha512_update(sha512_manifest, csv_filename)
+        print ' - Updating %s with %s' % (sha512_manifest, csv_filename)
 if __name__ == '__main__':
     main(sys.argv[1:])
 
