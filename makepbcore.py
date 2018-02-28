@@ -156,7 +156,7 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
-        print('Analsying ', source)
+        print('Analysing  %s') % source
         pbcore_namespace = root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
         if len(track_type) > 0:
@@ -253,7 +253,10 @@ def main(args_):
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
     audio_codecid = acodec_attributes['ref']
     video_codecid = vcodec_attributes['ref']
-    video_codec_version = vcodec_attributes['version']
+    try:
+        video_codec_version = vcodec_attributes['version']
+    except KeyError:
+        video_codec_version = 'n/a'
     video_codec_profile = vcodec_attributes['annotation'][8:]
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
