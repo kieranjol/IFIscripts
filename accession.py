@@ -153,6 +153,10 @@ def main(args_):
             sipcreator_log,
             'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
         )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = accession.py finished'
+        )
         ififuncs.checksum_replace(sip_manifest, sipcreator_log, 'md5')
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(sip_manifest, dfxml)
