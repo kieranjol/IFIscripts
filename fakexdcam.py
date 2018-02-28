@@ -33,15 +33,16 @@ def main():
     '''
     source = sys.argv[1]
     bpav = os.path.join(source, 'BPAV')
-    takr = os.path.join(source, 'TAKR')
     clpr = os.path.join(bpav, 'CLPR')
+    takr = os.path.join(clpr, 'TAKR')
     clip1 = os.path.join(clpr, '338_0011_06')
     clip2 = os.path.join(clpr, '338_0011_07')
     clip3 = os.path.join(clpr, '338_0011_08')
-    for folder in [bpav, takr, clpr, clip1, clip2, clip3]:
+    for folder in [bpav, clpr, takr, clip1, clip2, clip3]:
+        print folder
         os.makedirs(folder)
-    cueup = os.path.join(clpr, 'CUEUP.XML')
-    mediapro = os.path.join(clpr, 'MEDIAPRO.XML')
+    cueup = os.path.join(bpav, 'CUEUP.XML')
+    mediapro = os.path.join(bpav, 'MEDIAPRO.XML')
     for clip in [clip1, clip2, clip3]:
         make_clip(clip)
     for files in [cueup, mediapro]:
