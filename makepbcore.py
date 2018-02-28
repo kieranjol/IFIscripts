@@ -48,8 +48,12 @@ def parse_args(args_):
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
     parser.add_argument(
-        '-number',
+        '-accession',
         help='Enter the Accession number for the representation.'
+    )
+    parser.add_argument(
+        '-reference',
+        help='Enter the Filmographic reference number for the representation.'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -66,6 +70,20 @@ def get_accession_number(source):
     else:
         print('looks like your package has not been accessioned? Exiting!')
         sys.exit()
+
+def get_reference_number(source):
+    '''
+    Checks if the reference number is in the folder path.
+    This check is not sustainable, will have to be made more flexible!
+    '''
+    basename = os.path.basename(os.path.dirname(source))
+    if len(basename) == 7:
+        if basename[:3] == 'af1':
+            print basename
+            return basename
+    else:
+        basename = ififuncs.get_reference_number()
+        return basename
 
 def make_csv(csv_filename):
     '''
@@ -149,6 +167,7 @@ def main(args_):
     csv_filename = 'blaa.csv'
     silence = True
     Accession_Number = get_accession_number(args.input)
+    Reference_Number = get_reference_number(args.input)
     make_csv(csv_filename)
     ms = 0
     FrameCount = 0
@@ -270,7 +289,6 @@ def main(args_):
     video_codec_profile = vcodec_attributes['annotation'][8:]
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
-    Reference_Number = ''
     Donor = ''
     Edited_By = ''
     Date_Created = ''
