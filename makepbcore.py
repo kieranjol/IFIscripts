@@ -184,7 +184,28 @@ def main(args_):
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == 'metadata':
                 metadata_dir = root
+            elif os.path.basename(root) == 'logs':
+                logs_dir = root
         csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
+        sipcreator_log = os.path.join(
+            logs_dir, instantiationIdentif + '_sip_log.log'
+        )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = makepbcore.py started'
+        )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'eventDetail=makepbcore.py %s' % ififuncs.get_script_version('makepbcore.py')
+        )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'Command line arguments: %s' % args
+        )
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = agentName=%s' % user
+        )
     else:
         csv_filename = 'blaa.csv'
     print ' - Metadata will be stored in %s' % csv_filename
@@ -405,6 +426,14 @@ def main(args_):
         video_codec_profile
     ])
     if args.p:
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = Metadata extraction - eventDetail=Technical record creation using PBCore, eventOutcome=%s, agentName=makepbcore' % (csv_filename))
+        ififuncs.generate_log(
+            sipcreator_log,
+            'EVENT = makepbcore.py finished')
+        ififuncs.checksum_replace(md5_manifest, sipcreator_log, 'md5')
+        ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(md5_manifest, csv_filename)
         print ' - Updating %s with %s' % (md5_manifest, csv_filename)
         ififuncs.sha512_update(sha512_manifest, csv_filename)
