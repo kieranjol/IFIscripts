@@ -31,6 +31,7 @@ def make_register():
         'simple name; basic description; identification; historical information',
         'notes'
     ))
+    return 'register.csv'
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -108,6 +109,8 @@ def main(args_):
             )
         if proceed == 'Y':
             os.rename(oe_path, accession_path)
+        register = make_register()
+        ififuncs.append_csv(register, (oe_number.upper()[:2] + '-' + oe_number[2:6], accession_number, '','','','', ''))
         ififuncs.generate_log(
             sipcreator_log,
             'EVENT = accession.py started'
