@@ -36,7 +36,7 @@ def parse_args(args_):
     Parse command line arguments.
     '''
     parser = argparse.ArgumentParser(
-        description='Describes AV objects using a combination of the PBCore 2 metadata standard and the IFI technical database.'
+        description='Describes AV objects using a combination of the PBCore 2 metadata standard and the mandatory fields from the IFI technical database.'
         'This script takes a folder as input. Either a single file or multiple objects will be described.'
         'This will produce a single PBCore CSV record per package, even if multiple objects are within a package.'
         ' Written by Kieran O\'Leary.'
@@ -55,6 +55,10 @@ def parse_args(args_):
     parser.add_argument(
         '-reference',
         help='Enter the Filmographic reference number for the representation.'
+    )
+    parser.add_argument(
+        '-p', action='store_true',
+        help='Adds the PBCore CSV to the metadata folder'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -164,7 +168,6 @@ def main(args_):
     # yup - do it that way!
     args = parse_args(args_)
     all_files = ififuncs.recursive_file_list(args.input)
-    csv_filename = 'blaa.csv'
     silence = True
     if args.user:
         user = args.user
@@ -172,6 +175,18 @@ def main(args_):
         user = ififuncs.get_user()
     Accession_Number = get_accession_number(args.input)
     Reference_Number = get_reference_number(args.input)
+    if args.p:
+        for root, dirnames, filenames in os.walk(args.input):
+            if os.path.basename(root) == 'metadata':
+                metadata_dir = root
+        csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
+    else:
+        csv_filename = 'blaa.csv'
+    for filenames in os.listdir(args.input):
+        if '_manifest.md5' in filenames:
+            md5_manifest = os.path.join(args.input, filenames)
+        elif'manifest-sha512.txt' in filenames:
+            sha512_manifest = os.path.join(args.input, filenames)
     make_csv(csv_filename)
     ms = 0
     FrameCount = 0
@@ -384,6 +399,9 @@ def main(args_):
         video_codec_version,
         video_codec_profile
     ])
+    if args.p:
+        ififuncs.manifest_update(md5_manifest, csv_filename )
+        ififuncs.sha512_update(sha512_manifest, csv_filename)
 if __name__ == '__main__':
     main(sys.argv[1:])
 
