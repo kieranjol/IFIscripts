@@ -27,8 +27,10 @@ def get_attributes(root, pbcore_namespace):
     '''
     Extracts values from PBCore2 XML MediaInfo outputs.
     '''
-    value = root.xpath("ns:essenceTrackEncoding",
-        namespaces={'ns':pbcore_namespace})[0].attrib
+    value = root.xpath(
+        "ns:essenceTrackEncoding",
+        namespaces={'ns':pbcore_namespace}
+    )[0].attrib
     return value # a dict
 
 def parse_args(args_):
@@ -176,7 +178,7 @@ def main(args_):
     Accession_Number = get_accession_number(args.input)
     Reference_Number = get_reference_number(args.input)
     if args.p:
-        for root, dirnames, filenames in os.walk(args.input):
+        for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == 'metadata':
                 metadata_dir = root
         csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
@@ -205,14 +207,14 @@ def main(args_):
                         "ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
                     )
-                    vcodec_attributes = get_attributes(track.getparent(),pbcore_namespace)
+                    vcodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
                 elif track.text == 'Audio':
                     silence = False
                     essenceTrackEncod_au = get_metadata(
                         "ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
                     )
-                    acodec_attributes = get_attributes(track.getparent(),pbcore_namespace)
+                    acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -400,7 +402,7 @@ def main(args_):
         video_codec_profile
     ])
     if args.p:
-        ififuncs.manifest_update(md5_manifest, csv_filename )
+        ififuncs.manifest_update(md5_manifest, csv_filename)
         ififuncs.sha512_update(sha512_manifest, csv_filename)
 if __name__ == '__main__':
     main(sys.argv[1:])
