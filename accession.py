@@ -14,6 +14,23 @@ import manifest
 import makedfxml
 import validate
 
+
+def make_register():
+    '''
+    A placeholder function until we figure out where to put this.
+    As too much is unknown, this should really just log which OE numbers map
+    to which accession numbers. everything else can be manually filled
+    in a spreadsheet editor.
+    '''
+    ififuncs.create_csv('register.csv', (
+        'entry number',
+        'accession number',
+        'date acquired',
+        'acquired from',
+        'acquisition method',
+        'simple name; basic description; identification; historical information',
+        'notes'
+    ))
 def parse_args(args_):
     '''
     Parse command line arguments.
