@@ -147,6 +147,7 @@ def main(args_):
     args = parse_args(args_)
     all_files = ififuncs.recursive_file_list(args.input)
     csv_filename = 'blaa.csv'
+    silence = True
     Accession_Number = get_accession_number(args.input)
     make_csv(csv_filename)
     ms = 0
@@ -168,6 +169,7 @@ def main(args_):
                     )
                     vcodec_attributes = get_attributes(track.getparent(),pbcore_namespace)
                 elif track.text == 'Audio':
+                    silence = False
                     essenceTrackEncod_au = get_metadata(
                         "ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
@@ -251,7 +253,15 @@ def main(args_):
         )
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
-    audio_codecid = acodec_attributes['ref']
+    if not silence:
+        audio_codecid = acodec_attributes['ref']
+        essenceBitDepth_au = ififuncs.get_mediainfo(
+            'duration', '--inform=Audio;%BitDepth%', source
+        )
+    else:
+        audio_codecid = 'n/a'
+        essenceBitDepth_au = 'n/a'
+        essenceTrackEncod_au = 'n/a'
     video_codecid = vcodec_attributes['ref']
     try:
         video_codec_version = vcodec_attributes['version']
@@ -290,9 +300,6 @@ def main(args_):
     instantAltMo = 'n/a'
     essenceBitDepth_vid = ififuncs.get_mediainfo(
         'duration', '--inform=Video;%BitDepth%', source
-    )
-    essenceBitDepth_au = ififuncs.get_mediainfo(
-        'duration', '--inform=Audio;%BitDepth%', source
     )
     instantiationChanCon = ''
     ififuncs.append_csv(csv_filename, [
