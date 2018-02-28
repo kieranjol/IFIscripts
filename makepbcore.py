@@ -46,7 +46,8 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-user',
-        help='Declare who you are. If this is not set, you will be prompted.')
+        help='Declare who you are. If this is not set, you will be prompted.'
+    )
     parser.add_argument(
         '-accession',
         help='Enter the Accession number for the representation.'
@@ -79,7 +80,6 @@ def get_reference_number(source):
     basename = os.path.basename(os.path.dirname(source))
     if len(basename) == 7:
         if basename[:3] == 'af1':
-            print basename
             return basename
     else:
         basename = ififuncs.get_reference_number()
@@ -166,6 +166,10 @@ def main(args_):
     all_files = ififuncs.recursive_file_list(args.input)
     csv_filename = 'blaa.csv'
     silence = True
+    if args.user:
+        user = args.user
+    else:
+        user = ififuncs.get_user()
     Accession_Number = get_accession_number(args.input)
     Reference_Number = get_reference_number(args.input)
     make_csv(csv_filename)
@@ -290,7 +294,7 @@ def main(args_):
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
     Donor = ''
-    Edited_By = ''
+    Edited_By = user
     Date_Created = ''
     Date_Last_Modified = ''
     Film_Or_Tape = 'Digital File'
@@ -302,10 +306,10 @@ def main(args_):
     Language_Version = ''
     Condition_Rating = ''
     Companion_Elements = ''
-    EditedNew = ''
+    EditedNew = user
     FIO = 'In'
     CollectionTitle = ''
-    Created_By = ''
+    Created_By = user
     instantiationIdentif = ''
     instantiationDimensi = ''
     instantiationLocatio = ''
