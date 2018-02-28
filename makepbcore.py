@@ -3,6 +3,7 @@
 Describe AV objects using PBCore in CSV form.
 '''
 import sys
+import os
 import subprocess
 import argparse
 from lxml import etree
@@ -52,6 +53,19 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+def get_accession_number(source):
+    '''
+    Checks if the package has been accessioned.
+    Returns the accession number if this is the case, otherwise the script exits.
+    '''
+    basename = os.path.basename(source)
+    if len(basename) == 7:
+        if basename[:3] == 'aaa':
+            return basename
+    else:
+        print('looks like your package has not been accessioned? Exiting!')
+        sys.exit()
 
 def make_csv(csv_filename):
     '''
@@ -133,6 +147,7 @@ def main(args_):
     args = parse_args(args_)
     all_files = ififuncs.recursive_file_list(args.input)
     csv_filename = 'blaa.csv'
+    Accession_Number = get_accession_number(args.input)
     make_csv(csv_filename)
     ms = 0
     FrameCount = 0
@@ -249,7 +264,6 @@ def main(args_):
     Date_Last_Modified = ''
     Film_Or_Tape = 'Digital File'
     Date_Of_Donation = ''
-    Accession_Number = ''
     Habitat = ''
     Type_Of_Deposit = ''
     Depositor_Reference = ''
