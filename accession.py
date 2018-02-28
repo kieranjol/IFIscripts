@@ -13,6 +13,7 @@ import ififuncs
 import manifest
 import makedfxml
 import validate
+import makepbcore
 
 
 def make_register():
@@ -54,6 +55,10 @@ def parse_args(args_):
     parser.add_argument(
         '-force',
         help='Renames OE with accession number without confirmation.', action='store_true'
+    )
+    parser.add_argument(
+        '-pbcore',
+        help='launches makepbcore and updates AIP', action='store_true'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -161,7 +166,10 @@ def main(args_):
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(sip_manifest, dfxml)
         ififuncs.sha512_update(sha512_manifest, dfxml)
+        if args.pbcore:
+            makepbcore.main([accession_path, '-p', '-user', user])
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
+
 if __name__ == '__main__':
     main(sys.argv[1:])
