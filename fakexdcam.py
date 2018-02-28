@@ -11,7 +11,7 @@ def make_clip(clip_dir):
     Creates some dummy clips.
     '''
     clip_name = os.path.basename(clip_dir)
-    mp4 = os.path.join(clip_dir, clip_name + '.MP4')
+    mxf = os.path.join(clip_dir, clip_name + '.MXF')
     smi = os.path.join(clip_dir, clip_name + '.SMI')
     ppn = os.path.join(clip_dir, clip_name + 'I01.PPN')
     xml = os.path.join(clip_dir, clip_name + 'M01.XML')
@@ -20,8 +20,11 @@ def make_clip(clip_dir):
         ['ffmpeg',
          '-f', 'lavfi',
          '-i', 'mandelbrot',
-         '-c:v', 'mpeg2video', '-t', '1',
-         mp4
+         '-f', 'lavfi',
+         '-i', 'sine=sample_rate=48000',
+         '-c:v', 'mpeg2video',
+         '-c:a', 'pcm_s16le', '-t', '1',
+         mxf
         ])
     for files in [xml, ppn, smi, xml, bim]:
         open(files, 'w')
