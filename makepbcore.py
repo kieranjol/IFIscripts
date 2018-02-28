@@ -175,6 +175,9 @@ def main(args_):
         user = args.user
     else:
         user = ififuncs.get_user()
+    for dirs in os.listdir(args.input):
+        if ififuncs.validate_uuid4(dirs) is None:
+            instantiationIdentif = dirs
     Accession_Number = get_accession_number(args.input)
     Reference_Number = get_reference_number(args.input)
     if args.p:
@@ -327,7 +330,6 @@ def main(args_):
     FIO = 'In'
     CollectionTitle = ''
     Created_By = user
-    instantiationIdentif = ''
     instantiationDimensi = ''
     instantiationLocatio = ''
     instantTimeStart = ''
