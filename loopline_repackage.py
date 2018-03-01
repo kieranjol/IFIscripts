@@ -197,6 +197,8 @@ def main(args_):
                     'EVENT = loopline_repackage.py finished'
                 )
                 ififuncs.checksum_replace(new_manifest, logname, 'md5')
+                oe_digits = int(os.path.basename(new_oe_path)[2:]) + 1
+                new_object_entry = 'oe' + str(oe_digits)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
