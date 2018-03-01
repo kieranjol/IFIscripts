@@ -71,12 +71,14 @@ def update_manifest(manifest, old_oe, uuid):
                     # if source (v210) logs or metadata exist, leave filename
                     # alone, just change the path.
                     line = line[:40].replace(old_oe, uuid) + line[40:]
+                elif '.mov_log.log' in line:
+                   line = line.replace(old_oe, uuid).replace('.mov_log', '_sip_log')
                 else:
                     line = line.replace(old_oe, uuid)
                 updated_lines.append(line)
     return updated_lines
 
-def rename_files(new_uuid_path, old_oe, uuid):
+def rename_files(new_uuid_path, old_oe, uuid, manifest):
     '''
     Renames files from OE numbers to UUID where appropriate.
     '''
@@ -84,8 +86,15 @@ def rename_files(new_uuid_path, old_oe, uuid):
         for filename in filenames:
             if old_oe in filename:
                 if 'source' not in filename:
-                    new_filename = os.path.join(root, filename).replace(old_oe, uuid)
-                    os.rename(os.path.join(root, filename), new_filename)
+                    if '.mov_log.log' in filename:
+                        new_filename = os.path.join(root, filename).replace('.mov_log', '_sip_log').replace(old_oe, uuid)
+                        os.rename(os.path.join(root, filename), new_filename)
+                        logname = new_filename
+                    else:
+                        new_filename = os.path.join(root, filename).replace(old_oe, uuid)
+                        os.rename(os.path.join(root, filename), new_filename)
+    return logname
+
 
 def move_files(root, new_object_entry, old_oe_path, old_uuid_path, uuid):
     '''
@@ -132,7 +141,8 @@ def main(args_):
                 with open(new_manifest, 'w') as fo:
                     for lines in updated_lines:
                         fo.write(lines)
-                rename_files(new_uuid_path, old_oe, uuid)
+                logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest)
+                ififuncs.checksum_replace(new_manifest, logname, 'md5')
 
 
 if __name__ == '__main__':
