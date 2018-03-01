@@ -332,7 +332,10 @@ def main(args_):
         video_codec_version = vcodec_attributes['version']
     except KeyError:
         video_codec_version = 'n/a'
-    video_codec_profile = vcodec_attributes['annotation'][8:]
+    try:
+        video_codec_profile = vcodec_attributes['annotation'][8:]
+    except KeyError:
+        video_codec_profile = 'n/a'
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
     Donor = ''
