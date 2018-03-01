@@ -72,13 +72,13 @@ def update_manifest(manifest, old_oe, uuid):
                     # alone, just change the path.
                     line = line[:40].replace(old_oe, uuid) + line[40:]
                 elif '.mov_log.log' in line:
-                   line = line.replace(old_oe, uuid).replace('.mov_log', '_sip_log')
+                    line = line.replace(old_oe, uuid).replace('.mov_log', '_sip_log')
                 else:
                     line = line.replace(old_oe, uuid)
                 updated_lines.append(line)
     return updated_lines
 
-def rename_files(new_uuid_path, old_oe, uuid, manifest):
+def rename_files(new_uuid_path, old_oe, uuid, manifest, logname):
     '''
     Renames files from OE numbers to UUID where appropriate.
     '''
@@ -90,9 +90,21 @@ def rename_files(new_uuid_path, old_oe, uuid, manifest):
                         new_filename = os.path.join(root, filename).replace('.mov_log', '_sip_log').replace(old_oe, uuid)
                         os.rename(os.path.join(root, filename), new_filename)
                         logname = new_filename
+                        ififuncs.generate_log(
+                            logname,
+                            'EVENT = eventType=Filename change,'
+                            ' eventOutcomeDetailNote=%s changed to %s'
+                            % (os.path.join(root, filename), new_filename)
+                        )
                     else:
                         new_filename = os.path.join(root, filename).replace(old_oe, uuid)
                         os.rename(os.path.join(root, filename), new_filename)
+                        ififuncs.generate_log(
+                            logname,
+                            'EVENT = eventType=Filename change,'
+                            ' eventOutcomeDetailNote=%s changed to %s'
+                            % (os.path.join(root, filename), new_filename)
+                        )
     return logname
 
 
@@ -124,6 +136,10 @@ def main(args_):
     for root, _, filenames in os.walk(args.input):
         if os.path.basename(root)[:2] == 'oe':
             if len(os.path.basename(root)[2:]) == 4:
+                log_dir = os.path.join(root, 'logs')
+                for files in os.listdir(log_dir):
+                    if '.mov_log.log' in files:
+                        log = os.path.join(log_dir, files)
                 old_oe_path = root
                 old_oe = os.path.basename(root)
                 manifest = os.path.join(
@@ -131,6 +147,36 @@ def main(args_):
                     old_oe + '_manifest.md5'
                     )
                 uuid = ififuncs.create_uuid()
+                uuid_event = (
+                    'EVENT = eventType=Identifier assignement,'
+                    ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
+                ) % uuid
+                ififuncs.generate_log(
+                    log,
+                    'EVENT = loopline_repackage.py started'
+                )
+                ififuncs.generate_log(
+                    log,
+                    'eventDetail=loopline_repackage.py %s' % ififuncs.get_script_version('loopline_repackage.py')
+                )
+                ififuncs.generate_log(
+                    log,
+                    'Command line arguments: %s' % args
+                )
+                ififuncs.generate_log(
+                    log,
+                    'EVENT = agentName=%s' % user
+                )
+                ififuncs.generate_log(
+                    log,
+                    uuid_event
+                )
+                ififuncs.generate_log(
+                    log,
+                    'EVENT = eventType=Identifier assignement,'
+                    ' eventIdentifierType=object entry, value=%s'
+                    % new_object_entry
+                )
                 old_uuid_path = os.path.join(os.path.dirname(root), uuid)
                 new_oe_path, new_uuid_path = move_files(
                     root, new_object_entry, old_oe_path, old_uuid_path, uuid
@@ -141,9 +187,16 @@ def main(args_):
                 with open(new_manifest, 'w') as fo:
                     for lines in updated_lines:
                         fo.write(lines)
-                logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest)
+                new_logs_path = os.path.join(new_uuid_path, 'logs')
+                for files in os.listdir(new_logs_path):
+                    if '.mov_log.log' in files:
+                        log = os.path.join(new_logs_path, files)
+                logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest, log)
+                ififuncs.generate_log(
+                    logname,
+                    'EVENT = loopline_repackage.py finished'
+                )
                 ififuncs.checksum_replace(new_manifest, logname, 'md5')
-
 
 if __name__ == '__main__':
     main(sys.argv[1:])
