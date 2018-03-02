@@ -27,7 +27,7 @@ def parse_args(args_):
     return parsed_args
 def get_number(args):
     '''
-    Figure out the first OE number and how to increment per package.
+    Figure out the first accession number and how to increment per package.
     '''
     if args.start_number:
         if args.start_number[:3] != 'aaa':
@@ -45,22 +45,21 @@ def get_number(args):
         accession_number = ififuncs.get_accession_number()
     return accession_number
 def main(args_):
+    '''
+    Batch process packages by running accession.py and makepbcore.py
+    '''
     args = parse_args(args_)
     user = ififuncs.get_user()
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
     new_accession_number = 'aaa' + str(accession_digits)
-    for root, _, filenames in os.walk(args.input):
+    for root, _, _ in os.walk(args.input):
         if os.path.basename(root)[:2] == 'oe':
-            print os.path.basename(root)[2:]
             if len(os.path.basename(root)[2:]) == 4:
-                print 'no'
-                print root, new_accession_number
                 accession.main([root, '-user', user, '-p', '-f', '-number', new_accession_number])
                 accession_digits = int(new_accession_number[3:]) + 1
                 new_accession_number = 'aaa' + str(accession_digits)
-                print new_accession_number
-        
+
 if __name__ == '__main__':
     main(sys.argv[1:])
 
