@@ -8,6 +8,7 @@ table of contents
 1. [Arrangement](https://github.com/kieranjol/IFIscripts#arrangement)
     * [sipcreator.py](https://github.com/kieranjol/IFIscripts#sipcreatorpy)
     * [accession.py](https://github.com/kieranjol/IFIscripts#accessionpy)
+    * [batchaccession.py](https://github.com/kieranjol/IFIscripts#batchaccessionpy)
     * [order.py](https://github.com/kieranjol/IFIscripts#orderpy)
     * [makepbcore.py](https://github.com/kieranjol/IFIscripts#makepbcorepy)
 1. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
@@ -84,6 +85,12 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * Currently this just works with packages that have been generated using `sipcreator.py`. SHA512 manifests are created,the OE number is replaced by an accession number, and the sipcreator logfile is updated with the various events that have taken place.
 * Usage for one directory - `accession.py /path/to/directory_name`
 * Run `accession.py -h` for all options.
+
+### batchaccession.py ###
+* Batch process packages by running `accession.py` and `makepbcore.py`
+* The script will only process files with `sipcreator.py` style packages. `makeffv1.py` and `dvsip.py` packages will be ignored.
+* Usage for processing all subdirectories - `batchaccession.py /path/to/directory_name`
+* Run `batchaccession.py -h` for all options.
 
 
 ### order.py ###
