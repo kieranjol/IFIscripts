@@ -1,58 +1,36 @@
 #!/usr/bin/env python
 '''
-Audits logfiles to determine relationships, like is a package a derivative of
-another, or does a package have no parent.
+Audits logfiles to determine the parent of a derivative package.
 This script can aid in automating large accessioning procedures that involve
 the accessioning of derivatives along with masters, eg a Camera Card and
 a concatenated derivative, or a master file and a mezzanine.
-Eventually this should provide an ordered list that will determine the
-best order in which these packages should be accessioned by accession.py
-Example output:
-oe0001 not a child of another package
-oe0008 has a parent: oe0001
-oe0005 not a child of another package
 '''
 import sys
 import os
 import ififuncs
 
-def get_listings(source):
-    '''
-    returns a list containing the absolute path of a folder containing Object
-    Entry packages.
-    '''
-    source = sys.argv[1]
-    listing = os.listdir(source)
-    directories = []
-    for directory in listing:
-        if directory[:2] == 'oe':
-            full_path = os.path.join(source, directory)
-            if os.path.isdir(full_path):
-                directories.append(full_path)
-    return directories
 
 def main():
     '''
-    Analyzes a directory containing Object Entry packages and prints their
-    relationships or lack thereof.
-    Eventually this should provide an ordered list that will determine the
-    best order in which these packages should be accessioned by accession.py
+    Analyzes a directory containing Object Entry packages and returns their
+    parent or lack thereof.
     '''
-    directories = get_listings(sys.argv[1])
-    oe_uuid_dict = ififuncs.group_ids(os.path.dirname(sys.argv[1]))
-    final_list = []
-    for directory in directories:
-        for root, _, filenames in os.walk(directory):
+    source = sys.argv[1]
+    if os.path.basename(source)[:2] == 'oe':
+        oe_uuid_dict = ififuncs.group_ids(os.path.dirname(sys.argv[1]))
+        for root, _, filenames in os.walk(source):
             for filename in filenames:
                 if filename.endswith('_sip_log.log'):
                     uuid_search = ififuncs.find_parent(
                         os.path.join(root, filename), oe_uuid_dict
                     )
                     if 'not a child' in uuid_search:
-                        final_list.append(uuid_search[:6])
+                        continue
                     elif 'has a parent' in uuid_search:
                         parent = uuid_search[-7:-1]
-                        final_list.insert(final_list.index(parent) + 1, uuid_search[:6])
+                        print parent[:2].upper() + '-' + parent[2:]
+                        return parent
+
 
 
 if __name__ == '__main__':
