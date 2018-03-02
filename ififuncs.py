@@ -815,14 +815,14 @@ def get_reference_number():
             '\n\n**** Please enter the Filmographic reference number of the representation\n\n'
         )
         if reference_number[:3] != 'af1':
-            print 'First two characters must be \'af\' and the last five characters must be four digits'
+            print 'First two characters must be \'af\' and the last five characters must be five digits'
             reference_number = False
         elif len(reference_number[2:]) != 5:
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be four digits'
+            print 'First two characters must be \'af\' and last five characters must be five digits'
         elif not reference_number[2:].isdigit():
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be four digits'
+            print 'First two characters must be \'af\' and last five characters must be five digits'
         else:
             return reference_number
 

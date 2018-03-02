@@ -46,6 +46,7 @@ table of contents
     * [masscopy.py](https://github.com/kieranjol/IFIscripts#masscopypy)
     * [dvsip.py](https://github.com/kieranjol/IFIscripts#dvsippy)
     * [makefolders.py](https://github.com/kieranjol/IFIscripts#makefolderspy)
+    * [looplinerepackage.py](https://github.com/kieranjol/IFIscripts#loopline_repackagespy)
 1. [Misc](https://github.com/kieranjol/IFIscripts#misc)
     * [update.py](https://github.com/kieranjol/IFIscripts#updatepy)
     * [giffer.py](https://github.com/kieranjol/IFIscripts#gifferpy)
@@ -280,6 +281,12 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 ### makefolders.py ###
 * Creates a logs/objects/metadata folder structure with a UUID parent folder. This is specific to a film scanning workflow as there are seperate audio and image subfolders. You can specifiy the values on the command line or a terminal interview will appear which will prompt you for filmographic reference number, source accession number and title. Use `makefolders.py -h` for the full list of options.
 * Usage: `makefolders.py -o /path/to/destination`
+
+### loopline_repackage.py ###
+* Retrospectively updates older FFV1/DV packages in order to meet our current packaging requirements. This should allow accession.py and makepbcore.py to run as expected. This will process a group of packages and each loop will result in the increment by one of the starting OE number. Use with caution.
+* This script should work on files created by `makeffv1.py dvsip.py loopline.py`
+* Usage: `loopline_repackage`
+
 
 ## Misc ##
 
