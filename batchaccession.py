@@ -8,6 +8,17 @@ import os
 import ififuncs
 import accession
 
+def initial_check(args, accession_digits):
+    '''
+    Tells the user which packages will be accessioned and what their accession
+    numbers will be.
+    '''
+    for root, _, _ in os.walk(args.input):
+        if os.path.basename(root)[:2] == 'oe':
+            if len(os.path.basename(root)[2:]) == 4:
+                print '%s will be accessioned as %s' %  (root, 'aaa' + str(accession_digits))
+                accession_digits += 1
+
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -53,12 +64,17 @@ def main(args_):
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
     new_accession_number = 'aaa' + str(accession_digits)
-    for root, _, _ in os.walk(args.input):
-        if os.path.basename(root)[:2] == 'oe':
-            if len(os.path.basename(root)[2:]) == 4:
-                accession.main([root, '-user', user, '-p', '-f', '-number', new_accession_number])
-                accession_digits = int(new_accession_number[3:]) + 1
-                new_accession_number = 'aaa' + str(accession_digits)
+    initial_check(args, accession_digits)
+    proceed = ififuncs.ask_yes_no(
+        'Do you want to proceed?'
+    )
+    if proceed == 'Y':
+        for root, _, _ in os.walk(args.input):
+            if os.path.basename(root)[:2] == 'oe':
+                if len(os.path.basename(root)[2:]) == 4:
+                    accession.main([root, '-user', user, '-p', '-f', '-number', new_accession_number])
+                    accession_digits = int(new_accession_number[3:]) + 1
+                    new_accession_number = 'aaa' + str(accession_digits)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
