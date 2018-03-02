@@ -93,7 +93,7 @@ def recursive_file_list(video_files):
         else:
             for root, _, filenames in os.walk(directory):
                 for filename in filenames:
-                    if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf')):
+                    if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', 'MXF')):
                         recursive_list.append(os.path.join(root, filename))
     print recursive_list
     return recursive_list
