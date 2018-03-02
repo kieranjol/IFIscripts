@@ -16,7 +16,9 @@ def initial_check(args, accession_digits):
     for root, _, _ in os.walk(args.input):
         if os.path.basename(root)[:2] == 'oe':
             if len(os.path.basename(root)[2:]) == 4:
-                print '%s will be accessioned as %s' %  (root, 'aaa' + str(accession_digits))
+                print '%s will be accessioned as %s' %  (
+                    root, 'aaa' + str(accession_digits)
+                )
                 accession_digits += 1
 
 def parse_args(args_):
@@ -72,7 +74,11 @@ def main(args_):
         for root, _, _ in os.walk(args.input):
             if os.path.basename(root)[:2] == 'oe':
                 if len(os.path.basename(root)[2:]) == 4:
-                    accession.main([root, '-user', user, '-p', '-f', '-number', new_accession_number])
+                    accession.main([
+                        root, '-user', user,
+                        '-p', '-f', '-number',
+                        new_accession_number
+                    ])
                     accession_digits = int(new_accession_number[3:]) + 1
                     new_accession_number = 'aaa' + str(accession_digits)
 
