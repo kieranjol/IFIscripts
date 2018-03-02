@@ -7,19 +7,29 @@ import sys
 import os
 import ififuncs
 import accession
+import copyit
 
 def initial_check(args, accession_digits):
     '''
     Tells the user which packages will be accessioned and what their accession
     numbers will be.
     '''
+    to_accession = {}
+    wont_accession = []
     for root, _, _ in os.walk(args.input):
         if os.path.basename(root)[:2] == 'oe':
             if len(os.path.basename(root)[2:]) == 4:
-                print '%s will be accessioned as %s' %  (
-                    root, 'aaa' + str(accession_digits)
-                )
-                accession_digits += 1
+                if copyit.check_for_sip(root) is None:
+                    wont_accession.append(root)
+                    #print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % root
+                else:
+                    to_accession[root] = 'aaa' + str(accession_digits)
+                    accession_digits += 1
+    for fails in wont_accession:
+        print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
+    for success in sorted(to_accession.keys()):
+        print '%s will be accessioned as %s' %  (success, to_accession[success])
+    return to_accession
 
 def parse_args(args_):
     '''
@@ -65,22 +75,17 @@ def main(args_):
     user = ififuncs.get_user()
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
-    new_accession_number = 'aaa' + str(accession_digits)
-    initial_check(args, accession_digits)
+    to_accession = initial_check(args, accession_digits)
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
     if proceed == 'Y':
-        for root, _, _ in os.walk(args.input):
-            if os.path.basename(root)[:2] == 'oe':
-                if len(os.path.basename(root)[2:]) == 4:
-                    accession.main([
-                        root, '-user', user,
-                        '-p', '-f', '-number',
-                        new_accession_number
-                    ])
-                    accession_digits = int(new_accession_number[3:]) + 1
-                    new_accession_number = 'aaa' + str(accession_digits)
+        for package in sorted(to_accession.keys()):
+            accession.main([
+                package, '-user', user,
+                '-p', '-f', '-number',
+                to_accession[package]
+            ])
 
 if __name__ == '__main__':
     main(sys.argv[1:])
