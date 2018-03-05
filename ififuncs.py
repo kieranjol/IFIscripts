@@ -1188,3 +1188,14 @@ def recursive_file_list(video_files):
             if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF')):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
+
+def extract_metadata(csv_file):
+    '''
+    Read the csv and store the data in a list of dictionaries.
+    '''
+    object_dictionaries = []
+    input_file = csv.DictReader(open(csv_file))
+    for rows in input_file:
+        object_dictionaries.append(rows)
+    return object_dictionaries
+    
