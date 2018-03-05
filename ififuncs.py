@@ -962,7 +962,6 @@ def check_for_sip(args):
         if 'manifest.md5' in filenames:
             dircheck = filenames.replace('_manifest.md5', '')
             if os.path.isdir(os.path.join(args[0], dircheck)):
-                print 'ifi sip found'
                 return os.path.join(args[0], dircheck)
 
 def checksum_replace(manifest, logname, algorithm):
