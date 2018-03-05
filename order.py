@@ -15,9 +15,9 @@ def main():
     Analyzes a directory containing Object Entry packages and returns their
     parent or lack thereof.
     '''
-    source = sys.argv[1]
+    source = args
     if os.path.basename(source)[:2] == 'oe':
-        oe_uuid_dict = ififuncs.group_ids(os.path.dirname(sys.argv[1]))
+        oe_uuid_dict = ififuncs.group_ids(os.path.dirname(source))
         for root, _, filenames in os.walk(source):
             for filename in filenames:
                 if filename.endswith('_sip_log.log'):
@@ -25,7 +25,7 @@ def main():
                         os.path.join(root, filename), oe_uuid_dict
                     )
                     if 'not a child' in uuid_search:
-                        continue
+                        return None
                     elif 'has a parent' in uuid_search:
                         parent = uuid_search[-7:-1]
                         print parent[:2].upper() + '-' + parent[2:]
@@ -34,4 +34,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
