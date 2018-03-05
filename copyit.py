@@ -71,7 +71,6 @@ def remove_bad_files(root_dir, log_name_source):
     '''
     Stolen and adapted from Ben Fino-Radin. Removes annoying files.
     '''
-    print('Checking if any .Ds_Stores/Thumbs.db or Desktop.ini files exist')
     rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
     for root, _, files in os.walk(root_dir):
         for name in files:
@@ -347,7 +346,6 @@ def check_for_sip(args):
             if len(os.listdir(args)) == 2:
                 dircheck = filenames.replace('_manifest.md5', '')
                 if os.path.isdir(os.path.join(args, dircheck)):
-                    print('ifi sip found')
                     return os.path.join(args, dircheck)
 
 
