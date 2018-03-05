@@ -10,7 +10,7 @@ import os
 import ififuncs
 
 
-def main():
+def main(args):
     '''
     Analyzes a directory containing Object Entry packages and returns their
     parent or lack thereof.
