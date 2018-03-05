@@ -94,13 +94,9 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 
 
 ### order.py ###
-* Audits logfiles to determine relationships, like is a package a derivative of another, or does a package have no parent.
+* Audits logfiles to determine the parent of a derivative package.
 * This script can aid in automating large accessioning procedures that involve the accessioning of derivatives along with masters, eg a Camera Card and a concatenated derivative, or a master file and a mezzanine.
-* Eventually this should provide an ordered list that will determine the best order in which these packages should be accessioned by accession.py
-** Example output:
-** oe0001 not a child of another package
-** oe0008 has a parent: oe0001
-** oe0005 not a child of another package
+* Currently, this script will return a value :`None`, or the parent `OE` number. It also prints the OE number in its `OE-XXXX` just for fun.
 * Usage for one directory - `order.py /path/to/directory_name`
 
 ### makepbcore.py ###
