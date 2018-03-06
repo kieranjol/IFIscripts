@@ -158,6 +158,8 @@ def main(args_):
             accession.main([
                 package, '-user', user,
                 '-p', '-f', '-number',
+                '-number', to_accession[package][0],
+                '-reference', to_accession[package][1],
                 to_accession[package]
             ])
 
