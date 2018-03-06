@@ -105,6 +105,9 @@ def get_afNNNN_number(number):
     if len(number) == 7:
         if number[:3] == 'af1':
             return number
+        else:
+            number = ififuncs.get_reference_number()
+            return number
     else:
         number = ififuncs.get_reference_number()
         return number
