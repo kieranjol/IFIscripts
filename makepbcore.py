@@ -179,7 +179,10 @@ def main(args_):
         if ififuncs.validate_uuid4(dirs) is None:
             instantiationIdentif = dirs
     Accession_Number = get_accession_number(args.input)
-    Reference_Number = get_reference_number(args.input)
+    if args.reference:
+        Reference_Number = args.reference
+    else:
+        Reference_Number = get_reference_number(args.input)
     if args.p:
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == 'metadata':
