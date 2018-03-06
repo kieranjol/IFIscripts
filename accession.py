@@ -60,6 +60,10 @@ def parse_args(args_):
         '-pbcore',
         help='launches makepbcore and updates AIP', action='store_true'
     )
+    parser.add_argument(
+        '-reference',
+        help='Enter the Filmographic reference number for the representation. This is only relevant when used with -pbcore' 
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 def make_dfxml(args,new_uuid_path,uuid):
@@ -167,7 +171,10 @@ def main(args_):
         ififuncs.manifest_update(sip_manifest, dfxml)
         ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
-            makepbcore.main([accession_path, '-p', '-user', user])
+            if args.reference:
+                makepbcore.main([accession_path, '-p', '-user', user, '-reference', args.reference])
+            else:
+                makepbcore.main([accession_path, '-p', '-user', user])
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
 
