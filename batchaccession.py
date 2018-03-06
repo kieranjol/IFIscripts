@@ -22,6 +22,7 @@ and then the user confirms all that.
 '''
 import argparse
 import sys
+import csv
 import os
 import ififuncs
 import accession
@@ -64,8 +65,6 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             to_accession[root] = ['aaa' + str(accession_digits), ref[:2] + str(reference_digits)]
                             reference_digits +=1
                             accession_digits +=1
-    print to_accession
-    sys.exit()
     for fails in wont_accession:
             print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
     for success in sorted(to_accession.keys()):
@@ -150,19 +149,30 @@ def main(args_):
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
     to_accession = initial_check(args, accession_digits, oe_list, reference_number)
+    if args.csv:
+        filmographic_dict = ififuncs.extract_metadata(args.csv)
+        for i in to_accession:
+            for x in filmographic_dict:
+                if os.path.basename(i).upper()[:2] + '-' + os.path.basename(i)[2:] == x['Object Entry'] :
+                    x['Reference Number'] = to_accession[i][1]
+                    #the dict has been updated with the reference number
+                    # now just write that to csv.
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
+    '''
+    you can update the to_accession dict. then write with the dictwriter. you might need to impose the fieldnames to preserve order.
+    then do some checksumming or diffing to ensure that nothing else significant is actually changing ughhh
+    '''
     if proceed == 'Y':
         for package in sorted(to_accession.keys()):
+            print(to_accession[package])
             accession.main([
                 package, '-user', user,
-                '-p', '-f', '-number',
+                '-p', '-f',
                 '-number', to_accession[package][0],
-                '-reference', to_accession[package][1],
-                to_accession[package]
+                '-reference', to_accession[package][1]
             ])
-
 if __name__ == '__main__':
     main(sys.argv[1:])
 
