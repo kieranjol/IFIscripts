@@ -39,34 +39,35 @@ def initial_check(args, accession_digits, oe_list, reference_number):
     ref = reference_number
     reference_digits = int(ref[2:])
     for root, _, _ in os.walk(args.input):
-        if os.path.basename(root)[:2] == 'oe' and len(os.path.basename(root)[2:]) == 4 and copyit.check_for_sip(root) is None:
-            wont_accession.append(root)
-        else:
-            # this is just batchaccessioning if no csv is supplied
-            if len(oe_list) == 0:
-                to_accession[root] = 'aaa' + str(accession_digits)
-                accession_digits += 1
+        if os.path.basename(root)[:2] == 'oe' and len(os.path.basename(root)[2:]) == 4:
+            if copyit.check_for_sip(root) is None:
+                wont_accession.append(root)
             else:
-                # this should kick in if a csv is supplied.
-                # only the items in the csv will pass forward for accessioning.
-                # the parent OE should also be in here.
-                # I just realised - perhaps the removal of converteds is not necessary.
-                # Maybe, just maybe - we should have a policy that states:
-                # the concat and its parent is what will be accessioned.
-                # ask aoife if she only concatted from the best master.
-                # THIS COULD SOLVE A LOT OF ISSUES. THE SCRIPT FOLLOWS THE POLICY.
-                if os.path.basename(root) in oe_list:
-                    to_accession[
-                        os.path.join(os.path.dirname(root),
-                                     order.main(root))
-                    ] = [
-                        'aaa' + str(accession_digits),
-                        ref[:2] + str(reference_digits)
-                    ]
+                # this is just batchaccessioning if no csv is supplied
+                if len(oe_list) == 0:
+                    to_accession[root] = 'aaa' + str(accession_digits)
                     accession_digits += 1
-                    to_accession[root] = ['aaa' + str(accession_digits), ref[:2] + str(reference_digits)]
-                    reference_digits += 1
-                    accession_digits += 1
+                else:
+                    # this should kick in if a csv is supplied.
+                    # only the items in the csv will pass forward for accessioning.
+                    # the parent OE should also be in here.
+                    # I just realised - perhaps the removal of converteds is not necessary.
+                    # Maybe, just maybe - we should have a policy that states:
+                    # the concat and its parent is what will be accessioned.
+                    # ask aoife if she only concatted from the best master.
+                    # THIS COULD SOLVE A LOT OF ISSUES. THE SCRIPT FOLLOWS THE POLICY.
+                    if os.path.basename(root) in oe_list:
+                        to_accession[
+                            os.path.join(os.path.dirname(root),
+                                         order.main(root))
+                        ] = [
+                            'aaa' + str(accession_digits),
+                            ref[:2] + str(reference_digits)
+                        ]
+                        accession_digits += 1
+                        to_accession[root] = ['aaa' + str(accession_digits), ref[:2] + str(reference_digits)]
+                        reference_digits += 1
+                        accession_digits += 1
     for fails in wont_accession:
         print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
     for success in sorted(to_accession.keys()):
@@ -159,7 +160,7 @@ def main(args_):
                 if os.path.basename(i).upper()[:2] + '-' + os.path.basename(i)[2:] == x['Object Entry']:
                     x['Reference Number'] = to_accession[i][1]
                     # the dict has been updated with the reference number
-                    # now just write that to csv.
+
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
