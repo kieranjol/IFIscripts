@@ -22,6 +22,7 @@ and then the user confirms all that.
 '''
 import argparse
 import sys
+import csv
 import os
 import ififuncs
 import accession
@@ -140,7 +141,7 @@ def main(args_):
     args = parse_args(args_)
     oe_list = []
     if args.csv:
-        for i in ififuncs.extract_metadata(args.csv):
+        for i in ififuncs.extract_metadata(args.csv)[0]:
             oe_number = i['Object Entry'].lower()
             # this transforms OE-#### to oe####
             transformed_oe = oe_number[:2] + oe_number[3:]
@@ -154,13 +155,20 @@ def main(args_):
     accession_digits = int(accession_number[3:])
     to_accession = initial_check(args, accession_digits, oe_list, reference_number)
     if args.csv:
-        filmographic_dict = ififuncs.extract_metadata(args.csv)
+        filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
         for i in to_accession:
             for x in filmographic_dict:
                 if os.path.basename(i).upper()[:2] + '-' + os.path.basename(i)[2:] == x['Object Entry']:
                     x['Reference Number'] = to_accession[i][1]
                     # the dict has been updated with the reference number
-
+                    # now just write that to csv.
+    with open('neweww.csv', 'w') as csvfile:
+        fieldnames = headers
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in filmographic_dict:
+            writer.writerow(i)
+    sys.exit()
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
