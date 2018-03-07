@@ -45,7 +45,7 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                 wont_accession.append(root)
             else:
                 # this is just batchaccessioning if no csv is supplied
-                if len(oe_list) == 0:
+                if not oe_list:
                     to_accession[root] = 'aaa' + str(accession_digits)
                     accession_digits += 1
                 else:
@@ -101,16 +101,14 @@ def parse_args(args_):
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
-def get_afNNNN_number(number):
+def get_filmographic_number(number):
     '''
     This check is not sustainable, will have to be made more flexible!
     '''
     if len(number) == 7:
-        if number[:3] == 'af1':
-            return number
-        else:
+        if number[:3] != 'af1':
             number = ififuncs.get_reference_number()
-            return number
+        return number
     else:
         number = ififuncs.get_reference_number()
         return number
@@ -141,13 +139,13 @@ def main(args_):
     args = parse_args(args_)
     oe_list = []
     if args.csv:
-        for i in ififuncs.extract_metadata(args.csv)[0]:
-            oe_number = i['Object Entry'].lower()
+        for line_item in ififuncs.extract_metadata(args.csv)[0]:
+            oe_number = line_item['Object Entry'].lower()
             # this transforms OE-#### to oe####
             transformed_oe = oe_number[:2] + oe_number[3:]
             oe_list.append(transformed_oe)
     if args.reference:
-        reference_number = get_afNNNN_number(args.reference)
+        reference_number = get_filmographic_number(args.reference)
     else:
         reference_number = ififuncs.get_reference_number()
     user = ififuncs.get_user()
@@ -156,10 +154,10 @@ def main(args_):
     to_accession = initial_check(args, accession_digits, oe_list, reference_number)
     if args.csv:
         filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
-        for i in to_accession:
-            for x in filmographic_dict:
-                if os.path.basename(i).upper()[:2] + '-' + os.path.basename(i)[2:] == x['Object Entry']:
-                    x['Reference Number'] = to_accession[i][1]
+        for oe_package in to_accession:
+            for filmographic_record in filmographic_dict:
+                if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
+                    filmographic_record['Reference Number'] = to_accession[oe_package][1]
                     # the dict has been updated with the reference number
                     # now just write that to csv.
     with open('neweww.csv', 'w') as csvfile:
@@ -186,4 +184,3 @@ def main(args_):
             ])
 if __name__ == '__main__':
     main(sys.argv[1:])
-
