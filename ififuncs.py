@@ -22,7 +22,11 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
-from lxml import etree
+try:
+    from lxml import etree
+except ImportError:
+    print('ERROR - lxml is not installed - try pip install lxml')
+    sys.exit()
 
 def diff_textfiles(source_textfile, other_textfile):
     '''
