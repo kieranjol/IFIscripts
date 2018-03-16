@@ -9,6 +9,7 @@ MIT License
 import sys
 import os
 import argparse
+import time
 import ififuncs
 import manifest
 import makedfxml
@@ -23,7 +24,12 @@ def make_register():
     to which accession numbers. everything else can be manually filled
     in a spreadsheet editor.
     '''
-    ififuncs.create_csv('register.csv', (
+    desktop_logs_dir = ififuncs.make_desktop_logs_dir()
+    register = os.path.join(
+        desktop_logs_dir,
+        'register_' + time.strftime("%Y-%m-%dT%H_%M_%S.csv")
+    )
+    ififuncs.create_csv(register, (
         'entry number',
         'accession number',
         'date acquired',
@@ -32,7 +38,7 @@ def make_register():
         'simple name; basic description; identification; historical information',
         'notes'
     ))
-    return 'register.csv'
+    return register
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -63,6 +69,10 @@ def parse_args(args_):
     parser.add_argument(
         '-reference',
         help='Enter the Filmographic reference number for the representation. This is only relevant when used with -pbcore' 
+    )
+    parser.add_argument(
+        '-register',
+        help='Path of accessions register CSV file. Mostly to be used by batchaccession.py'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -118,7 +128,10 @@ def main(args_):
             )
         if proceed == 'Y':
             os.rename(oe_path, accession_path)
-        register = make_register()
+        if args.register:
+            register = args.register
+        else:
+            register = make_register()
         ififuncs.append_csv(register, (oe_number.upper()[:2] + '-' + oe_number[2:6], accession_number, '','','','', ''))
         ififuncs.generate_log(
             sipcreator_log,
