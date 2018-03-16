@@ -24,6 +24,7 @@ import argparse
 import sys
 import csv
 import os
+import time
 import ififuncs
 import accession
 import copyit
@@ -153,6 +154,7 @@ def main(args_):
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
     to_accession = initial_check(args, accession_digits, oe_list, reference_number)
+    register = accession.make_register()
     if args.csv:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         new_csv = os.path.join(desktop_logs_dir, os.path.basename(args.csv))
@@ -182,7 +184,9 @@ def main(args_):
                 package, '-user', user,
                 '-p', '-f',
                 '-number', to_accession[package][0],
-                '-reference', to_accession[package][1]
+                '-reference', to_accession[package][1],
+                '-register', register
             ])
+    print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
 if __name__ == '__main__':
     main(sys.argv[1:])
