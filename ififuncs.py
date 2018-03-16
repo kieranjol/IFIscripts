@@ -490,6 +490,7 @@ def make_desktop_manifest_dir():
     if not os.path.isdir(desktop_manifest_dir):
         #I should probably ask permission here, or ask for alternative location
         os.makedirs(desktop_manifest_dir)
+        os.makedirs(os.path.join(desktop_manifest_dir, 'old_manifests'))
     else:
         if not os.path.isdir(os.path.join(desktop_manifest_dir, 'old_manifests')):
             os.makedirs(os.path.join(desktop_manifest_dir, 'old_manifests'))
@@ -1199,7 +1200,8 @@ def extract_metadata(csv_file):
     '''
     object_dictionaries = []
     input_file = csv.DictReader(open(csv_file))
+    headers = input_file.fieldnames
     for rows in input_file:
         object_dictionaries.append(rows)
-    return object_dictionaries
+    return object_dictionaries, headers
     

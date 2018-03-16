@@ -23,6 +23,7 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         value = value[0].text
     return value
 
+
 def get_attributes(root, pbcore_namespace):
     '''
     Extracts values from PBCore2 XML MediaInfo outputs.
@@ -32,6 +33,7 @@ def get_attributes(root, pbcore_namespace):
         namespaces={'ns':pbcore_namespace}
     )[0].attrib
     return value # a dict
+
 
 def parse_args(args_):
     '''
@@ -65,6 +67,7 @@ def parse_args(args_):
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
+
 def get_accession_number(source):
     '''
     Checks if the package has been accessioned.
@@ -78,6 +81,7 @@ def get_accession_number(source):
         print('looks like your package has not been accessioned? Exiting!')
         sys.exit()
 
+
 def get_reference_number(source):
     '''
     Checks if the reference number is in the folder path.
@@ -90,6 +94,7 @@ def get_reference_number(source):
     else:
         basename = ififuncs.get_reference_number()
         return basename
+
 
 def make_csv(csv_filename):
     '''
@@ -156,9 +161,8 @@ def make_csv(csv_filename):
         'video_codec_profile'
     ])
 
+
 def main(args_):
-
-
     # if multiple file are present, this script will treat them as a single
     # instantiation/representation and get aggregate metadata about the whole
     # package. For now, this will be a clumsy implementation - the first file
@@ -179,14 +183,17 @@ def main(args_):
         if ififuncs.validate_uuid4(dirs) is None:
             instantiationIdentif = dirs
     Accession_Number = get_accession_number(args.input)
-    Reference_Number = get_reference_number(args.input)
+    if args.reference:
+        Reference_Number = args.reference
+    else:
+        Reference_Number = get_reference_number(args.input)
     if args.p:
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == 'metadata':
                 metadata_dir = root
             elif os.path.basename(root) == 'logs':
                 logs_dir = root
-        csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
+        csv_filename = os.path.join(metadata_dir, Accession_Number + '_pbcore.csv')
         sipcreator_log = os.path.join(
             logs_dir, instantiationIdentif + '_sip_log.log'
         )
@@ -300,9 +307,8 @@ def main(args_):
             "//ns:essenceTrackFrameRate",
             root, pbcore_namespace
         )
-        essenceTrackSampling = get_metadata(
-            "//ns:essenceTrackSamplingRate",
-            root, pbcore_namespace
+        essenceTrackSampling = ififuncs.get_mediainfo(
+            'samplerate', '--inform=Audio;%SamplingRate_String%', source
         )
         Interlacement = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Interlacement']",
