@@ -303,9 +303,8 @@ def main(args_):
             "//ns:essenceTrackFrameRate",
             root, pbcore_namespace
         )
-        essenceTrackSampling = get_metadata(
-            "//ns:essenceTrackSamplingRate",
-            root, pbcore_namespace
+        essenceTrackSampling = ififuncs.get_mediainfo(
+            'samplerate', '--inform=Audio;%SamplingRate_String%', source
         )
         Interlacement = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Interlacement']",
