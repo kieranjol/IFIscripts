@@ -39,7 +39,7 @@ def initial_check(args, accession_digits, oe_list, reference_number):
     # accession = 'af' + str(accession_digits)
     ref = reference_number
     reference_digits = int(ref[2:])
-    for root, _, _ in os.walk(args.input):
+    for root, _, _ in sorted(os.walk(args.input)):
         if os.path.basename(root)[:2] == 'oe' and len(os.path.basename(root)[2:]) == 4:
             if copyit.check_for_sip(root) is None:
                 wont_accession.append(root)
