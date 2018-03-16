@@ -49,14 +49,6 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                     to_accession[root] = 'aaa' + str(accession_digits)
                     accession_digits += 1
                 else:
-                    # this should kick in if a csv is supplied.
-                    # only the items in the csv will pass forward for accessioning.
-                    # the parent OE should also be in here.
-                    # I just realised - perhaps the removal of converteds is not necessary.
-                    # Maybe, just maybe - we should have a policy that states:
-                    # the concat and its parent is what will be accessioned.
-                    # ask aoife if she only concatted from the best master.
-                    # THIS COULD SOLVE A LOT OF ISSUES. THE SCRIPT FOLLOWS THE POLICY.
                     if os.path.basename(root) in oe_list:
                         to_accession[
                             os.path.join(os.path.dirname(root),
@@ -74,6 +66,7 @@ def initial_check(args, accession_digits, oe_list, reference_number):
     for success in sorted(to_accession.keys()):
         print '%s will be accessioned as %s' %  (success, to_accession[success])
     return to_accession
+
 
 def parse_args(args_):
     '''
@@ -105,6 +98,7 @@ def parse_args(args_):
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
+
 def get_filmographic_number(number):
     '''
     This check is not sustainable, will have to be made more flexible!
@@ -116,6 +110,8 @@ def get_filmographic_number(number):
     else:
         number = ififuncs.get_reference_number()
         return number
+
+
 def get_number(args):
     '''
     Figure out the first accession number and how to increment per package.
@@ -135,6 +131,7 @@ def get_number(args):
     else:
         accession_number = ififuncs.get_accession_number()
     return accession_number
+
 
 def main(args_):
     '''
@@ -164,9 +161,6 @@ def main(args_):
             for filmographic_record in filmographic_dict:
                 if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
                     filmographic_record['Reference Number'] = to_accession[oe_package][1]
-                    # the dict has been updated with the reference number
-                    # now just write that to csv.
-
         with open(new_csv, 'w') as csvfile:
             fieldnames = headers
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
