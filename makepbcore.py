@@ -189,7 +189,7 @@ def main(args_):
                 metadata_dir = root
             elif os.path.basename(root) == 'logs':
                 logs_dir = root
-        csv_filename = os.path.join(metadata_dir, Accession_Number + '.csv')
+        csv_filename = os.path.join(metadata_dir, Accession_Number + '_pbcore.csv')
         sipcreator_log = os.path.join(
             logs_dir, instantiationIdentif + '_sip_log.log'
         )

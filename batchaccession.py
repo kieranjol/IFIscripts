@@ -30,6 +30,34 @@ import accession
 import copyit
 import order
 
+
+def gather_metadata(source):
+    '''
+    Loops through all subfolders that contain pbcore_csv and then harvest the
+    metadata and store in a single file for the purposes of batch import into
+    the DB TEXTWORKS technical database.
+    '''
+    metadata = []
+    for root, _, filenames in sorted(os.walk(source)):
+        for filename in filenames:
+            if filename.endswith('.csv'):
+                with open(os.path.join(root,filename), 'r') as csv_file:
+                    csv_rows = csv_file.readlines()
+                if metadata:
+                    metadata.append([csv_rows[1].replace('\"', '')])
+                else:
+                    metadata.append([csv_rows[0]])
+                    metadata.append([csv_rows[1].replace('\"', '')])
+    collated_pbcore = os.path.join(
+        ififuncs.make_desktop_logs_dir(),
+        time.strftime("%Y-%m-%dT%H_%M_%S_pbcore.csv")
+    )
+    with open(collated_pbcore, 'w') as fo:
+        for i in metadata:
+            fo.write(i[0])
+    return collated_pbcore
+
+
 def initial_check(args, accession_digits, oe_list, reference_number):
     '''
     Tells the user which packages will be accessioned and what their accession
@@ -187,6 +215,9 @@ def main(args_):
                 '-reference', to_accession[package][1],
                 '-register', register
             ])
+    collated_pbcore = gather_metadata(args.input)
     print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
+    print '\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv
+    print '\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore
 if __name__ == '__main__':
     main(sys.argv[1:])
