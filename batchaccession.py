@@ -157,6 +157,8 @@ def main(args_):
     accession_digits = int(accession_number[3:])
     to_accession = initial_check(args, accession_digits, oe_list, reference_number)
     if args.csv:
+        desktop_logs_dir = ififuncs.make_desktop_logs_dir()
+        new_csv = os.path.join(desktop_logs_dir, os.path.basename(args.csv))
         filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
         for oe_package in to_accession:
             for filmographic_record in filmographic_dict:
@@ -164,12 +166,13 @@ def main(args_):
                     filmographic_record['Reference Number'] = to_accession[oe_package][1]
                     # the dict has been updated with the reference number
                     # now just write that to csv.
-    with open('neweww.csv', 'w') as csvfile:
-        fieldnames = headers
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for i in filmographic_dict:
-            writer.writerow(i)
+
+        with open(new_csv, 'w') as csvfile:
+            fieldnames = headers
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for i in filmographic_dict:
+                writer.writerow(i)
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
