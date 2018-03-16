@@ -1,24 +1,11 @@
 #!/usr/bin/env python
 '''
 Batch process packages by running accession.py and makepbcore.py
-roadmap:
-use extract_metadata() to analyze filmo csv and return oe_list
-check oe_list against input dir. is everything there?
-loop through oe list - but use order.py to detect parent.
-add option to accession.py to get starting filmo reference number.
-Run batchaccession processes, filling in the ref no in the pbcore AND filmo.
 The outcome will be:
 * Packages are accessioned
 * Filmographic records can be ingested to DB TEXTWORKS
 * Technical records can be ingested to DB TEXTWORKS
 * Skeleton accession record can be also be made available.
-
-how:
-customise get_metadata - it should produce a dict that says:
-current oe#=aaa1001, hugo rushes 2
-
-and then the user confirms all that.
-
 '''
 import argparse
 import sys
@@ -33,7 +20,7 @@ import order
 
 def gather_metadata(source):
     '''
-    Loops through all subfolders that contain pbcore_csv and then harvest the
+    Loops through all subfolders that contain pbcore_csv and then harvests the
     metadata and store in a single file for the purposes of batch import into
     the DB TEXTWORKS technical database.
     '''
@@ -202,10 +189,6 @@ def main(args_):
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
-    '''
-    you can update the to_accession dict. then write with the dictwriter. you might need to impose the fieldnames to preserve order.
-    then do some checksumming or diffing to ensure that nothing else significant is actually changing ughhh
-    '''
     if proceed == 'Y':
         for package in sorted(to_accession.keys()):
             accession.main([

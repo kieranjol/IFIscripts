@@ -19,10 +19,8 @@ import makepbcore
 
 def make_register():
     '''
-    A placeholder function until we figure out where to put this.
-    As too much is unknown, this should really just log which OE numbers map
-    to which accession numbers. everything else can be manually filled
-    in a spreadsheet editor.
+    This sends a placeholder accessions register to the desktop logs directory.
+    This should get rid of some of the more painful, repetitive identifier matching.
     '''
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     register = os.path.join(
@@ -39,6 +37,8 @@ def make_register():
         'notes'
     ))
     return register
+
+
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -76,6 +76,8 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
+
+
 def make_dfxml(args,new_uuid_path,uuid):
     '''
     Adds Digital Forensics XML to metadata folder and updates manifests.
@@ -85,13 +87,14 @@ def make_dfxml(args,new_uuid_path,uuid):
     makedfxml.main([new_uuid_path, '-o', dfxml])
     return dfxml
 
+
 def main(args_):
     '''
     Launches the various functions that will accession a package
     '''
     args = parse_args(args_)
-    input = args.input
-    uuid_directory = ififuncs.check_for_sip([input])
+    source = args.input
+    uuid_directory = ififuncs.check_for_sip([source])
     if uuid_directory is not None:
         oe_path = os.path.dirname(uuid_directory)
         oe_number = os.path.basename(oe_path)

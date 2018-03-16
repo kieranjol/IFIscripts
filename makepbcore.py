@@ -23,6 +23,7 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         value = value[0].text
     return value
 
+
 def get_attributes(root, pbcore_namespace):
     '''
     Extracts values from PBCore2 XML MediaInfo outputs.
@@ -32,6 +33,7 @@ def get_attributes(root, pbcore_namespace):
         namespaces={'ns':pbcore_namespace}
     )[0].attrib
     return value # a dict
+
 
 def parse_args(args_):
     '''
@@ -65,6 +67,7 @@ def parse_args(args_):
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
+
 def get_accession_number(source):
     '''
     Checks if the package has been accessioned.
@@ -78,6 +81,7 @@ def get_accession_number(source):
         print('looks like your package has not been accessioned? Exiting!')
         sys.exit()
 
+
 def get_reference_number(source):
     '''
     Checks if the reference number is in the folder path.
@@ -90,6 +94,7 @@ def get_reference_number(source):
     else:
         basename = ififuncs.get_reference_number()
         return basename
+
 
 def make_csv(csv_filename):
     '''
@@ -156,9 +161,8 @@ def make_csv(csv_filename):
         'video_codec_profile'
     ])
 
+
 def main(args_):
-
-
     # if multiple file are present, this script will treat them as a single
     # instantiation/representation and get aggregate metadata about the whole
     # package. For now, this will be a clumsy implementation - the first file
