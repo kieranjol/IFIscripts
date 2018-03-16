@@ -486,6 +486,7 @@ def make_desktop_manifest_dir():
     if not os.path.isdir(desktop_manifest_dir):
         #I should probably ask permission here, or ask for alternative location
         os.makedirs(desktop_manifest_dir)
+        os.makedirs(os.path.join(desktop_manifest_dir, 'old_manifests'))
     else:
         if not os.path.isdir(os.path.join(desktop_manifest_dir, 'old_manifests')):
             os.makedirs(os.path.join(desktop_manifest_dir, 'old_manifests'))
