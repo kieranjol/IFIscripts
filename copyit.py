@@ -376,6 +376,11 @@ def setup(args_):
         action='store_true',
         help='Move files instead of copying - much faster!'
     )
+    parser.add_argument(
+        '-justcopy',
+        action='store_true',
+        help='Do not generate destination manifest and verify integrity :('
+    )
     rootpos = ''
     dircheck = None
     args = parser.parse_args(args_)
@@ -653,35 +658,43 @@ def main(args_):
             log_name_source,
             'EVENT = File Transfer Overwrite - Destination directory already exists - Not Overwriting.'
         )
-    files_in_manifest = make_destination_manifest(
-        overwrite_destination_manifest, log_name_source,
-        rootpos, destination_final_path,
-        manifest_destination,
-        destination
-    )
-    destination_count = 0
-    # dear god do this better, this is dreadful code!
-    for _, _, filenames in os.walk(destination_final_path):
-        for _ in filenames:
-            destination_count += 1 #works in windows at least
-    if rootpos == 'y':
-        manifest_temp = tempfile.mkstemp(
-            dir=desktop_manifest_dir, suffix='.md5'
+    if args.justcopy:
+        generate_log(
+            log_name_source,
+            'EVENT = Exiting without destination manifest or verification due to the use of -justcopy'
         )
-        os.close(manifest_temp[0]) # Needed for windows.
-        with open(manifest, 'r') as fo:
-            dest_manifest_list = fo.readlines()
-            with open(manifest_temp[1], 'wb') as temp_object:
-                for i in dest_manifest_list:
-                    temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
-            manifest = manifest_temp[1]
-    verify_copy(
-        manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count
-    )
-    manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
-    if os.path.dirname(manifest) == desktop_manifest_dir:
-        os.rename(manifest, manifest_rename)
-        shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
-    return log_name_source
+        print 'Exiting without destination manifest or verification due to the use of -justcopy'
+        sys.exit()
+    else:
+        files_in_manifest = make_destination_manifest(
+            overwrite_destination_manifest, log_name_source,
+            rootpos, destination_final_path,
+            manifest_destination,
+            destination
+        )
+        destination_count = 0
+        # dear god do this better, this is dreadful code!
+        for _, _, filenames in os.walk(destination_final_path):
+            for _ in filenames:
+                destination_count += 1 #works in windows at least
+        if rootpos == 'y':
+            manifest_temp = tempfile.mkstemp(
+                dir=desktop_manifest_dir, suffix='.md5'
+            )
+            os.close(manifest_temp[0]) # Needed for windows.
+            with open(manifest, 'r') as fo:
+                dest_manifest_list = fo.readlines()
+                with open(manifest_temp[1], 'wb') as temp_object:
+                    for i in dest_manifest_list:
+                        temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
+                manifest = manifest_temp[1]
+        verify_copy(
+            manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count
+        )
+        manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
+        if os.path.dirname(manifest) == desktop_manifest_dir:
+            os.rename(manifest, manifest_rename)
+            shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
+        return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
