@@ -98,6 +98,10 @@ def parse_args(args_):
         '-reference',
         help='Enter the starting Filmographic reference number for the representation.'
     )
+    parser.add_argument(
+        '-dryrun', action='store_true',
+        help='The script will reveal which identifiers will be assigned but will not actually perform any actions.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -166,7 +170,8 @@ def main(args_):
         writer.writeheader()
         for i in filmographic_dict:
             writer.writerow(i)
-    sys.exit()
+    if args.dryrun:
+        sys.exit()
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
