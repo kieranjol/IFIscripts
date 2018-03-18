@@ -1204,4 +1204,19 @@ def extract_metadata(csv_file):
     for rows in input_file:
         object_dictionaries.append(rows)
     return object_dictionaries, headers
-    
+
+def check_dependencies(dependencies):
+    '''
+    Checks a list of external subprocess dependencies and informs the user
+    if anything is missing.
+    '''
+    for dependency in dependencies:
+        try:
+            a = subprocess.check_output([dependency, '-h'], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # Currently this is just a workaround for Siegfried.
+            if e.returncode is 2:
+                continue
+        except OSError:
+            print '%s is not installed, so this script can not run!' % dependency
+
