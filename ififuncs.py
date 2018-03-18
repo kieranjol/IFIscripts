@@ -1219,4 +1219,5 @@ def check_dependencies(dependencies):
                 continue
         except OSError:
             print '%s is not installed, so this script can not run!' % dependency
+            sys.exit()
 
