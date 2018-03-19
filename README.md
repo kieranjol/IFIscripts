@@ -11,6 +11,7 @@ table of contents
     * [batchaccession.py](https://github.com/kieranjol/IFIscripts#batchaccessionpy)
     * [order.py](https://github.com/kieranjol/IFIscripts#orderpy)
     * [makepbcore.py](https://github.com/kieranjol/IFIscripts#makepbcorepy)
+    * [deletefiles.py](https://github.com/kieranjol/IFIscripts#deletefiles)
 1. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -106,6 +107,13 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * The CSV headings are written in such a way to allow for direct import into our SQL database.
 * Usage for one directory - `makepbcore.py /path/to/directory_name`
 * Run `makepbcore.py -h` for all options.
+
+### deletefiles.py ###
+* Deletes files after sipcreator has been run, but before accession.py has been run.
+* Manifests are updated, metadata is deleted and the events are all logged in the logfile.
+* This script takes the parent OE folder as input. Use the `-i` argument to supply the various files that should be deleted from the package.
+* Usage for deleting two example files - `deletefiles.py /path/to/oe_folder -i path/to/file1.mov path/to/file2.mov`
+* Run `deletefiles.py -h` for all options.
 
 ## Transcodes ##
 
