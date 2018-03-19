@@ -225,7 +225,7 @@ def get_metadata(path, new_log_textfile):
                     ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
             ):
                 if av_file[0] != '.':
-                    if not av_file.lower().endswith('.txt'):
+                    if not av_file.lower().endswith(('.txt', '.csv')):
                         exiftool_version = 'exiftool'
                         try:
                             exiftool_version = subprocess.check_output([
