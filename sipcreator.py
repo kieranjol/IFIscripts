@@ -194,7 +194,7 @@ def get_metadata(path, new_log_textfile):
         ]
         for av_file in filenames:
             if av_file.lower().endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV')
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf')
             ):
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
@@ -222,7 +222,7 @@ def get_metadata(path, new_log_textfile):
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
             elif av_file.lower().endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2')
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
             ):
                 if av_file[0] != '.':
                     exiftool_version = 'exiftool'
