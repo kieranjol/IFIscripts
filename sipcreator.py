@@ -225,13 +225,26 @@ def get_metadata(path, new_log_textfile):
                     ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
             ):
                 if av_file[0] != '.':
-                    exiftool_version = 'exiftool'
-                    try:
-                        exiftool_version = subprocess.check_output([
-                            'exiftool', '-ver'
-                        ])
-                    except subprocess.CalledProcessError as grepexc:
-                        exiftool_version = grepexc.output.rstrip().splitlines()[1]
+                    if not av_file.lower().endswith('.txt'):
+                        exiftool_version = 'exiftool'
+                        try:
+                            exiftool_version = subprocess.check_output([
+                                'exiftool', '-ver'
+                            ])
+                        except subprocess.CalledProcessError as grepexc:
+                            exiftool_version = grepexc.output.rstrip().splitlines()[1]
+                        inputxml = "%s/%s_exiftool.xml" % (
+                            os.path.join(path, 'metadata'), os.path.basename(av_file)
+                        )
+                        ififuncs.generate_log(
+                            new_log_textfile,
+                            'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
+                        )
+                        print 'Generating exiftool xml of input file and saving it in %s' % inputxml
+                        ififuncs.make_exiftool(
+                            inputxml,
+                            os.path.join(root, av_file)
+                        )
                     siegfried_version = 'siegfried'
                     try:
                         siegfried_version = subprocess.check_output([
@@ -239,24 +252,12 @@ def get_metadata(path, new_log_textfile):
                         ])
                     except subprocess.CalledProcessError as grepexc:
                         siegfried_version = grepexc.output.rstrip().splitlines()[1]
-                    inputxml = "%s/%s_exiftool.xml" % (
-                        os.path.join(path, 'metadata'), os.path.basename(av_file)
-                        )
                     inputtracexml = "%s/%s_siegfried.json" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
+                    print 'Generating Siegfried json of input file and saving it in %s' % inputtracexml
                     ififuncs.make_siegfried(
                         inputtracexml,
-                        os.path.join(root, av_file)
-                    )
-                    print 'Generating exiftool xml of input file and saving it in %s' % inputxml
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
-                    )
-                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
-                    ififuncs.make_exiftool(
-                        inputxml,
                         os.path.join(root, av_file)
                     )
                     ififuncs.generate_log(
