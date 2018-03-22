@@ -62,7 +62,7 @@ def initial_check(args, accession_digits, oe_list, reference_number):
             else:
                 # this is just batchaccessioning if no csv is supplied
                 if not oe_list:
-                    to_accession[root] = 'aaa' + str(accession_digits)
+                    to_accession[root] = 'aaa' + str(accession_digits).zfill(4)
                     accession_digits += 1
                 else:
                     if os.path.basename(root) in oe_list:
@@ -70,11 +70,11 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             os.path.join(os.path.dirname(root),
                                          order.main(root))
                         ] = [
-                            'aaa' + str(accession_digits),
-                            ref[:2] + str(reference_digits)
+                            'aaa' + str(accession_digits).zfill(4),
+                            ref[:2] + str(reference_digits).zfill(4)
                         ]
                         accession_digits += 1
-                        to_accession[root] = ['aaa' + str(accession_digits), ref[:2] + str(reference_digits)]
+                        to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits)]
                         reference_digits += 1
                         accession_digits += 1
     for fails in wont_accession:
@@ -146,7 +146,8 @@ def get_number(args):
             accession_number = args.start_number
     else:
         accession_number = ififuncs.get_accession_number()
-    return accession_number
+    accession_digits = accession_number[3:].zfill(4)
+    return accession_number[:3] + accession_digits
 
 
 def main(args_):
