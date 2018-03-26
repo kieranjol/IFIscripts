@@ -233,14 +233,14 @@ def get_metadata(path, new_log_textfile):
                             ])
                         except subprocess.CalledProcessError as grepexc:
                             exiftool_version = grepexc.output.rstrip().splitlines()[1]
-                        inputxml = "%s/%s_exiftool.xml" % (
+                        inputxml = "%s/%s_exiftool.json" % (
                             os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
                         ififuncs.generate_log(
                             new_log_textfile,
                             'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
                         )
-                        print 'Generating exiftool xml of input file and saving it in %s' % inputxml
+                        print 'Generating exiftool json of input file and saving it in %s' % inputxml
                         ififuncs.make_exiftool(
                             inputxml,
                             os.path.join(root, av_file)

@@ -59,11 +59,11 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
 
 def make_exiftool(xmlfilename, inputfilename):
     '''
-    Writes an exiftool XML output.
+    Writes an exiftool json output.
     '''
     exiftool_cmd = [
         'exiftool',
-        '-X',
+        '-j',
         inputfilename
     ]
     with open(xmlfilename, "w+") as fo:
