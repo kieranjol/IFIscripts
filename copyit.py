@@ -343,7 +343,7 @@ def check_for_sip(args):
     for filenames in os.listdir(args):
         # make sure that it's an IFI SIP.
         if 'manifest.md5' in filenames:
-            if len(os.listdir(args)) == 2:
+            if len(os.listdir(args)) <= 3: # to allow for  the sha512 manifest
                 dircheck = filenames.replace('_manifest.md5', '')
                 if os.path.isdir(os.path.join(args, dircheck)):
                     return os.path.join(args, dircheck)
@@ -695,6 +695,11 @@ def main(args_):
         if os.path.dirname(manifest) == desktop_manifest_dir:
             os.rename(manifest, manifest_rename)
             shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
+        # hack to also copy the sha512 manifest :(
+        sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
+        if os.path.isfile(sha512_manifest):
+            shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
+            print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
         return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
