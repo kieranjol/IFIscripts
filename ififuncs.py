@@ -16,6 +16,8 @@ import uuid
 import tempfile
 import csv
 import json
+import ctypes
+import platform
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -419,7 +421,6 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
     os.chdir(manifest_dir)
     if not os.path.isfile(manifest_textfile):
-
         manifest_generator = subprocess.check_output(['md5deep', '-ler', relative_manifest_path])
         manifest_list = manifest_generator.splitlines()
         files_in_manifest = len(manifest_list)
@@ -1220,4 +1221,34 @@ def check_dependencies(dependencies):
         except OSError:
             print '%s is not installed, so this script can not run!' % dependency
             sys.exit()
+
+
+def get_folder_size(folder):
+    '''
+    Get the size fo all files in a folder. Recursive process.
+    https://stackoverflow.com/a/1392549/2188572
+    '''
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            try:
+                total_size += os.path.getsize(fp)
+            except OSError:
+                continue
+    return total_size
+
+
+def get_free_space(dirname):
+    '''
+    https://stackoverflow.com/a/2372171/2188572
+    Return folder/drive free space (in bytes).
+    '''
+    if platform.system() == 'Windows':
+        free_bytes = ctypes.c_ulonglong(0)
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(dirname), None, None, ctypes.pointer(free_bytes))
+        return free_bytes.value
+    else:
+        st = os.statvfs(dirname)
+        return st.f_bavail * st.f_frsize
 

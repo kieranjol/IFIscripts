@@ -427,6 +427,14 @@ def setup(args_):
         'eventDetail=copyit.py %s' % ififuncs.get_script_version('copyit.py'))
     generate_log(log_name_source, 'Source: %s' % source)
     generate_log(log_name_source, 'Destination: %s'  % destination)
+    print('Checking total size of input folder')
+    total_input_size = ififuncs.get_folder_size(args.source)
+    print('Checking if enough space in destination folder')
+    free_space = ififuncs.get_free_space(args.destination)
+    if total_input_size > free_space:
+        print('You do not have enough free space! - Exiting')
+        generate_log(log_name_source, 'You do not have enough free space! - Exiting')
+        sys.exit()
     return args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir
 
 
