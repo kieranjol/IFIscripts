@@ -116,6 +116,11 @@ def main(args_):
                 accession_number = args.number
         else:
             accession_number = ififuncs.get_accession_number()
+        if args.pbcore:
+            if args.reference:
+                Reference_Number = args.reference
+            else:
+                Reference_Number = ififuncs.get_reference_number()
         accession_path = os.path.join(
             os.path.dirname(oe_path), accession_number
         )
@@ -187,10 +192,7 @@ def main(args_):
         ififuncs.manifest_update(sip_manifest, dfxml)
         ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
-            if args.reference:
-                makepbcore.main([accession_path, '-p', '-user', user, '-reference', args.reference])
-            else:
-                makepbcore.main([accession_path, '-p', '-user', user])
+            makepbcore.main([accession_path, '-p', '-user', user, '-reference', Reference_Number])
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
 
