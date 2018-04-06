@@ -136,7 +136,7 @@ def get_number(args):
         if args.start_number[:3] != 'aaa':
             print 'First three characters must be \'aaa\' and last four characters must be four digits'
             accession_number = ififuncs.get_accession_number()
-        elif len(args.start_number[3:]) != 4:
+        elif len(args.start_number[3:]) not in range(4, 6):
             accession_number = ififuncs.get_accession_number()
             print 'First three characters must be \'aaa\' and last four characters must be four digits'
         elif not args.start_number[3:].isdigit():

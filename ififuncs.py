@@ -781,7 +781,7 @@ def get_object_entry():
         if object_entry[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = False
-        elif len(object_entry[2:]) != 4:
+        elif len(object_entry[2:]) not in range(4, 6):
             object_entry = False
             print 'First two characters must be \'oe\' and last four characters must be four digits'
         elif not object_entry[2:].isdigit():
