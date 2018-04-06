@@ -226,6 +226,26 @@ def main(args_):
     FrameCount = 0
     instantFileSize = 0
     instantFileSize_gigs = 0
+    scan_types = []
+    matrix_list = []
+    transfer_list = []
+    colour_primaries_list = []
+    color_spaces = []
+    chroma = []
+    frame_sizes = []
+    par_list = []
+    container_list = []
+    fps_list = []
+    sample_rate_list = []
+    interlace_list = []
+    compression_list = []
+    pix_fmt_list = []
+    audio_fmt_list = []
+    audio_codecid_list = []
+    au_bitdepth_list = []
+    video_codecid_list = []
+    video_codec_version_list = []
+    video_codec_profile_list = []
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
@@ -251,18 +271,22 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
         )
+        scan_types.append(ScanType)
         matrix_coefficients = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='matrix_coefficients']",
             root, pbcore_namespace
         )
+        matrix_list.append(matrix_coefficients)
         transfer_characteris = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='transfer_characteristics']",
             root, pbcore_namespace
         )
+        transfer_list.append(transfer_characteris)
         colour_primaries = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='color_primaries']",
             root, pbcore_namespace
         )
+        colour_primaries_list.append(colour_primaries)
         FrameCount += int(get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='FrameCount']",
             root, pbcore_namespace
@@ -279,10 +303,12 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='ColorSpace']",
             root, pbcore_namespace
         )
+        color_spaces.append(ColorSpace)
         ChromaSubsampling = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ChromaSubsampling']",
             root, pbcore_namespace
         )
+        chroma.append(ChromaSubsampling)
         instantMediaty = get_metadata(
             "//ns:instantiationMediaType",
             root, pbcore_namespace
@@ -291,6 +317,7 @@ def main(args_):
             "//ns:essenceTrackFrameSize",
             root, pbcore_namespace
         )
+        frame_sizes.append(essenceFrameSize)
         essenceAspectRatio = get_metadata(
             "//ns:essenceTrackAspectRatio",
             root, pbcore_namespace
@@ -299,41 +326,52 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='PixelAspectRatio']",
             root, pbcore_namespace
         )
+        par_list.append(PixelAspectRatio)
         instantiationStandar = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Format']",
             root, pbcore_namespace
         )
+        container_list.append(instantiationStandar)
         essenceFrameRate = get_metadata(
             "//ns:essenceTrackFrameRate",
             root, pbcore_namespace
         )
+        fps_list.append(essenceFrameRate)
         essenceTrackSampling = ififuncs.get_mediainfo(
             'samplerate', '--inform=Audio;%SamplingRate_String%', source
         )
+        sample_rate_list.append(essenceTrackSampling)
         Interlacement = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Interlacement']",
             root, pbcore_namespace
         )
+        interlace_list.append(Interlacement)
         Compression_Mode = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
             root, pbcore_namespace
         )
+        compression_list.append(Compression_Mode)
         instantiationDate_modified = get_metadata(
             "//ns:instantiationDate[@dateType='file modification']",
             root, pbcore_namespace
         )
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
+        pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
+        audio_fmt_list.append(audio_fmt)
     if not silence:
         audio_codecid = acodec_attributes['ref']
         essenceBitDepth_au = ififuncs.get_mediainfo(
             'duration', '--inform=Audio;%BitDepth%', source
         )
+        audio_codecid_list.append(audio_codecid)
+        au_bitdepth_list.append(essenceBitDepth_au)
     else:
         audio_codecid = 'n/a'
         essenceBitDepth_au = 'n/a'
         essenceTrackEncod_au = 'n/a'
     video_codecid = vcodec_attributes['ref']
+    video_codecid_list.append(video_codecid)
     try:
         video_codec_version = vcodec_attributes['version']
     except KeyError:
@@ -342,6 +380,39 @@ def main(args_):
         video_codec_profile = vcodec_attributes['annotation'][8:]
     except KeyError:
         video_codec_profile = 'n/a'
+    video_codec_version_list.append(video_codec_version)
+    video_codec_profile_list.append(video_codec_profile)
+    metadata_error = ''
+    for i in [
+        scan_types,
+        matrix_list,
+        transfer_list,
+        colour_primaries_list,
+        color_spaces,
+        chroma,
+        frame_sizes,
+        par_list,
+        container_list,
+        fps_list,
+        sample_rate_list,
+        interlace_list,
+        compression_list,
+        pix_fmt_list,
+        audio_fmt_list,
+        audio_codecid_list,
+        au_bitdepth_list,
+        video_codecid_list,
+        video_codec_version_list,
+        video_codec_profile_list
+    ]:
+        if len(set(i)) > 1:
+            metadata_error += 'WARNING - Your metadata values are not the same for all files: %s\n' % set(i)
+            print metadata_error
+            if args.p:
+                ififuncs.generate_log(
+                    sipcreator_log,
+                    'EVENT = Metadata mismatch - Your metadata values are not the same for all files: %s' % set(i)
+                )
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
     Donor = ''
@@ -447,6 +518,7 @@ def main(args_):
         print ' - Updating %s with %s' % (md5_manifest, csv_filename)
         ififuncs.sha512_update(sha512_manifest, csv_filename)
         print ' - Updating %s with %s' % (sha512_manifest, csv_filename)
+        print metadata_error
 if __name__ == '__main__':
     main(sys.argv[1:])
 
