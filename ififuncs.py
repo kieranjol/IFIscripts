@@ -727,6 +727,7 @@ def get_script_version(scriptname):
     '''
     uses git to get SHA:DATETIME for a script
     '''
+    current_dir = os.getcwd()
     home = os.path.expanduser("~/")
     os.chdir(home)
     if os.path.isdir('ifigit/ifiscripts'):
@@ -735,6 +736,7 @@ def get_script_version(scriptname):
         script_version = subprocess.check_output([
             'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
         ])
+    os.chdir(current_dir)
     return script_version
 
 
