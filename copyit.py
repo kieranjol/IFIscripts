@@ -392,7 +392,7 @@ def setup(args_):
             destination = os.path.join(args.destination, os.path.basename(args.source))
             os.makedirs(destination)
     else:
-        source = args.source
+        source = os.path.abspath(args.source)
         destination = args.destination
     normpath = os.path.normpath(source)
     #is there any benefit to this over os.path.basename
@@ -428,7 +428,7 @@ def setup(args_):
     generate_log(log_name_source, 'Source: %s' % source)
     generate_log(log_name_source, 'Destination: %s'  % destination)
     print('Checking total size of input folder')
-    total_input_size = ififuncs.get_folder_size(args.source)
+    total_input_size = ififuncs.get_folder_size(os.path.abspath(args.source))
     print('Checking if enough space in destination folder')
     free_space = ififuncs.get_free_space(args.destination)
     if total_input_size > free_space:
@@ -604,7 +604,7 @@ def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, sou
             generate_log(log_name_source, 'EVENT = Generating source manifest: status=started, eventType=message digest calculation, module=hashlib')
             if rootpos == 'y':
                 make_manifest(
-                    args.source, manifest, args.source
+                    os.path.abspath(args.source), manifest, os.path.abspath(args.source)
                 )
             else:
                 make_manifest(
@@ -628,7 +628,7 @@ def main(args_):
         if os.path.isdir(dircheck):
             source = check_for_sip(args.source)
     else:
-        source = args.source
+        source = os.path.abspath(args.source)
         destination = args.destination
     overwrite_destination_manifest, overwrite_destination_dir = overwrite_check(
         destination, log_name_source,
