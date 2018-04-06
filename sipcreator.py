@@ -303,7 +303,7 @@ def main(args_):
         if args.oe[:2] != 'oe':
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = ififuncs.get_object_entry()
-        elif len(args.oe[2:]) != 4:
+        elif len(args.oe[2:]) not in range(4, 6):
             print 'First two characters must be \'oe\' and last four characters must be four digits'
             object_entry = ififuncs.get_object_entry()
         elif not args.oe[2:].isdigit():
