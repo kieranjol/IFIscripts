@@ -178,6 +178,7 @@ def main(args_):
         )
         ififuncs.merge_logs_append(sha512_log, sipcreator_log, sip_manifest)
         os.remove(sha512_log)
+        print('Generating Digital Forensics XML')
         dfxml = make_dfxml(args, new_uuid_path, uuid)
         ififuncs.generate_log(
             sipcreator_log,
