@@ -14,7 +14,7 @@ example ``makeffv1.py filename.mov`` or
 ``premis.py path/to/folder_of_stuff``. (It's best to just drag and drop
 the folder or filename into the terminal)
 
-One of the goals of the project is for the scripts to be as flexible as possible in order to allow reuse in different institutions and contexts. Some scripts, particularly anything to do with ``Object Entry`` or ``Accessioning`` will be quite IFI specific.
+One of the goals of the project is for the scripts to be as reuseable as possible in different institutions and contexts. Some scripts, particularly anything to do with ``Object Entry`` or ``Accessioning`` will be quite IFI specific, but other scripts such as ``makeffv1.py``, ``dcpaccess.py`` have been used in a variety of contexts in several countries outside of Europe.
 
 The project uses the MIT license, and we encourage the reuse, modification and study of the scripts. It's always nice to hear when the scripts have been reused in some way, but it's not necessary to let us know.
 
