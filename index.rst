@@ -5,7 +5,13 @@ table of contents
 -----------------
 
 1.  `summary <https://github.com/kieranjol/IFIscripts#summary>`__
-2.  `Arrangement <https://github.com/kieranjol/IFIscripts#arrangement>`__
+
+2.  `Purpose <https://github.com/kieranjol/IFIscripts#purpose>`__
+
+3.  `Installation <https://github.com/kieranjol/IFIscripts#installation>`__
+4.  `Contributing <https://github.com/kieranjol/IFIscripts#contributing>`__
+
+5.  `Arrangement <https://github.com/kieranjol/IFIscripts#arrangement>`__
 
     -  `sipcreator.py <https://github.com/kieranjol/IFIscripts#sipcreatorpy>`__
     -  `accession.py <https://github.com/kieranjol/IFIscripts#accessionpy>`__
@@ -15,21 +21,21 @@ table of contents
     -  `deletefiles.py <https://github.com/kieranjol/IFIscripts#deletefilespy>`__
     -  `rearrange.py <https://github.com/kieranjol/IFIscripts#rearrangepy>`__
 
-3.  `Transcodes <https://github.com/kieranjol/IFIscripts#transcodes>`__
+6.  `Transcodes <https://github.com/kieranjol/IFIscripts#transcodes>`__
 
     -  `makeffv1.py <https://github.com/kieranjol/IFIscripts#makeffv1py>`__
     -  `bitc.py <https://github.com/kieranjol/IFIscripts#bitcpy>`__
     -  `prores.py <https://github.com/kieranjol/IFIscripts#prorespy>`__
     -  `concat.py <https://github.com/kieranjol/IFIscripts#concatpy>`__
 
-4.  `Digital Cinema Package
+7.  `Digital Cinema Package
     Scripts <https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts>`__
 
     -  `dcpaccess.py <https://github.com/kieranjol/IFIscripts#dcpaccesspy>`__
     -  `dcpfixity.py <https://github.com/kieranjol/IFIscripts#dcpfixitypy>`__
     -  `dcpsubs2srt.py <https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy>`__
 
-5.  `Fixity
+8.  `Fixity
     Scripts <https://github.com/kieranjol/IFIscripts#fixity-scripts>`__
 
     -  `copyit.py <https://github.com/kieranjol/IFIscripts#copyitpy>`__
@@ -39,7 +45,7 @@ table of contents
     -  `validate.py <https://github.com/kieranjol/IFIscripts#validatepy>`__
     -  `batchfixity.py <https://github.com/kieranjol/IFIscripts#batchfixitypy>`__
 
-6.  `Image
+9.  `Image
     Sequences <https://github.com/kieranjol/IFIscripts#image-sequences>`__
 
     -  `makedpx.py <https://github.com/kieranjol/IFIscripts#makedpxpy>`__
@@ -53,13 +59,13 @@ table of contents
     -  `batchmetadata.py <https://github.com/kieranjol/IFIscripts#batchmetadata>`__
     -  `batchrename.py <https://github.com/kieranjol/IFIscripts#batchrename>`__
 
-7.  `Quality
+10.  `Quality
     Control <https://github.com/kieranjol/IFIscripts#quality-control>`__
 
     -  `qctools.py <https://github.com/kieranjol/IFIscripts#qctoolspy>`__
     -  `ffv1mkvvalidate.py <https://github.com/kieranjol/IFIscripts#ffv1mkvvalidatespy>`__
 
-8.  `Specific
+11.  `Specific
     Workflows <https://github.com/kieranjol/IFIscripts#specific-workflows>`__
 
     -  `mezzaninecheck.py <https://github.com/kieranjol/IFIscripts#mezzaninecheckpy>`__
@@ -69,7 +75,7 @@ table of contents
     -  `makefolders.py <https://github.com/kieranjol/IFIscripts#makefolderspy>`__
     -  `looplinerepackage.py <https://github.com/kieranjol/IFIscripts#loopline_repackagespy>`__
 
-9.  `Misc <https://github.com/kieranjol/IFIscripts#misc>`__
+12.  `Misc <https://github.com/kieranjol/IFIscripts#misc>`__
 
     -  `update.py <https://github.com/kieranjol/IFIscripts#updatepy>`__
     -  `giffer.py <https://github.com/kieranjol/IFIscripts#gifferpy>`__
@@ -77,7 +83,7 @@ table of contents
     -  `durationcheck.py <https://github.com/kieranjol/IFIscripts#durationcheckpy>`__
     -  `fakexdcam.py <https://github.com/kieranjol/IFIscripts#fakexdcampy>`__
 
-10. `Experimental-Premis <https://github.com/kieranjol/IFIscripts#experimental-premis>`__
+13. `Experimental-Premis <https://github.com/kieranjol/IFIscripts#experimental-premis>`__
 
     -  `premis.py <https://github.com/kieranjol/IFIscripts#premispy>`__
     -  `revtmd.py <https://github.com/kieranjol/IFIscripts#revtmdpy>`__
@@ -105,6 +111,74 @@ https://github.com/simsong/dfxml. ``walk_to_dfxml.py`` has also been
 copied but has been customised in order to add command line arguments
 for optionally turning off checksum generation. For more context, see
 https://github.com/simsong/dfxml/pull/28
+
+Purpose
+-------
+
+These python scripts facilitate much of our collections management procedures for digitised and born digital objects in the Irish Film Institute. We utilise a lot of open source tools, so we wanted to make these scripts as open as possible. This is why this project has the MIT License.
+
+The Irish Film Institute has followed the SPECTRUM museum collections management standard for several years. These scripts attempt to follow SPECTRUM procedures while also utilising some of the concepts of the Open Archival Information System (OAIS). Initially the scripts only handled single video files, but they are now capable of handling:
+
+* Digital Cinema Packages
+* XDCAM cards
+* DPX/TIFF image sequences
+* Documents (.doc, .pdf etc)
+* Images (.jpg, .TIFF etc)
+
+An example workflow might be:
+
+* A digital object is created or acquired by the IFI, and `ingest` begina.
+* ``sipcreator.py`` is run on the object. This generates an `Object Entry` number (eg OE-1234), generates a folder structure for `logs, metadata, objects`, generates a `UUID`, extracts technical metadata, generates a md5 checksum manifest, and more. All of these preservation events are logged in a log file located in the `logs` directory. This log file tries to use `PREMIS (PREservation Metadata Implementation Strategies)` terminology as much as possible.
+* While the package has yet to be accessioned and is still in the middle of ingest, temporary backups are required. `copyit.py wlil generate backups, and it will use the checksum manifest generated by `sipcreator.py` to verify the integrity of the file transfer.
+* If the package contains FFV1 or Matroska files, perhaps `ffv1mkvvalidate.py` could run, which would use `mediaconch` to verify the compliance of the files, and stores the information in the logfile.
+* If the package passes our Quality Control Procedures, then it will be accessioned. `accession.py` will generate an accession number, rename the OE number with the accession number, generate a SHA-512 manifest and update the log file to document these new preservation events.
+* A large batch of items can be accessioned using `batchaccession.py`, and if you use the `-pbcore` command line argument with the accessioning scripts, then technical metadata will be generated in CSV format. This process can be run seperately by using `makepbcore.py`. CSV was chosen instead of XML as this allows us to immediately import the CSV into our database system so that we have item level records.
+* Access copies may be needed, os low-res watermarked proxies can be generated with `bitc.py`, or high res mezzanines with `prores.py`.
+* The accessioned package can then be written to preservation storage, again using the `copyit.py` command.
+
+So this is just one way of using the scripts from acquisition to preservation storage, but there are many other scripts for specific workflows, which you can investigate further down in the documentation.
+
+Installation
+------------
+In general, you can just clone or download this whole repository and run the scripts like that. In the Irish Film Institute, on linux, OSX and Windows, we create a folder in the home directory called ``ifigit``, then we run ``git clone https://github.com/kieranjol/ifiscripts``. Then we add the ``ifiscripts`` folder to ``$PATH`` which allows us to access the scripts from any directory, not just ``ifigit/ifiscripts``.
+
+However some folks just cd into the clone repository and run the scripts from there, for example to run ``makeffv1.py`` you might run:
+``python makeffv1.py path/to.filename.mov``.
+
+External dependencies are listed below, but `lxml` is the main python library that must be installed for most scripts.
+`pip install lxml` should work fine.
+
+the following is currently experimental, but it should work fine:
+
+You can get a selection of scripts by making sure that ``pip`` installed, then running:
+``pip install ifiscripts``
+or ``cd`` into the ``ifiscripts`` cloned folder and run
+``python setup.py install``
+
+The pip installation methods have the added benefit of installing the python dependencies such as `lxml`.
+
+There are some external `subprocess` dependencies for most of the scripts.
+
+* ffmpeg
+* mediainfo
+
+are the most frequently used ones.
+
+* mkvpropedit
+* siegfried
+* exiftool
+
+are also needed for many scripts.
+
+
+Contributing
+------------
+
+Contributions are very much welcome in any form. Feel free to raise an issue requesting a new feature, or to report a bug. If reporting a bug, please copy/paste the full, complete, uncut terminal output.
+
+Pull requests are welcome. If contributing code, it can be nice to run it through `pylint` first, as this will check for PEP-08 compliance. I'd rather get the code contribution in pretty much any form, so this is not necessary.
+
+Generally, we try to limit the use of dependencies, so we try to do as much in `python` as possible. This can be seen in any scripts that generate checksums. We slowly moved away from using the wonder `md5deep` and used the python internal `hashlib` libraries instead. 
 
 Arrangement
 -----------
@@ -638,3 +712,4 @@ viruscheck.py
 
 -  Work in progress script by @ecodonohoe
 -  Scans directories recursively using ClamAV
+
