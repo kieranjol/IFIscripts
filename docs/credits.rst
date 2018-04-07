@@ -1,7 +1,7 @@
 credits
 =======
 
-The majority of the code in this repository is written by Kieran O'Leary, but it is the product of many years of research by the staff within the Irish Film Institute. The actual code contributors can be seen `here:  <https://github.com/kieranjol/IFIscripts/graphs/contributors.>`__
+The majority of the code in this repository is written by Kieran O'Leary, but it is the product of many years of research by the staff within the Irish Film Institute. The actual code contributors can be seen `here:  <https://github.com/kieranjol/IFIscripts/graphs/contributors>`__.
 
 Past and present staff members who have contributed in one way shape or form to this project are [in NO order]:
 
