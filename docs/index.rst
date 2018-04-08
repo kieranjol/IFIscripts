@@ -6,7 +6,7 @@ Introduction
 Summary
 -------
 
-These are Python scripts that facilitate collections management workflows within the IFI Irish Film Archive. These scripts have been tested
+These are Python 2.7 scripts that facilitate collections management workflows within the IFI Irish Film Archive. These scripts have been tested
 in OSX, Windows 7 & 10, Ubuntu 14.04 & 16.04. They are located here on github: https://github.com/kieranjol/IFIscripts
 
 Most scripts take either a file or a directory as their input, for
