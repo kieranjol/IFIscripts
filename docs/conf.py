@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = u'ifiscripts'
-copyright = u'2018, Kieran O\\`Leary'
-author = u'Kieran O\\`Leary'
+copyright = u'2018, Kieran O\`Leary'
+author = u'Kieran O\`Leary'
 
 # The short X.Y version
 version = u''
