@@ -49,5 +49,5 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'bagit'
     ],
     name='ifiscripts',
-    version='0.8'
+    version='0.9'
 )
