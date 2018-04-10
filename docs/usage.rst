@@ -346,13 +346,6 @@ oeremove.py
    image sequence filename.
 -  Usage - ``oeremove.py directory``.
 
-renumber.py
-~~~~~~~~~~~
-
--  Renames TIFF files in an image sequence so that they start from ZERO
-   (000000)
--  Usage - ``renumber.py directory``
-
 seq2dv.py
 ~~~~~~~~~
 
@@ -475,11 +468,6 @@ update.py
    structure exists in the home directory: ``ifigit/ifiscripts``
 -  Usage: ``update.py``
 
-giffer.py
-~~~~~~~~~
-
--  Makes a 24fps 500px gif of the input file.
--  Usage: ``giffer.py /path/to/input``
 
 makeuuid.py
 ~~~~~~~~~~~
@@ -515,11 +503,6 @@ premis.py
 -  Requries pyqt4 (GUI) and lxml (xml parsing)
 -  Usage - ``premis.py filename``.
 
-revtmd.py
-~~~~~~~~~
-
--  Beta/defuncy sript that attempted to document creation process
-   history metadata using the reVTMD standard.
 
 as11fixity.py
 ~~~~~~~~~~~~~
