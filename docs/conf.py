@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'ifiscripts'
-copyright = u'2018, Kieran O\'Leary'
+copyright = u'2018, Kieran O\'Leary for the Irish Film Institute'
 author = u'Kieran O\'Leary'
 
 # The short X.Y version
