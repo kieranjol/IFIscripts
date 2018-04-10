@@ -5,7 +5,7 @@ The majority of the code in this repository is written by Kieran O'Leary, but it
 
 Past and present staff members who have contributed in one way shape or form to this project are [in NO order]:
 
-Anja Mahler, Raelene Casey, Kasandra O'Connell, Kieran O'Leary, Eoin O'Donohoe, Columb Gilna, Manus McManus, Gavin Martin, Felix Meehan, Fiona Rigney, Michael Ryan, Dean Kavanagh, Sunniva O'Flynn, Aoife Fitzmaurice, Eilís Ní Raghallaigh, Brian Cash, Joanne Carroll, Karen Wall, Rebecca Grant, Simon Factor, Aaron Healy.
+Anja Mahler, Raelene Casey, Kasandra O'Connell, Kieran O'Leary, Eoin O'Donohoe, Aoife Fitzmaurice, Brian Cash, Columb Gilna, Manus McManus, Gavin Martin, Felix Meehan, Fiona Rigney, Michael Ryan, Dean Kavanagh, Sunniva O'Flynn, Eilís Ní Raghallaigh, Joanne Carroll, Karen Wall, Rebecca Grant, Simon Factor, Aaron Healy.
 
 The project is very much inspired by the work of Dave Rice, particularly the ``makelossless`` script within `mediamicroservices <https://github.com/mediamicroservices/mm>`__.
 
