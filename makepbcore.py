@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 '''
 Describe AV objects using PBCore in CSV form.
+Ideas for improvement:
+Have the PBCore get metadata function return the value, and
+just append it to the element list in the one call.
+Also, have a consistent method for extracting metadata,
+I'd suggest just parsing a single raw -f mediainfo, which should
+alleviate the need to use --Inform and the PBCore output.
+
+Also - better handling of multiple audio tracks.
+The audio_format and the PBCore calls are all just analyzing the first track.
+Get rid of this technical debt!
+
 '''
 import sys
 import os
@@ -19,6 +30,27 @@ def get_metadata(xpath_path, root, pbcore_namespace):
     )
     if value == []:
         value = 'n/a'
+    elif len(value) > 1:
+        mixed_values = ''
+        value_list = []
+        for i in value:
+            # Checks if multiple audio tracks have different values.
+            if i.getparent().find(
+                'ns:essenceTrackType',
+                namespaces={'ns':pbcore_namespace}
+            ).text == 'Audio':
+                value_list.append(i.text)
+        # Checks if values in the list are the same(1) or different (2)
+        if len(set(value_list)) is 1:
+            value = value[0].text
+        else:
+            # Return the mixed values with pipe delimiter.
+            for x in value_list:
+                mixed_values += x + '|'
+            if mixed_values[-1] == '|':
+                mixed_values = mixed_values[:-1]
+            value = mixed_values
+
     else:
         value = value[0].text
     return value
@@ -242,6 +274,7 @@ def main(args_):
     pix_fmt_list = []
     audio_fmt_list = []
     audio_codecid_list = []
+    audio_codec_list = []
     au_bitdepth_list = []
     video_codecid_list = []
     video_codec_version_list = []
@@ -263,10 +296,22 @@ def main(args_):
                 elif track.text == 'Audio':
                     silence = False
                     essenceTrackEncod_au = get_metadata(
-                        "ns:essenceTrackEncoding",
+                        "//ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
                     )
+                    audio_codec_list.append(essenceTrackEncod_au)
                     acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
+                    audio_codecid = acodec_attributes['ref']
+                    essenceTrackSampling = get_metadata(
+                        "//ns:essenceTrackSamplingRate",
+                        root, pbcore_namespace
+                    )
+                    essenceBitDepth_au = get_metadata(
+                        "//ns:essenceTrackBitDepth",
+                        root, pbcore_namespace
+                    )
+                    audio_codecid_list.append(audio_codecid)
+                    au_bitdepth_list.append(essenceBitDepth_au)
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -318,10 +363,6 @@ def main(args_):
             root, pbcore_namespace
         )
         frame_sizes.append(essenceFrameSize)
-        essenceAspectRatio = get_metadata(
-            "//ns:essenceTrackAspectRatio",
-            root, pbcore_namespace
-        )
         PixelAspectRatio = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='PixelAspectRatio']",
             root, pbcore_namespace
@@ -337,8 +378,8 @@ def main(args_):
             root, pbcore_namespace
         )
         fps_list.append(essenceFrameRate)
-        essenceTrackSampling = ififuncs.get_mediainfo(
-            'samplerate', '--inform=Audio;%SamplingRate_String%', source
+        essenceAspectRatio = ififuncs.get_mediainfo(
+            'DAR', '--inform=Video;%DisplayAspectRatio_String%', source
         )
         sample_rate_list.append(essenceTrackSampling)
         Interlacement = get_metadata(
@@ -359,14 +400,7 @@ def main(args_):
         pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
         audio_fmt_list.append(audio_fmt)
-    if not silence:
-        audio_codecid = acodec_attributes['ref']
-        essenceBitDepth_au = ififuncs.get_mediainfo(
-            'duration', '--inform=Audio;%BitDepth%', source
-        )
-        audio_codecid_list.append(audio_codecid)
-        au_bitdepth_list.append(essenceBitDepth_au)
-    else:
+    if silence:
         audio_codecid = 'n/a'
         essenceBitDepth_au = 'n/a'
         essenceTrackEncod_au = 'n/a'
@@ -383,7 +417,7 @@ def main(args_):
     video_codec_version_list.append(video_codec_version)
     video_codec_profile_list.append(video_codec_profile)
     metadata_error = ''
-    for i in [
+    metadata_list = [
         scan_types,
         matrix_list,
         transfer_list,
@@ -400,11 +434,13 @@ def main(args_):
         pix_fmt_list,
         audio_fmt_list,
         audio_codecid_list,
+        audio_codec_list,
         au_bitdepth_list,
         video_codecid_list,
         video_codec_version_list,
         video_codec_profile_list
-    ]:
+    ]
+    for i in metadata_list:
         if len(set(i)) > 1:
             metadata_error += 'WARNING - Your metadata values are not the same for all files: %s\n' % set(i)
             print metadata_error
