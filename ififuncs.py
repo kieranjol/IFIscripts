@@ -1017,7 +1017,7 @@ def get_ffmpeg_fmt(path, file_type):
     Determine the pixel format or audio format of a file
     '''
     if file_type == 'audio':
-        stream = 'a:0'
+        stream = 'a'
         metadata = 'stream=codec_name'
     if file_type == 'video':
         stream = 'v:0'
