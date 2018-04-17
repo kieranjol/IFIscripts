@@ -1034,6 +1034,35 @@ def get_ffmpeg_fmt(path, file_type):
     pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().replace("\n", '|')
     return pix_fmt
 
+def get_number_of_tracks(path):
+    '''
+    Get number of tracks in a instantationTracks style output
+    http://pbcore.org/pbcoreinstantiation/instantiationtracks/
+    '''
+    ffprobe_cmd = [
+        'ffprobe',
+        '-i', path,
+        '-v', 'error',
+        '-show_entries',
+        'stream=codec_type',
+        '-of', 'default=noprint_wrappers=1:nokey=1'
+    ]
+    type_list = subprocess.check_output(ffprobe_cmd).rstrip().splitlines()
+    types = {}
+    final_count = ''
+    for i in type_list:
+        if not i in types:
+            types[i] = 1
+        else:
+            types[i] += 1
+    for x in types:
+        if types[x] > 1:
+            final_count += '%s %s tracks|' % (types[x], x)
+        else:
+            final_count += '%s %s track|' % (types[x], x)
+    return final_count[:-1]
+
+
 def read_lines(infile):
     '''
     Returns line number and text from an textfile.
