@@ -1031,7 +1031,7 @@ def get_ffmpeg_fmt(path, file_type):
         metadata,
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().replace("\n", '|')
     return pix_fmt
 
 def read_lines(infile):
