@@ -162,6 +162,7 @@ def make_csv(csv_filename):
         'instantFileSize_gigs',
         'instantTimeStart',
         'instantDataRate',
+        'instantTracks',
         'instantColors',
         'instantLanguage',
         'instantAltMo',
@@ -269,6 +270,7 @@ def main(args_):
     container_list = []
     fps_list = []
     sample_rate_list = []
+    track_count_list = []
     interlace_list = []
     compression_list = []
     pix_fmt_list = []
@@ -302,9 +304,9 @@ def main(args_):
                     audio_codec_list.append(essenceTrackEncod_au)
                     acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
                     audio_codecid = acodec_attributes['ref']
-                    essenceTrackSampling = get_metadata(
-                        "//ns:essenceTrackSamplingRate",
-                        root, pbcore_namespace
+                    essenceTrackSampling = ififuncs.get_mediainfo(
+                        'samplerate',
+                        '--inform=Audio;%SamplingRate_String%', source
                     )
                     essenceBitDepth_au = get_metadata(
                         "//ns:essenceTrackBitDepth",
@@ -343,6 +345,8 @@ def main(args_):
         instantDataRate = round(float(ififuncs.get_mediainfo(
             'OverallBitRate', '--inform=General;%OverallBitRate%', source
         ))  / 1000 / 1000, 2)
+        instantTracks = ififuncs.get_number_of_tracks(source)
+        track_count_list.append(instantTracks)
         ms += ififuncs.get_milliseconds(source)
         ColorSpace = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ColorSpace']",
@@ -429,6 +433,7 @@ def main(args_):
         container_list,
         fps_list,
         sample_rate_list,
+        track_count_list,
         interlace_list,
         compression_list,
         pix_fmt_list,
@@ -511,6 +516,7 @@ def main(args_):
         instantFileSize_gigs,
         instantTimeStart,
         instantDataRate,
+        instantTracks,
         instantColors,
         instantLanguage,
         instantAltMo,
