@@ -84,7 +84,7 @@ def make_dfxml(args,new_uuid_path,uuid):
     '''
     metadata = os.path.join(new_uuid_path, 'metadata')
     dfxml = os.path.join(metadata, uuid + '_dfxml.xml')
-    makedfxml.main([new_uuid_path, '-o', dfxml])
+    makedfxml.main([new_uuid_path, '-n', '-o', dfxml])
     return dfxml
 
 
