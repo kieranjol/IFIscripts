@@ -22,13 +22,15 @@ the following is currently experimental, but it should work fine:
 You can get a selection of scripts by making sure that ``pip`` installed, then running:
 ``pip install ifiscripts``
 or ``cd`` into the ``ifiscripts`` cloned folder and run
-``python setup.py install``
+``pip install .``
+
+You may need to run the ``pip`` commands with ``sudo``.
 
 The pip installation methods have the added benefit of installing the python dependencies such as ``lxml``.
 
 External Dependencies
 ---------------------
-There are some external `subprocess` dependencies for most of the scripts. The most frequently used ones are:
+There are some external ``subprocess`` dependencies for most of the scripts. The most frequently used ones are:
 
 * ffmpeg
 * mediainfo
