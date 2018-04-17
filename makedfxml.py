@@ -26,6 +26,10 @@ def parse_args(args_):
         '-o',
         help='full path to an output XML file'
     )
+    parser.add_argument(
+        '-n',
+        action="store_true", help="Do not calculate any hashes"
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -41,7 +45,11 @@ def main(args_):
             print('output file must be XML')
     source = args.input
     os.chdir(source)
-    output = walk_to_dfxml.main([])
+    if args.n:
+        hash_arg = ["-n"]
+    else:
+        hash_arg = []
+    output = walk_to_dfxml.main(hash_arg)
     parser = etree.XMLParser(remove_blank_text=True)
     dfxml_out = etree.fromstring((output), parser=parser)
     if args.o:
