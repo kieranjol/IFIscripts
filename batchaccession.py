@@ -73,6 +73,12 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             'aaa' + str(accession_digits).zfill(4),
                             ref[:2] + str(reference_digits).zfill(4)
                         ]
+                        if root in to_accession:
+                            # If a single file is found, this prevents the file being
+                            # processed twice, with a skip in the number run
+                            reference_digits += 1
+                            accession_digits += 1
+                            continue
                         accession_digits += 1
                         to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits)]
                         reference_digits += 1
