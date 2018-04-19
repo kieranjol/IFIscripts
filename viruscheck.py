@@ -6,11 +6,11 @@ import sys
 import subprocess
 
 
-
 def clamscan():
     scan = subprocess.call([
         'clamscan',
         '-r',
+        '-v',
         starting_dir
     ])
     
