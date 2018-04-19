@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
-#Requires ClamAV to be installed
+'''
+Requires ClamAV to be installed
+'''
 
 import sys
 import subprocess
@@ -22,6 +23,9 @@ def parse_args(args_):
 
 
 def clamscan(input_dir):
+    '''
+    Calls ClamAV.
+    '''
     scan = subprocess.call([
         'clamscan',
         '-r',
@@ -30,6 +34,9 @@ def clamscan(input_dir):
     ])
 
 def main(args_):
+    '''
+    Launches functions that performs a virus check.
+    '''
     args = parse_args(args_)
     input_dir = args.input
     print "Running scan.........."
