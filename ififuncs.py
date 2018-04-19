@@ -832,7 +832,7 @@ def get_reference_number():
             reference_number = False
             print 'First two characters must be \'af\' and last five characters must be five digits'
         else:
-            return reference_number
+            return reference_number.upper()
 
 def get_contenttitletext(cpl):
     '''

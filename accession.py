@@ -118,7 +118,7 @@ def main(args_):
             accession_number = ififuncs.get_accession_number()
         if args.pbcore:
             if args.reference:
-                Reference_Number = args.reference
+                Reference_Number = args.reference.upper()
             else:
                 Reference_Number = ififuncs.get_reference_number()
         accession_path = os.path.join(
