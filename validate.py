@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+'''
+Validates md5 or sha512 sidecar checksum manifests.
+'''
 import sys
-import hashlib
 import os
 import argparse
 import time
@@ -9,16 +11,24 @@ from ififuncs import make_desktop_logs_dir
 
 
 def get_input(manifest):
-    if not manifest.endswith(('.txt', '.md5', '.exf' )):
+    '''
+    Figures out what kind of input is passed to the script.
+    '''
+    if not manifest.endswith(('.txt', '.md5', '.exf')):
         print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.'
         sys.exit()
     elif manifest.endswith('.exf'):
-        print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this.  It will list some missing files but will validate checksums as usual.'
+        print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this. It will list some missing files but will validate checksums as usual.'
         return manifest
     else:
         return manifest
 
 def parse_manifest(manifest, log_name_source):
+    '''
+    Analyses the manifest to see if any files are missing.
+    Returns a list of missing files and a dictionary containing checksums
+    and paths.
+    '''
     missing_files_list = []
     manifest_dict = {}
     os.chdir(os.path.dirname(manifest))
@@ -34,7 +44,7 @@ def parse_manifest(manifest, log_name_source):
             if not os.path.isfile(path):
                 ififuncs.generate_log(
                     log_name_source,
-                    '%s is missing' % path 
+                    '%s is missing' % path
                 )
                 print '%s is missing' % path
                 missing_files_list.append(path)
@@ -44,7 +54,7 @@ def parse_manifest(manifest, log_name_source):
         print 'The number of missing files: %s' % len(missing_files_list)
         ififuncs.generate_log(
             log_name_source,
-            'The number of missing files is: %s' %  len(missing_files_list)
+            'The number of missing files is: %s' % len(missing_files_list)
         )
     elif len(missing_files_list) == 0:
         print 'All files present'
@@ -55,6 +65,9 @@ def parse_manifest(manifest, log_name_source):
     return manifest_dict, missing_files_list
 
 def validate(manifest_dict, manifest, log_name_source, missing_files_list):
+    '''
+    Validates the files listed in the checksum manifest.
+    '''
     ififuncs.generate_log(
         log_name_source,
         'Validating %s ' % manifest
@@ -63,7 +76,6 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
     manifest_directory = os.path.dirname(manifest)
     os.chdir(manifest_directory)
     error_list = []
-
     for i in sorted(manifest_dict.keys()):
         print 'Validating %s' % i
         if 'manifest-sha512.txt' in manifest:
@@ -83,9 +95,9 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
     if error_counter > 0:
         print '\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter
         ififuncs.generate_log(
-        log_name_source,
-        'The number of mismatched checksums is: %s' %  error_counter
-    )
+            log_name_source,
+            'The number of mismatched checksums is: %s' % error_counter
+        )
         print '***** List of mismatched files*****'
         for i in error_list:
             print i
@@ -99,24 +111,37 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
         print 'ERRORS - The number of missing files: %s' % len(missing_files_list)
         ififuncs.generate_log(
             log_name_source,
-            'ERRORS - The number of mismatched checksums is: %s' %  len(missing_files_list)
+            'ERRORS - The number of mismatched checksums is: %s' % len(missing_files_list)
         )
         for i in missing_files_list:
             print('%s is missing') % i
 
 
 def make_parser():
+    '''
+    Creates command line arguments and help.
+    '''
     parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
-                                 ' Written by Kieran O\'Leary.')
+                                     ' Written by Kieran O\'Leary.')
     parser.add_argument('input', help='file path of md5 checksum file')
     return parser
 
+
 def check_manifest(input, log_name_source):
+    '''
+    Launches other functions.
+    '''
     manifest = get_input(input)
     manifest_dict, missing_files_list = parse_manifest(manifest, log_name_source)
     validate(manifest_dict, manifest, log_name_source, missing_files_list)
     return manifest
+
+
 def log_results(manifest, log, args):
+    '''
+    If a sipcreator type log is found,validate will update the log with the
+    results.
+    '''
     updated_manifest = []
     if 'manifest-sha512.txt' in manifest:
         basename = os.path.basename(manifest).replace('_manifest-sha512.txt', '')
@@ -152,6 +177,9 @@ def log_results(manifest, log, args):
 
 
 def main():
+    '''
+    Launches all other functions when called from the command line.
+    '''
     parser = make_parser()
     args = parser.parse_args()
     desktop_logs_dir = make_desktop_logs_dir()
@@ -171,5 +199,7 @@ def main():
     )
     manifest = check_manifest(args.input, log_name_source)
     log_results(manifest, log_name_source, args)
+
+
 if __name__ == '__main__':
-   main()
+    main()
