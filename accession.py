@@ -10,6 +10,7 @@ import sys
 import os
 import argparse
 import time
+import csv
 import ififuncs
 import manifest
 import makedfxml
@@ -74,6 +75,10 @@ def parse_args(args_):
         '-register',
         help='Path of accessions register CSV file. Mostly to be used by batchaccession.py'
     )
+    parser.add_argument(
+        '-csv',
+        help='Enter the path to the Filmographic CSV so that the metadata will be stored within the package.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -87,7 +92,26 @@ def make_dfxml(args,new_uuid_path,uuid):
     makedfxml.main([new_uuid_path, '-n', '-o', dfxml])
     return dfxml
 
-
+def insert_filmographic(filmographic_csv, Reference_Number, package_filmographic):
+    '''
+    Should this be done at the accession.py level?
+    yes, as it extracts the title.
+    And it should be done after the args.pbcore bit as
+    that is what extracts the reference number.
+    filmographic_csv=source filmographic csv with reference numbers
+    Reference_Number=the specific reference number that you would like to extract
+    package_filmographic = the full path of the filmographic to be instered in /metadata
+    '''
+    csv_dict = ififuncs.extract_metadata(filmographic_csv)
+    for items in csv_dict:
+        for x in items:
+            if type(x) is dict:
+                if Reference_Number in x['Reference Number'].upper():
+                    with open(package_filmographic, 'w') as csvfile:
+                        fieldnames = csv_dict[1]
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                        writer.writeheader()
+                        writer.writerow(x)
 def main(args_):
     '''
     Launches the various functions that will accession a package
@@ -184,6 +208,18 @@ def main(args_):
             sipcreator_log,
             'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
         )
+        # this is inefficient. The script should not have to ask for reference
+        # number twice if someone wants to insert the filmographic but do not
+        # want to make the pbcore csv, perhaps because the latter already exists.
+        if args.csv:
+            metadata_dir = os.path.join(new_uuid_path, 'metadata')
+            package_filmographic = os.path.join(metadata_dir, Reference_Number + '_filmographic.csv')
+            insert_filmographic(args.csv, Reference_Number, package_filmographic)
+            ififuncs.generate_log(
+                sipcreator_log,
+                'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
+            )
+            print('Filmographic descriptive metadata added to metadata folder')
         ififuncs.generate_log(
             sipcreator_log,
             'EVENT = accession.py finished'
@@ -191,6 +227,7 @@ def main(args_):
         ififuncs.checksum_replace(sip_manifest, sipcreator_log, 'md5')
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(sip_manifest, dfxml)
+        ififuncs.manifest_update(sip_manifest, package_filmographic)
         ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
             makepbcore.main([accession_path, '-p', '-user', user, '-reference', Reference_Number])
