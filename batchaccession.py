@@ -200,10 +200,11 @@ def main(args_):
         for package in sorted(to_accession.keys()):
             accession.main([
                 package, '-user', user,
-                '-p', '-f',
+                '-pbcore', '-f',
                 '-number', to_accession[package][0],
                 '-reference', to_accession[package][1],
-                '-register', register
+                '-register', register,
+                '-csv', new_csv
             ])
     collated_pbcore = gather_metadata(args.input)
     print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
