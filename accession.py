@@ -79,6 +79,10 @@ def parse_args(args_):
         '-csv',
         help='Enter the path to the Filmographic CSV so that the metadata will be stored within the package.'
     )
+    parser.add_argument(
+        '-parent',
+        help='Enter the accession number of the parent object (useful for reproductions)'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -219,6 +223,7 @@ def main(args_):
                 sipcreator_log,
                 'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
             )
+            ififuncs.manifest_update(sip_manifest, package_filmographic)
             print('Filmographic descriptive metadata added to metadata folder')
         ififuncs.generate_log(
             sipcreator_log,
@@ -227,10 +232,12 @@ def main(args_):
         ififuncs.checksum_replace(sip_manifest, sipcreator_log, 'md5')
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(sip_manifest, dfxml)
-        ififuncs.manifest_update(sip_manifest, package_filmographic)
         ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
-            makepbcore.main([accession_path, '-p', '-user', user, '-reference', Reference_Number])
+            makepbcore_cmd = [accession_path, '-p', '-user', user, '-reference', Reference_Number]
+            if args.parent:
+                makepbcore_cmd.extend(['-parent', args.parent])
+            makepbcore.main(makepbcore_cmd)
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
 

@@ -96,6 +96,10 @@ def parse_args(args_):
         '-p', action='store_true',
         help='Adds the PBCore CSV to the metadata folder'
     )
+    parser.add_argument(
+        '-parent',
+        help='Enter the accession number of the parent object (useful for reproductions)'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -142,6 +146,7 @@ def make_csv(csv_filename):
         'Date Of Donation',
         'Accession Number',
         'Habitat',
+        'TTape Origin',
         'Type Of Deposit',
         'Depositor Reference',
         'Master Viewing',
@@ -469,6 +474,7 @@ def main(args_):
     Language_Version = ''
     Condition_Rating = ''
     Companion_Elements = ''
+    TTape_Origin = args.parent
     EditedNew = user
     FIO = 'In'
     CollectionTitle = ''
@@ -496,6 +502,7 @@ def main(args_):
         Date_Of_Donation,
         Accession_Number,
         Habitat,
+        TTape_Origin,
         Type_Of_Deposit,
         Depositor_Reference,
         Master_Viewing,
