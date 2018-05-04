@@ -100,6 +100,10 @@ def parse_args(args_):
         '-parent',
         help='Enter the accession number of the parent object (useful for reproductions)'
     )
+    parser.add_argument(
+        '-acquisition_type',
+        help='Enter the Type of Acquisition in the form of a number referring to the IFI controlled vocabulary.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -217,6 +221,9 @@ def main(args_):
         user = args.user
     else:
         user = ififuncs.get_user()
+    acquisition_type = ''
+    if args.acquisition_type:        
+        acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)[0]
     for dirs in os.listdir(args.input):
         if ififuncs.validate_uuid4(dirs) is None:
             instantiationIdentif = dirs
@@ -468,7 +475,7 @@ def main(args_):
     Film_Or_Tape = 'Digital File'
     Date_Of_Donation = ''
     Habitat = ''
-    Type_Of_Deposit = ''
+    Type_Of_Deposit = acquisition_type
     Depositor_Reference = ''
     Master_Viewing = 'Preservation Master'
     Language_Version = ''

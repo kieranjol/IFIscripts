@@ -83,6 +83,10 @@ def parse_args(args_):
         '-parent',
         help='Enter the accession number of the parent object (useful for reproductions)'
     )
+    parser.add_argument(
+        '-acquisition_type',
+        help='Enter the Type of Acquisition in the form of a number referring to the IFI controlled vocabulary.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -149,6 +153,9 @@ def main(args_):
                 Reference_Number = args.reference.upper()
             else:
                 Reference_Number = ififuncs.get_reference_number()
+        if args.acquisition_type:        
+            acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)
+            print acquisition_type
         accession_path = os.path.join(
             os.path.dirname(oe_path), accession_number
         )

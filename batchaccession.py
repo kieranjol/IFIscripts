@@ -6,6 +6,9 @@ The outcome will be:
 * Filmographic records can be ingested to DB TEXTWORKS
 * Technical records can be ingested to DB TEXTWORKS
 * Skeleton accession record can be also be made available.
+
+NOTE - this is almost done, you just need to find when to_accession[package] == 3, then
+add an arg to the accession commmand that will declare the package as a reproduction.
 '''
 import argparse
 import sys
@@ -65,6 +68,7 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                     to_accession[root] = 'aaa' + str(accession_digits).zfill(4)
                     accession_digits += 1
                 else:
+                    # gets parent info
                     if os.path.basename(root) in oe_list:
                         to_accession[
                             os.path.join(os.path.dirname(root),
@@ -80,7 +84,8 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             accession_digits += 1
                             continue
                         accession_digits += 1
-                        to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits)]
+                        # gets reproduction info
+                        to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits), 'reproduction']
                         reference_digits += 1
                         accession_digits += 1
     for fails in wont_accession:
@@ -191,6 +196,7 @@ def main(args_):
             writer.writeheader()
             for i in filmographic_dict:
                 writer.writerow(i)
+    print len(to_accession), 61212
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
@@ -198,14 +204,17 @@ def main(args_):
     )
     if proceed == 'Y':
         for package in sorted(to_accession.keys()):
-            accession.main([
+            accession_cmd = [
                 package, '-user', user,
                 '-pbcore', '-f',
                 '-number', to_accession[package][0],
                 '-reference', to_accession[package][1],
                 '-register', register,
                 '-csv', new_csv
-            ])
+            ]
+            if len(to_accession[package]) == 3:
+                accession_cmd.extend(['-acquisition_type', '13'])
+            accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
     print '\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv
