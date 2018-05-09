@@ -200,7 +200,20 @@ def make_csv(csv_filename):
         'audio_codecid',
         'video_codecid',
         'video_codec_version',
-        'video_codec_profile'
+        'video_codec_profile',
+        'channels',
+        'colour_range',
+        'format_version',
+        'TimeCode_FirstFrame',
+        'TimeCode_Source',
+        'app_company_name',
+        'app_name',
+        'app_version',
+        'library_name',
+        'library_version',
+        'reproduction_creator',
+        'reproduction_reason',
+        'dig_object_descrip'
     ])
 
 
@@ -407,6 +420,14 @@ def main(args_):
             "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
             root, pbcore_namespace
         )
+        colour_range = get_metadata(
+            "//ns:essenceTrackAnnotation[@annotationType='colour_range']",
+            root, pbcore_namespace
+        )
+        format_version = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Format_Version']",
+            root, pbcore_namespace
+        )
         compression_list.append(Compression_Mode)
         instantiationDate_modified = get_metadata(
             "//ns:instantiationDate[@dateType='file modification']",
@@ -499,6 +520,19 @@ def main(args_):
         'duration', '--inform=Video;%BitDepth%', source
     )
     instantiationChanCon = ''
+    channels = ''
+    colour_range = colour_range
+    format_version = format_version
+    TimeCode_FirstFrame = ''
+    TimeCode_Source = ''
+    app_company_name = ''
+    app_name = ''
+    app_version = ''
+    library_name = ''
+    library_version = ''
+    reproduction_creator = ''
+    reproduction_reason = ''
+    dig_object_descrip = ''
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,
@@ -559,7 +593,20 @@ def main(args_):
         audio_codecid,
         video_codecid,
         video_codec_version,
-        video_codec_profile
+        video_codec_profile,
+        channels,
+        colour_range,
+        format_version,
+        TimeCode_FirstFrame,
+        TimeCode_Source,
+        app_company_name,
+        app_name,
+        app_version,
+        library_name,
+        library_version,
+        reproduction_creator,
+        reproduction_reason,
+        dig_object_descrip,
     ])
     if args.p:
         ififuncs.generate_log(
