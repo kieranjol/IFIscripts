@@ -1223,6 +1223,10 @@ def group_ids(source):
         if os.path.basename(root)[:2] == 'oe':
             if validate_uuid4(dirnames[0]) is not False:
                 uuid_oe_dict[os.path.basename(root)] = dirnames[0]
+        # check for accessioned packages
+        elif os.path.basename(root)[:3] == 'aaa':
+            if validate_uuid4(dirnames[0]) is not False:
+                uuid_oe_dict[os.path.basename(root)] = dirnames[0]
     return uuid_oe_dict
 
 def convert_ms2frames(fps, ms):
