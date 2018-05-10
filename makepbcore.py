@@ -20,6 +20,7 @@ import argparse
 from lxml import etree
 import ififuncs
 
+
 def get_metadata(xpath_path, root, pbcore_namespace):
     '''
     Extracts values from PBCore2 XML MediaInfo outputs.
@@ -100,6 +101,10 @@ def parse_args(args_):
         '-parent',
         help='Enter the accession number of the parent object (useful for reproductions)'
     )
+    parser.add_argument(
+        '-acquisition_type',
+        help='Enter the Type of Acquisition in the form of a number referring to the IFI controlled vocabulary.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -158,7 +163,8 @@ def make_csv(csv_filename):
         'CollectionTitle',
         'Created By',
         'instantiationIdentif',
-        'instantiationDate_modified',
+        'instantiationDate',
+        'instantiationDate_mo',
         'instantiationDimensi',
         'instantiationStandar',
         'instantiationLocatio',
@@ -196,7 +202,20 @@ def make_csv(csv_filename):
         'audio_codecid',
         'video_codecid',
         'video_codec_version',
-        'video_codec_profile'
+        'video_codec_profile',
+        'channels',
+        'colour_range',
+        'format_version',
+        'TimeCode_FirstFrame',
+        'TimeCode_Source',
+        'app_company_name',
+        'app_name',
+        'app_version',
+        'library_name',
+        'library_version',
+        'reproduction_creator',
+        'reproduction_reason',
+        'dig_object_descrip'
     ])
 
 
@@ -217,6 +236,9 @@ def main(args_):
         user = args.user
     else:
         user = ififuncs.get_user()
+    acquisition_type = ''
+    if args.acquisition_type:        
+        acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)[0]
     for dirs in os.listdir(args.input):
         if ififuncs.validate_uuid4(dirs) is None:
             instantiationIdentif = dirs
@@ -400,11 +422,20 @@ def main(args_):
             "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
             root, pbcore_namespace
         )
+        colour_range = get_metadata(
+            "//ns:essenceTrackAnnotation[@annotationType='colour_range']",
+            root, pbcore_namespace
+        )
+        format_version = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Format_Version']",
+            root, pbcore_namespace
+        )
         compression_list.append(Compression_Mode)
         instantiationDate_modified = get_metadata(
             "//ns:instantiationDate[@dateType='file modification']",
             root, pbcore_namespace
         )
+        instantiationDate = 'n/a'
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
         pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
@@ -468,7 +499,7 @@ def main(args_):
     Film_Or_Tape = 'Digital File'
     Date_Of_Donation = ''
     Habitat = ''
-    Type_Of_Deposit = ''
+    Type_Of_Deposit = acquisition_type
     Depositor_Reference = ''
     Master_Viewing = 'Preservation Master'
     Language_Version = ''
@@ -492,6 +523,19 @@ def main(args_):
         'duration', '--inform=Video;%BitDepth%', source
     )
     instantiationChanCon = ''
+    channels = ''
+    colour_range = colour_range
+    format_version = format_version
+    TimeCode_FirstFrame = ''
+    TimeCode_Source = ''
+    app_company_name = ''
+    app_name = ''
+    app_version = ''
+    library_name = ''
+    library_version = ''
+    reproduction_creator = ''
+    reproduction_reason = ''
+    dig_object_descrip = ''
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,
@@ -514,6 +558,7 @@ def main(args_):
         CollectionTitle,
         Created_By,
         instantiationIdentif,
+        instantiationDate,
         instantiationDate_modified,
         instantiationDimensi,
         instantiationStandar,
@@ -552,7 +597,20 @@ def main(args_):
         audio_codecid,
         video_codecid,
         video_codec_version,
-        video_codec_profile
+        video_codec_profile,
+        channels,
+        colour_range,
+        format_version,
+        TimeCode_FirstFrame,
+        TimeCode_Source,
+        app_company_name,
+        app_name,
+        app_version,
+        library_name,
+        library_version,
+        reproduction_creator,
+        reproduction_reason,
+        dig_object_descrip,
     ])
     if args.p:
         ififuncs.generate_log(

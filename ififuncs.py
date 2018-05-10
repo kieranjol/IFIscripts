@@ -660,7 +660,40 @@ def get_user():
         time.sleep(1)
     return user
 
-
+def get_acquisition_type(acquisition_type):
+    '''
+    Asks userfor the type of acquisition
+    '''
+    if acquisition_type not in ('1', '2', '4', '5', '7', '8', '13'):
+        acquisition_type = raw_input(
+            '\n\n**** What is the type of acquisition?\nPress 1,2,4,5,7,8,13\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n'
+        )
+        while acquisition_type not in ('1', '2', '4', '5', '7', '8', '13'):
+            acquisition_type = raw_input(
+                '\n\n**** What is the type of acquisition?\nPress 1,2,4,5,7,8,13\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n'
+            )
+    if acquisition_type == '1':
+        acquisition_type = ['1. IFB -  deposited  in compliance with IFB delivery requirements', 'Deposit']
+        time.sleep(1)
+    elif acquisition_type == '2':
+        acquisition_type = ['2. BAI  - deposited  in compliance with BAI delivery requirements', 'Deposit']
+        time.sleep(1)
+    elif acquisition_type == '4':
+        acquisition_type = ['4. Deposit', 'Deposit']
+        time.sleep(1)
+    elif acquisition_type == '5':
+        acquisition_type = ['5. Purchased for collection', 'Purchase']
+        time.sleep(1)
+    elif acquisition_type == '7':
+        acquisition_type = ['7. Unknown at present', 'Unknown']
+        time.sleep(1)
+    elif acquisition_type == '8':
+        acquisition_type = ['Arts Council- deposited in compliance with Arts council delivery requirements', 'Deposit']
+        time.sleep(1)
+    elif acquisition_type == '13':
+        acquisition_type = ['13. Reproduction', 'Reproduction']
+        time.sleep(1)
+    return acquisition_type
 def sort_manifest(manifest_textfile):
     '''
     Sorts an md5 manifest in alphabetical order.
@@ -1188,6 +1221,10 @@ def group_ids(source):
     uuid_oe_dict = {}
     for root, dirnames, _ in os.walk(source):
         if os.path.basename(root)[:2] == 'oe':
+            if validate_uuid4(dirnames[0]) is not False:
+                uuid_oe_dict[os.path.basename(root)] = dirnames[0]
+        # check for accessioned packages
+        elif os.path.basename(root)[:3] == 'aaa':
             if validate_uuid4(dirnames[0]) is not False:
                 uuid_oe_dict[os.path.basename(root)] = dirnames[0]
     return uuid_oe_dict

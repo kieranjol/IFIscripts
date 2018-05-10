@@ -4,6 +4,10 @@ Audits logfiles to determine the parent of a derivative package.
 This script can aid in automating large accessioning procedures that involve
 the accessioning of derivatives along with masters, eg a Camera Card and
 a concatenated derivative, or a master file and a mezzanine.
+
+order.py will be able to determine if something is a reproduction,
+but it won't be able to tell if acquisitions are deposits, purchases or donations.
+So leave it blank in the latter instances.
 '''
 import sys
 import os
@@ -27,7 +31,7 @@ def main(args):
     parent or lack thereof.
     '''
     source = args
-    if os.path.basename(source)[:2] == 'oe':
+    if os.path.basename(source)[:2] == 'oe' or os.path.basename(source)[:3] == 'aaa' :
         oe_uuid_dict = ififuncs.group_ids(os.path.dirname(source))
         for root, _, filenames in os.walk(source):
             for filename in filenames:
@@ -46,15 +50,14 @@ def main(args):
                                 print os.path.basename(os.path.dirname(uuid_dir))
                                 return os.path.basename(os.path.dirname(uuid_dir))
                         else:
+                            # master
                             return None
                     elif 'has a parent' in uuid_search:
-                        print uuid_search
-                        parent = uuid_search[-7:-1]
+                        parent = uuid_search.split()[-1]
                         # Commenting this out for now - this just adds the dash really.
                         # print parent[:2].upper() + '-' + parent[2:]
+                        print parent
                         return parent
-
-
 
 if __name__ == '__main__':
     main(sys.argv[1])
