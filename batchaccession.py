@@ -214,6 +214,7 @@ def main(args_):
             ]
             if len(to_accession[package]) == 3:
                 accession_cmd.extend(['-acquisition_type', '13'])
+                accession_cmd.extend(['-parent', order.main(package)])
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register

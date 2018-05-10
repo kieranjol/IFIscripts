@@ -244,6 +244,8 @@ def main(args_):
             makepbcore_cmd = [accession_path, '-p', '-user', user, '-reference', Reference_Number]
             if args.parent:
                 makepbcore_cmd.extend(['-parent', args.parent])
+            if args.acquisition_type:
+                makepbcore_cmd.extend(['-acquisition_type', args.acquisition_type])
             makepbcore.main(makepbcore_cmd)
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
