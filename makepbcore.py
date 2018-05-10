@@ -308,6 +308,7 @@ def main(args_):
     video_codecid_list = []
     video_codec_version_list = []
     video_codec_profile_list = []
+    channels_list = []
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
@@ -342,6 +343,11 @@ def main(args_):
                     )
                     audio_codecid_list.append(audio_codecid)
                     au_bitdepth_list.append(essenceBitDepth_au)
+                    channels = get_metadata(
+                        "//ns:essenceTrackAnnotation[@annotationType='Channel(s)']",
+                        track.getparent(), pbcore_namespace
+                    )
+                    channels_list.append(channels)
         ScanType = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
             root, pbcore_namespace
@@ -500,7 +506,8 @@ def main(args_):
         au_bitdepth_list,
         video_codecid_list,
         video_codec_version_list,
-        video_codec_profile_list
+        video_codec_profile_list,
+        channels_list
     ]
     for i in metadata_list:
         if len(set(i)) > 1:
@@ -544,7 +551,6 @@ def main(args_):
         'duration', '--inform=Video;%BitDepth%', source
     )
     instantiationChanCon = ''
-    channels = ''
     colour_range = colour_range
     format_version = format_version
     TimeCode_FirstFrame = ''
