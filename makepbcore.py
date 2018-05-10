@@ -165,9 +165,7 @@ def make_csv(csv_filename):
         'instantiationIdentif',
         'instantiationDate',
         'instantiationDate_mo',
-        'instantiationDimensi',
         'instantiationStandar',
-        'instantiationLocatio',
         'instantMediaty',
         'instantFileSize',
         'instantFileSize_gigs',
@@ -538,8 +536,6 @@ def main(args_):
     FIO = 'In'
     CollectionTitle = ''
     Created_By = user
-    instantiationDimensi = 'n/a'
-    instantiationLocatio = ''
     instantTimeStart = 'n/a'
     instantFileSize_gigs = round(
         float(instantFileSize)  / 1024 / 1024 / 1024, 3
@@ -582,9 +578,7 @@ def main(args_):
         instantiationIdentif,
         instantiationDate,
         instantiationDate_modified,
-        instantiationDimensi,
         instantiationStandar,
-        instantiationLocatio,
         instantMediaty,
         instantFileSize,
         instantFileSize_gigs,
