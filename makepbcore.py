@@ -538,19 +538,19 @@ def main(args_):
     FIO = 'In'
     CollectionTitle = ''
     Created_By = user
-    instantiationDimensi = ''
+    instantiationDimensi = 'n/a'
     instantiationLocatio = ''
-    instantTimeStart = ''
+    instantTimeStart = 'n/a'
     instantFileSize_gigs = round(
         float(instantFileSize)  / 1024 / 1024 / 1024, 3
     )
-    instantColors = ''
-    instantLanguage = ''
+    instantColors = 'n/a'
+    instantLanguage = 'n/a'
     instantAltMo = 'n/a'
     essenceBitDepth_vid = ififuncs.get_mediainfo(
         'duration', '--inform=Video;%BitDepth%', source
     )
-    instantiationChanCon = ''
+    instantiationChanCon = 'n/a'
     colour_range = colour_range
     format_version = format_version
     TimeCode_FirstFrame = ''
