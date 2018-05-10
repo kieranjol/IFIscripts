@@ -335,6 +335,7 @@ def main(args_):
                         'samplerate',
                         '--inform=Audio;%SamplingRate_String%', source
                     )
+                    sample_rate_list.append(essenceTrackSampling)
                     essenceBitDepth_au = get_metadata(
                         "//ns:essenceTrackBitDepth",
                         root, pbcore_namespace
@@ -412,7 +413,6 @@ def main(args_):
         essenceAspectRatio = ififuncs.get_mediainfo(
             'DAR', '--inform=Video;%DisplayAspectRatio_String%', source
         )
-        sample_rate_list.append(essenceTrackSampling)
         Interlacement = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Interlacement']",
             root, pbcore_namespace
@@ -430,6 +430,26 @@ def main(args_):
             "//ns:instantiationAnnotation[@annotationType='Format_Version']",
             root, pbcore_namespace
         )
+        app_company_name = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_CompanyName']",
+            root, pbcore_namespace
+        )
+        app_name = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_Name']",
+            root, pbcore_namespace
+        )
+        app_version = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_Version']",
+            root, pbcore_namespace
+        )
+        library_name = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Encoded_Library_Name']",
+            root, pbcore_namespace
+        )
+        library_version = get_metadata(
+            "//ns:instantiationAnnotation[@annotationType='Encoded_Library_Version']",
+            root, pbcore_namespace
+        )
         compression_list.append(Compression_Mode)
         instantiationDate_modified = get_metadata(
             "//ns:instantiationDate[@dateType='file modification']",
@@ -444,6 +464,7 @@ def main(args_):
         audio_codecid = 'n/a'
         essenceBitDepth_au = 'n/a'
         essenceTrackEncod_au = 'n/a'
+        essenceTrackSampling = 'n/a'
     video_codecid = vcodec_attributes['ref']
     video_codecid_list.append(video_codecid)
     try:
@@ -528,11 +549,6 @@ def main(args_):
     format_version = format_version
     TimeCode_FirstFrame = ''
     TimeCode_Source = ''
-    app_company_name = ''
-    app_name = ''
-    app_version = ''
-    library_name = ''
-    library_version = ''
     reproduction_creator = ''
     reproduction_reason = ''
     dig_object_descrip = ''
