@@ -20,6 +20,7 @@ import argparse
 from lxml import etree
 import ififuncs
 
+
 def get_metadata(xpath_path, root, pbcore_namespace):
     '''
     Extracts values from PBCore2 XML MediaInfo outputs.
@@ -162,7 +163,8 @@ def make_csv(csv_filename):
         'CollectionTitle',
         'Created By',
         'instantiationIdentif',
-        'instantiationDate_modified',
+        'instantiationDate',
+        'instantiationDate_mo',
         'instantiationDimensi',
         'instantiationStandar',
         'instantiationLocatio',
@@ -433,6 +435,7 @@ def main(args_):
             "//ns:instantiationDate[@dateType='file modification']",
             root, pbcore_namespace
         )
+        instantiationDate = 'n/a'
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
         pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
@@ -555,6 +558,7 @@ def main(args_):
         CollectionTitle,
         Created_By,
         instantiationIdentif,
+        instantiationDate,
         instantiationDate_modified,
         instantiationDimensi,
         instantiationStandar,
