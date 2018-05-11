@@ -20,6 +20,43 @@ import argparse
 from lxml import etree
 import ififuncs
 
+def get_timecode(pbcore_namespace, root, source):
+    ''''
+    Gets starting timecode and source of timecode
+    This is awkward cos it can be in the instantation or essence
+    mediainfo output for matroska tags.
+    It can also just be a tmcd or mxf tmcd track. In which case
+    the value is extracted from TimeStart.
+    ugh - though it's only for FCP 7 originated captures
+    that have the timecode info in the instantiation and essence
+    sections. so always grabbing it from essence should work
+    for the most part.
+    '''
+    # test if the timecode is a metadata tag.
+    timecode_source = 'n/a'
+    starting_timecode = 'n/a'
+    tag_test = get_metadata(
+        "//ns:essenceTrackAnnotation[@annotationType='TimeCode_Source']",
+        root, pbcore_namespace
+    )
+    # check if timecode is stored in a data track
+    track_test = ififuncs.get_mediainfo(
+            'bla', '--inform=Other;%TimeCode_FirstFrame%', source
+        )
+    if not tag_test == 'n/a':
+        timecode_source = tag_test
+        starting_timecode = get_metadata(
+            "//ns:essenceTrackAnnotation[@annotationType='TimeCode_FirstFrame']",
+            root, pbcore_namespace
+        )
+    elif track_test != '':
+        starting_timecode = track_test
+        # Uh, this will be inconsistent if we ever get data tracks
+        # other than timecode. MXF in particular could be weird.
+        timecode_source = ififuncs.get_mediainfo(
+            'bla', '--inform=Other;%Format%', source
+        )
+    return timecode_source,starting_timecode
 
 def get_metadata(xpath_path, root, pbcore_namespace):
     '''
@@ -306,6 +343,7 @@ def main(args_):
     video_codecid_list = []
     video_codec_version_list = []
     video_codec_profile_list = []
+    time_code_list = []
     channels_list = []
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
@@ -355,6 +393,8 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='matrix_coefficients']",
             root, pbcore_namespace
         )
+        timecode_source,starting_timecode = get_timecode(pbcore_namespace, root, source)
+        timecode_list.append(starting_timecode)
         matrix_list.append(matrix_coefficients)
         transfer_characteris = get_metadata(
             "//ns:essenceTrackAnnotation[@annotationType='transfer_characteristics']",
@@ -505,7 +545,8 @@ def main(args_):
         video_codecid_list,
         video_codec_version_list,
         video_codec_profile_list,
-        channels_list
+        channels_list,
+        starting_timecode
     ]
     for i in metadata_list:
         if len(set(i)) > 1:
@@ -549,8 +590,8 @@ def main(args_):
     instantiationChanCon = 'n/a'
     colour_range = colour_range
     format_version = format_version
-    TimeCode_FirstFrame = ''
-    TimeCode_Source = ''
+    TimeCode_FirstFrame = starting_timecode
+    TimeCode_Source = timecode_source
     reproduction_creator = ''
     reproduction_reason = ''
     dig_object_descrip = ''
