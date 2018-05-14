@@ -229,7 +229,7 @@ def make_csv(csv_filename):
         'instantiationDate_mo',
         'instantiationStandar',
         'instantMediaty',
-        'instantFileSize',
+        'instantFileSize_byte',
         'instantFileSize_gigs',
         'instantTimeStart',
         'instantDataRate',
@@ -344,7 +344,7 @@ def main(args_):
     make_csv(csv_filename)
     ms = 0
     FrameCount = 0
-    instantFileSize = 0
+    instantFileSize_byte = 0
     instantFileSize_gigs = 0
     scan_types = []
     matrix_list = []
@@ -435,7 +435,7 @@ def main(args_):
             "//ns:essenceTrackAnnotation[@annotationType='FrameCount']",
             root, pbcore_namespace
         ))
-        instantFileSize += int(get_metadata(
+        instantFileSize_byte += int(get_metadata(
             "//ns:instantiationFileSize",
             root, pbcore_namespace
         ))
@@ -650,7 +650,7 @@ def main(args_):
         instantiationDate_mo,
         instantiationStandar,
         instantMediaty,
-        instantFileSize,
+        instantFileSize_byte,
         instantFileSize_gigs,
         instantTimeStart,
         instantDataRate,
