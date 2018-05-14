@@ -32,6 +32,7 @@ def make_register():
         'entry number',
         'accession number',
         'date acquired',
+        'date accessioned',
         'acquired from',
         'acquisition method',
         'simple name; basic description; identification; historical information',
@@ -175,7 +176,7 @@ def main(args_):
             register = args.register
         else:
             register = make_register()
-        ififuncs.append_csv(register, (oe_number.upper()[:2] + '-' + oe_number[2:6], accession_number, '','','','', ''))
+        ififuncs.append_csv(register, (oe_number.upper()[:2] + '-' + oe_number[2:6], accession_number, '','','','','', ''))
         ififuncs.generate_log(
             sipcreator_log,
             'EVENT = accession.py started'
