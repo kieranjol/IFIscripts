@@ -30,7 +30,8 @@ def process_mixed_values(value_list):
     mixed_values = ''
     # Check if just a single value exists. If so, just return that one value.
     if len(set(value_list)) is 1:
-        value = value[0].text
+        print value_list
+        value = value_list[0]
     else:
         # Return the mixed values with pipe delimiter.
         for x in value_list:
@@ -76,7 +77,10 @@ def get_timecode(pbcore_namespace, root, source):
         timecode_source = ififuncs.get_mediainfo(
             'bla', '--inform=Other;%Format%', source
         )
-    starting_timecode =  os.path.basename(source) + '=' + starting_timecode
+    if starting_timecode == 'n/a':
+        pass
+    else:
+        starting_timecode = os.path.basename(source) + '=' + starting_timecode
     return timecode_source, starting_timecode
 
 def get_metadata(xpath_path, root, pbcore_namespace):
@@ -516,7 +520,7 @@ def main(args_):
             root, pbcore_namespace
         )
         compression_list.append(Compression_Mode)
-        instantiationDate_modified = get_metadata(
+        instantiationDate_mo = get_metadata(
             "//ns:instantiationDate[@dateType='file modification']",
             root, pbcore_namespace
         )
@@ -584,8 +588,12 @@ def main(args_):
     Edited_By = user
     Date_Created = ''
     Date_Last_Modified = ''
-    Film_Or_Tape = 'Digital File'
+    Film_Or_Tape = 'Digital AV Object'
     Date_Of_Donation = ''
+    if args.acquisition_type:
+        if acquisition_type == 'Reproduction':
+            Date_Of_Donation = instantiationDate_mo.split('T')[0]
+
     Habitat = ''
     Type_Of_Deposit = acquisition_type
     Depositor_Reference = ''
@@ -639,7 +647,7 @@ def main(args_):
         Created_By,
         instantiationIdentif,
         instantiationDate,
-        instantiationDate_modified,
+        instantiationDate_mo,
         instantiationStandar,
         instantMediaty,
         instantFileSize,
