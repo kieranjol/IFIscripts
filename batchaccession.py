@@ -196,7 +196,6 @@ def main(args_):
             writer.writeheader()
             for i in filmographic_dict:
                 writer.writerow(i)
-    print len(to_accession), 61212
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
