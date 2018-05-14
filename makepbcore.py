@@ -20,6 +20,26 @@ import argparse
 from lxml import etree
 import ififuncs
 
+
+def process_mixed_values(value_list):
+    '''
+    Checks if multiple conflicting metadata values exist,
+    for example, an instantiation that has multiple files that have
+    different framerates.
+    '''
+    mixed_values = ''
+    # Check if just a single value exists. If so, just return that one value.
+    if len(set(value_list)) is 1:
+        value = value[0].text
+    else:
+        # Return the mixed values with pipe delimiter.
+        for x in value_list:
+            mixed_values += x + '|'
+        if mixed_values[-1] == '|':
+            mixed_values = mixed_values[:-1]
+        value = mixed_values
+    return value
+
 def get_timecode(pbcore_namespace, root, source):
     ''''
     Gets starting timecode and source of timecode
@@ -56,7 +76,8 @@ def get_timecode(pbcore_namespace, root, source):
         timecode_source = ififuncs.get_mediainfo(
             'bla', '--inform=Other;%Format%', source
         )
-    return timecode_source,starting_timecode
+    starting_timecode =  os.path.basename(source) + '=' + starting_timecode
+    return timecode_source, starting_timecode
 
 def get_metadata(xpath_path, root, pbcore_namespace):
     '''
@@ -343,7 +364,7 @@ def main(args_):
     video_codecid_list = []
     video_codec_version_list = []
     video_codec_profile_list = []
-    time_code_list = []
+    timecode_list = []
     channels_list = []
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
@@ -546,7 +567,7 @@ def main(args_):
         video_codec_version_list,
         video_codec_profile_list,
         channels_list,
-        starting_timecode
+        timecode_list
     ]
     for i in metadata_list:
         if len(set(i)) > 1:
@@ -590,7 +611,7 @@ def main(args_):
     instantiationChanCon = 'n/a'
     colour_range = colour_range
     format_version = format_version
-    TimeCode_FirstFrame = starting_timecode
+    TimeCode_FirstFrame = process_mixed_values(timecode_list)
     TimeCode_Source = timecode_source
     reproduction_creator = ''
     reproduction_reason = ''
