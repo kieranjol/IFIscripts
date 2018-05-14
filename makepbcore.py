@@ -608,7 +608,7 @@ def main(args_):
     Created_By = user
     instantTimeStart = 'n/a'
     instantFileSize_gigs = round(
-        float(instantFileSize)  / 1024 / 1024 / 1024, 3
+        float(instantFileSize_byte)  / 1024 / 1024 / 1024, 3
     )
     instantColors = 'n/a'
     instantLanguage = 'n/a'
