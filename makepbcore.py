@@ -589,7 +589,7 @@ def main(args_):
     Habitat = ''
     Type_Of_Deposit = acquisition_type
     Depositor_Reference = ''
-    Master_Viewing = 'Preservation Master'
+    Master_Viewing = 'Preservation Object'
     Language_Version = ''
     Condition_Rating = ''
     Companion_Elements = ''
