@@ -213,6 +213,7 @@ def make_csv(csv_filename):
         'Date Of Donation',
         'Accession Number',
         'Habitat',
+        'backup_habitat',
         'TTape Origin',
         'Type Of Deposit',
         'Depositor Reference',
@@ -225,7 +226,8 @@ def make_csv(csv_filename):
         'CollectionTitle',
         'Created By',
         'instantiationIdentif',
-        'instantiationDate',
+        'instantDate_other',
+        'instantDate_type',
         'instantiationDate_mo',
         'instantiationStandar',
         'instantMediaty',
@@ -524,7 +526,8 @@ def main(args_):
             "//ns:instantiationDate[@dateType='file modification']",
             root, pbcore_namespace
         )
-        instantiationDate = 'n/a'
+        instantDate_other = 'n/a'
+        instantDate_type = 'n/a'
         pix_fmt = ififuncs.get_ffmpeg_fmt(source, 'video')
         pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
@@ -595,6 +598,7 @@ def main(args_):
             Date_Of_Donation = instantiationDate_mo.split('T')[0]
 
     Habitat = ''
+    backup_habitat = ''
     Type_Of_Deposit = acquisition_type
     Depositor_Reference = ''
     Master_Viewing = 'Preservation Object'
@@ -634,6 +638,7 @@ def main(args_):
         Date_Of_Donation,
         Accession_Number,
         Habitat,
+        backup_habitat,
         TTape_Origin,
         Type_Of_Deposit,
         Depositor_Reference,
@@ -646,7 +651,8 @@ def main(args_):
         CollectionTitle,
         Created_By,
         instantiationIdentif,
-        instantiationDate,
+        instantDate_other,
+        instantDate_type,
         instantiationDate_mo,
         instantiationStandar,
         instantMediaty,
