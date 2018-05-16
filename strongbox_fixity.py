@@ -42,7 +42,7 @@ def find_checksums(csv_file, identifier):
         for x in items:
             if type(x) is dict:
                 if identifier in x['path']:
-                    print x['hash_code'], ' ', x['path']
+                    print x['hash_code'], '', x['path']
 
 def main(args_):
     args = parse_args(args_)
