@@ -43,7 +43,8 @@ def find_checksums(csv_file, identifier):
         for x in items:
             if type(x) is dict:
                 if identifier in x['path']:
-                    manifest_line = x['hash_code'] + '  ' + x['path']
+                    identifier_string = "/%s/" % identifier
+                    manifest_line = x['hash_code'] + '  ' + x['path'].replace(identifier_string, '')
                     manifest_lines.append(manifest_line)
     manifest_list = sorted(manifest_lines, key=lambda x: (x[130:]))
     for i in manifest_list:
