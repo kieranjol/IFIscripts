@@ -38,11 +38,16 @@ def find_checksums(csv_file, identifier):
     Finds the relevant entries in the CSV and prints to terminal
     '''
     csv_dict = ififuncs.extract_metadata(csv_file)
+    manifest_lines = []
     for items in csv_dict:
         for x in items:
             if type(x) is dict:
                 if identifier in x['path']:
-                    print x['hash_code'], '', x['path']
+                    manifest_line = x['hash_code'] + '  ' + x['path']
+                    manifest_lines.append(manifest_line)
+    manifest_list = sorted(manifest_lines, key=lambda x: (x[130:]))
+    for i in manifest_list:
+        print i
 
 def main(args_):
     args = parse_args(args_)
