@@ -232,6 +232,7 @@ def main(args_):
                 'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
             )
             ififuncs.manifest_update(sip_manifest, package_filmographic)
+            ififuncs.sha512_update(sha512_manifest, package_filmographic)
             print('Filmographic descriptive metadata added to metadata folder')
         ififuncs.generate_log(
             sipcreator_log,
