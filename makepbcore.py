@@ -394,7 +394,10 @@ def main(args_):
                     )
                     audio_codec_list.append(essenceTrackEncod_au)
                     acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
-                    audio_codecid = acodec_attributes['ref']
+                    try:
+                        audio_codecid = acodec_attributes['ref']
+                    except KeyError:
+                        audio_codecid = 'n/a'
                     essenceTrackSampling = ififuncs.get_mediainfo(
                         'samplerate',
                         '--inform=Audio;%SamplingRate_String%', source
