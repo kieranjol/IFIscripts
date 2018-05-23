@@ -184,7 +184,8 @@ def main(args_):
     register = accession.make_register()
     if args.csv:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
-        new_csv = os.path.join(desktop_logs_dir, os.path.basename(args.csv))
+        new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.csv)
+        new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
         filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
         for oe_package in to_accession:
             for filmographic_record in filmographic_dict:
@@ -192,10 +193,15 @@ def main(args_):
                     filmographic_record['Reference Number'] = to_accession[oe_package][1]
         with open(new_csv, 'w') as csvfile:
             fieldnames = headers
+            # Removes Object Entry from headings as it's not needed in database.
+            del fieldnames[1]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in filmographic_dict:
-                writer.writerow(i)
+                i.pop('Object Entry', None)
+                # Only include records that have reference numbers
+                if not i['Reference Number'] == '':
+                    writer.writerow(i)
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
