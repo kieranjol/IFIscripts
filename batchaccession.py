@@ -58,36 +58,40 @@ def initial_check(args, accession_digits, oe_list, reference_number):
     # accession = 'af' + str(accession_digits)
     ref = reference_number
     reference_digits = int(ref[2:])
-    for root, _, _ in sorted(os.walk(args.input)):
-        if os.path.basename(root)[:2] == 'oe' and len(os.path.basename(root)[2:]) >= 4:
-            if copyit.check_for_sip(root) is None:
-                wont_accession.append(root)
-            else:
-                # this is just batchaccessioning if no csv is supplied
-                if not oe_list:
-                    to_accession[root] = 'aaa' + str(accession_digits).zfill(4)
-                    accession_digits += 1
+    # so just reverse this - loop through the csv first.
+    # this will break the non CSV usage of batchaccession for now.
+    for thingies in oe_list:
+        for root, _, _ in sorted(os.walk(args.input)):
+            if os.path.basename(root)[:2] == 'oe' and len(os.path.basename(root)[2:]) >= 4:
+                if copyit.check_for_sip(root) is None:
+                    wont_accession.append(root)
                 else:
-                    # gets parent info
-                    if os.path.basename(root) in oe_list:
-                        to_accession[
-                            os.path.join(os.path.dirname(root),
-                                         order.main(root))
-                        ] = [
-                            'aaa' + str(accession_digits).zfill(4),
-                            ref[:2] + str(reference_digits).zfill(4)
-                        ]
-                        if root in to_accession:
-                            # If a single file is found, this prevents the file being
-                            # processed twice, with a skip in the number run
+                    # this is just batchaccessioning if no csv is supplied
+                    # this is pretty pointless at the moment seeing as this is loopline through oe_list :(
+                    if not oe_list:
+                        to_accession[root] = 'aaa' + str(accession_digits).zfill(4)
+                        accession_digits += 1
+                    else:
+                        # gets parent info
+                        if os.path.basename(root) == thingies:
+                            to_accession[
+                                os.path.join(os.path.dirname(root),
+                                             order.main(root))
+                            ] = [
+                                'aaa' + str(accession_digits).zfill(4),
+                                ref[:2] + str(reference_digits).zfill(4)
+                            ]
+                            if root in to_accession:
+                                # If a single file is found, this prevents the file being
+                                # processed twice, with a skip in the number run
+                                reference_digits += 1
+                                accession_digits += 1
+                                continue
+                            accession_digits += 1
+                            # gets reproduction info
+                            to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits), 'reproduction']
                             reference_digits += 1
                             accession_digits += 1
-                            continue
-                        accession_digits += 1
-                        # gets reproduction info
-                        to_accession[root] = ['aaa' + str(accession_digits).zfill(4), ref[:2] + str(reference_digits), 'reproduction']
-                        reference_digits += 1
-                        accession_digits += 1
     for fails in wont_accession:
         print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
     for success in sorted(to_accession.keys()):
