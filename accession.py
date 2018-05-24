@@ -88,6 +88,10 @@ def parse_args(args_):
         '-acquisition_type',
         help='Enter the Type of Acquisition in the form of a number referring to the IFI controlled vocabulary.'
     )
+    parser.add_argument(
+        '-donor',
+        help='Enter a string that represents the source of acquisition'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -248,6 +252,8 @@ def main(args_):
                 makepbcore_cmd.extend(['-parent', args.parent])
             if args.acquisition_type:
                 makepbcore_cmd.extend(['-acquisition_type', args.acquisition_type])
+            if args.donor:
+                makepbcore_cmd.extend(['-donor', args.donor])
             makepbcore.main(makepbcore_cmd)
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'
