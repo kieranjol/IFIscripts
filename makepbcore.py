@@ -596,12 +596,16 @@ def main(args_):
     Date_Last_Modified = ''
     Film_Or_Tape = 'Digital AV Object'
     Date_Of_Donation = ''
+    reproduction_creator = ''
     if args.acquisition_type:
         if acquisition_type == 'Reproduction':
             Date_Of_Donation = instantiationDate_mo.split('T')[0]
             # if a reproduction, then there's no Donor/transfer of title.
             Donor = 'n/a'
-
+            if ififuncs.find_concat_user(sipcreator_log) == 'Aoife Fitzmaurice':
+                reproduction_creator = 'Aoife Fitzmaurice (2016)'
+            elif ififuncs.find_concat_user(sipcreator_log) == 'Kieran O\'Leary':
+                reproduction_creator = 'Kieran O\'Leary (2013)'
     Habitat = ''
     backup_habitat = ''
     Type_Of_Deposit = acquisition_type
@@ -630,7 +634,6 @@ def main(args_):
     format_version = format_version
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
     TimeCode_Source = timecode_source
-    reproduction_creator = ''
     reproduction_reason = ''
     dig_object_descrip = ''
     ififuncs.append_csv(csv_filename, [

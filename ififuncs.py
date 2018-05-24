@@ -1216,6 +1216,20 @@ def find_parent(sipcreator_log,oe_uuid_dict):
         if line_check == '':
             return '%s not a child of another package' % os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log))))
 
+def find_concat_user(sipcreator_log):
+    '''
+    Looks through a concat logfile in order to determine the user.
+    '''
+    with open(sipcreator_log, 'r') as log_object:
+        line_check = ''
+        log_lines = log_object.readlines()
+        for line in log_lines[:5]:
+            if "EVENT = agentName=" in line:
+                line_check = line.split('agentName=')[1].rstrip()
+            else:
+                continue
+        return line_check
+
 
 def group_ids(source):
     '''''
