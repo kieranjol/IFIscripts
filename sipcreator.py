@@ -195,7 +195,7 @@ def get_metadata(path, new_log_textfile):
         ]
         for av_file in filenames:
             if av_file.lower().endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi')
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV')
             ):
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
