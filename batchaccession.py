@@ -14,11 +14,27 @@ import argparse
 import sys
 import csv
 import os
+import re
 import time
 import ififuncs
 import accession
 import copyit
 import order
+
+'''
+the following two functions for natural sorting are stolen from
+https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+'''
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split('(\d+)', text) ]
 
 
 def gather_metadata(source):
@@ -212,7 +228,7 @@ def main(args_):
         'Do you want to proceed?'
     )
     if proceed == 'Y':
-        for package in sorted(to_accession.keys()):
+        for package in sorted(to_accession.keys(), key=natural_keys):
             accession_cmd = [
                 package, '-user', user,
                 '-pbcore', '-f',
