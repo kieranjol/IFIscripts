@@ -153,10 +153,10 @@ def get_filmographic_number(number):
     if len(number) == 7:
         if number[:3] != 'af1':
             number = ififuncs.get_reference_number()
-        return number
+        return number.upper()
     else:
         number = ififuncs.get_reference_number()
-        return number
+        return number.upper()
 
 
 def get_number(args):
@@ -198,6 +198,7 @@ def main(args_):
     else:
         reference_number = ififuncs.get_reference_number()
     donor = ififuncs.ask_question('Who is the source of acquisition, as appears on the donor agreement? This will not affect Reproductions.')
+    acquisition_type = ififuncs.get_acquisition_type('')
     user = ififuncs.get_user()
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
@@ -243,6 +244,8 @@ def main(args_):
                 accession_cmd.extend(['-parent', order.main(package)])
             else:
                 accession_cmd.extend(['-donor', donor])
+                accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
+            print accession_cmd
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
