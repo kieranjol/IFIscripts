@@ -167,6 +167,10 @@ def parse_args(args_):
         '-acquisition_type',
         help='Enter the Type of Acquisition in the form of a number referring to the IFI controlled vocabulary.'
     )
+    parser.add_argument(
+        '-donor',
+        help='Enter a string that represents the source of acquisition'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -590,7 +594,10 @@ def main(args_):
                 )
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
-    Donor = ''
+    if args.donor:
+        Donor = args.donor
+    else:
+        Donor = ''
     Edited_By = user
     Date_Created = ''
     Date_Last_Modified = ''

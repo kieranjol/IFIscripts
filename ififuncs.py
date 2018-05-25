@@ -664,11 +664,11 @@ def get_acquisition_type(acquisition_type):
     '''
     Asks userfor the type of acquisition
     '''
-    if acquisition_type not in ('1', '2', '4', '5', '7', '8', '13'):
+    if acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
         acquisition_type = raw_input(
             '\n\n**** What is the type of acquisition?\nPress 1,2,4,5,7,8,13\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
         )
-        while acquisition_type not in ('1', '2', '4', '5', '7', '8', '13'):
+        while acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
             acquisition_type = raw_input(
                 '\n\n**** What is the type of acquisition?\nPress 1,2,4,5,7,8,13\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
             )
@@ -804,6 +804,21 @@ def get_source_uuid():
         )
         source_uuid = validate_uuid4(uuid_)
     return uuid_
+
+
+def ask_question(question):
+    '''
+    Asks user a question. Return answer.
+    '''
+    answer = ''
+    while answer is '':
+        answer = raw_input(
+            '\n\n**** %s\n\n'
+         % question)
+    proceed = 'n'
+    while proceed.lower() == 'n':
+        proceed = ask_yes_no('Are you really sure?')
+    return answer
 
 def get_object_entry():
     '''
