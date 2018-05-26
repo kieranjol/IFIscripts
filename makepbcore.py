@@ -649,7 +649,7 @@ def main(args_):
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
     TimeCode_Source = timecode_source
     reproduction_reason = ''
-    dig_object_descrip = ''
+    dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,

@@ -1367,3 +1367,36 @@ def get_free_space(dirname):
         st = os.statvfs(dirname)
         return st.f_bavail * st.f_frsize
 
+
+def get_digital_object_descriptor(source_folder):
+    '''
+    Returns high level identifier for simple identification purposes in our
+    database. Values include 'XDCAM EX', 'Matroska', 'QuickTime', 'Multiple Quicktimes'
+    '''
+    mov_count = 0
+    mkv_count = 0
+    mp4_count = 0
+    BPAV = False
+    dig_object_descriptor = ''
+    for root, _, filenames in os.walk(source_folder):
+        if os.path.basename(root) == 'BPAV':
+            BPAV = True
+        for filename in filenames:
+            if filename.lower().endswith('mkv'):
+                mkv_count += 1
+            elif filename.lower().endswith('mov'):
+                mov_count += 1
+            elif filename.lower().endswith('mp4'):
+                mp4_count += 1
+    if mkv_count == 1:
+        dig_object_descriptor = 'Matroska'
+    elif mov_count == 1:
+        dig_object_descriptor = 'QuickTime'
+    elif mov_count > 1:
+        dig_object_descriptor = 'Multiple QuickTimes'
+    elif mp4_count >= 1:
+        if BPAV is True:
+            dig_object_descriptor = 'XDCAM EX'
+    return dig_object_descriptor
+
+
