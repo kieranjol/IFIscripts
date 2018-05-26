@@ -248,7 +248,8 @@ def main(args_):
             print accession_cmd
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
-    print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % register
+    sorted_filepath = ififuncs.sort_csv(register, 'accession number')
+    print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath
     print '\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv
     print '\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore
 if __name__ == '__main__':

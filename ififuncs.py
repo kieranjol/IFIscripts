@@ -15,6 +15,7 @@ import datetime
 import uuid
 import tempfile
 import csv
+import operator
 import json
 import ctypes
 import platform
@@ -485,6 +486,20 @@ def append_csv(csv_file, *args):
     finally:
         f.close()
 
+def sort_csv(csv_file, key):
+    '''
+    Sorts a csv_file by a key. The key being a field heading.
+    '''
+    new_filename = os.path.splitext(os.path.basename(csv_file))[0] + '_sorted.csv'
+    sorted_filepath = os.path.join(os.path.dirname(csv_file), new_filename)
+    values, fieldnames = extract_metadata(csv_file)
+    with open(sorted_filepath, 'w') as csvfile:
+        newlist = sorted(values, key=operator.itemgetter(key))
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in newlist:
+            writer.writerow(i)
+    return sorted_filepath
 
 def make_desktop_manifest_dir():
     desktop_manifest_dir = os.path.expanduser("~/Desktop/moveit_manifests")
