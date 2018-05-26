@@ -171,6 +171,10 @@ def parse_args(args_):
         '-donor',
         help='Enter a string that represents the source of acquisition'
     )
+    parser.add_argument(
+        '-depositor_reference',
+        help='Enter a number that represents the identifier for the source of acquisition'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -616,7 +620,10 @@ def main(args_):
     Habitat = ''
     backup_habitat = ''
     Type_Of_Deposit = acquisition_type
-    Depositor_Reference = ''
+    if args.depositor_reference:
+        Depositor_Reference = args.depositor_reference
+    else:
+        Depositor_Reference = ''
     Master_Viewing = 'Preservation Object'
     Language_Version = ''
     Condition_Rating = ''

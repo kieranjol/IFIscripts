@@ -198,6 +198,7 @@ def main(args_):
     else:
         reference_number = ififuncs.get_reference_number()
     donor = ififuncs.ask_question('Who is the source of acquisition, as appears on the donor agreement? This will not affect Reproductions.')
+    depositor_reference = ififuncs.ask_question('What is the donor/depositor number? This will not affect Reproductions.')
     acquisition_type = ififuncs.get_acquisition_type('')
     user = ififuncs.get_user()
     accession_number = get_number(args)
@@ -244,6 +245,7 @@ def main(args_):
                 accession_cmd.extend(['-parent', order.main(package)])
             else:
                 accession_cmd.extend(['-donor', donor])
+                accession_cmd.extend(['-depositor_reference', depositor_reference])
                 accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
             print accession_cmd
             accession.main(accession_cmd)
