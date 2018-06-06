@@ -207,7 +207,10 @@ def main(args_):
     register = accession.make_register()
     if args.csv:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
-        new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.csv)
+        if args.dryrun:
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_DRYRUN_SHEET_PLEASE_DO_NOT_INGEST_JUST_IGNORE_COMPLETELY") + os.path.basename(args.csv)
+        else:
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.csv)
         new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
         filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
         for oe_package in to_accession:
