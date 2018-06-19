@@ -145,14 +145,17 @@ def main(args_):
     technical_csv = args.technical
     filmographic_oe_list = []
     filmo_csv_extraction = ififuncs.extract_metadata(filmographic_csv)
+    tech_csv_extraction = ififuncs.extract_metadata(technical_csv)
     for line_item in filmo_csv_extraction[0]:
+        dictionary = {}
         oe_number = line_item['Object Entry'].lower()
+        dictionary['title'] = line_item['Title']
         # this transforms OE-#### to oe####
-        transformed_oe = oe_number[:2] + oe_number[3:]
-        filmographic_oe_list.append(transformed_oe)
+        dictionary['old_oe'] = oe_number[:2] + oe_number[3:]
+        filmographic_oe_list.append(dictionary)
     for oe_package in filmographic_oe_list:
         for root, _, filenames in os.walk(args.input):
-            if os.path.basename(root) == oe_package:
+            if os.path.basename(root) == oe_package['old_oe']:
                 old_oe_path = root
                 old_oe = os.path.basename(root)
                 log_dir = os.path.join(root, 'logs')
