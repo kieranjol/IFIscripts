@@ -30,6 +30,14 @@ def parse_args(args_):
         '-start_number',
         help='Enter the Object Entry number for the first package. The script will increment by one for each subsequent package.'
     )
+    parser.add_argument(
+        '-technical',
+        help='Path to technical/PBCore CSV.'
+    )
+    parser.add_argument(
+        '-filmographic',
+        help='Path to Filmographic CSV. Must contain reference numbers.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -133,6 +141,8 @@ def main(args_):
     args = parse_args(args_)
     user = ififuncs.get_user()
     new_object_entry = get_numbers(args)
+    filmographic_csv = args.filmographic
+    technical_csv = args.technical
     for root, _, filenames in os.walk(args.input):
         if os.path.basename(root)[:2] == 'oe':
             if len(os.path.basename(root)[2:]) == 4:
