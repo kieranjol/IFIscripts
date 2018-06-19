@@ -143,15 +143,22 @@ def main(args_):
     new_object_entry = get_numbers(args)
     filmographic_csv = args.filmographic
     technical_csv = args.technical
-    for root, _, filenames in os.walk(args.input):
-        if os.path.basename(root)[:2] == 'oe':
-            if len(os.path.basename(root)[2:]) == 4:
+    filmographic_oe_list = []
+    filmo_csv_extraction = ififuncs.extract_metadata(filmographic_csv)
+    for line_item in filmo_csv_extraction[0]:
+        oe_number = line_item['Object Entry'].lower()
+        # this transforms OE-#### to oe####
+        transformed_oe = oe_number[:2] + oe_number[3:]
+        filmographic_oe_list.append(transformed_oe)
+    for oe_package in filmographic_oe_list:
+        for root, _, filenames in os.walk(args.input):
+            if os.path.basename(root) == oe_package:
+                old_oe_path = root
+                old_oe = os.path.basename(root)
                 log_dir = os.path.join(root, 'logs')
                 for files in os.listdir(log_dir):
                     if '.mov_log.log' in files:
                         log = os.path.join(log_dir, files)
-                old_oe_path = root
-                old_oe = os.path.basename(root)
                 manifest = os.path.join(
                     os.path.dirname(root),
                     old_oe + '_manifest.md5'
