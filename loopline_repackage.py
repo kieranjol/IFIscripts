@@ -201,6 +201,7 @@ def main(args_):
                     ' eventIdentifierType=object entry, value=%s'
                     % new_object_entry
                 )
+                oe_package['new_object_entry'] = new_object_entry
                 ififuncs.generate_log(
                         log,
                         'Relationship, derivation, has source=%s' % oe_package['source_accession_number']
