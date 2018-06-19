@@ -150,12 +150,17 @@ def main(args_):
         dictionary = {}
         oe_number = line_item['Object Entry'].lower()
         dictionary['title'] = line_item['Title']
+        dictionary['uppercase_dashed_oe'] = oe_number.upper()
+        for tech_record in tech_csv_extraction[0]:
+            if tech_record['Reference Number'] == dictionary['uppercase_dashed_oe']:
+                dictionary['source_accession_number'] = tech_record['Accession Number']
         # this transforms OE-#### to oe####
         dictionary['old_oe'] = oe_number[:2] + oe_number[3:]
         filmographic_oe_list.append(dictionary)
     for oe_package in filmographic_oe_list:
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == oe_package['old_oe']:
+                print oe_package
                 old_oe_path = root
                 old_oe = os.path.basename(root)
                 log_dir = os.path.join(root, 'logs')
