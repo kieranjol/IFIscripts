@@ -160,7 +160,6 @@ def main(args_):
     for oe_package in filmographic_oe_list:
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == oe_package['old_oe']:
-                print oe_package
                 old_oe_path = root
                 old_oe = os.path.basename(root)
                 log_dir = os.path.join(root, 'logs')
@@ -202,6 +201,10 @@ def main(args_):
                     ' eventIdentifierType=object entry, value=%s'
                     % new_object_entry
                 )
+                ififuncs.generate_log(
+                        log,
+                        'Relationship, derivation, has source=%s' % oe_package['source_accession_number']
+                    )
                 old_uuid_path = os.path.join(os.path.dirname(root), uuid)
                 new_oe_path, new_uuid_path = move_files(
                     root, new_object_entry, old_oe_path, old_uuid_path, uuid
