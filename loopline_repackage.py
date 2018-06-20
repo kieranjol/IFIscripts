@@ -129,6 +129,31 @@ def move_files(root, new_object_entry, old_oe_path, old_uuid_path, uuid):
     new_uuid_path = os.path.join(new_oe_path, uuid)
     shutil.move(old_uuid_path, new_oe_path)
     return new_oe_path, new_uuid_path
+
+def make_register():
+    '''
+    This sends a placeholder accessions register to the desktop logs directory.
+    This should get rid of some of the more painful, repetitive identifier matching.
+    '''
+    desktop_logs_dir = ififuncs.make_desktop_logs_dir()
+    register = os.path.join(
+        desktop_logs_dir,
+        'oe_register_' + time.strftime("%Y-%m-%dT%H_%M_%S.csv")
+    )
+    ififuncs.create_csv(register, (
+        'OE No.',
+        'Date Received',
+        'Quantity',
+        'Format',
+        'Description',
+        'Contact Name',
+        'Type of Acquisition',
+        'Accession Number'
+        'Additional Information',
+        'Habitat',
+        'Vinegar No.',
+    ))
+    return register
 def main(args_):
     '''
     Retrospectively updates older FFV1/DV packages in order to meet our current
