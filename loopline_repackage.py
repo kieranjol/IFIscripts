@@ -11,6 +11,7 @@ import argparse
 import sys
 import shutil
 import os
+import time
 import ififuncs
 
 def parse_args(args_):
@@ -151,7 +152,7 @@ def make_register():
         'Accession Number'
         'Additional Information',
         'Habitat',
-        'Vinegar No.',
+        'Vinegar No.'
     ))
     return register
 def main(args_):
@@ -171,6 +172,7 @@ def main(args_):
     filmographic_oe_list = []
     filmo_csv_extraction = ififuncs.extract_metadata(filmographic_csv)
     tech_csv_extraction = ififuncs.extract_metadata(technical_csv)
+    register = make_register()
     for line_item in filmo_csv_extraction[0]:
         dictionary = {}
         oe_number = line_item['Object Entry'].lower()
@@ -247,6 +249,8 @@ def main(args_):
                     if '.mov_log.log' in files:
                         log = os.path.join(new_logs_path, files)
                 logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest, log)
+                provenance_string = 'Reproduction of %s' % oe_package['source_accession_number']
+                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:], 'date_received', '1','',oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
                 ififuncs.generate_log(
                     logname,
                     'EVENT = loopline_repackage.py finished'
