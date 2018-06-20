@@ -154,6 +154,7 @@ def main(args_):
         for tech_record in tech_csv_extraction[0]:
             if tech_record['Reference Number'] == dictionary['uppercase_dashed_oe']:
                 dictionary['source_accession_number'] = tech_record['Accession Number']
+                dictionary['filmographic_reference_number'] = tech_record['new_ref']
         # this transforms OE-#### to oe####
         dictionary['old_oe'] = oe_number[:2] + oe_number[3:]
         filmographic_oe_list.append(dictionary)
