@@ -4,13 +4,12 @@ import os
 def main():
     
     input = sys.argv[1]
-    print "Label Frontend,Label Backend,Definition,Format of content,Obligation,Repeatability"
+    print('Label Frontend,Label Backend,Definition,Format of content,Obligation,Repeatability')
     with open(input, 'r') as source:
         raw_dump = source.read()
         raw_dump = raw_dump.replace('\r', '\n')
         raw_info =  raw_dump.split('\n')
     #print raw_info
-    counter = 0
     for line in raw_info:
         if line != '':
             mandatory = 'optional'
@@ -36,6 +35,6 @@ def main():
             if 'update-valid-list' in line:
                 format_of_content += ':update-valid-list'
             a =  "'','%s','', '%s:%s','%s','%s'"  % (backend_name, format_of_content, indexing,  mandatory, repeatability)
-            print a.replace('\'', '')
+            print(a.replace('\'', ''))
 if __name__ == '__main__':
     main()
