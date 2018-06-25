@@ -272,7 +272,7 @@ def main(args_):
                 elif extension == '.mov':
                     av_format = 'DV/PCM/QuickTime'
                 provenance_string = 'Reproduction of %s' % oe_package['source_accession_number']
-                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1',av_format,oe_package['title'],'contact_name','Reproduction','', provenance_string, ''))
+                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1',av_format,oe_package['title'],'contact_name','Reproduction','', provenance_string, '', ''))
                 ififuncs.generate_log(
                     logname,
                     'EVENT = loopline_repackage.py finished'
