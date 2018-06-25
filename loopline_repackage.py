@@ -73,7 +73,6 @@ def update_manifest(manifest, old_oe, uuid):
     updated_lines = []
     with open(manifest, 'r') as file_object:
         checksums = file_object.readlines()
-        print checksums
         for line in checksums:
             if old_oe in line:
                 if 'source' in line:
@@ -246,6 +245,7 @@ def main(args_):
                     % new_object_entry
                 )
                 oe_package['new_object_entry'] = new_object_entry
+                print('Transforming %s into %s' % (oe_package['old_oe'], oe_package['new_object_entry']))
                 ififuncs.generate_log(
                         log,
                         'Relationship, derivation, has source=%s' % oe_package['source_accession_number']
