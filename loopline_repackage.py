@@ -190,6 +190,8 @@ def main(args_):
         dictionary = {}
         oe_number = line_item['Object Entry'].lower()
         dictionary['title'] = line_item['Title']
+        if dictionary['title'] == '':
+            dictionary['title'] = '%s - %s' % (line_item['TitleSeries'], line_item['EpisodeNo'])
         dictionary['uppercase_dashed_oe'] = oe_number.upper()
         for tech_record in tech_csv_extraction[0]:
             if tech_record['Reference Number'] == dictionary['uppercase_dashed_oe']:
