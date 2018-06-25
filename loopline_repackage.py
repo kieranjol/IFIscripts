@@ -165,7 +165,8 @@ def get_date_modified(directory):
     file_list = ififuncs.recursive_file_list(directory)
     # This will blindly use the first video file it encounters.
     # This is fine for this project as all the objects folders contain single files.
-    return time.strftime('%m/%d/%Y', time.gmtime(os.path.getmtime(file_list[0])))
+    extension = os.path.splitext(file_list[0])[1]
+    return time.strftime('%m/%d/%Y', time.gmtime(os.path.getmtime(file_list[0]))), extension
 
 
 def main(args_):
@@ -264,9 +265,14 @@ def main(args_):
                     if '.mov_log.log' in files:
                         log = os.path.join(new_logs_path, files)
                 logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest, log)
-                date_modified = get_date_modified(new_uuid_path)
+                date_modified, extension = get_date_modified(new_uuid_path)
+                # This normally would be bad practise, but this project only has two formats. MOV/DV and FFv1/MKV
+                if extension == '.mkv':
+                    av_format = 'FFV1/PCM/Matroska'
+                elif extension == '.mov':
+                    av_format = 'DV/PCM/QuickTime'
                 provenance_string = 'Reproduction of %s' % oe_package['source_accession_number']
-                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1','',oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
+                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1',av_format,oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
                 ififuncs.generate_log(
                     logname,
                     'EVENT = loopline_repackage.py finished'
