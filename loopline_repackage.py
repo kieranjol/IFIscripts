@@ -197,9 +197,9 @@ def main(args_):
             if tech_record['Reference Number'] == dictionary['uppercase_dashed_oe']:
                 dictionary['source_accession_number'] = tech_record['Accession Number']
                 dictionary['filmographic_reference_number'] = tech_record['new_ref']
-        # this transforms OE-#### to oe####
-        dictionary['old_oe'] = oe_number[:2] + oe_number[3:]
-        filmographic_oe_list.append(dictionary)
+                # this transforms OE-#### to oe####
+                dictionary['old_oe'] = oe_number[:2] + oe_number[3:]
+                filmographic_oe_list.append(dictionary)
     for oe_package in filmographic_oe_list:
         for root, _, filenames in os.walk(args.input):
             if os.path.basename(root) == oe_package['old_oe']:
@@ -280,7 +280,8 @@ def main(args_):
                 ififuncs.checksum_replace(new_manifest, logname, 'md5')
                 oe_digits = int(os.path.basename(new_oe_path)[2:]) + 1
                 new_object_entry = 'oe' + str(oe_digits)
-
+    for error in errors:
+        print error
 if __name__ == '__main__':
     main(sys.argv[1:])
 
