@@ -244,6 +244,12 @@ def main(args_):
                     ' eventIdentifierType=object entry, value=%s'
                     % new_object_entry
                 )
+                ififuncs.generate_log(
+                    log,
+                    'EVENT = eventType=Identifier assignement,'
+                    ' eventIdentifierType=Filmographic reference number , value=%s'
+                    % oe_package['filmographic_reference_number']
+                )
                 oe_package['new_object_entry'] = new_object_entry
                 print('Transforming %s into %s' % (oe_package['old_oe'], oe_package['new_object_entry']))
                 ififuncs.generate_log(
