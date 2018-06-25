@@ -155,6 +155,19 @@ def make_register():
         'Vinegar No.'
     ))
     return register
+
+def get_date_modified(directory):
+    '''
+    Returns the date modified of a file in DD/MM/YYYY, which is
+    the format used for the Object Entry register. yes, we should be using
+    ISO8601 but we'll fix this later.
+    '''
+    file_list = ififuncs.recursive_file_list(directory)
+    # This will blindly use the first video file it encounters.
+    # This is fine for this project as all the objects folders contain single files.
+    return time.strftime('%m/%d/%Y', time.gmtime(os.path.getmtime(file_list[0])))
+
+
 def main(args_):
     '''
     Retrospectively updates older FFV1/DV packages in order to meet our current
@@ -249,8 +262,9 @@ def main(args_):
                     if '.mov_log.log' in files:
                         log = os.path.join(new_logs_path, files)
                 logname = rename_files(new_uuid_path, old_oe, uuid, new_manifest, log)
+                date_modified = get_date_modified(new_uuid_path)
                 provenance_string = 'Reproduction of %s' % oe_package['source_accession_number']
-                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:], 'date_received', '1','',oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
+                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1','',oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
                 ififuncs.generate_log(
                     logname,
                     'EVENT = loopline_repackage.py finished'
