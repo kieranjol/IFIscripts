@@ -148,7 +148,7 @@ def make_register():
         'Description',
         'Contact Name',
         'Type of Acquisition',
-        'Accession Number'
+        'Accession Number',
         'Additional Information',
         'Habitat',
         'Vinegar No.'
@@ -272,7 +272,7 @@ def main(args_):
                 elif extension == '.mov':
                     av_format = 'DV/PCM/QuickTime'
                 provenance_string = 'Reproduction of %s' % oe_package['source_accession_number']
-                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1',av_format,oe_package['title'],'contact_name','Reproduction',provenance_string, '',''))
+                ififuncs.append_csv(register, (oe_package['new_object_entry'].upper()[:2] + '-' + oe_package['new_object_entry'][2:],date_modified, '1',av_format,oe_package['title'],'contact_name','Reproduction','', provenance_string, ''))
                 ififuncs.generate_log(
                     logname,
                     'EVENT = loopline_repackage.py finished'
@@ -280,8 +280,6 @@ def main(args_):
                 ififuncs.checksum_replace(new_manifest, logname, 'md5')
                 oe_digits = int(os.path.basename(new_oe_path)[2:]) + 1
                 new_object_entry = 'oe' + str(oe_digits)
-    for error in errors:
-        print error
 if __name__ == '__main__':
     main(sys.argv[1:])
 
