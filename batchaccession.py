@@ -114,7 +114,16 @@ def initial_check(args, accession_digits, oe_list, reference_number):
         print '%s will be accessioned as %s' %  (success, to_accession[success])
     return to_accession
 
-
+def get_filmographic_titles(to_accession, filmographic_dict):
+    '''
+    Retrieves filmographic titles of packages to be accessioned for QC purposes
+    '''
+    for ids in to_accession:
+        oe_number = os.path.basename(ids)
+        oe = oe_number[:2].upper() + '-' + oe_number[2:]
+        for record in filmographic_dict:
+            if record['Object Entry'] == oe:
+                print record['Title']
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -217,6 +226,7 @@ def main(args_):
             for filmographic_record in filmographic_dict:
                 if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
                     filmographic_record['Reference Number'] = to_accession[oe_package][1]
+        get_filmographic_titles(to_accession, filmographic_dict)
         with open(new_csv, 'w') as csvfile:
             fieldnames = headers
             # Removes Object Entry from headings as it's not needed in database.
