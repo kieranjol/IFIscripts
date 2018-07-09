@@ -8,6 +8,8 @@ import sys
 import datetime
 import shutil
 import ififuncs
+import copyit
+import sipcreator
 
 
 def parse_args(args_):
@@ -33,6 +35,9 @@ def parse_args(args_):
     parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-copy', action='store_true',
+        help='Copies a file into a package instead of moving it. This should be used when adding files that originate outside of the package.')
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -101,16 +106,31 @@ def main(args_):
     if not os.path.isdir(args.new_folder):
         os.makedirs(args.new_folder)
     for filename in args.i:
-        # add test to see if it actually deleted - what if read only?
-        shutil.move(filename, args.new_folder)
+        if args.copy:
+            copyit.main([filename, args.new_folder])
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = eventType=file movement,'
+                ' eventOutcomeDetailNote=%s has been moved into %s'
+                ' agentName=copyit.py'
+                % (filename, args.new_folder)
+            )
+            # this is hardcoded - pick this apart so that any folder can be added to.
+            sipcreator.consolidate_manifests(sip_path, 'metadata/supplemental', new_log_textfile)
+            log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filename) + '_manifest.md5')
+            ififuncs.manifest_update(sip_manifest, log_manifest)
+            ififuncs.sort_manifest(sip_manifest)
+        else:
+            # add test to see if it actually deleted - what if read only?
+            shutil.move(filename, args.new_folder)
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = eventType=file movement,'
+                ' eventOutcomeDetailNote=%s has been moved into %s'
+                ' agentName=shutil.move()'
+                % (filename, args.new_folder)
+            )
         print '%s has been moved into %s' % (filename, args.new_folder)
-        ififuncs.generate_log(
-            new_log_textfile,
-            'EVENT = eventType=file movement,'
-            ' eventOutcomeDetailNote=%s has been moved into %s'
-            ' agentName=shutil.move()'
-            % (filename, args.new_folder)
-        )
         relative_filename = filename.replace(args.input + '/', '')
         relative_new_folder = args.new_folder.replace(args.input + '/', '')
         update_manifest(
