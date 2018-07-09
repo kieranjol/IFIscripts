@@ -12,7 +12,7 @@ table of contents
     * [order.py](https://github.com/kieranjol/IFIscripts#orderpy)
     * [makepbcore.py](https://github.com/kieranjol/IFIscripts#makepbcorepy)
     * [deletefiles.py](https://github.com/kieranjol/IFIscripts#deletefilespy)
-    * [rearrange.py](https://github.com/kieranjol/IFIscripts#rearrangepy)
+    * [package_update.py](https://github.com/kieranjol/IFIscripts#package_updatepy)
 1. [Transcodes](https://github.com/kieranjol/IFIscripts#transcodes)
     * [makeffv1.py](https://github.com/kieranjol/IFIscripts#makeffv1py)
     * [bitc.py](https://github.com/kieranjol/IFIscripts#bitcpy)
@@ -116,12 +116,12 @@ NOTE: `Objects.py` has been copied from https://github.com/simsong/dfxml. `walk_
 * Usage for deleting two example files - `deletefiles.py /path/to/oe_folder -i path/to/file1.mov path/to/file2.mov`
 * Run `deletefiles.py -h` for all options.
 
-### rearrange.py ###
+### package_update.py ###
 * Rearranges files into a subfolder files after `sipcreator.py` has been run, but before `accession.py` has been run.
 * Manifests are updated, files are moved, and the events are all logged in the logfile.
 * This is useful in conjunction with `sipcreator.py` and `deletefiles.py`, in case a user wishes to impose a different ordering of the files within a large package. For example, from a folder with 1000 photographs, you may wish to create some sufolders to reflect different series/subseries within this collection. This script will track all these arrangement decisions.
 * This script takes the parent OE folder as input. Use the `-i` argument to supply the various files that should be moved. The `new_folder` argument declares which folder the files should be moved into. Run `validate.py` to verify that all went well.
-* Usage for moving a single file into a subfolder - `rearrange.py /path/to/oe_folder -i path/to/uuid/objects/file1.mov -new_folder path/to/uuid/objects/new_foldername`
+* Usage for moving a single file into a subfolder - `package_update.py /path/to/oe_folder -i path/to/uuid/objects/file1.mov -new_folder path/to/uuid/objects/new_foldername`
 * Run `rearrange.py -h` for all options.
 
 ## Transcodes ##
