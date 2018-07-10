@@ -10,6 +10,7 @@ import subprocess
 import datetime
 import copyit
 import ififuncs
+import package_update
 from masscopy import analyze_log
 
 
@@ -58,7 +59,6 @@ def consolidate_manifests(path, directory, new_log_textfile):
                                 i[:32] + '  ' + new_manifest_path
                             )
                     # Cut and paste old manifests into the log directory
-
                     shutil.move(
                         objects_dir + '/' +  manifest, os.path.join(path, 'logs')
                     )
@@ -172,6 +172,10 @@ def parse_args(args_):
     parser.add_argument(
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
+    parser.add_argument(
+        '-supplement', nargs='+',
+        help='Enter the full path of files or folders that are to be added to the supplemental subfolder within the metadata folder. Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -363,6 +367,7 @@ def main(args_):
         % object_entry
     )
     metadata_dir = os.path.join(sip_path, 'metadata')
+    supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path, args)
     get_metadata(sip_path, new_log_textfile)
@@ -375,6 +380,10 @@ def main(args_):
         logs_dir, new_manifest_textfile,
         os.path.dirname(os.path.dirname(logs_dir))
     )
+    if args.supplement:
+        os.makedirs(supplemental_dir)
+        supplement_cmd = ['-i', args.supplement, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
+        package_update.main(supplement_cmd)
     ififuncs.sort_manifest(new_manifest_textfile)
     if not args.quiet:
         log_report(log_names)
