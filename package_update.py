@@ -93,7 +93,7 @@ def main(args_):
     )
     ififuncs.generate_log(
         new_log_textfile,
-        'eventDetail=rearrange.py %s' % ififuncs.get_script_version('rearrange.py')
+        'eventDetail=rearrange.py %s' % ififuncs.get_script_version('package_update.py')
     )
     ififuncs.generate_log(
         new_log_textfile,
