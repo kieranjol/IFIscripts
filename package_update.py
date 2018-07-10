@@ -105,21 +105,22 @@ def main(args_):
     )
     if not os.path.isdir(args.new_folder):
         os.makedirs(args.new_folder)
-    for filename in args.i:
+    for filenames in args.i:
         if args.copy:
-            copyit.main([filename, args.new_folder])
-            ififuncs.generate_log(
-                new_log_textfile,
-                'EVENT = eventType=file movement,'
-                ' eventOutcomeDetailNote=%s has been moved into %s'
-                ' agentName=copyit.py'
-                % (filename, args.new_folder)
-            )
-            # this is hardcoded - pick this apart so that any folder can be added to.
-            sipcreator.consolidate_manifests(sip_path, 'metadata/supplemental', new_log_textfile)
-            log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filename) + '_manifest.md5')
-            ififuncs.manifest_update(sip_manifest, log_manifest)
-            ififuncs.sort_manifest(sip_manifest)
+            for filename in filenames:
+                copyit.main([filename, args.new_folder])
+                ififuncs.generate_log(
+                    new_log_textfile,
+                    'EVENT = eventType=file movement,'
+                    ' eventOutcomeDetailNote=%s has been moved into %s'
+                    ' agentName=copyit.py'
+                    % (filename, args.new_folder)
+                )
+                # this is hardcoded - pick this apart so that any folder can be added to.
+                sipcreator.consolidate_manifests(sip_path, 'metadata/supplemental', new_log_textfile)
+                log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filename) + '_manifest.md5')
+                ififuncs.manifest_update(sip_manifest, log_manifest)
+                ififuncs.sort_manifest(sip_manifest)
         else:
             # add test to see if it actually deleted - what if read only?
             shutil.move(filename, args.new_folder)
