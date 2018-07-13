@@ -18,6 +18,7 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'copyit.py',
         'masscopy.py',
         'accession.py',
+        'accession_register.py',
         'batchaccession.py',
         'concat.py',
         'makeffv1.py',
@@ -33,7 +34,7 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'dcpfixity.py',
         'dcpaccess.py',
         'deletefiles.py',
-        'rearrange.py',
+        'package_update.py',
         'durationcheck.py',
         'ffv1mkvvalidate.py',
         'loopline_repackage.py',
@@ -49,5 +50,5 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'bagit'
     ],
     name='ifiscripts',
-    version='0.9'
+    version='v2018.07.13'
 )
