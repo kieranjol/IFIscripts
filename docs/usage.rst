@@ -1,110 +1,5 @@
-IFIscripts documentation
+Usage
 ========================
-
-table of contents
------------------
-
-1.  `summary <https://github.com/kieranjol/IFIscripts#summary>`__
-2.  `Arrangement <https://github.com/kieranjol/IFIscripts#arrangement>`__
-
-    -  `sipcreator.py <https://github.com/kieranjol/IFIscripts#sipcreatorpy>`__
-    -  `accession.py <https://github.com/kieranjol/IFIscripts#accessionpy>`__
-    -  `batchaccession.py <https://github.com/kieranjol/IFIscripts#batchaccessionpy>`__
-    -  `order.py <https://github.com/kieranjol/IFIscripts#orderpy>`__
-    -  `makepbcore.py <https://github.com/kieranjol/IFIscripts#makepbcorepy>`__
-    -  `deletefiles.py <https://github.com/kieranjol/IFIscripts#deletefilespy>`__
-    -  `rearrange.py <https://github.com/kieranjol/IFIscripts#rearrangepy>`__
-
-3.  `Transcodes <https://github.com/kieranjol/IFIscripts#transcodes>`__
-
-    -  `makeffv1.py <https://github.com/kieranjol/IFIscripts#makeffv1py>`__
-    -  `bitc.py <https://github.com/kieranjol/IFIscripts#bitcpy>`__
-    -  `prores.py <https://github.com/kieranjol/IFIscripts#prorespy>`__
-    -  `concat.py <https://github.com/kieranjol/IFIscripts#concatpy>`__
-
-4.  `Digital Cinema Package
-    Scripts <https://github.com/kieranjol/IFIscripts#digital-cinema-package-scripts>`__
-
-    -  `dcpaccess.py <https://github.com/kieranjol/IFIscripts#dcpaccesspy>`__
-    -  `dcpfixity.py <https://github.com/kieranjol/IFIscripts#dcpfixitypy>`__
-    -  `dcpsubs2srt.py <https://github.com/kieranjol/IFIscripts#dcpsubs2srtpy>`__
-
-5.  `Fixity
-    Scripts <https://github.com/kieranjol/IFIscripts#fixity-scripts>`__
-
-    -  `copyit.py <https://github.com/kieranjol/IFIscripts#copyitpy>`__
-    -  `manifest.py <https://github.com/kieranjol/IFIscripts#manifestpy>`__
-    -  `makedfxml.py <https://github.com/kieranjol/IFIscripts#makedfxmlpy>`__
-    -  `sha512deep.py <https://github.com/kieranjol/IFIscripts#sha512deeppy>`__
-    -  `validate.py <https://github.com/kieranjol/IFIscripts#validatepy>`__
-    -  `batchfixity.py <https://github.com/kieranjol/IFIscripts#batchfixitypy>`__
-
-6.  `Image
-    Sequences <https://github.com/kieranjol/IFIscripts#image-sequences>`__
-
-    -  `makedpx.py <https://github.com/kieranjol/IFIscripts#makedpxpy>`__
-    -  `seq2ffv1.py <https://github.com/kieranjol/IFIscripts#seq2ffv1py>`__
-    -  `seq2prores.py <https://github.com/kieranjol/IFIscripts#seq2prorespy>`__
-    -  `rawbatch.py <https://github.com/kieranjol/IFIscripts#rawbatchpy>`__
-    -  `seq.py <https://github.com/kieranjol/IFIscripts#seqpy>`__
-    -  `oeremove.py <https://github.com/kieranjol/IFIscripts#oeremovepy>`__
-    -  `renumber.py <https://github.com/kieranjol/IFIscripts#renumberpy>`__
-    -  `seq2dv.py <https://github.com/kieranjol/IFIscripts#seq2dvpy>`__
-    -  `batchmetadata.py <https://github.com/kieranjol/IFIscripts#batchmetadata>`__
-    -  `batchrename.py <https://github.com/kieranjol/IFIscripts#batchrename>`__
-
-7.  `Quality
-    Control <https://github.com/kieranjol/IFIscripts#quality-control>`__
-
-    -  `qctools.py <https://github.com/kieranjol/IFIscripts#qctoolspy>`__
-    -  `ffv1mkvvalidate.py <https://github.com/kieranjol/IFIscripts#ffv1mkvvalidatespy>`__
-
-8.  `Specific
-    Workflows <https://github.com/kieranjol/IFIscripts#specific-workflows>`__
-
-    -  `mezzaninecheck.py <https://github.com/kieranjol/IFIscripts#mezzaninecheckpy>`__
-    -  `loopline.py <https://github.com/kieranjol/IFIscripts#looplinepy>`__
-    -  `masscopy.py <https://github.com/kieranjol/IFIscripts#masscopypy>`__
-    -  `dvsip.py <https://github.com/kieranjol/IFIscripts#dvsippy>`__
-    -  `makefolders.py <https://github.com/kieranjol/IFIscripts#makefolderspy>`__
-    -  `looplinerepackage.py <https://github.com/kieranjol/IFIscripts#loopline_repackagespy>`__
-
-9.  `Misc <https://github.com/kieranjol/IFIscripts#misc>`__
-
-    -  `update.py <https://github.com/kieranjol/IFIscripts#updatepy>`__
-    -  `giffer.py <https://github.com/kieranjol/IFIscripts#gifferpy>`__
-    -  `makeuuid.py <https://github.com/kieranjol/IFIscripts#makeuuidpy>`__
-    -  `durationcheck.py <https://github.com/kieranjol/IFIscripts#durationcheckpy>`__
-    -  `fakexdcam.py <https://github.com/kieranjol/IFIscripts#fakexdcampy>`__
-
-10. `Experimental-Premis <https://github.com/kieranjol/IFIscripts#experimental-premis>`__
-
-    -  `premis.py <https://github.com/kieranjol/IFIscripts#premispy>`__
-    -  `revtmd.py <https://github.com/kieranjol/IFIscripts#revtmdpy>`__
-    -  `as11fixity.py <https://github.com/kieranjol/IFIscripts#as11fixitypy>`__
-    -  `viruscheck.py <https://github.com/kieranjol/IFIscripts#viruscheckpy>`__
-
-summary
--------
-
-Scripts for use in the IFI Irish Film Archive. Scripts have been tested
-in OSX/Windows 7 (sometimes windows 10) and Ubuntu 14.04. The aim is to
-make cross-platform scripts, but please get in touch with any issues. It
-is best to download all scripts, as some of them share code.
-
-Most scripts take either a file or a directory as their input, for
-example ``makeffv1.py filename.mov`` or
-``premis.py path/to/folder_of_stuff``. (It's best to just drag and drop
-the folder or filename into the terminal)
-
-Note: Documentation template has been copied from
-`mediamicroservices <https://github.com/mediamicroservices/mm>`__
-
-NOTE: ``Objects.py`` has been copied from
-https://github.com/simsong/dfxml. ``walk_to_dfxml.py`` has also been
-copied but has been customised in order to add command line arguments
-for optionally turning off checksum generation. For more context, see
-https://github.com/simsong/dfxml/pull/28
 
 Arrangement
 -----------
@@ -451,13 +346,6 @@ oeremove.py
    image sequence filename.
 -  Usage - ``oeremove.py directory``.
 
-renumber.py
-~~~~~~~~~~~
-
--  Renames TIFF files in an image sequence so that they start from ZERO
-   (000000)
--  Usage - ``renumber.py directory``
-
 seq2dv.py
 ~~~~~~~~~
 
@@ -580,11 +468,6 @@ update.py
    structure exists in the home directory: ``ifigit/ifiscripts``
 -  Usage: ``update.py``
 
-giffer.py
-~~~~~~~~~
-
--  Makes a 24fps 500px gif of the input file.
--  Usage: ``giffer.py /path/to/input``
 
 makeuuid.py
 ~~~~~~~~~~~
@@ -620,11 +503,6 @@ premis.py
 -  Requries pyqt4 (GUI) and lxml (xml parsing)
 -  Usage - ``premis.py filename``.
 
-revtmd.py
-~~~~~~~~~
-
--  Beta/defuncy sript that attempted to document creation process
-   history metadata using the reVTMD standard.
 
 as11fixity.py
 ~~~~~~~~~~~~~
@@ -638,3 +516,4 @@ viruscheck.py
 
 -  Work in progress script by @ecodonohoe
 -  Scans directories recursively using ClamAV
+

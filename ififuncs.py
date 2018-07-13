@@ -787,6 +787,8 @@ def get_script_version(scriptname):
         script_version = subprocess.check_output([
             'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
         ])
+    else:
+        script_version = 'Script version unavailable as the ifiscripts repository is not installed in $HOME/ifigit/ifiscripts'
     os.chdir(current_dir)
     return script_version
 
