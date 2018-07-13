@@ -1,4 +1,4 @@
-
+=================
 Full documentation at: http://ifiscripts.readthedocs.io/en/latest/index.html
 =================
 .. inclusion-marker-do-not-remove
@@ -38,9 +38,8 @@ The Irish Film Institute has followed the SPECTRUM museum collections management
 
 An example workflow might be:
 
-* A digital object is created or acquired by the IFI, and ``ingest`` begins.
-
-* ``sipcreator.py`` is run on the object. This script:
+   * A digital object is created or acquired by the IFI, and ``ingest`` begins.
+   * ``sipcreator.py`` is run on the object. This script:
    * generates an ``Object Entry`` identifier (eg OE-1234)
    * creates a folder structure for ``logs, metadata, objects``
    * generates a ``UUID``, extracts technical metadata
