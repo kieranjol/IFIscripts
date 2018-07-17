@@ -1314,6 +1314,22 @@ def recursive_file_list(video_files):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
 
+
+def get_video_files(source):
+    '''
+    Generates a list of video files.
+    '''
+    file_list = []
+    if os.path.isdir(source):
+        folder_list = os.listdir(source)
+        for filename in folder_list:
+            if not filename[0] == '.':
+                if filename.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi')):
+                    file_list.append(os.path.join(source, filename))
+    elif os.path.isfile(source):
+        file_list = [source]
+    return file_list
+
 def extract_metadata(csv_file):
     '''
     Read the csv and store the data in a list of dictionaries.
