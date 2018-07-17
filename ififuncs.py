@@ -53,7 +53,7 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         '-f',
         '--language=raw',
         '--File_TestContinuousFileNames=0',
-        '--output=XML',
+        '--output=OLDXML',
         inputfilename
     ]
     with open(xmlfilename, "w+") as fo:
