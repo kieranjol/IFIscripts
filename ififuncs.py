@@ -1419,4 +1419,41 @@ def get_digital_object_descriptor(source_folder):
             dig_object_descriptor = 'XDCAM EX'
     return dig_object_descriptor
 
-
+def check_for_fcp(filename):
+    '''
+    Final Cut Pro 7 Capture files have some significant missing metadata that
+    seriously affect how the image is presented. This function will check to see
+    if PAL video does not have field order and aspect ratio metadata stored in the
+    container.
+    '''
+    par = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw', '--Full',
+            "--Inform=Video;%PixelAspectRatio%", filename
+        ]
+        ).rstrip()
+    field_order = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%ScanType%", filename
+        ]
+        ).rstrip()
+    height = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Height%",
+            filename
+        ]
+        ).rstrip()
+    width = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Width%",
+            filename
+        ]
+        ).rstrip()
+    if par == '1.000':
+        if field_order == '':
+            if height == '576':
+                if width == '720':
+                    return True
