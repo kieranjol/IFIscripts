@@ -240,7 +240,7 @@ def burn_subs():
                 print( 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r') ,
             current_sub_counter +=1 
         current_sub_counter= 0
-        os.chdir(os.path.dirname(lut_path)
+        os.chdir(os.path.dirname(lut_path))
         if delays == 0:
             print( 'There were no audio delays.')
             command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
