@@ -50,6 +50,6 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'bagit'
     ],
     name='ifiscripts',
-    include_package_data=True
+    include_package_data=True,
     version='v2018.07.19'
 )
