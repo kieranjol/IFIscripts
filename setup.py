@@ -51,5 +51,5 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
     ],
     name='ifiscripts',
     include_package_data=True,
-    version='v2018.07.19'
+    version='v2018.07.19.1'
 )
