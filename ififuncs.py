@@ -19,6 +19,7 @@ import operator
 import json
 import ctypes
 import platform
+import itertools
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -1457,3 +1458,34 @@ def check_for_fcp(filename):
             if height == '576':
                 if width == '720':
                     return True
+def read_non_comment_lines(infile):
+    '''
+    This was pulled from makeffv1, and it looks like the key line has actually been commented out.
+    So not sure what's going on here exactly :(
+    '''
+    # Adapted from Andrew Dalke - http://stackoverflow.com/a/8304087/2188572
+    for lineno, line in enumerate(infile):
+        #if line[:1] != "#":
+        yield lineno, line
+
+
+def diff_framemd5s(fmd5, fmd5ffv1):
+    '''
+    Generates a basic report on the differences between two framemd5 files,
+    which should determine losslessness.
+    '''
+
+    checksum_mismatches = []
+    with open(fmd5) as f1:
+        with open(fmd5ffv1) as f2:
+            for (lineno1, line1), (lineno2, line2) in itertools.izip(
+                    read_non_comment_lines(f1),
+                    read_non_comment_lines(f2)
+                    ):
+                if line1 != line2:
+                    if 'sar' in line1:
+                        checksum_mismatches = ['sar']
+                    else:
+                        checksum_mismatches.append(1)
+    return checksum_mismatches
+     
