@@ -9,38 +9,65 @@ the actual normalisation.
 import sys
 import os
 import subprocess
+import argparse
 import ififuncs
 
-def extract_provenance(filename):
+def parse_args(args_):
+    '''
+    Parse command line arguments.
+    '''
+    parser = argparse.ArgumentParser(
+        description='Performs normalisation to FFV1/Matroska.'
+        ' Written by Kieran O\'Leary.'
+    )
+    parser.add_argument(
+        '-i',
+        help='full path of input file or directory', required=True
+    )
+    parser.add_argument(
+        '-o', '-output',
+        help='full path of output directory', required=True
+    )
+    parser.add_argument(
+        '--no-sip',
+        help='Do not run sipcreator.py on the resulting file.', action='store_true'
+    )
+    parser.add_argument(
+        '-user',
+        help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-oe',
+        help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
+def extract_provenance(filename, output_folder):
     '''
     This will extract mediainfo and mediatrace XML
     '''
-    parent_folder = os.path.dirname(filename)
-    inputxml = "%s/%s_mediainfo.xml" % (parent_folder, os.path.basename(filename))
-    inputtracexml = "%s/%s_mediatrace.xml" % (parent_folder, os.path.basename(filename))
+    inputxml = "%s/%s_mediainfo.xml" % (output_folder, os.path.basename(filename))
+    inputtracexml = "%s/%s_mediatrace.xml" % (output_folder, os.path.basename(filename))
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     ififuncs.make_mediainfo(inputxml, 'mediaxmlinput', filename)
-    print ' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+    print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
     ififuncs.make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
-    return parent_folder
 
-def normalise_process(filename):
+def normalise_process(filename, output_folder):
     '''
     Begins the actual normalisation process using FFmpeg
     '''
     output_uuid = ififuncs.create_uuid()
     print(' - The following UUID has been generated: %s' % output_uuid)
-    parent_folder = os.path.dirname(filename)
     output = "%s/%s.mkv" % (
-        parent_folder, output_uuid
+        output_folder, output_uuid
         )
-    print(' - The normalise file will have this filename: %s' % output)
+    print(' - The normalised file will have this filename: %s' % output)
     fmd5 = "%s/%s_source.framemd5" % (
-        parent_folder, os.path.basename(filename)
+        output_folder, os.path.basename(filename)
         )
     print(' - Framemd5s for each frame of your input file will be stored in: %s' % fmd5)
 
-    ffv1_logfile = os.path.join(parent_folder, '%s_normalise.log' % output_uuid)
+    ffv1_logfile = os.path.join(output_folder, '%s_normalise.log' % output_uuid)
     print(' - The FFmpeg logfile for the transcode will be stored in: %s' % ffv1_logfile)
     print(' - FFmpeg will begin normalisation now.')
     ffv1_env_dict = ififuncs.set_environment(ffv1_logfile)
@@ -73,13 +100,13 @@ def normalise_process(filename):
     subprocess.call(ffv1_command, env=ffv1_env_dict)
     return output, output_uuid, fmd5
 
-def verify_losslessness(parent_folder, output, output_uuid, fmd5):
+def verify_losslessness(output_folder, output, output_uuid, fmd5):
     '''
     Verify the losslessness of the process using framemd5.
     An additional metadata check should also occur.
     '''
-    fmd5_logfile = os.path.join(parent_folder, '%s_framemd5.log' % output_uuid)
-    fmd5ffv1 = "%s/%s.framemd5" % (parent_folder, output_uuid)
+    fmd5_logfile = os.path.join(output_folder, '%s_framemd5.log' % output_uuid)
+    fmd5ffv1 = "%s/%s.framemd5" % (output_folder, output_uuid)
     print(' - Framemd5s for each frame of your output file will be stored in: %s' % fmd5ffv1)
     fmd5_env_dict = ififuncs.set_environment(fmd5_logfile)
     print(' - FFmpeg will attempt to verify the losslessness of the normalisation by using Framemd5s.')
@@ -98,15 +125,18 @@ def verify_losslessness(parent_folder, output, output_uuid, fmd5):
     else:
         print 'lossless'
 
-def main():
+def main(args_):
     print('\n - Normalise.py started')
-    source = sys.argv[1]
+    args = parse_args(args_)
+    print(args)
+    source = args.i
+    output_folder = args.o
     file_list = ififuncs.get_video_files(source)
     for filename in file_list:
         print('\n - Processing: %s' % filename)
-        parent_folder = extract_provenance(filename)
-        output, output_uuid, fmd5 = normalise_process(filename)
-        verify_losslessness(parent_folder, output, output_uuid, fmd5)
+        extract_provenance(filename, output_folder)
+        output, output_uuid, fmd5 = normalise_process(filename, output_folder)
+        verify_losslessness(output_folder, output, output_uuid, fmd5)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
