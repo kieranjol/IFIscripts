@@ -1488,4 +1488,16 @@ def diff_framemd5s(fmd5, fmd5ffv1):
                     else:
                         checksum_mismatches.append(1)
     return checksum_mismatches
-     
+
+def get_mediainfo_version():
+    '''
+    Returns the version of mediainfo.
+    If this is not possible, the string 'mediainfo' is returned.
+    '''
+    mediainfo_version = 'mediainfo'
+    try:
+        mediainfo_version = subprocess.check_output([
+            'mediainfo', '--Version'
+        ]).rstrip()
+    except subprocess.CalledProcessError as grepexc:
+        mediainfo_version = grepexc.output.rstrip().splitlines()[1]
