@@ -10,7 +10,9 @@ import sys
 import os
 import subprocess
 import argparse
+import shutil
 import ififuncs
+import sipcreator
 
 def parse_args(args_):
     '''
@@ -29,8 +31,8 @@ def parse_args(args_):
         help='full path of output directory', required=True
     )
     parser.add_argument(
-        '--no-sip',
-        help='Do not run sipcreator.py on the resulting file.', action='store_true'
+        '-sip',
+        help='Run sipcreator.py on the resulting file.', action='store_true'
     )
     parser.add_argument(
         '-user',
@@ -51,6 +53,7 @@ def extract_provenance(filename, output_folder):
     ififuncs.make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
     ififuncs.make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
+    return inputxml, inputtracexml
 
 def normalise_process(filename, output_folder):
     '''
@@ -98,7 +101,7 @@ def normalise_process(filename, output_folder):
         ]
     print(ffv1_command)
     subprocess.call(ffv1_command, env=ffv1_env_dict)
-    return output, output_uuid, fmd5
+    return output, output_uuid, fmd5, ffv1_logfile
 
 def verify_losslessness(output_folder, output, output_uuid, fmd5):
     '''
@@ -124,19 +127,49 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
         print 'not lossless'
     else:
         print 'lossless'
+    return fmd5_logfile, fmd5ffv1
 
 def main(args_):
     print('\n - Normalise.py started')
     args = parse_args(args_)
+    if args.sip:
+        if args.user:
+            user = args.user
+        else:
+            user = ififuncs.get_user()
+        if args.oe:
+            if args.oe[:2] != 'oe':
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                object_entry = ififuncs.get_object_entry()
+            elif len(args.oe[2:]) not in range(4, 6):
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                object_entry = ififuncs.get_object_entry()
+            elif not args.oe[2:].isdigit():
+               object_entry = ififuncs.get_object_entry()
+               print 'First two characters must be \'oe\' and last four characters must be four digits'
+            else:
+                object_entry = args.oe
+        else:
+            object_entry = ififuncs.get_object_entry()
     print(args)
     source = args.i
     output_folder = args.o
     file_list = ififuncs.get_video_files(source)
     for filename in file_list:
         print('\n - Processing: %s' % filename)
-        extract_provenance(filename, output_folder)
-        output, output_uuid, fmd5 = normalise_process(filename, output_folder)
-        verify_losslessness(output_folder, output, output_uuid, fmd5)
+        inputxml, inputtracexml = extract_provenance(filename, output_folder)
+        output, output_uuid, fmd5, ffv1_logfile = normalise_process(filename, output_folder)
+        fmd5_logfile, fmd5ffv1 = verify_losslessness(output_folder, output, output_uuid, fmd5)
+        if args.sip:
+            sipcreator_log, sipcreator_manifest = sipcreator.main(['-i', output, '-u', output_uuid, '-user', user, '-oe', object_entry, '-supplement', inputxml, inputtracexml, '-o', args.o])
+            shutil.move(fmd5, os.path.dirname(sipcreator_log))
+            shutil.move(fmd5_logfile, os.path.dirname(sipcreator_log))
+            shutil.move(fmd5ffv1, os.path.dirname(sipcreator_log))
+            shutil.move(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'), os.path.dirname(sipcreator_log))
+            logs_dir = os.path.dirname(sipcreator_log)
+            ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5)))
+            ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir,(os.path.basename(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':')))))
+            #ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
