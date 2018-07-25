@@ -1501,3 +1501,4 @@ def get_mediainfo_version():
         ]).rstrip()
     except subprocess.CalledProcessError as grepexc:
         mediainfo_version = grepexc.output.rstrip().splitlines()[1]
+    return mediainfo_version
