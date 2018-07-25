@@ -42,6 +42,10 @@ def parse_args(args_):
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
     )
+    parser.add_argument(
+        '-supplement', nargs='+',
+        help='Enter the full path of files or folders that are to be added to the supplemental subfolder within the metadata folder. Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 def extract_provenance(filename, output_folder):
@@ -196,7 +200,12 @@ def main(args_):
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation, eventOutcome=%s' % verdict)
         if args.sip:
-            sipcreator_log, sipcreator_manifest = sipcreator.main(['-i', output, '-u', output_uuid, '-user', user, '-oe', object_entry, '-supplement', inputxml, inputtracexml, '-o', args.o])
+            supplement_cmd = ['-supplement', inputxml, inputtracexml]
+            sipcreator_cmd = ['-i', output, '-u', output_uuid, '-user', user, '-oe', object_entry, '-o', args.o]
+            if args.supplement:
+                supplement_cmd.extend(args.supplement)
+            sipcreator_cmd.extend(supplement_cmd)
+            sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
             shutil.move(fmd5, os.path.dirname(sipcreator_log))
             shutil.move(fmd5_logfile, os.path.dirname(sipcreator_log))
             shutil.move(fmd5ffv1, os.path.dirname(sipcreator_log))
