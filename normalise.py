@@ -201,7 +201,7 @@ def main(args_):
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation, eventOutcome=%s' % verdict)
         if args.sip:
             supplement_cmd = ['-supplement', inputxml, inputtracexml]
-            sipcreator_cmd = ['-i', output, '-u', output_uuid, '-user', user, '-oe', object_entry, '-o', args.o]
+            sipcreator_cmd = ['-i', output, '-move', '-u', output_uuid, '-user', user, '-oe', object_entry, '-o', args.o]
             if args.supplement:
                 supplement_cmd.extend(args.supplement)
             sipcreator_cmd.extend(supplement_cmd)
