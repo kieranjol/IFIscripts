@@ -1502,3 +1502,12 @@ def get_mediainfo_version():
     except subprocess.CalledProcessError as grepexc:
         mediainfo_version = grepexc.output.rstrip().splitlines()[1]
     return mediainfo_version
+
+def get_ffprobe_dict(source):
+    '''
+    Returns a dictionary via the ffprobe JSON output
+    '''
+    cmd = ['ffprobe', '-v', '0', '-show_versions', '-show_streams', '-show_format', '-print_format', 'json', source]
+    ffprobe_json = subprocess.check_output(cmd)
+    ffprobe_dict = json.loads(ffprobe_json)
+    return ffprobe_dict
