@@ -1510,4 +1510,41 @@ def get_ffprobe_dict(source):
     cmd = ['ffprobe', '-v', '0', '-show_versions', '-show_streams', '-show_format', '-print_format', 'json', source]
     ffprobe_json = subprocess.check_output(cmd)
     ffprobe_dict = json.loads(ffprobe_json)
+    print ffprobe_json
     return ffprobe_dict
+
+def get_colour_metadata(ffprobe_dict):
+    '''
+    Parses through a ffprobe dictionary and extracts colour metadata.
+    FFmpeg options are returned. Basically, the source metadata will be respected,
+    but if certain criteria are found (720/576/25fps), then if values are missing,
+    they will be populated with the bt601 recommendations.
+    This is currently needed as this kind of metadata is lost when normalsing from MOV
+    to Matroska. If we extract the values here, we can specify what they should be in the
+    normalised file.
+    The multiple try except clauses here are inefficient - it would be great to make
+    this better, but due to time constraints, I'm taking the sloppy way out.
+    example values that are extracted from the ffprobe_dict:
+    u'color_space': u'smpte170m', u'color_primaries': u'bt470bg', u'color_transfer': u'bt709'
+    '''
+    ffmpeg_colour_list = []
+    for stream in ffprobe_dict['streams']:
+        if stream['codec_type'] == 'video':
+            try:
+                color_trc = stream['color_transfer']
+                ffmpeg_colour_list.extend(['-color_trc', color_trc])
+            except KeyError:
+                color_trc = ''
+            try:
+                colorspace = stream['color_space']
+                ffmpeg_colour_list.extend(['-colorspace', colorspace])
+            except KeyError:
+                colorspace = ''
+            try:
+                color_primaries = stream['color_primaries']
+                ffmpeg_colour_list.extend(['-color_primaries', color_primaries])
+            except KeyError:
+                color_primaries = ''
+        else:
+            continue
+    return ffmpeg_colour_list
