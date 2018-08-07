@@ -1510,7 +1510,6 @@ def get_ffprobe_dict(source):
     cmd = ['ffprobe', '-v', '0', '-show_versions', '-show_streams', '-show_format', '-print_format', 'json', source]
     ffprobe_json = subprocess.check_output(cmd)
     ffprobe_dict = json.loads(ffprobe_json)
-    print ffprobe_json
     return ffprobe_dict
 
 def get_colour_metadata(ffprobe_dict):
