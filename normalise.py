@@ -216,7 +216,9 @@ def main(args_):
             shutil.move(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'), os.path.dirname(sipcreator_log))
             logs_dir = os.path.dirname(sipcreator_log)
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5)))
+            ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5ffv1)))
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir,(os.path.basename(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':')))))
+            ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir,(os.path.basename(fmd5_logfile.replace('\\\\', '\\').replace('\:', ':')))))
             ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 if __name__ == '__main__':
