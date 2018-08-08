@@ -99,6 +99,10 @@ def normalise_process(filename, output_folder):
             'setfield=tff, setdar=4/3'
             ]
         print(' - -vf setfield=tff, setdar=4/3 will be added to the FFmpeg command.')
+        ffprobe_dict = ififuncs.get_ffprobe_dict(filename)
+        # let's stipulate the colour metadata if not present for SD PAL material.
+        if not ififuncs.get_colour_metadata(ffprobe_dict):
+            ffv1_command += ['-color_primaries', 'bt470bg', '-color_trc', 'bt709', '-colorspace', 'bt470bg' ]
     ffv1_command += [
         output,
         '-f', 'framemd5', '-an',  # Create decoded md5 checksums for every frame of the input. -an ignores audio
