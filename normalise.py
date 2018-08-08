@@ -48,12 +48,12 @@ def parse_args(args_):
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
-def extract_provenance(filename, output_folder):
+def extract_provenance(filename, output_folder, output_uuid):
     '''
     This will extract mediainfo and mediatrace XML
     '''
-    inputxml = "%s/%s_mediainfo.xml" % (output_folder, os.path.basename(filename))
-    inputtracexml = "%s/%s_mediatrace.xml" % (output_folder, os.path.basename(filename))
+    inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
+    inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     ififuncs.make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
@@ -179,7 +179,14 @@ def main(args_):
     file_list = ififuncs.get_video_files(source)
     for filename in file_list:
         print('\n - Processing: %s' % filename)
-        inputxml, inputtracexml = extract_provenance(filename, output_folder)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = Normalization, status=started, eventType=Normalization, agentName=ffmpeg, eventDetail=Source object to be normalised=%s' % filename)
+        output, output_uuid, fmd5, ffv1_logfile = normalise_process(filename, output_folder)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = Normalization, status=finished, eventType=Normalization, agentName=ffmpeg, eventDetail=Source object normalised into=%s' % output)
+        inputxml, inputtracexml = extract_provenance(filename, output_folder, output_uuid)
         mediainfo_version = ififuncs.get_mediainfo_version()
         ififuncs.generate_log(
             log_name_source,
@@ -189,13 +196,6 @@ def main(args_):
             log_name_source,
             'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
         )
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = Normalization, status=started, eventType=Normalization, agentName=ffmpeg, eventDetail=Source object to be normalised=%s' % filename)
-        output, output_uuid, fmd5, ffv1_logfile = normalise_process(filename, output_folder)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = Normalization, status=finished, eventType=Normalization, agentName=ffmpeg, eventDetail=Source object normalised into=%s' % output)
         ififuncs.generate_log(
             log_name_source,
             'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
