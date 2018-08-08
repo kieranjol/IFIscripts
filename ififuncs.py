@@ -1484,7 +1484,7 @@ def diff_framemd5s(fmd5, fmd5ffv1):
                     ):
                 if line1 != line2:
                     if 'sar' in line1:
-                        checksum_mismatches = ['sar']
+                        checksum_mismatches,append('sar')
                     else:
                         checksum_mismatches.append(1)
     return checksum_mismatches
