@@ -112,6 +112,23 @@ rearrange.py
 Transcodes
 ----------
 
+normalise.py
+~~~~~~~~~~~
+
+-  Transcodes to FFV1/Matroska and performs framemd5 validation. Accepts
+   single files only. Batch functionality may be added at a later date.
+   For IFI purposes, the ``-sip`` option is needed as this will also launch
+   ``sipcreator.py`` and generate the IFI package structure. If this ``-sip`` flag is not
+   used, then the script will not impose a folder structure.
+   You may wish to add some supplemtal metadata to the package, such as an EDL or
+   some capture notes, so these can be added with the ``-supplement`` option.
+-  Currently, the lossless report is displayed in the middle of the process, so care is needed
+   to ensure that the losslessness is verified before moving on to accessioning.
+-  Usage within IFI - ``normalise.py -i filename.mov -o /path/to/output_directory -sip``  
+-  Usage within IFI with supplement option - ``normalise.py -i filename.mov -o /path/to/output_directory -sip -supplement path/to/supplemental_1.txt path/to/supplemental2.edl``  
+-  Usage for single file in a general usage - ``normalise.py -i filename.mov -o /path/to/output_directory``
+
+
 makeffv1.py
 ~~~~~~~~~~~
 
