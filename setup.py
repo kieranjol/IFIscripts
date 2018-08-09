@@ -42,7 +42,8 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'makeuuid.py',
         'masscopy.py',
         'packagecheck.py',
-        'testfiles.py'
+        'testfiles.py',
+        'normalise.py'
     ],
     license='MIT',
     install_requires=[
@@ -50,5 +51,5 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'bagit'
     ],
     name='ifiscripts',
-    version='v2018.07.16'
+    version='v2018.08.09'
 )

@@ -26,7 +26,7 @@ author = u'Kieran O\'Leary'
 # The short X.Y version
 version = u''
 # The full version, including alpha/beta/rc tags
-release = u'2018-04-08'
+release = u'2018-08-09'
 
 
 # -- General configuration ---------------------------------------------------
