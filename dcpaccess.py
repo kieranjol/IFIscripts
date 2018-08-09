@@ -69,7 +69,7 @@ if args.s:
     print ('You have chosen to burn in subtitles. This will take a long time. A better approach may be to make a clean transcode to a high quality format such as PRORES and make further clean or subtitled surrogates from that new copy. ')
     print ('***********************************************')
     time.sleep(1)
-    
+lut_path = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '26_XYZ-22_Rec709.cube')
 # Set a bunch of variables for filenaming.    
 dcp_dir               = args.input
 # This temp directory should work on all operating systems. 
@@ -240,13 +240,14 @@ def burn_subs():
                 print( 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r') ,
             current_sub_counter +=1 
         current_sub_counter= 0
+        os.chdir(os.path.dirname(lut_path))
         if delays == 0:
             print( 'There were no audio delays.')
             command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
-            '-c:a','copy', '-c:v', 'libx264',]
+            '-c:a','copy', '-c:v', 'libx264', '-vf', 'lut3d=26_XYZ-22_Rec709.cube']
         else:
             command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
-            '-c:a','copy', '-c:v', 'libx264',]
+            '-c:a','copy', '-c:v', 'libx264','-vf', 'lut3d=26_XYZ-22_Rec709.cube']
         pix_fmt = ['-pix_fmt','yuv420p']   
         subs_command =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
         if sub_delay > 0:
@@ -488,14 +489,15 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 print(rewrap)
                 subprocess.call(rewrap)        
         write_textfile(video_concat_textfile, finalpic)
-        write_textfile(audio_concat_textfile, finalaudio) 
+        write_textfile(audio_concat_textfile, finalaudio)
+        os.chdir(os.path.dirname(lut_path))
         command = ['ffmpeg','-f','concat','-safe', '0','-c:v ','libopenjpeg',
                    '-i',video_concat_textfile,'-f','concat','-safe', '0',
-                   '-i',audio_concat_textfile,'-c:v']
+                   '-i',audio_concat_textfile, '-vf', 'lut3d=./26_XYZ-22_Rec709.cube','-c:v']
 
         command += codec
         if args.hd:
-            command += ['-vf', "scale=1920:-1,setsar=1/1,pad=1920:1080:0:(oh-ih)/2"]
+            command += ['-vf', "scale=1920:-1,setsar=1/1,pad=1920:1080:0:(oh-ih)/2,lut3d=26_XYZ-22_Rec709.cube"]
         command += [output]
         print (command)
         subprocess.call(command)        
