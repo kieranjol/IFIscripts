@@ -382,7 +382,7 @@ def main(args_):
     )
     if args.supplement:
         os.makedirs(supplemental_dir)
-        supplement_cmd = ['-i', args.supplement, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
+        supplement_cmd = ['-i', args.supplement, '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
     ififuncs.sort_manifest(new_manifest_textfile)
     if not args.quiet:

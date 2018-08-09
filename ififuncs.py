@@ -19,6 +19,7 @@ import operator
 import json
 import ctypes
 import platform
+import itertools
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -53,7 +54,7 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         '-f',
         '--language=raw',
         '--File_TestContinuousFileNames=0',
-        '--output=XML',
+        '--output=OLDXML',
         inputfilename
     ]
     with open(xmlfilename, "w+") as fo:
@@ -1314,6 +1315,22 @@ def recursive_file_list(video_files):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
 
+
+def get_video_files(source):
+    '''
+    Generates a list of video files.
+    '''
+    file_list = []
+    if os.path.isdir(source):
+        folder_list = os.listdir(source)
+        for filename in folder_list:
+            if not filename[0] == '.':
+                if filename.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi')):
+                    file_list.append(os.path.join(source, filename))
+    elif os.path.isfile(source):
+        file_list = [source]
+    return file_list
+
 def extract_metadata(csv_file):
     '''
     Read the csv and store the data in a list of dictionaries.
@@ -1403,4 +1420,130 @@ def get_digital_object_descriptor(source_folder):
             dig_object_descriptor = 'XDCAM EX'
     return dig_object_descriptor
 
+def check_for_fcp(filename):
+    '''
+    Final Cut Pro 7 Capture files have some significant missing metadata that
+    seriously affect how the image is presented. This function will check to see
+    if PAL video does not have field order and aspect ratio metadata stored in the
+    container.
+    '''
+    par = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw', '--Full',
+            "--Inform=Video;%PixelAspectRatio%", filename
+        ]
+        ).rstrip()
+    field_order = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%ScanType%", filename
+        ]
+        ).rstrip()
+    height = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Height%",
+            filename
+        ]
+        ).rstrip()
+    width = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Width%",
+            filename
+        ]
+        ).rstrip()
+    if par == '1.000':
+        if field_order == '':
+            if height == '576':
+                if width == '720':
+                    return True
+def read_non_comment_lines(infile):
+    '''
+    This was pulled from makeffv1, and it looks like the key line has actually been commented out.
+    So not sure what's going on here exactly :(
+    '''
+    # Adapted from Andrew Dalke - http://stackoverflow.com/a/8304087/2188572
+    for lineno, line in enumerate(infile):
+        #if line[:1] != "#":
+        yield lineno, line
 
+
+def diff_framemd5s(fmd5, fmd5ffv1):
+    '''
+    Generates a basic report on the differences between two framemd5 files,
+    which should determine losslessness.
+    '''
+
+    checksum_mismatches = []
+    with open(fmd5) as f1:
+        with open(fmd5ffv1) as f2:
+            for (lineno1, line1), (lineno2, line2) in itertools.izip(
+                    read_non_comment_lines(f1),
+                    read_non_comment_lines(f2)
+                    ):
+                if line1 != line2:
+                    if 'sar' in line1:
+                        checksum_mismatches.append('sar')
+                    else:
+                        checksum_mismatches.append(1)
+    return checksum_mismatches
+
+def get_mediainfo_version():
+    '''
+    Returns the version of mediainfo.
+    If this is not possible, the string 'mediainfo' is returned.
+    '''
+    mediainfo_version = 'mediainfo'
+    try:
+        mediainfo_version = subprocess.check_output([
+            'mediainfo', '--Version'
+        ]).rstrip()
+    except subprocess.CalledProcessError as grepexc:
+        mediainfo_version = grepexc.output.rstrip().splitlines()[1]
+    return mediainfo_version
+
+def get_ffprobe_dict(source):
+    '''
+    Returns a dictionary via the ffprobe JSON output
+    '''
+    cmd = ['ffprobe', '-v', '0', '-show_versions', '-show_streams', '-show_format', '-print_format', 'json', source]
+    ffprobe_json = subprocess.check_output(cmd)
+    ffprobe_dict = json.loads(ffprobe_json)
+    return ffprobe_dict
+
+def get_colour_metadata(ffprobe_dict):
+    '''
+    Parses through a ffprobe dictionary and extracts colour metadata.
+    FFmpeg options are returned. Basically, the source metadata will be respected,
+    but if certain criteria are found (720/576/25fps), then if values are missing,
+    they will be populated with the bt601 recommendations.
+    This is currently needed as this kind of metadata is lost when normalsing from MOV
+    to Matroska. If we extract the values here, we can specify what they should be in the
+    normalised file.
+    The multiple try except clauses here are inefficient - it would be great to make
+    this better, but due to time constraints, I'm taking the sloppy way out.
+    example values that are extracted from the ffprobe_dict:
+    u'color_space': u'smpte170m', u'color_primaries': u'bt470bg', u'color_transfer': u'bt709'
+    '''
+    ffmpeg_colour_list = []
+    for stream in ffprobe_dict['streams']:
+        if stream['codec_type'] == 'video':
+            try:
+                color_trc = stream['color_transfer']
+                ffmpeg_colour_list.extend(['-color_trc', color_trc])
+            except KeyError:
+                color_trc = ''
+            try:
+                colorspace = stream['color_space']
+                ffmpeg_colour_list.extend(['-colorspace', colorspace])
+            except KeyError:
+                colorspace = ''
+            try:
+                color_primaries = stream['color_primaries']
+                ffmpeg_colour_list.extend(['-color_primaries', color_primaries])
+            except KeyError:
+                color_primaries = ''
+        else:
+            continue
+    return ffmpeg_colour_list

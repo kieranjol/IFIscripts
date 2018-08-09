@@ -56,7 +56,7 @@ def update_manifest(manifest, old_path, new_path, new_log_textfile):
                 ififuncs.generate_log(
                     new_log_textfile,
                     'EVENT = eventType=metadata modification,'
-                    ' agentName=rearrange.py,'
+                    ' agentName=package_update.py,'
                     ' eventDetail=the following path: %s has been updated with %s in the package manifest' % (old_path, new_path)
                 )
                 updated_lines.append(line)
@@ -89,11 +89,11 @@ def main(args_):
     new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = rearrange.py started'
+        'EVENT = package_update.py started'
     )
     ififuncs.generate_log(
         new_log_textfile,
-        'eventDetail=rearrange.py %s' % ififuncs.get_script_version('package_update.py')
+        'eventDetail=package_update.py %s' % ififuncs.get_script_version('package_update.py')
     )
     ififuncs.generate_log(
         new_log_textfile,
@@ -142,7 +142,7 @@ def main(args_):
         )
     ififuncs.generate_log(
         new_log_textfile,
-        'EVENT = rearrange.py finished'
+        'EVENT = package_update.py finished'
     )
     ififuncs.checksum_replace(sip_manifest, new_log_textfile, 'md5')
     finish = datetime.datetime.now()
