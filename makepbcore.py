@@ -440,7 +440,7 @@ def main(args_):
         )
         transfer_list.append(transfer_characteris)
         colour_primaries = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='color_primaries']",
+            "//ns:essenceTrackAnnotation[@annotationType='colour_primaries']",
             root, pbcore_namespace
         )
         colour_primaries_list.append(colour_primaries)
