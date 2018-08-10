@@ -499,6 +499,15 @@ def main(args_):
             "//ns:instantiationAnnotation[@annotationType='Interlacement']",
             root, pbcore_namespace
         )
+        # FFV1/MKV seems to have this scanorder metadata here rather than Interlacement
+        # FFV1/MKV is the only example I've seen so far that behaves like this :|
+        # It could be that Interlacement is set at a codec level for FFV1, but others are
+        # declared at the container level..
+        if Interlacement == 'n/a':
+            Interlacement = get_metadata(
+                "//ns:essenceTrackAnnotation[@annotationType='ScanOrder']",
+                root, pbcore_namespace
+            )
         interlace_list.append(Interlacement)
         Compression_Mode = get_metadata(
             "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
