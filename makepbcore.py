@@ -496,7 +496,7 @@ def main(args_):
             'DAR', '--inform=Video;%DisplayAspectRatio_String%', source
         )
         Interlacement = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Interlacement']",
+            "//ns:essenceTrackAnnotation[@annotationType='Interlacement']",
             root, pbcore_namespace
         )
         # FFV1/MKV seems to have this scanorder metadata here rather than Interlacement
