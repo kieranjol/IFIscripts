@@ -326,13 +326,16 @@ def check_overwrite_dir(dir2check):
     Asks user if they want to overwrite a pre-existing destination directory.
     '''
     if os.path.isdir(dir2check):
-        print('A directory already exists at your destination. Overwrite? Y/N?')
-        overwrite_destination_dir = ''
-        while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-            overwrite_destination_dir = raw_input()
-            if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-                print('Incorrect input. Please enter Y or N')
-        return overwrite_destination_dir
+        if len(os.listdir(dir2check)) > 1:
+            print('A directory already exists at your destination. Overwrite? Y/N?')
+            overwrite_destination_dir = ''
+            while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
+                overwrite_destination_dir = raw_input()
+                if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
+                    print('Incorrect input. Please enter Y or N')
+            return overwrite_destination_dir
+        else:
+            print('A directory exists in your destination but it is empty so we shall proceed')
 
 def check_for_sip(args):
     '''
