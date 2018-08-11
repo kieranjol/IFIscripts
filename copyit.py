@@ -416,7 +416,10 @@ def setup(args_):
         manifest_destination = destination + '/%s_manifest.md5' % dirname
     if os.path.isfile(manifest_destination):
         print('Destination manifest already exists')
-    manifest_filename = '%s_manifest.md5' % dirname
+    if rootpos == 'y':
+        manifest_filename = '%s_manifest.md5' % os.path.basename(destination)
+    else:
+        manifest_filename = '%s_manifest.md5' % dirname
     desktop_manifest_dir = make_desktop_manifest_dir()
     # manifest = desktop manifest, looks like this can get rewritten later.
     manifest = os.path.join(
