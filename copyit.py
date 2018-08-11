@@ -713,7 +713,7 @@ def main(args_):
             manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count
         )
         manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
-        if os.path.dirname(manifest) == desktop_manifest_dir:
+        if os.path.normpath(os.path.dirname(manifest)) == os.path.normpath(desktop_manifest_dir):
             os.rename(manifest, manifest_rename)
             shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
         # hack to also copy the sha512 manifest :(
