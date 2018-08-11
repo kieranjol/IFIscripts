@@ -407,7 +407,10 @@ def setup(args_):
     relative_path = normpath.split(os.sep)[-1]
     # or hardcode
     destination_final_path = os.path.join(destination, dirname)
-    manifest_destination = destination + '/%s_manifest.md5' % dirname
+    if rootpos == 'y':
+        manifest_destination = os.path.dirname(destination) + '/%s_manifest.md5' % os.path.basename(destination)
+    else:
+        manifest_destination = destination + '/%s_manifest.md5' % dirname
     if os.path.isfile(manifest_destination):
         print('Destination manifest already exists')
     manifest_filename = '%s_manifest.md5' % dirname
@@ -548,7 +551,7 @@ def make_destination_manifest(
         if rootpos == 'y':
             files_in_manifest = make_manifest(
                 destination_final_path,
-                manifest_destination, destination
+                manifest_destination, os.path.dirname(destination)
             )
             generate_log(
                 log_name_source,
