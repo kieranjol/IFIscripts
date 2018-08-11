@@ -624,6 +624,7 @@ def main(args_):
     '''
     Launches the functions that will safely copy and paste your files.
     '''
+    manifest_temp = '--' # add two characters so that I can slice for manifest_temp[1] later.
     dircheck = None
     args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir = setup(args_)
     if os.path.isdir(args.source):
@@ -708,10 +709,12 @@ def main(args_):
             os.rename(manifest, manifest_rename)
             shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
         # hack to also copy the sha512 manifest :(
-        sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
-        if os.path.isfile(sha512_manifest):
-            shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
-            print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
+        # Stop the temp manifest from copying
+        if not os.path.basename(manifest_temp[1]) == os.path.basename(manifest):
+            sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
+            if os.path.isfile(sha512_manifest):
+                shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
+                print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
         return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
