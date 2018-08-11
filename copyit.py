@@ -710,7 +710,7 @@ def main(args_):
                 dest_manifest_list = fo.readlines()
                 with open(manifest_temp[1], 'wb') as temp_object:
                     for i in dest_manifest_list:
-                        temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
+                        temp_object.write(i[:33] + ' ' + os.path.basename(os.path.dirname(destination_final_path)) + '/' +  i[34:])
                 legacy_manifest = manifest
                 manifest = manifest_temp[1]
         verify_copy(
