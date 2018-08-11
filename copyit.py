@@ -399,9 +399,11 @@ def setup(args_):
     dirname = os.path.split(os.path.basename(source))[1]
     if dirname == '':
         rootpos = 'y'
+        '''
         dirname = raw_input(
             'What do you want your destination folder to be called?\n'
         )
+        '''
     relative_path = normpath.split(os.sep)[-1]
     # or hardcode
     destination_final_path = os.path.join(destination, dirname)
