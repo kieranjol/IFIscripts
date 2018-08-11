@@ -711,6 +711,7 @@ def main(args_):
                 with open(manifest_temp[1], 'wb') as temp_object:
                     for i in dest_manifest_list:
                         temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
+                legacy_manifest = manifest
                 manifest = manifest_temp[1]
         verify_copy(
             manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count
@@ -719,6 +720,10 @@ def main(args_):
         if os.path.normpath(os.path.dirname(manifest)) == os.path.normpath(desktop_manifest_dir):
             os.rename(manifest, manifest_rename)
             shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
+            if rootpos == 'y':
+                legacy_manifest_rename = legacy_manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
+                os.rename(legacy_manifest, legacy_manifest_rename)
+                shutil.move(legacy_manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
         # hack to also copy the sha512 manifest :(
         # Stop the temp manifest from copying
         if not os.path.basename(manifest_temp[1]) == os.path.basename(manifest):
