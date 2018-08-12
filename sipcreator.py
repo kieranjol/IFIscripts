@@ -23,7 +23,10 @@ def make_folder_path(path, args, object_entry):
         representation_uuid = ififuncs.create_uuid()
     else:
         representation_uuid = args.u
-    oe_path = os.path.join(path, object_entry)
+    if args.sc:
+        oe_path = args.o
+    else:
+        oe_path = os.path.join(path, object_entry)
     path = os.path.join(oe_path, representation_uuid)
     print path
     ififuncs.make_folder_structure(path)
@@ -170,6 +173,10 @@ def parse_args(args_):
         help='invokes the -move argument in copyit.py - moves instead of copy.'
     )
     parser.add_argument(
+        '-sc', action='store_true',
+        help='special collections workflow'
+    )
+    parser.add_argument(
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
     )
@@ -303,20 +310,23 @@ def main(args_):
         user = args.user
     else:
         user = ififuncs.get_user()
-    if args.oe:
-        if args.oe[:2] != 'oe':
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
-            object_entry = ififuncs.get_object_entry()
-        elif len(args.oe[2:]) not in range(4, 6):
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
-            object_entry = ififuncs.get_object_entry()
-        elif not args.oe[2:].isdigit():
-            object_entry = ififuncs.get_object_entry()
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+    if not args.sc:
+        if args.oe:
+            if args.oe[:2] != 'oe':
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                object_entry = ififuncs.get_object_entry()
+            elif len(args.oe[2:]) not in range(4, 6):
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                object_entry = ififuncs.get_object_entry()
+            elif not args.oe[2:].isdigit():
+                object_entry = ififuncs.get_object_entry()
+                print 'First two characters must be \'oe\' and last four characters must be four digits'
+            else:
+                object_entry = args.oe
         else:
-            object_entry = args.oe
+            object_entry = ififuncs.get_object_entry()
     else:
-        object_entry = ififuncs.get_object_entry()
+        object_entry = 'not_applicable'
     sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
@@ -360,12 +370,13 @@ def main(args_):
     )
     if args.u is False:
         sys.exit()
-    ififuncs.generate_log(
-        new_log_textfile,
-        'EVENT = eventType=Identifier assignement,'
-        ' eventIdentifierType=object entry, value=%s'
-        % object_entry
-    )
+    if not args.sc:
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = eventType=Identifier assignement,'
+            ' eventIdentifierType=object entry, value=%s'
+            % object_entry
+        )
     metadata_dir = os.path.join(sip_path, 'metadata')
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
