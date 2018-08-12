@@ -297,6 +297,27 @@ def create_content_title_text(sip_path):
         os.rename(os.path.basename(dcp_dirname), content_title_text)
     return content_title_text
 
+def normalise_objects_manifest(sip_path):
+    '''
+    For a root copy workflow, the objects manifest is in the
+    uuid directory, not the objects directory. This will move it
+    into the objects directory.
+    '''
+    objects_manifest = os.path.join(sip_path, 'objects_manifest.md5')
+    updated_manifest_lines = []
+    with open(objects_manifest, 'r') as fo:
+        manifest_lines = fo.readlines()
+        for i in manifest_lines:
+            # This is what appends the new path to existing paths.
+            replacement = i.replace('  objects/', '  ')
+            updated_manifest_lines.append(replacement)
+    with open(objects_manifest, 'w') as fo:
+        for x in updated_manifest_lines:
+            fo.write(x)
+    # Cut and paste old manifests into the log directory
+    shutil.move(
+        objects_manifest, os.path.join(sip_path, 'objects')
+    )
 
 def main(args_):
     '''
@@ -385,6 +406,8 @@ def main(args_):
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
     )
+    if args.sc:
+        normalise_objects_manifest(sip_path)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
     consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
