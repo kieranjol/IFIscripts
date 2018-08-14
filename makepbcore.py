@@ -557,6 +557,7 @@ def main(args_):
         essenceBitDepth_au = 'n/a'
         essenceTrackEncod_au = 'n/a'
         essenceTrackSampling = 'n/a'
+        channels = 'n/a'
     video_codecid = vcodec_attributes['ref']
     video_codecid_list.append(video_codecid)
     try:
