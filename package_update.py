@@ -85,11 +85,11 @@ def main(args_):
         # special collections workflow that has the uuid as the parent.
         # some real checks should exist for this whole if/else flow.
         sip_path = args.input
-        oe_path = args.input
-        uuid = os.path.basename(oe_path)
+        oe_path = os.path.dirname(args.input)
+        uuid = os.path.basename(sip_path)
         sip_manifest = os.path.join(
-            oe_path, uuid
-            ) + '_manifest.md5'
+            oe_path, uuid + '_manifest.md5'
+            )
     start = datetime.datetime.now()
     print args
     if args.user:
@@ -133,23 +133,25 @@ def main(args_):
                 ififuncs.sort_manifest(sip_manifest)
         else:
             # add test to see if it actually deleted - what if read only?
-            shutil.move(filename, args.new_folder)
+            shutil.move(filenames, args.new_folder)
             ififuncs.generate_log(
                 new_log_textfile,
                 'EVENT = eventType=file movement,'
                 ' eventOutcomeDetailNote=%s has been moved into %s'
                 ' agentName=shutil.move()'
-                % (filename, args.new_folder)
+                % (filenames, args.new_folder)
             )
-        print '%s has been moved into %s' % (filename, args.new_folder)
-        relative_filename = filename.replace(args.input + '/', '')
-        relative_new_folder = args.new_folder.replace(args.input + '/', '')
-        update_manifest(
-            sip_manifest,
-            relative_filename,
-            os.path.join(relative_new_folder, os.path.basename(relative_filename)),
-            new_log_textfile
-        )
+            print '%s has been moved into %s' % (filenames, args.new_folder)
+            relative_filename = filenames.replace(os.path.dirname(args.input) + '/', '').replace('\\', '/')
+            relative_filename = filenames.replace(os.path.dirname(args.input) + '\\', '').replace('\\', '/')
+            relative_new_folder = args.new_folder.replace(os.path.dirname(args.input) + '/', '').replace('\\', '/')
+            relative_new_folder = args.new_folder.replace(os.path.dirname(args.input) + '\\', '').replace('\\', '/')
+            update_manifest(
+                sip_manifest,
+                relative_filename,
+                os.path.join(relative_new_folder, os.path.basename(relative_filename)).replace('\\', '/'),
+                new_log_textfile
+            )
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = package_update.py finished'
