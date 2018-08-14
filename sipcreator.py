@@ -304,20 +304,21 @@ def normalise_objects_manifest(sip_path):
     into the objects directory.
     '''
     objects_manifest = os.path.join(sip_path, 'objects_manifest.md5')
-    updated_manifest_lines = []
-    with open(objects_manifest, 'r') as fo:
-        manifest_lines = fo.readlines()
-        for i in manifest_lines:
-            # This is what appends the new path to existing paths.
-            replacement = i.replace('  objects/', '  ')
-            updated_manifest_lines.append(replacement)
-    with open(objects_manifest, 'w') as fo:
-        for x in updated_manifest_lines:
-            fo.write(x)
-    # Cut and paste old manifests into the log directory
-    shutil.move(
-        objects_manifest, os.path.join(sip_path, 'objects')
-    )
+    if os.path.isfile(objects_manifest):
+        updated_manifest_lines = []
+        with open(objects_manifest, 'r') as fo:
+            manifest_lines = fo.readlines()
+            for i in manifest_lines:
+                # This is what appends the new path to existing paths.
+                replacement = i.replace('  objects/', '  ')
+                updated_manifest_lines.append(replacement)
+        with open(objects_manifest, 'w') as fo:
+            for x in updated_manifest_lines:
+                fo.write(x)
+        # Cut and paste old manifests into the log directory
+        shutil.move(
+            objects_manifest, os.path.join(sip_path, 'objects')
+        )
 
 def main(args_):
     '''
