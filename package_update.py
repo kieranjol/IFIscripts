@@ -117,20 +117,23 @@ def main(args_):
         os.makedirs(args.new_folder)
     for filenames in args.i:
         if args.copy:
-            for filename in filenames:
-                copyit.main([filename, args.new_folder])
-                ififuncs.generate_log(
-                    new_log_textfile,
-                    'EVENT = eventType=file movement,'
-                    ' eventOutcomeDetailNote=%s has been moved into %s'
-                    ' agentName=copyit.py'
-                    % (filename, args.new_folder)
-                )
-                # this is hardcoded - pick this apart so that any folder can be added to.
-                sipcreator.consolidate_manifests(sip_path, 'metadata/supplemental', new_log_textfile)
-                log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filename) + '_manifest.md5')
-                ififuncs.manifest_update(sip_manifest, log_manifest)
-                ififuncs.sort_manifest(sip_manifest)
+            copyit.main([filenames, args.new_folder])
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = eventType=file movement,'
+                ' eventOutcomeDetailNote=%s has been moved into %s'
+                ' agentName=copyit.py'
+                % (filenames, args.new_folder)
+            )
+            # this is hardcoded - pick this apart so that any folder can be added to.
+            # this must be fixed in normalise.py as well.
+            relative_new_path = args.new_folder.replace(sip_path, '')
+            if relative_new_path[0] == '/':
+                relative_new_path = relative_new_path[1:]
+            sipcreator.consolidate_manifests(sip_path, relative_new_path, new_log_textfile)
+            log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filenames) + '_manifest.md5')
+            ififuncs.manifest_update(sip_manifest, log_manifest)
+            ififuncs.sort_manifest(sip_manifest)
         else:
             # add test to see if it actually deleted - what if read only?
             shutil.move(filenames, args.new_folder)
