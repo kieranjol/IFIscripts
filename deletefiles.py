@@ -23,7 +23,7 @@ def parse_args(args_):
         help='full path of files to be deleted', required=True
     )
     parser.add_argument(
-        'input',
+        '-uuid_path',
         help='full path of \'sipcreator\' Object Entry package'
     )
     parser.add_argument(
@@ -61,7 +61,7 @@ def main(args_):
     Launch all the functions for creating an IFI SIP.
     '''
     args = parse_args(args_)
-    source = args.input
+    source = args.uuid_path
     sip_path = ififuncs.check_for_sip([source])
     if sip_path is not None:
         oe_path = os.path.dirname(sip_path)
@@ -73,8 +73,8 @@ def main(args_):
         # this is assuming that the other workflow will be the
         # special collections workflow that has the uuid as the parent.
         # some real checks should exist for this whole if/else flow.
-        sip_path = args.input
-        oe_path = os.path.dirname(args.input)
+        sip_path = args.uuid_path
+        oe_path = os.path.dirname(args.uuid_path)
         uuid = os.path.basename(sip_path)
         sip_manifest = os.path.join(
             oe_path, uuid + '_manifest.md5'
