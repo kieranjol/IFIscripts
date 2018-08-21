@@ -69,6 +69,16 @@ def main(args_):
         sip_manifest = os.path.join(
             oe_path, uuid
             ) + '_manifest.md5'
+    else:
+        # this is assuming that the other workflow will be the
+        # special collections workflow that has the uuid as the parent.
+        # some real checks should exist for this whole if/else flow.
+        sip_path = args.input
+        oe_path = os.path.dirname(args.input)
+        uuid = os.path.basename(sip_path)
+        sip_manifest = os.path.join(
+            oe_path, uuid + '_manifest.md5'
+            )
     start = datetime.datetime.now()
     print args
     if args.user:
