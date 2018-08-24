@@ -74,6 +74,15 @@ makepbcore.py
 -  Usage for one directory - ``makepbcore.py /path/to/directory_name``
 -  Run ``makepbcore.py -h`` for all options.
 
+mergepbcore.py
+~~~~~~~~~~~~~~
+
+-  Collates PBCore CSV records into a single merged CSV.
+-  The merged csv will be stored in the Desktop ifiscripts_logs folder.
+-  This script takes a parent folder containing accessioned packages as input.
+-  Usage ``mergepbcore.py /path/to/folder_that_contains_accessioned_packages``
+-  Run ``mergepbcore.py -h`` for all options.
+
 deletefiles.py
 ~~~~~~~~~~~~~~
 
