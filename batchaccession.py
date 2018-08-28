@@ -198,10 +198,14 @@ def main(args_):
     oe_list = []
     if args.csv:
         for line_item in ififuncs.extract_metadata(args.csv)[0]:
-            oe_number = line_item['Object Entry'].lower()
+            try:
+                oe_number = line_item['Object Entry'].lower()
+            except KeyError:
+                oe_number = line_item['OE No.'].lower()
             # this transforms OE-#### to oe####
             transformed_oe = oe_number[:2] + oe_number[3:]
             oe_list.append(transformed_oe)
+    print oe_list
     if args.reference:
         reference_number = get_filmographic_number(args.reference)
     else:
