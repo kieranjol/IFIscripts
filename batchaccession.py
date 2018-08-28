@@ -140,7 +140,7 @@ def parse_args(args_):
         help='Enter the Accession number for the first package. The script will increment by one for each subsequent package.'
     )
     parser.add_argument(
-        '-csv',
+        '-filmographic',
         help='Enter the path to the Filmographic CSV'
     )
     parser.add_argument(
