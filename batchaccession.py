@@ -144,7 +144,7 @@ def parse_args(args_):
         help='Enter the path to the Filmographic CSV'
     )
     parser.add_argument(
-        '-csv',
+        '-oe_csv',
         help='Enter the path to the Object Entry CSV'
     )
     parser.add_argument(
@@ -214,20 +214,20 @@ def main(args_):
     '''
     args = parse_args(args_)
     oe_list = []
-    if args.csv:
+    if args.oe_csv:
         if not args.filmographic:
-            print(' - batchaccession.py - ERROR\n - No -filmographic argument supplied. This is mandatory when using the -csv option. \n - Exiting..')
+            print(' - batchaccession.py - ERROR\n - No -filmographic argument supplied. This is mandatory when using the -oe_csv option. \n - Exiting..')
             sys.exit()
-        oe_csv_extraction = ififuncs.extract_metadata(args.csv)
+        oe_csv_extraction = ififuncs.extract_metadata(args.oe_csv)
         initial_oe_list = oe_csv_extraction[0]
         oe_dicts = process_oe_csv(oe_csv_extraction, args.input)
         # temp hack while we're performing both workflows
-        helper_csv = args.csv
+        helper_csv = args.oe_csv
     elif args.filmographic:
         initial_oe_list = ififuncs.extract_metadata(args.filmographic)[0]
         # temp hack while we're performing both workflows
         helper_csv = args.filmographic
-    if args.csv or args.filmographic:
+    if args.oe_csv or args.filmographic:
         for line_item in ififuncs.extract_metadata(helper_csv)[0]:
             try:
                 oe_number = line_item['Object Entry'].lower()
@@ -236,7 +236,7 @@ def main(args_):
             # this transforms OE-#### to oe####
             transformed_oe = oe_number[:2] + oe_number[3:]
             oe_list.append(transformed_oe)
-    if not args.csv:
+    if not args.oe_csv:
         # No need to ask for the reference number if the OE csv option is supplied.
         # The assumption here is that the OE csv contains the reference numbers though.
         if args.reference:
@@ -249,7 +249,7 @@ def main(args_):
     user = ififuncs.get_user()
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
-    if not args.csv:
+    if not args.oe_csv:
         to_accession = initial_check(args, accession_digits, oe_list, reference_number)
     else:
         to_accession = {}
@@ -266,7 +266,7 @@ def main(args_):
         else:
             new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.filmographic)
         new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
-        if not args.csv:
+        if not args.oe_csv:
             filmographic_dict, headers = ififuncs.extract_metadata(args.filmographic)
             for oe_package in to_accession:
                 for filmographic_record in filmographic_dict:
@@ -289,7 +289,7 @@ def main(args_):
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
-    if args.csv:
+    if args.oe_csv:
         new_csv = args.filmographic
     if proceed == 'Y':
         for package in sorted(to_accession.keys(), key=natural_keys):
@@ -303,7 +303,7 @@ def main(args_):
             ]
             if len(to_accession[package]) == 3:
                 accession_cmd.extend(['-acquisition_type', '13'])
-                if args.csv:
+                if args.oe_csv:
                     accession_cmd.extend(['-parent', to_accession[package][2]])
                 else:
                     accession_cmd.extend(['-parent', order.main(package)])
