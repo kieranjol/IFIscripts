@@ -115,12 +115,9 @@ def main(args_):
     )
     if not os.path.isdir(args.new_folder):
         os.makedirs(args.new_folder)
+    if isinstance(args.i[0], (list,)):
+        args.i = args.i[0]
     for filenames in args.i:
-        if isinstance(filenames, (list,)):
-            # due to the nature of argparse nargs, you can end up with
-            # a list within a list when passing the -supplement values
-            # between scripts.
-            filenames = filenames[0]
         if args.copy:
             copyit.main([filenames, args.new_folder])
             ififuncs.generate_log(
