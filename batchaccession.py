@@ -140,8 +140,12 @@ def parse_args(args_):
         help='Enter the Accession number for the first package. The script will increment by one for each subsequent package.'
     )
     parser.add_argument(
-        '-csv',
+        '-filmographic',
         help='Enter the path to the Filmographic CSV'
+    )
+    parser.add_argument(
+        '-oe_csv',
+        help='Enter the path to the Object Entry CSV'
     )
     parser.add_argument(
         '-reference',
@@ -188,7 +192,21 @@ def get_number(args):
         accession_number = ififuncs.get_accession_number()
     accession_digits = accession_number[3:].zfill(4)
     return accession_number[:3] + accession_digits
-
+def process_oe_csv(oe_csv_extraction, source_path):
+    '''
+    generate a dictionary with the relevant data per object, namely:
+    title, reference number, OE number and parent.
+    '''
+    oe_dicts = []
+    for record in oe_csv_extraction[0]:
+        dictionary = {}
+        dictionary['Object Entry'] = record['OE No.']
+        dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
+        dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
+        dictionary['parent'] = record['Additional Information'].split('Reproduction of ')[1].split('|')[0].rstrip()
+        dictionary['reference number'] = record['Additional Information'].split('Representation of ')[1].split('|')[0].rstrip()
+        oe_dicts.append(dictionary)
+    return oe_dicts
 
 def main(args_):
     '''
@@ -196,53 +214,83 @@ def main(args_):
     '''
     args = parse_args(args_)
     oe_list = []
-    if args.csv:
-        for line_item in ififuncs.extract_metadata(args.csv)[0]:
-            oe_number = line_item['Object Entry'].lower()
+    if args.oe_csv:
+        if not args.filmographic:
+            print(' - batchaccession.py - ERROR\n - No -filmographic argument supplied. This is mandatory when using the -oe_csv option. \n - Exiting..')
+            sys.exit()
+        oe_csv_extraction = ififuncs.extract_metadata(args.oe_csv)
+        initial_oe_list = oe_csv_extraction[0]
+        oe_dicts = process_oe_csv(oe_csv_extraction, args.input)
+        # temp hack while we're performing both workflows
+        helper_csv = args.oe_csv
+    elif args.filmographic:
+        initial_oe_list = ififuncs.extract_metadata(args.filmographic)[0]
+        # temp hack while we're performing both workflows
+        helper_csv = args.filmographic
+    if args.oe_csv or args.filmographic:
+        for line_item in ififuncs.extract_metadata(helper_csv)[0]:
+            try:
+                oe_number = line_item['Object Entry'].lower()
+            except KeyError:
+                oe_number = line_item['OE No.'].lower()
             # this transforms OE-#### to oe####
             transformed_oe = oe_number[:2] + oe_number[3:]
             oe_list.append(transformed_oe)
-    if args.reference:
-        reference_number = get_filmographic_number(args.reference)
-    else:
-        reference_number = ififuncs.get_reference_number()
+    if not args.oe_csv:
+        # No need to ask for the reference number if the OE csv option is supplied.
+        # The assumption here is that the OE csv contains the reference numbers though.
+        if args.reference:
+            reference_number = get_filmographic_number(args.reference)
+        else:
+            reference_number = ififuncs.get_reference_number()
     donor = ififuncs.ask_question('Who is the source of acquisition, as appears on the donor agreement? This will not affect Reproductions.')
     depositor_reference = ififuncs.ask_question('What is the donor/depositor number? This will not affect Reproductions.')
     acquisition_type = ififuncs.get_acquisition_type('')
     user = ififuncs.get_user()
     accession_number = get_number(args)
     accession_digits = int(accession_number[3:])
-    to_accession = initial_check(args, accession_digits, oe_list, reference_number)
+    if not args.oe_csv:
+        to_accession = initial_check(args, accession_digits, oe_list, reference_number)
+    else:
+        to_accession = {}
+        for oe_record in oe_dicts:
+            if os.path.isdir(oe_record['source_path']):
+                to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent']]
+                accession_digits += 1
+    print to_accession
     register = accession.make_register()
-    if args.csv:
+    if args.filmographic:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         if args.dryrun:
-            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_DRYRUN_SHEET_PLEASE_DO_NOT_INGEST_JUST_IGNORE_COMPLETELY") + os.path.basename(args.csv)
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_DRYRUN_SHEET_PLEASE_DO_NOT_INGEST_JUST_IGNORE_COMPLETELY") + os.path.basename(args.filmographic)
         else:
-            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.csv)
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.filmographic)
         new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
-        filmographic_dict, headers = ififuncs.extract_metadata(args.csv)
-        for oe_package in to_accession:
-            for filmographic_record in filmographic_dict:
-                if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
-                    filmographic_record['Reference Number'] = to_accession[oe_package][1]
-        get_filmographic_titles(to_accession, filmographic_dict)
-        with open(new_csv, 'w') as csvfile:
-            fieldnames = headers
-            # Removes Object Entry from headings as it's not needed in database.
-            del fieldnames[1]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for i in filmographic_dict:
-                i.pop('Object Entry', None)
-                # Only include records that have reference numbers
-                if not i['Reference Number'] == '':
-                    writer.writerow(i)
+        if not args.oe_csv:
+            filmographic_dict, headers = ififuncs.extract_metadata(args.filmographic)
+            for oe_package in to_accession:
+                for filmographic_record in filmographic_dict:
+                    if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
+                        filmographic_record['Reference Number'] = to_accession[oe_package][1]
+            get_filmographic_titles(to_accession, filmographic_dict)
+            with open(new_csv, 'w') as csvfile:
+                fieldnames = headers
+                # Removes Object Entry from headings as it's not needed in database.
+                del fieldnames[1]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for i in filmographic_dict:
+                    i.pop('Object Entry', None)
+                    # Only include records that have reference numbers
+                    if not i['Reference Number'] == '':
+                        writer.writerow(i)
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
         'Do you want to proceed?'
     )
+    if args.oe_csv:
+        new_csv = args.filmographic
     if proceed == 'Y':
         for package in sorted(to_accession.keys(), key=natural_keys):
             accession_cmd = [
@@ -255,7 +303,10 @@ def main(args_):
             ]
             if len(to_accession[package]) == 3:
                 accession_cmd.extend(['-acquisition_type', '13'])
-                accession_cmd.extend(['-parent', order.main(package)])
+                if args.oe_csv:
+                    accession_cmd.extend(['-parent', to_accession[package][2]])
+                else:
+                    accession_cmd.extend(['-parent', order.main(package)])
             else:
                 accession_cmd.extend(['-donor', donor])
                 accession_cmd.extend(['-depositor_reference', depositor_reference])
