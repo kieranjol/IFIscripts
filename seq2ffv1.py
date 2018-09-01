@@ -13,6 +13,11 @@ Create framemd5 values for the FFV1 in Matroska file
 Verify losslessness
 (There will most likely be a warning about pixel aspect ratio
 - https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
+
+the rawcooked option should just replace the ffmpeg encode with rawcooked
+then perform the same losslessness checks via framemd5.
+however there should be a whole file md5 option, and a basic test
+that just tests the md5s of the first 24 frames.
 '''
 import subprocess
 import os
@@ -57,7 +62,7 @@ def run_loop(args):
         (ffmpeg_friendly_name,
          start_number, root_filename) = ififuncs.parse_image_sequence(images)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
-        judgement, sipcreator_log, sipcreator_manifest = make_ffv1(
+        judgement = make_ffv1(
             start_number,
             source_abspath,
             output_dirname,
@@ -65,11 +70,14 @@ def run_loop(args):
             args,
             log_name_source
         )
+        if not args.no_sip:
+            judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
             print "%-*s   : %s" % (50, verdict[0], verdict[1])
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
-    ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
+    if not args.no_sip:
+        ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
@@ -128,22 +136,36 @@ def make_ffv1(
         log_name_source,
         'EVENT = normalisation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
     )
-    ffv12dpx = [
-        'ffmpeg', '-report',
-        '-f', 'image2',
-        '-framerate', '24',
-        '-start_number', start_number,
-        '-i', source_abspath,
-        '-strict', '-2',
-        '-c:v', 'ffv1',
-        '-level', '3',
-        '-g', '1',
-        '-slicecrc', '1',
-        '-slices', '16',
-        '-pix_fmt', pix_fmt,
-        ffv1_path,
-        '-f', 'framemd5', source_textfile
-    ]
+    # Just perform framemd5 at this stage
+    if args.rawcooked:
+        ffv12dpx = [
+            'ffmpeg', '-report',
+            '-f', 'image2',
+            '-framerate', '24',
+            '-start_number', start_number,
+            '-i', source_abspath,
+            '-pix_fmt', pix_fmt,
+            '-f', 'framemd5', source_textfile
+        ]
+        print source_abspath
+        subprocess.call(['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path])
+    else:
+        ffv12dpx = [
+            'ffmpeg', '-report',
+            '-f', 'image2',
+            '-framerate', '24',
+            '-start_number', start_number,
+            '-i', source_abspath,
+            '-strict', '-2',
+            '-c:v', 'ffv1',
+            '-level', '3',
+            '-g', '1',
+            '-slicecrc', '1',
+            '-slices', '16',
+            '-pix_fmt', pix_fmt,
+            ffv1_path,
+            '-f', 'framemd5', source_textfile
+        ]
     ififuncs.generate_log(
         log_name_source,
         'EVENT = normalisation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
@@ -237,6 +259,10 @@ def setup():
     parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-rawcooked',
+        help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
+    )
     args = parser.parse_args()
     return args
 
