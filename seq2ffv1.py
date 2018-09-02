@@ -120,25 +120,21 @@ def make_ffv1(
         source_abspath
     )
     temp_dir = tempfile.gettempdir()
-    logfile = os.path.join(
-        temp_dir,
-        '%s_ffv1_transcode.log' % uuid
-    )
-    files_to_move.append(logfile)
-    logfile = "\'" + logfile + "\'"
-    env_dict = ififuncs.set_environment(logfile)
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
     source_textfile = os.path.join(
         temp_dir, uuid + '_source.framemd5'
     )
     files_to_move.append(source_textfile)
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = normalisation, status=started, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-    )
     # Just perform framemd5 at this stage
     if args.rawcooked:
-        ffv12dpx = [
+        logfile = os.path.join(
+            temp_dir,
+            '%s_source_framemd5.log' % uuid
+        )
+        files_to_move.append(logfile)
+        logfile = "\'" + logfile + "\'"
+        source_framemd5_env_dict = ififuncs.set_environment(logfile)
+        source_framemd5_cmd = [
             'ffmpeg', '-report',
             '-f', 'image2',
             '-framerate', '24',
@@ -149,13 +145,30 @@ def make_ffv1(
         ]
         print source_abspath
         rawcooked_logfile = os.path.join(
-        temp_dir, '%s_rawcooked.log' % uuid
+            temp_dir, '%s_rawcooked.log' % uuid
         )
+        normalisation_tool = ififuncs.get_rawcooked_version()
         files_to_move.append(rawcooked_logfile)
         rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
-        rawcooked_env_dict = ififuncs.set_environment(rawcooked_logfile)
-        subprocess.call(['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path], env=rawcooked_env_dict)
+        env_dict = ififuncs.set_environment(rawcooked_logfile)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
+        )
+        subprocess.call(source_framemd5_cmd, env=source_framemd5_env_dict)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
+        )
+        ffv12dpx = (['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path])
     else:
+        logfile = os.path.join(
+        temp_dir,
+        '%s_ffv1_transcode.log' % uuid
+        )
+        files_to_move.append(logfile)
+        logfile = "\'" + logfile + "\'"
+        env_dict = ififuncs.set_environment(logfile)
         ffv12dpx = [
             'ffmpeg', '-report',
             '-f', 'image2',
@@ -172,12 +185,17 @@ def make_ffv1(
             ffv1_path,
             '-f', 'framemd5', source_textfile
         ]
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = normalisation, status=finished, eventType=Creation, agentName=ffmpeg, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-    )
+        normalisation_tool = 'FFmpeg'
     print ffv12dpx
+    ififuncs.generate_log(
+            log_name_source,
+            'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+        % normalisation_tool)
     subprocess.call(ffv12dpx, env=env_dict)
+    ififuncs.generate_log(
+            log_name_source,
+            'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+        % normalisation_tool)
     ffv1_md5 = os.path.join(
         temp_dir,
         uuid + '_ffv1.framemd5'

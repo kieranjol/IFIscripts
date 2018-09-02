@@ -1503,6 +1503,20 @@ def get_mediainfo_version():
         mediainfo_version = grepexc.output.rstrip().splitlines()[1]
     return mediainfo_version
 
+def get_rawcooked_version():
+    '''
+    Returns the version of rawcooked.
+    If this is not possible, the string 'RAWcooked' is returned.
+    '''
+    rawcooked_version = 'RAWcooked'
+    try:
+        rawcooked_version = subprocess.check_output([
+            'rawcooked', '--version'
+        ]).rstrip()
+    except subprocess.CalledProcessError as grepexc:
+        rawcooked_version = grepexc.output.rstrip().splitlines()[1]
+    return rawcooked_version
+
 def get_ffprobe_dict(source):
     '''
     Returns a dictionary via the ffprobe JSON output
