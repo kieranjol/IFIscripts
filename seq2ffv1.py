@@ -148,7 +148,13 @@ def make_ffv1(
             '-f', 'framemd5', source_textfile
         ]
         print source_abspath
-        subprocess.call(['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path])
+        rawcooked_logfile = os.path.join(
+        temp_dir, '%s_rawcooked.log' % uuid
+        )
+        files_to_move.append(rawcooked_logfile)
+        rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
+        rawcooked_env_dict = ififuncs.set_environment(rawcooked_logfile)
+        subprocess.call(['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path], env=rawcooked_env_dict)
     else:
         ffv12dpx = [
             'ffmpeg', '-report',
