@@ -22,7 +22,6 @@ that just tests the md5s of the first 24 frames.
 import subprocess
 import os
 import argparse
-import itertools
 import tempfile
 import shutil
 import time
@@ -73,7 +72,7 @@ def run_loop(args):
             judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
-            print "%-*s   : %s" % (50, verdict[0], verdict[1])
+            print("%-*s   : %s" % (50, verdict[0], verdict[1]))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
     if not args.no_sip:
         ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
@@ -87,7 +86,7 @@ def verify_losslessness(source_textfile, ffv1_md5):
     checksum_mismatches = []
     with open(source_textfile) as source_md5_object:
         with open(ffv1_md5) as ffv1_md5_object:
-            for (line1), (line2) in itertools.izip(
+            for (line1), (line2) in zip(
                     ififuncs.read_lines(
                         source_md5_object
                     ), ififuncs.read_lines(ffv1_md5_object)
@@ -141,7 +140,7 @@ def make_ffv1(
             '-pix_fmt', pix_fmt,
             '-f', 'framemd5', source_textfile
         ]
-        print source_abspath
+        print(source_abspath)
         rawcooked_logfile = os.path.join(
             temp_dir, '%s_rawcooked.log' % uuid
         )
@@ -184,7 +183,7 @@ def make_ffv1(
             '-f', 'framemd5', source_textfile
         ]
         normalisation_tool = 'FFmpeg'
-    print ffv12dpx
+    print(ffv12dpx)
     ififuncs.generate_log(
         log_name_source,
         'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
