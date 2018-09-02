@@ -66,7 +66,6 @@ def run_loop(args):
             start_number,
             source_abspath,
             output_dirname,
-            root_filename,
             args,
             log_name_source
         )
@@ -103,7 +102,6 @@ def make_ffv1(
         start_number,
         source_abspath,
         output_dirname,
-        root_filename,
         args,
         log_name_source
     ):
@@ -163,9 +161,9 @@ def make_ffv1(
         ffv12dpx = (['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path])
     else:
         logfile = os.path.join(
-        temp_dir,
-        '%s_ffv1_transcode.log' % uuid
-        )
+            temp_dir,
+            '%s_ffv1_transcode.log' % uuid
+            )
         files_to_move.append(logfile)
         logfile = "\'" + logfile + "\'"
         env_dict = ififuncs.set_environment(logfile)
@@ -188,14 +186,16 @@ def make_ffv1(
         normalisation_tool = 'FFmpeg'
     print ffv12dpx
     ififuncs.generate_log(
-            log_name_source,
-            'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-        % normalisation_tool)
+        log_name_source,
+        'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+        % normalisation_tool
+    )
     subprocess.call(ffv12dpx, env=env_dict)
     ififuncs.generate_log(
-            log_name_source,
-            'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-        % normalisation_tool)
+        log_name_source,
+        'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+        % normalisation_tool
+    )
     ffv1_md5 = os.path.join(
         temp_dir,
         uuid + '_ffv1.framemd5'
