@@ -326,13 +326,16 @@ def check_overwrite_dir(dir2check):
     Asks user if they want to overwrite a pre-existing destination directory.
     '''
     if os.path.isdir(dir2check):
-        print('A directory already exists at your destination. Overwrite? Y/N?')
-        overwrite_destination_dir = ''
-        while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-            overwrite_destination_dir = raw_input()
-            if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-                print('Incorrect input. Please enter Y or N')
-        return overwrite_destination_dir
+        if len(os.listdir(dir2check)) > 1:
+            print('A directory already exists at your destination. Overwrite? Y/N?')
+            overwrite_destination_dir = ''
+            while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
+                overwrite_destination_dir = raw_input()
+                if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
+                    print('Incorrect input. Please enter Y or N')
+            return overwrite_destination_dir
+        else:
+            print('A directory exists in your destination but it is empty so we shall proceed')
 
 def check_for_sip(args):
     '''
@@ -399,16 +402,24 @@ def setup(args_):
     dirname = os.path.split(os.path.basename(source))[1]
     if dirname == '':
         rootpos = 'y'
+        '''
         dirname = raw_input(
             'What do you want your destination folder to be called?\n'
         )
+        '''
     relative_path = normpath.split(os.sep)[-1]
     # or hardcode
     destination_final_path = os.path.join(destination, dirname)
-    manifest_destination = destination + '/%s_manifest.md5' % dirname
+    if rootpos == 'y':
+        manifest_destination = os.path.dirname(destination) + '/%s_manifest.md5' % os.path.basename(destination)
+    else:
+        manifest_destination = destination + '/%s_manifest.md5' % dirname
     if os.path.isfile(manifest_destination):
         print('Destination manifest already exists')
-    manifest_filename = '%s_manifest.md5' % dirname
+    if rootpos == 'y':
+        manifest_filename = '%s_manifest.md5' % os.path.basename(destination)
+    else:
+        manifest_filename = '%s_manifest.md5' % dirname
     desktop_manifest_dir = make_desktop_manifest_dir()
     # manifest = desktop manifest, looks like this can get rewritten later.
     manifest = os.path.join(
@@ -546,7 +557,7 @@ def make_destination_manifest(
         if rootpos == 'y':
             files_in_manifest = make_manifest(
                 destination_final_path,
-                manifest_destination, destination
+                manifest_destination, os.path.dirname(destination)
             )
             generate_log(
                 log_name_source,
@@ -624,6 +635,7 @@ def main(args_):
     '''
     Launches the functions that will safely copy and paste your files.
     '''
+    manifest_temp = '--' # add two characters so that I can slice for manifest_temp[1] later.
     dircheck = None
     args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir = setup(args_)
     if os.path.isdir(args.source):
@@ -698,20 +710,27 @@ def main(args_):
                 dest_manifest_list = fo.readlines()
                 with open(manifest_temp[1], 'wb') as temp_object:
                     for i in dest_manifest_list:
-                        temp_object.write(i[:33] + ' ' + dirname + '/' +  i[34:])
+                        temp_object.write(i[:33] + ' ' + os.path.basename(os.path.dirname(destination_final_path)) + '/' +  i[34:])
+                legacy_manifest = manifest
                 manifest = manifest_temp[1]
         verify_copy(
             manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count
         )
         manifest_rename = manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
-        if os.path.dirname(manifest) == desktop_manifest_dir:
+        if os.path.normpath(os.path.dirname(manifest)) == os.path.normpath(desktop_manifest_dir):
             os.rename(manifest, manifest_rename)
             shutil.move(manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
+            if rootpos == 'y':
+                legacy_manifest_rename = legacy_manifest[:-4] + time.strftime("_%Y_%m_%dT%H_%M_%S") + '.md5'
+                os.rename(legacy_manifest, legacy_manifest_rename)
+                shutil.move(legacy_manifest_rename, os.path.join(desktop_manifest_dir, 'old_manifests'))
         # hack to also copy the sha512 manifest :(
-        sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
-        if os.path.isfile(sha512_manifest):
-            shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
-            print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
+        # Stop the temp manifest from copying
+        if not os.path.basename(manifest_temp[1]) == os.path.basename(manifest):
+            sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
+            if os.path.isfile(sha512_manifest):
+                shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
+                print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
         return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
