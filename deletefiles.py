@@ -126,6 +126,7 @@ def main(args_):
                     % os.path.join(metadata_dir, metadata)
                 )
         remove_from_manifest(sip_manifest, os.path.basename(filename), new_log_textfile)
+        ififuncs.sort_manifest(sip_manifest)
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = deletefiles.py finished'
