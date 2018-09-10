@@ -157,7 +157,10 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
         )
-        ffv12dpx = (['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path])
+        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path]
+        if args.audio:
+            rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
+        ffv12dpx = (rawcooked_cmd)
     else:
         logfile = os.path.join(
             temp_dir,
@@ -282,6 +285,9 @@ def setup():
     parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
+    parser.add_argument(
+        '-audio',
+        help='Full path to audio file.')
     parser.add_argument(
         '-rawcooked',
         help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
