@@ -425,7 +425,7 @@ def main(args_):
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
     if args.d:
-        content_title = create_content_title_text(args, sip_path)
+        content_title = create_content_title_text(sip_path)
         ififuncs.manifest_replace(
             new_manifest_textfile,
             os.path.join('objects', os.path.basename(args.i[0])).replace("\\", "/"),
