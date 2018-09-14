@@ -28,6 +28,33 @@ import time
 import ififuncs
 import sipcreator
 
+def short_test(images, args):
+    '''
+    Perform a test on the first 24 frames that will encode via Rawcooked,
+    then decode back to the original form,
+    and the whole file checksums of the original 24 frames
+    and the restored 24 frames are compared.
+    maybe all that needs to happen is that 24 frames are copied to a temp
+    location, then the functions run, and use ififuncs to check the sums
+    '''
+    temp_uuid = ififuncs.create_uuid()
+    temp_dir = os.path.join(tempfile.gettempdir(), temp_uuid)
+    os.makedirs(temp_dir)
+    for image in images[:24]:
+        full_path = os.path.join(args.source_directory, image)
+        shutil.copy(full_path, temp_dir)
+    mkv_uuid = ififuncs.create_uuid()
+    mkv_file = os.path.join(tempfile.gettempdir(), mkv_uuid + '.mkv')
+    subprocess.call(['rawcooked', temp_dir, '-o', mkv_file])
+    converted_manifest = os.path.join(temp_dir, '123.md5')
+    ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
+    subprocess.call(['rawcooked', mkv_file])
+    rawcooked_dir = mkv_file + '.RAWcooked'
+    restored_dir = os.path.join(rawcooked_dir, temp_uuid)
+    restored_manifest = os.path.join(restored_dir, '456.md5')
+    ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
+    ififuncs.diff_textfiles(converted_manifest, restored_manifest)
+
 def run_loop(args):
     '''
     Launches a recursive loop to process all images sequences in your
@@ -60,6 +87,8 @@ def run_loop(args):
             continue
         (ffmpeg_friendly_name,
          start_number, root_filename) = ififuncs.parse_image_sequence(images)
+        if args.short_test:
+            short_test(images, args)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
         judgement = make_ffv1(
             start_number,
@@ -291,6 +320,10 @@ def setup():
     parser.add_argument(
         '-rawcooked',
         help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
+    )
+    parser.add_argument(
+        '-short_test',
+        help='Perform a test on the first 24 frames that will encode via Rawcooked, then decode back to the original form, and the whole file checksums of the original 24 frames and the restored 24 frames are compared.', action='store_true'
     )
     args = parser.parse_args()
     return args
