@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Launches qcli on all mov/mkv files in all subfolders beneath your input.
 qcli makes xml.gz QCTools reports.
