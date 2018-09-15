@@ -82,7 +82,7 @@ def find_manifest(args):
                         )
                     if os.path.isfile(manifest):
                         dirlist.append(os.path.dirname(full_subdirectory_path))
-    print dirlist
+    print(dirlist)
     return dirlist # the dirlist is sent back out to the rest of the script.
 
 
@@ -90,20 +90,20 @@ def analyze_reports(log_names, desktop_logs_dir):
     '''
     Tries to locate copyit.py logs on the desktop and analyzes them.
     '''
-    print 'SUMMARY REPORT'
+    print('SUMMARY REPORT')
     for i in log_names:
         if os.path.isfile(i):
-            print "%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))
+            print("%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i)))
         else:
-            print i, 'can\'t find log file, trying again...'
+            print(i, 'can\'t find log file, trying again...')
             for logs in os.listdir(desktop_logs_dir):
                 # look at log filename minus the seconds and '.log'
                 if os.path.basename(i)[:-7] in logs:
                     # make sure that the alternate log filename is more recent
                     if int(
                         os.path.basename(logs)[-12:-4].replace('_', '')) > int(os.path.basename(i)[-12:-4].replace('_', '')):
-                        print 'trying to analyze %s' % logs
-                        print "%-*s   : %s" % (50, os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir, logs)))
+                        print('trying to analyze %s' % logs)
+                        print("%-*s   : %s" % (50, os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir, logs))))
 
 
 def main():
@@ -116,13 +116,13 @@ def main():
     all_files = find_manifest(args)
     processed_dirs = []
     log_names = []
-    print '\n\n**** All of these folders will be copied to %s\n' % args.o
+    print('\n\n**** All of these folders will be copied to %s\n' % args.o)
     for i in all_files:
-        print i
+        print(i)
     for i in all_files:
         absolute_path = os.path.join(args.o, os.path.basename(i))
         if os.path.isdir(absolute_path):
-            print('%s already exists, skipping') % (absolute_path)
+            print(('%s already exists, skipping') % (absolute_path))
         else:
             desktop_logs_dir = make_desktop_logs_dir()
             if args.l:
@@ -136,7 +136,7 @@ def main():
                 )
                 log_names.append(log_name)
             processed_dirs.append(os.path.basename(os.path.join(args.input, i)))
-            print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
+            print('********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful')
             analyze_reports(log_names, desktop_logs_dir)
 
 

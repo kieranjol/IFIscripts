@@ -109,9 +109,9 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             reference_digits += 1
                             accession_digits += 1
     for fails in wont_accession:
-        print('%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails)
+        print(('%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails))
     for success in sorted(to_accession.keys()):
-        print('%s will be accessioned as %s' %  (success, to_accession[success]))
+        print(('%s will be accessioned as %s' %  (success, to_accession[success])))
     return to_accession
 
 def get_filmographic_titles(to_accession, filmographic_dict):
@@ -123,7 +123,7 @@ def get_filmographic_titles(to_accession, filmographic_dict):
         oe = oe_number[:2].upper() + '-' + oe_number[2:]
         for record in filmographic_dict:
             if record['Object Entry'] == oe:
-                print(record['Title'])
+                print((record['Title']))
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -315,8 +315,8 @@ def main(args_):
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     sorted_filepath = ififuncs.sort_csv(register, 'accession number')
-    print('\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath)
-    print('\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv)
-    print('\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore)
+    print(('\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath))
+    print(('\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv))
+    print(('\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore))
 if __name__ == '__main__':
     main(sys.argv[1:])

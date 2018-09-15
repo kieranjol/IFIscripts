@@ -20,6 +20,7 @@ import json
 import ctypes
 import platform
 import itertools
+from builtins import input
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -37,11 +38,11 @@ def diff_textfiles(source_textfile, other_textfile):
     Compares two textfiles. Returns strings that indicate losslessness.
     '''
     if filecmp.cmp(source_textfile, other_textfile, shallow=False):
-        print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+        print("YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!")
         return 'lossless'
 
     else:
-        print "CHECKSUM MISMATCH - Further information on the next line!!!"
+        print("CHECKSUM MISMATCH - Further information on the next line!!!")
         return 'lossy'
 
 
@@ -59,7 +60,7 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     ]
     with open(xmlfilename, "w+") as fo:
         xmlvariable = subprocess.check_output(mediainfo_cmd)
-        fo.write(xmlvariable)
+        fo.write(xmlvariable.decode())
 
 def make_exiftool(xmlfilename, inputfilename):
     '''
@@ -97,10 +98,10 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
         '-fx',
         full_path
     ]
-    print 'Mediaconch is analyzing %s' % full_path
+    print('Mediaconch is analyzing %s' % full_path)
     mediaconch_output = subprocess.check_output(mediaconch_cmd)
-    with open(mediaconch_xmlfile, 'wb') as xmlfile:
-        xmlfile.write(mediaconch_output)
+    with open(mediaconch_xmlfile, 'w') as xmlfile:
+        xmlfile.write(mediaconch_output.decode())
 
 def extract_provenance(filename, output_folder, output_uuid):
     '''
@@ -108,9 +109,9 @@ def extract_provenance(filename, output_folder, output_uuid):
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
-    print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
+    print((' - Generating mediainfo xml of input file and saving it in %s' % inputxml))
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
-    print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
+    print((' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml))
     make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
     return inputxml, inputtracexml
 
@@ -140,7 +141,7 @@ def make_qctools(input):
     qctools_args = ['ffprobe', '-f', 'lavfi', '-i',]
     qctools_args += ["movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1:round=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1,astats=metadata=1:reset=1:length=0.4[out1]" % input]
     qctools_args += ['-show_frames', '-show_versions', '-of', 'xml=x=1:q=1', '-noprivate']
-    print qctools_args
+    print(qctools_args)
     qctoolsreport = subprocess.check_output(qctools_args)
     return qctoolsreport
 
@@ -183,7 +184,8 @@ def get_mediainfo(var_type, type, filename):
         type,
         filename
     ]
-    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '')
+    var_type = subprocess.check_output(mediainfo_cmd)
+    print(var_type.decode().rstrip())
     return var_type
 
 
@@ -259,10 +261,10 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
     server_ssl.login(username, password)
     # ssl server doesn't support or need tls, so don't call server_ssl.starttls()
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-    print msg.as_string()
+    print(msg.as_string())
     #server_ssl.quit()
     server_ssl.close()
-    print 'successfully sent the mail'
+    print('successfully sent the mail')
 
 def frames_to_seconds(audio_entry_point):
     audio_frame_count = float(audio_entry_point)
@@ -280,12 +282,12 @@ def set_environment(logfile):
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
-        with open(log, "wb") as fo:
+        with open(log, "w") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
     else:
-        with open(log, "ab") as fo:
+        with open(log, "a") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
@@ -347,8 +349,8 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
+        print("Calculating number of files to process in current directory")
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -356,7 +358,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print('Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             md5 = hashlib_md5(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -371,7 +373,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -384,8 +386,8 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
+        print("Calculating number of files to process in current directory")
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -393,7 +395,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
-            print 'Generating SHA512 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print('Generating SHA512 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             sha512 = hashlib_sha512(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -408,7 +410,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -420,8 +422,8 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     for root, directories, filenames in os.walk(manifest_dir):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
+        print("Calculating number of files to process in current directory")
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -429,7 +431,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print('Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             md5 = hashlib_md5(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -444,7 +446,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "ab") as fo:
+    with open(manifest_textfile, "a") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -457,12 +459,12 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-        with open(manifest_textfile, "wb") as fo:
+        with open(manifest_textfile, "w") as fo:
             for i in manifest_list:
                 fo.write(i + '\n')
         return files_in_manifest
     else:
-        print 'Manifest already exists'
+        print('Manifest already exists')
         sys.exit()
 def make_mediatrace(tracefilename, xmlvariable, inputfilename):
     with open(tracefilename, "w+") as fo:
@@ -474,25 +476,25 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
             inputfilename
         ]
         xmlvariable = subprocess.check_output(mediatrace_cmd)       #input filename
-        fo.write(xmlvariable)
+        fo.write(xmlvariable.decode())
 
 
 
 def check_overwrite(file2check):
     if os.path.isfile(file2check):
-        print 'A manifest already exists at your destination. Overwrite? Y/N?'
+        print('A manifest already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_manifest = ''
         while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-            overwrite_destination_manifest = raw_input()
+            overwrite_destination_manifest = input()
             if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-                print 'Incorrect input. Please enter Y or N'
+                print('Incorrect input. Please enter Y or N')
         return overwrite_destination_manifest
 def manifest_file_count(manifest2check):
     '''
     Checks how many entries are in a manifest
     '''
     if os.path.isfile(manifest2check):
-        print 'A manifest already exists'
+        print('A manifest already exists')
         with open(manifest2check, "r") as fo:
             manifest_lines = [line.split(',') for line in fo.readlines()]
             count_in_manifest = len(manifest_lines)
@@ -500,7 +502,7 @@ def manifest_file_count(manifest2check):
 
 
 def create_csv(csv_file, *args):
-    f = open(csv_file, 'wb')
+    f = open(csv_file, 'w')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -509,7 +511,7 @@ def create_csv(csv_file, *args):
 
 
 def append_csv(csv_file, *args):
-    f = open(csv_file, 'ab')
+    f = open(csv_file, 'a')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -590,7 +592,7 @@ def get_ffmpeg_friendly_name(images):
         numberless_filename = images[0].split(".")[0:-1]
         for i in numberless_filename[:-1]:
             ffmpeg_friendly_name += i + '.'
-        print ffmpeg_friendly_name
+        print(ffmpeg_friendly_name)
     else:
         while  counter < len(numberless_filename):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
@@ -677,11 +679,11 @@ def get_user():
     '''
     user = ''
     if user not in ('1', '2', '3', '4', '5', '6', '7'):
-        user = raw_input(
+        user = input(
             '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
         )
         while user not in ('1', '2', '3', '4', '5', '6', '7'):
-            user = raw_input(
+            user = input(
                 '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
             )
     if user == '1':
@@ -712,11 +714,11 @@ def get_acquisition_type(acquisition_type):
     Asks user for the type of acquisition
     '''
     if acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
-        acquisition_type = raw_input(
+        acquisition_type = input(
             '\n\n**** What is the type of acquisition? - This will not affect Reproductions that have been auto-detected.\nPress 1,2,4,5,7,8,13,14\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
         )
         while acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
-            acquisition_type = raw_input(
+            acquisition_type = input(
                 '\n\n**** What is the type of acquisition? - This will not affect Reproductions that have been auto-detected.\nPress 1,2,4,5,7,8,13,14\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
             )
     if acquisition_type == '1':
@@ -751,7 +753,7 @@ def sort_manifest(manifest_textfile):
     '''
     with open(manifest_textfile, "r") as fo:
         manifest_lines = fo.readlines()
-        with open(manifest_textfile,"wb") as ba:
+        with open(manifest_textfile,"w") as ba:
             manifest_list = sorted(manifest_lines, key=lambda x: (x[34:]))
             for i in manifest_list:
                 ba.write(i)
@@ -762,7 +764,7 @@ def concat_textfile(video_files, concat_file):
     a condition is needed elsewhere to ensure concat_file is empty
     '''
     for video in video_files:
-        with open(concat_file, 'ab') as textfile:
+        with open(concat_file, 'a') as textfile:
             textfile.write('file \'%s\'\n' % video)
 
 
@@ -778,11 +780,11 @@ def sanitise_filenames(video_files):
     renamed_files = []
     for video in video_files:
         if '\'' in video:
-            print 'A quote is in your filename %s , replace with underscore?' % video
+            print('A quote is in your filename %s , replace with underscore?' % video)
             while overwrite not in ('Y', 'y', 'N', 'n'):
-                overwrite = raw_input()
+                overwrite = input()
                 if overwrite not in ('Y', 'y', 'N', 'n'):
-                    print 'Incorrect input. Please enter Y or N'
+                    print('Incorrect input. Please enter Y or N')
                 if overwrite in ('Y', 'y'):
                     rename = video.replace('\'', '_')
                     os.rename(video, rename)
@@ -815,7 +817,7 @@ def get_script_version(scriptname):
     os.chdir(home)
     if os.path.isdir('ifigit/ifiscripts'):
         os.chdir('ifigit/ifiscripts')
-        print("Changing directory to %s to extract script version`") %os.getcwd()
+        print(("Changing directory to %s to extract script version`") %os.getcwd())
         script_version = subprocess.check_output([
             'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
         ])
@@ -848,7 +850,7 @@ def get_source_uuid():
     '''
     source_uuid = False
     while source_uuid is False:
-        uuid_ = raw_input(
+        uuid_ = input(
             '\n\n**** Please enter the UUID of the source representation\n\n'
         )
         source_uuid = validate_uuid4(uuid_)
@@ -861,7 +863,7 @@ def ask_question(question):
     '''
     answer = ''
     while answer is '':
-        answer = raw_input(
+        answer = input(
             '\n\n**** %s\n\n'
          % question)
     proceed = 'n'
@@ -875,20 +877,20 @@ def get_object_entry():
     '''
     object_entry = False
     while object_entry is False:
-        object_entry = raw_input(
+        object_entry = input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
         if object_entry[:4] == 'scoe':
             return object_entry
         if object_entry[:2] != 'oe':
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print('First two characters must be \'oe\' and last four characters must be four digits')
             object_entry = False
-        elif len(object_entry[2:]) not in range(4, 6):
+        elif len(object_entry[2:]) not in list(range(4, 6)):
             object_entry = False
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print('First two characters must be \'oe\' and last four characters must be four digits')
         elif not object_entry[2:].isdigit():
             object_entry = False
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print('First two characters must be \'oe\' and last four characters must be four digits')
         else:
             return object_entry
 
@@ -898,18 +900,18 @@ def get_accession_number():
     '''
     accession_number = False
     while accession_number is False:
-        accession_number = raw_input(
+        accession_number = input(
             '\n\n**** Please enter the accession number of the representation\n\n'
         )
         if accession_number[:3] != 'aaa':
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
             accession_number = False
         elif len(accession_number[3:]) != 4:
             accession_number = False
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         elif not accession_number[3:].isdigit():
             accession_number = False
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         else:
             return accession_number
 
@@ -919,18 +921,18 @@ def get_reference_number():
     '''
     reference_number = False
     while reference_number is False:
-        reference_number = raw_input(
+        reference_number = input(
             '\n\n**** Please enter the Filmographic reference number of the representation\n\n'
         )
         if reference_number[:3] != 'af1':
-            print 'First two characters must be \'af\' and the last five characters must be five digits'
+            print('First two characters must be \'af\' and the last five characters must be five digits')
             reference_number = False
         elif len(reference_number[2:]) != 5:
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be five digits'
+            print('First two characters must be \'af\' and last five characters must be five digits')
         elif not reference_number[2:].isdigit():
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be five digits'
+            print('First two characters must be \'af\' and last five characters must be five digits')
         else:
             return reference_number.upper()
 
@@ -962,11 +964,11 @@ def ask_yes_no(question):
     Returns Y or N. The question variable is just a string.
     '''
     answer = ''
-    print '\n', question, '\n', 'enter Y or N'
+    print('\n', question, '\n', 'enter Y or N')
     while answer not in ('Y', 'y', 'N', 'n'):
-        answer = raw_input()
+        answer = input()
         if answer not in ('Y', 'y', 'N', 'n'):
-            print 'Incorrect input. Please enter Y or N'
+            print('Incorrect input. Please enter Y or N')
         if answer in ('Y', 'y'):
             return 'Y'
         elif answer in ('N,' 'n'):
@@ -980,7 +982,7 @@ def manifest_replace(manifest, to_be_replaced, replaced_with):
     '''
     with open(manifest, 'r') as fo:
         original_lines = fo.readlines()
-    with open(manifest, 'wb') as ba:
+    with open(manifest, 'w') as ba:
         for lines in original_lines:
             new_lines = lines.replace(to_be_replaced, replaced_with)
             ba.write(new_lines)
@@ -1007,7 +1009,7 @@ def manifest_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -1034,7 +1036,7 @@ def sha512_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 def check_for_uuid(args):
@@ -1091,7 +1093,7 @@ def checksum_replace(manifest, logname, algorithm):
                 elif algorithm == 'sha512':
                     lines = lines[127:].replace(lines[127:], new_checksum + lines[128:])
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1180,7 +1182,7 @@ def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in concat_lines:
             fo.write(lines)
         for remaining_lines in sipcreator_lines:
@@ -1198,7 +1200,7 @@ def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in sipcreator_lines:
             fo.write(lines)
         for remaining_lines in concat_lines:
@@ -1248,7 +1250,7 @@ def log_results(manifest, log, parent_dir):
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
-        with open(logfile, 'ab') as ba:
+        with open(logfile, 'a') as ba:
             for lines in validate_log:
                 ba.write(lines)
     with open(manifest, 'r') as manifesto:
@@ -1257,7 +1259,7 @@ def log_results(manifest, log, parent_dir):
             if os.path.basename(logname) in lines:
                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1273,7 +1275,7 @@ def find_parent(sipcreator_log,oe_uuid_dict):
             if "source=" in line:
                 if validate_uuid4(line.rstrip()[-36:]) is not False:
                     line_check = 'has_source'
-                    for oe, uuid in oe_uuid_dict.iteritems():
+                    for oe, uuid in oe_uuid_dict.items():
                         if uuid == line.rstrip()[-36:]:
                             source = oe
                             return '%s has a parent: %s ' % (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(sipcreator_log)))), source)
@@ -1384,7 +1386,7 @@ def check_dependencies(dependencies):
             if e.returncode is 2:
                 continue
         except OSError:
-            print '%s is not installed, so this script can not run!' % dependency
+            print('%s is not installed, so this script can not run!' % dependency)
             sys.exit()
 
 
@@ -1507,7 +1509,7 @@ def diff_framemd5s(fmd5, fmd5ffv1):
     checksum_mismatches = []
     with open(fmd5) as f1:
         with open(fmd5ffv1) as f2:
-            for (lineno1, line1), (lineno2, line2) in itertools.izip(
+            for (lineno1, line1), (lineno2, line2) in zip(
                     read_non_comment_lines(f1),
                     read_non_comment_lines(f2)
                     ):

@@ -30,7 +30,7 @@ def process_mixed_values(value_list):
     mixed_values = ''
     # Check if just a single value exists. If so, just return that one value.
     if len(set(value_list)) is 1:
-        print value_list
+        print(value_list)
         value = value_list[0]
     else:
         # Return the mixed values with pipe delimiter.
@@ -345,7 +345,7 @@ def main(args_):
         )
     else:
         csv_filename = 'blaa.csv'
-    print ' - Metadata will be stored in %s' % csv_filename
+    print(' - Metadata will be stored in %s' % csv_filename)
     for filenames in os.listdir(args.input):
         if '_manifest.md5' in filenames:
             md5_manifest = os.path.join(args.input, filenames)
@@ -383,7 +383,7 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         root = etree.fromstring(metadata)
-        print(' - Analysing  %s') % source
+        print((' - Analysing  %s') % source)
         pbcore_namespace = root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
         if len(track_type) > 0:
@@ -600,7 +600,7 @@ def main(args_):
     for i in metadata_list:
         if len(set(i)) > 1:
             metadata_error += 'WARNING - Your metadata values are not the same for all files: %s\n' % set(i)
-            print metadata_error
+            print(metadata_error)
             if args.p:
                 ififuncs.generate_log(
                     sipcreator_log,
@@ -746,10 +746,10 @@ def main(args_):
         ififuncs.checksum_replace(md5_manifest, sipcreator_log, 'md5')
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
         ififuncs.manifest_update(md5_manifest, csv_filename)
-        print ' - Updating %s with %s' % (md5_manifest, csv_filename)
+        print(' - Updating %s with %s' % (md5_manifest, csv_filename))
         ififuncs.sha512_update(sha512_manifest, csv_filename)
-        print ' - Updating %s with %s' % (sha512_manifest, csv_filename)
-        print metadata_error
+        print(' - Updating %s with %s' % (sha512_manifest, csv_filename))
+        print(metadata_error)
 if __name__ == '__main__':
     main(sys.argv[1:])
 

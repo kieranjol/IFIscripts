@@ -101,7 +101,7 @@ def run_loop(args):
             judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
-            print("%-*s   : %s" % (50, verdict[0], verdict[1]))
+            print(("%-*s   : %s" % (50, verdict[0], verdict[1])))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
     if args.sip:
         ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)

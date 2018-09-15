@@ -15,10 +15,10 @@ def get_input(manifest):
     Figures out what kind of input is passed to the script.
     '''
     if not manifest.endswith(('.txt', '.md5', '.exf')):
-        print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.'
+        print('Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.')
         sys.exit()
     elif manifest.endswith('.exf'):
-        print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this. It will list some missing files but will validate checksums as usual.'
+        print('ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this. It will list some missing files but will validate checksums as usual.')
         return manifest
     else:
         return manifest
@@ -46,18 +46,18 @@ def parse_manifest(manifest, log_name_source):
                     log_name_source,
                     '%s is missing' % path
                 )
-                print '%s is missing' % path
+                print('%s is missing' % path)
                 missing_files_list.append(path)
             elif os.path.isfile(path):
                 manifest_dict[path] = checksum
     if len(missing_files_list) > 0:
-        print 'The number of missing files: %s' % len(missing_files_list)
+        print('The number of missing files: %s' % len(missing_files_list))
         ififuncs.generate_log(
             log_name_source,
             'The number of missing files is: %s' % len(missing_files_list)
         )
     elif len(missing_files_list) == 0:
-        print 'All files present'
+        print('All files present')
         ififuncs.generate_log(
             log_name_source,
             'All files present'
@@ -77,15 +77,15 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
     os.chdir(manifest_directory)
     error_list = []
     for i in sorted(manifest_dict.keys()):
-        print 'Validating %s' % i
+        print('Validating %s' % i)
         if 'manifest-sha512.txt' in manifest:
             current_hash = ififuncs.hashlib_sha512(i)
         else:
             current_hash = ififuncs.hashlib_md5(i)
         if current_hash == manifest_dict[i]:
-            print '%s has validated' % i
+            print('%s has validated' % i)
         else:
-            print '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
+            print('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
             ififuncs.generate_log(
                 log_name_source,
                 '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
@@ -93,28 +93,28 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
             error_list.append('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
             error_counter += 1
     if error_counter > 0:
-        print '\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter
+        print('\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter)
         ififuncs.generate_log(
             log_name_source,
             'The number of mismatched checksums is: %s' % error_counter
         )
-        print '***** List of mismatched files*****'
+        print('***** List of mismatched files*****')
         for i in error_list:
-            print i
+            print(i)
     elif len(missing_files_list) == 0:
-        print 'All checksums have validated'
+        print('All checksums have validated')
         ififuncs.generate_log(
             log_name_source,
             'All checksums have validated'
         )
     if len(missing_files_list) > 0:
-        print 'ERRORS - The number of missing files: %s' % len(missing_files_list)
+        print('ERRORS - The number of missing files: %s' % len(missing_files_list))
         ififuncs.generate_log(
             log_name_source,
             'ERRORS - The number of mismatched checksums is: %s' % len(missing_files_list)
         )
         for i in missing_files_list:
-            print('%s is missing') % i
+            print(('%s is missing') % i)
 
 
 def make_parser():
