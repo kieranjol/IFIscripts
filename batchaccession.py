@@ -109,9 +109,9 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             reference_digits += 1
                             accession_digits += 1
     for fails in wont_accession:
-        print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
+        print('%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails)
     for success in sorted(to_accession.keys()):
-        print '%s will be accessioned as %s' %  (success, to_accession[success])
+        print('%s will be accessioned as %s' %  (success, to_accession[success]))
     return to_accession
 
 def get_filmographic_titles(to_accession, filmographic_dict):
@@ -123,7 +123,7 @@ def get_filmographic_titles(to_accession, filmographic_dict):
         oe = oe_number[:2].upper() + '-' + oe_number[2:]
         for record in filmographic_dict:
             if record['Object Entry'] == oe:
-                print record['Title']
+                print(record['Title'])
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -178,14 +178,14 @@ def get_number(args):
     '''
     if args.start_number:
         if args.start_number[:3] != 'aaa':
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
             accession_number = ififuncs.get_accession_number()
-        elif len(args.start_number[3:]) not in range(4, 6):
+        elif len(args.start_number[3:]) not in list(range(4, 6)):
             accession_number = ififuncs.get_accession_number()
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         elif not args.start_number[3:].isdigit():
             accession_number = ififuncs.get_accession_number()
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         else:
             accession_number = args.start_number
     else:
@@ -257,7 +257,7 @@ def main(args_):
             if os.path.isdir(oe_record['source_path']):
                 to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent']]
                 accession_digits += 1
-    print to_accession
+    print(to_accession)
     register = accession.make_register()
     if args.filmographic:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
@@ -292,7 +292,7 @@ def main(args_):
     if args.oe_csv:
         new_csv = args.filmographic
     if proceed == 'Y':
-        for package in sorted(to_accession.keys(), key=natural_keys):
+        for package in sorted(list(to_accession.keys()), key=natural_keys):
             accession_cmd = [
                 package, '-user', user,
                 '-pbcore', '-f',
@@ -311,12 +311,12 @@ def main(args_):
                 accession_cmd.extend(['-donor', donor])
                 accession_cmd.extend(['-depositor_reference', depositor_reference])
                 accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
-            print accession_cmd
+            print(accession_cmd)
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     sorted_filepath = ififuncs.sort_csv(register, 'accession number')
-    print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath
-    print '\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv
-    print '\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore
+    print('\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath)
+    print('\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv)
+    print('\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore)
 if __name__ == '__main__':
     main(sys.argv[1:])
