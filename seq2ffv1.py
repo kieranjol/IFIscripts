@@ -97,13 +97,13 @@ def run_loop(args):
             args,
             log_name_source
         )
-        if not args.no_sip:
+        if args.sip:
             judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
             print("%-*s   : %s" % (50, verdict[0], verdict[1]))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
-    if not args.no_sip:
+    if args.sip:
         ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 
@@ -138,7 +138,7 @@ def make_ffv1(
     as well as framemd5 losslessness verification.
     '''
     uuid = ififuncs.create_uuid()
-    if not args.no_sip:
+    if args.sip:
         object_entry = ififuncs.get_object_entry()
     files_to_move = []
     pix_fmt = ififuncs.img_seq_pixfmt(
@@ -255,7 +255,7 @@ def make_ffv1(
         log_name_source,
         'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
     )
-    if args.no_sip:
+    if not args.sip:
         return judgement
     else:
         sip_dir = os.path.join(
@@ -308,8 +308,8 @@ def setup():
         help='Destination directory'
     )
     parser.add_argument(
-        '--no-sip',
-        help='Do not run sipcreator.py on the resulting file.', action='store_true'
+        '-sip',
+        help='Run sipcreator.py on the resulting file.', action='store_true'
     )
     parser.add_argument(
         '-user',
