@@ -41,7 +41,7 @@ def short_test(images, args):
     temp_dir = os.path.join(tempfile.gettempdir(), temp_uuid)
     os.makedirs(temp_dir)
     for image in images[:24]:
-        full_path = os.path.join(args.source_directory, image)
+        full_path = os.path.join(args.i, image)
         shutil.copy(full_path, temp_dir)
     mkv_uuid = ififuncs.create_uuid()
     mkv_file = os.path.join(tempfile.gettempdir(), mkv_uuid + '.mkv')
@@ -65,7 +65,7 @@ def run_loop(args):
     else:
         user = ififuncs.get_user()
     log_name_source = os.path.join(
-        args.destination, '%s_seq2ffv1_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S")
+        args.o, '%s_seq2ffv1_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S")
     )
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py started.')
     ififuncs.generate_log(
@@ -80,8 +80,8 @@ def run_loop(args):
         'EVENT = agentName=%s' % user
     )
     verdicts = []
-    for source_directory, _, _ in os.walk(args.source_directory):
-        output_dirname = args.destination
+    for source_directory, _, _ in os.walk(args.i):
+        output_dirname = args.o
         images = ififuncs.get_image_sequence_files(source_directory)
         if images == 'none':
             continue
@@ -300,11 +300,11 @@ def setup():
                                      ' in a Matroska Container.'
                                      ' Written by Kieran O\'Leary.')
     parser.add_argument(
-        'source_directory',
+        '-i',
         help='Input directory'
     )
     parser.add_argument(
-        'destination',
+        '-o',
         help='Destination directory'
     )
     parser.add_argument(
