@@ -23,7 +23,7 @@ try:
     from ififuncs import create_csv
     from ififuncs import generate_log
 except ImportError:
-    print '*** ERROR - IFIFUNCS IS MISSING - *** \n'
+    print('*** ERROR - IFIFUNCS IS MISSING - *** \n')
     'Makeffv1 requires that ififuncs.py is located in the same directory'
     ' as some functions are located in that script -'
     'https://github.com/kieranjol/IFIscripts/blob/master/ififuncs.py'
@@ -37,12 +37,12 @@ def read_non_comment_lines(infile):
 
 def get_input():
     if len(sys.argv) < 2:
-        print 'IFI FFV1.MKV SCRIPT'
-        print 'USAGE: PYTHON makeffv1.py FILENAME'
-        print 'OR'
-        print 'USAGE: PYTHON makeffv1.py DirectoryNAME'
-        print 'If input is a directory, all files will be processed'
-        print 'If input is a file, only that file will be processed'
+        print('IFI FFV1.MKV SCRIPT')
+        print('USAGE: PYTHON makeffv1.py FILENAME')
+        print('OR')
+        print('USAGE: PYTHON makeffv1.py DirectoryNAME')
+        print('If input is a directory, all files will be processed')
+        print('If input is a file, only that file will be processed')
         sys.exit()
     else:
         # Input, either file or firectory, that we want to process.
@@ -61,7 +61,7 @@ def get_input():
         # Check if input is a file.
         # AFAIK, os.path.isfile only works if full path isn't present.
         if os.path.isfile(file_without_path):
-            print "single file found"
+            print("single file found")
             video_files = []                       # Create empty list
             video_files.append(file_without_path)  # Add filename to list
         # Check if input is a directory.
@@ -76,8 +76,8 @@ def get_input():
                 + glob('*.y4m')
                 )
         else:
-            print "Your input isn't a file or a directory."
-            print "What was it? I'm curious."
+            print("Your input isn't a file or a directory.")
+            print("What was it? I'm curious.")
         # temporary hack to stop makeffv1 from processing DV
         dv_test = []
         for test_files in video_files:
@@ -87,7 +87,7 @@ def get_input():
                  ).rstrip()
             if codec == 'DV':
                 dv_test.append(test_files)
-                print 'DV file found, skipping'
+                print('DV file found, skipping')
         for i in dv_test:
             if i in video_files:
                 video_files.remove(i)
@@ -183,7 +183,7 @@ def make_ffv1(video_files, csv_report_filename):
             '-f', 'framemd5', '-an',  # Create decoded md5 checksums for every frame of the input. -an ignores audio
             fmd5
             ]
-        print ffv1_command
+        print(ffv1_command)
         subprocess.call(ffv1_command, env=ffv1_env_dict)
         generate_log(
             log, 'makeffv1.py transcode to FFV1 and framemd5 generation completed.'
@@ -200,7 +200,7 @@ def make_ffv1(video_files, csv_report_filename):
             '-f', 'framemd5', '-an',
             fmd5ffv1
             ]
-        print fmd5_command
+        print(fmd5_command)
         subprocess.call(fmd5_command, env=fmd5_env_dict)
         generate_log(
             log,
@@ -214,14 +214,15 @@ def make_ffv1(video_files, csv_report_filename):
             )
         compression_ratio = float(source_video_size) / float(ffv1_video_size)
         if os.path.basename(sys.argv[0]) == 'makeffv1.py':
-            shutil.copy(sys.argv[0], log_dir)
-        print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
+            if os.path.isfile(sys.argv[0]):
+                shutil.copy(sys.argv[0], log_dir)
+        print('Generating mediainfo xml of input file and saving it in %s' % inputxml)
         make_mediainfo(inputxml, 'mediaxmlinput', filename)
-        print 'Generating mediainfo xml of output file and saving it in %s' % outputxml
+        print('Generating mediainfo xml of output file and saving it in %s' % outputxml)
         make_mediainfo(outputxml, 'mediaxmloutput', output)
-        print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+        print('Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
         make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
-        print 'Generating mediatrace xml of output file and saving it in %s' % outputtracexml
+        print('Generating mediatrace xml of output file and saving it in %s' % outputtracexml)
         make_mediatrace(outputtracexml, 'mediatracexmloutput', output)
         source_parent_dir = os.path.dirname(os.path.abspath(filename))
         manifest = '%s/%s_manifest.md5' % (source_parent_dir, filenoext)
@@ -229,7 +230,7 @@ def make_ffv1(video_files, csv_report_filename):
         checksum_mismatches = []
         with open(fmd5) as f1:
             with open(fmd5ffv1) as f2:
-                for (lineno1, line1), (lineno2, line2) in itertools.izip(
+                for (lineno1, line1), (lineno2, line2) in zip(
                         read_non_comment_lines(f1),
                         read_non_comment_lines(f2)
                         ):
@@ -239,7 +240,7 @@ def make_ffv1(video_files, csv_report_filename):
                         else:
                             checksum_mismatches.append(1)
         if len(checksum_mismatches) == 0:
-            print 'LOSSLESS'
+            print('LOSSLESS')
             append_csv(
                 csv_report_filename, (
                     output,
@@ -250,7 +251,7 @@ def make_ffv1(video_files, csv_report_filename):
             generate_log(log, 'makeffv1.py Transcode was lossless')
         elif len(checksum_mismatches) == 1:
             if checksum_mismatches[0] == 'sar':
-                print 'Image content is lossless,'
+                print('Image content is lossless,')
                 ' Pixel Aspect Ratio has been altered.'
                 ' Update ffmpeg in order to resolve the PAR issue.'
                 append_csv(
@@ -266,7 +267,7 @@ def make_ffv1(video_files, csv_report_filename):
                     'makeffv1.py Image content is lossless but Pixel Aspect Ratio has been altered.Update ffmpeg in order to resolve the PAR issue.'
                     )
         elif len(checksum_mismatches) > 1:
-            print 'NOT LOSSLESS'
+            print('NOT LOSSLESS')
             append_csv(
                 csv_report_filename,
                 (
@@ -277,9 +278,9 @@ def make_ffv1(video_files, csv_report_filename):
             generate_log(log, 'makeffv1.py Not Lossless.')
         hashlib_manifest(filenoext, manifest, source_parent_dir)
         if filecmp.cmp(fmd5, fmd5ffv1, shallow=False):
-            print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+            print("YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!")
         else:
-            print "The framemd5 text files are not completely identical."
+            print("The framemd5 text files are not completely identical.")
             " This may be because of a lossy transcode,"
             " or a change in metadata, most likely pixel aspect ratio."
             " Please analyse the framemd5 files for source and output."
