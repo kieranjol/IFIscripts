@@ -79,7 +79,7 @@ def main(args_):
             writer.writeheader()
             for i in register_dict:
                 writer.writerow(i)
-    print('\nYour helper CSV file is located here: %s\n' % new_csv)
+    print(('\nYour helper CSV file is located here: %s\n' % new_csv))
 
 
 
