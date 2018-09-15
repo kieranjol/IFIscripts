@@ -28,7 +28,7 @@ def make_folder_path(path, args, object_entry):
     else:
         oe_path = os.path.join(path, object_entry)
     path = os.path.join(oe_path, representation_uuid)
-    print path
+    print(path)
     ififuncs.make_folder_structure(path)
     return path
 
@@ -113,9 +113,9 @@ def log_report(log_names):
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     for i in log_names:
         if os.path.isfile(i):
-            print "%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))
+            print("%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i)))
         else:
-            print i, 'can\'t find log file, trying again...'
+            print(i, 'can\'t find log file, trying again...')
             log_names.remove(i)
             for logs in os.listdir(desktop_logs_dir):
                 # look at log filename minus the seconds and '.log'
@@ -125,11 +125,11 @@ def log_report(log_names):
                             os.path.basename(logs)[-12:-4].replace('_', '')
                     ) > int(
                         os.path.basename(i)[-12:-4].replace('_', '')):
-                        print 'trying to analyze %s' % logs
-                        print "%-*s   : %s" % (
+                        print('trying to analyze %s' % logs)
+                        print("%-*s   : %s" % (
                             50, os.path.basename(logs)[:-24], analyze_log(
                                 os.path.join(desktop_logs_dir, logs))
-                            )
+                            ))
                         log_names.append(os.path.join(desktop_logs_dir, logs))
 
 def parse_args(args_):
@@ -215,7 +215,7 @@ def get_metadata(path, new_log_textfile):
                     inputtracexml = "%s/%s_mediatrace.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
-                    print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
+                    print('Generating mediainfo xml of input file and saving it in %s' % inputxml)
                     ififuncs.make_mediainfo(
                         inputxml, 'mediaxmlinput', os.path.join(root, av_file)
                     )
@@ -223,7 +223,7 @@ def get_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
                     )
-                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+                    print('Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
                     ififuncs.make_mediatrace(
                         inputtracexml,
                         'mediatracexmlinput',
@@ -252,7 +252,7 @@ def get_metadata(path, new_log_textfile):
                             new_log_textfile,
                             'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
                         )
-                        print 'Generating exiftool json of input file and saving it in %s' % inputxml
+                        print('Generating exiftool json of input file and saving it in %s' % inputxml)
                         ififuncs.make_exiftool(
                             inputxml,
                             os.path.join(root, av_file)
@@ -267,7 +267,7 @@ def get_metadata(path, new_log_textfile):
                     inputtracexml = "%s/%s_siegfried.json" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
-                    print 'Generating Siegfried json of input file and saving it in %s' % inputtracexml
+                    print('Generating Siegfried json of input file and saving it in %s' % inputtracexml)
                     ififuncs.make_siegfried(
                         inputtracexml,
                         os.path.join(root, av_file)
@@ -327,7 +327,7 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
-    print args
+    print(args)
     if args.user:
         user = args.user
     else:
@@ -335,14 +335,14 @@ def main(args_):
     if not args.sc:
         if args.oe:
             if args.oe[:2] != 'oe':
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
-            elif len(args.oe[2:]) not in range(4, 6):
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+            elif len(args.oe[2:]) not in list(range(4, 6)):
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
             elif not args.oe[2:].isdigit():
                 object_entry = ififuncs.get_object_entry()
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
             else:
                 object_entry = args.oe
         else:
@@ -358,7 +358,7 @@ def main(args_):
                 ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
             ) % uuid
         else:
-            print 'exiting due to invalid UUID'
+            print('exiting due to invalid UUID')
             uuid_event = (
                 'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % uuid
             )
@@ -423,7 +423,7 @@ def main(args_):
     if not args.quiet:
         log_report(log_names)
     finish = datetime.datetime.now()
-    print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+    print('\n', user, 'ran this script at %s and it finished at %s' % (start, finish))
     if args.d:
         content_title = create_content_title_text(sip_path)
         ififuncs.manifest_replace(
