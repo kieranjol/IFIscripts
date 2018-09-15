@@ -100,15 +100,15 @@ def choose_cpl():
     cpl_number = 1
     print ('Multiple CPL files found')
     for i in cpl_list:
-        print (cpl_number,  i)
+        print((cpl_number,  i))
         cpl_number += 1   
     print( 'Please select which CPL you would like to process')
-    chosen_cpl = raw_input()
+    chosen_cpl = input()
     cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
     if args.s:
         cpl_namespace      = cpl_parse.xpath('namespace-uri(.)') 
         subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
-        print( 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?')         
+        print(( 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?'))         
     return cpl_parse 
     
     
@@ -137,10 +137,10 @@ def find_cpl():
     if len(cpl_list) > 1:
         cpl_parse = choose_cpl() 
         # As there can be multiple subtitles, This options gives some info/choice.
-        subs_confirmation  = raw_input('Y/N')       
+        subs_confirmation  = input('Y/N')       
         while subs_confirmation not in ['Y','y']:
             cpl_parse = choose_cpl()
-            subs_confirmation  = raw_input('Y/N')    
+            subs_confirmation  = input('Y/N')    
             return cpl_parse
         return cpl_parse    
     else:
@@ -223,7 +223,7 @@ def burn_subs():
         sub_count = int(xmlo.xpath('count(//Subtitle)'))
         current_sub_counter = 0
         with open(srt_file, "w") as myfile:
-               print ('Transforming ', sub_count, 'subtitles')
+               print(('Transforming ', sub_count, 'subtitles'))
         while current_sub_counter < sub_count:
             counter2 = current_sub_counter +1
             in_point = xmlo.xpath('//Subtitle')[current_sub_counter].attrib['TimeIn']
@@ -237,7 +237,7 @@ def burn_subs():
                 for i in bla:
                         myfile.write(i.encode("utf-8") + '\n')
                 myfile.write('\n')
-                print( 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r') ,
+                print(( 'Transforming ' + str(current_sub_counter) + ' of' + str(count) + ' subtitles\r'), end=' ')
             current_sub_counter +=1 
         current_sub_counter= 0
         os.chdir(os.path.dirname(lut_path))
@@ -344,7 +344,7 @@ def send_gmail():
     server_ssl.login(username, password)  
     # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-    print(msg.as_string())
+    print((msg.as_string()))
     #server_ssl.quit()
     server_ssl.close()
     print ('successfully sent the mail')  
@@ -475,7 +475,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 rewrap = ['ffmpeg','-ss',str(audio_delay[i][0]),'-c:v ','libopenjpeg',
                 '-i',audio_delay[i][2],'-t',str(audio_delay[i][1]),
                 '-c:a','copy', temp_dir + '/'+ audio_delay[i][2] + '.mkv']
-                print rewrap
+                print(rewrap)
                 subprocess.call(rewrap)
         if num_video_delays == 0:
             print( 'There were no video delays.')

@@ -56,7 +56,7 @@ def main(args_):
         with open(args.o, 'w') as xml_doc:
             xml_doc.write(etree.tostring(dfxml_out, pretty_print=True).decode('ascii'))
     else:
-        print(etree.tostring(dfxml_out, pretty_print=True).decode('ascii'))
+        print((etree.tostring(dfxml_out, pretty_print=True).decode('ascii')))
 
 
 if __name__ == '__main__':

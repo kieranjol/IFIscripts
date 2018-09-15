@@ -116,7 +116,7 @@ def build_filter(args, filename):
         if filtergraph[-1] == ',':
             filtergraph = filtergraph[:-1]
         filter_list = ['-vf', filtergraph]
-        print filter_list
+        print(filter_list)
     return filter_list
 
 
@@ -143,7 +143,7 @@ def get_filenames(args):
                     video_files.append(os.path.join(cli_input, files))
     # Prints some stuff if input isn't a file or directory.
     else:
-        print "Your input isn't a file or a directory."
+        print("Your input isn't a file or a directory.")
     return video_files
 
 
@@ -240,11 +240,11 @@ def make_h264(filename, args, filter_list):
         for _filter in filter_list:
             ffmpeg_args.append(_filter)
     ffmpeg_args.append(output)
-    print ffmpeg_args
+    print(ffmpeg_args)
     subprocess.call(ffmpeg_args)
     if args.md5:
         manifest = '%s_manifest.md5' % filename
-        print 'Generating md5 sidecar...'
+        print('Generating md5 sidecar...')
         h264_md5 = hashlib_md5(filename)
         with open(manifest, 'wb') as fo:
             fo.write('%s  %s' % (h264_md5, filename))

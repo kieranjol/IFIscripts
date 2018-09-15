@@ -25,7 +25,7 @@ from email.mime.text import MIMEText
 try:
     import bagit
 except ImportError:
-    print 'skipping error'
+    print('skipping error')
 
 parser = argparse.ArgumentParser(description='DCP FIXITY checker/bagging tool.'
                                  ' Written by Kieran O\'Leary.')
@@ -128,7 +128,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         except SyntaxError:
             append_csv(csvfile,('NOT A VALID ASSETMAP', 'NOT A VALID ASSETMAP', dir,'NOT A VALID ASSETMAP'))
             append_csv(csv_report,(os.path.basename(dir), dir, 'NOT A VALID ASSETMAP'))
-            print 'not an assetmap!!!!'
+            print('not an assetmap!!!!')
             continue
            
         assetmap_namespace = assetmap_xml.xpath('namespace-uri(.)')
@@ -148,12 +148,12 @@ for root,dirnames,filenames in os.walk(dcp_dir):
             except SyntaxError:
                 append_csv(csvfile,('NOT A VALID PKL', 'NOT A VALID PKL', dir,'NOT A VALID PKL'))
                 append_csv(csv_report,(os.path.basename(dir), dir, 'NOT A VALID PKL'))
-                print 'not a valid PKL!!!!'
+                print('not a valid PKL!!!!')
                 continue
             except KeyError:
                 append_csv(csvfile,('PKL APPEARS TO BE MISSING', 'PKL APPEARS TO BE MISSING', dir,'PKL APPEARS TO BE MISSING'))
                 append_csv(csv_report,(os.path.basename(dir), dir, 'PKL APPEARS TO BE MISSING'))
-                print 'Missing PKL!!!!'
+                print('Missing PKL!!!!')
                 continue
             
             is_pkl = xmlname.xpath('namespace-uri(.)')
@@ -224,7 +224,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         missing_files = []
         for i in file_paths:
             if not os.path.isfile(file_paths[i][0]): # This checks if the file exists.
-                print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - **********' + file_paths[i][0] + ' is missing **********'
+                print(time.strftime("%Y-%m-%dT%H:%M:%S") + ' - **********' + file_paths[i][0] + ' is missing **********')
                 missing_files.append(i)
                 # Add missing file info to the csv.
                 append_csv(csvfile,('MISSING FILE', pkl_hashes[i], os.path.abspath(file_paths[i][0]),'MISSING FILE'))
@@ -236,7 +236,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
 
         # Generate fresh hashes on the actual files in the DCP.           
         for i in file_paths:  
-            print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - Generating fresh hash for ' + file_paths[i][0]
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + ' - Generating fresh hash for ' + file_paths[i][0])
             # Create SHA-1 binary hashes with OPENSSL.
             
             openssl_hash = subprocess.check_output(['openssl',
@@ -252,10 +252,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         hash_mismatches = []       
         for i in file_paths:
             if file_paths[i][1] == pkl_hashes[i]:
-                print file_paths[i][0] + ' is ok'
+                print(file_paths[i][0] + ' is ok')
                 append_csv(csvfile,(file_paths[i][1], pkl_hashes[i], os.path.abspath(file_paths[i][0]),'HASH MATCH'))
             else:
-                print file_paths[i][0] + ' mismatch'
+                print(file_paths[i][0] + ' mismatch')
                 hash_mismatches.append(file_paths[i][0])
                 append_csv(csvfile,(file_paths[i][1], pkl_hashes[i], os.path.abspath(file_paths[i][0]),'HASH MISMATCH'))
             
@@ -263,17 +263,17 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         if len(hash_mismatches) > 0:
             report = ' but THERE ARE HASH MISMATCHES. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
             baggable = 'n'
-            print 'This DCP will not be bagged as it could not pass a fixity check'
+            print('This DCP will not be bagged as it could not pass a fixity check')
         else:
             report = ' and all hashes match.'
             baggable = 'y'
 
         if len(missing_files) > 0:
-            print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - WARNING - THERE ARE FILES MISSING FROM THIS DCP. SCROLL UP FOR MORE INFO OR CHECK THE CSV'
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + ' - WARNING - THERE ARE FILES MISSING FROM THIS DCP. SCROLL UP FOR MORE INFO OR CHECK THE CSV')
             append_csv(csv_report,(os.path.dirname(root), dir, 'FILES MISSING - CHECK REPORT'))
-            print 'This DCP will not be bagged as it could not pass a fixity check'
+            print('This DCP will not be bagged as it could not pass a fixity check')
         else: 
-            print time.strftime("%Y-%m-%dT%H:%M:%S") + ' - All files are present in your DCP' + report
+            print(time.strftime("%Y-%m-%dT%H:%M:%S") + ' - All files are present in your DCP' + report)
             append_csv(csv_report,(os.path.dirname(root), dir,'All files present ' + report))
             
         if bagging == 'enabled':
@@ -290,10 +290,10 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                         bag = bagit.make_bag(dir)
                         
                     else:
-                        print 'bagging not supported for this folder structure right now'
+                        print('bagging not supported for this folder structure right now')
                 else:
                      
-                     print 'bagging not supported for this folder structure right now'
+                     print('bagging not supported for this folder structure right now')
 if email == 'enabled': 
     emailfrom = ""
     emailto = ['', '']
@@ -344,7 +344,7 @@ if email == 'enabled':
     server_ssl.login(username, password)  
     # ssl server doesn't support or need tls, so don't call server_ssl.starttls() 
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-    print msg.as_string()
+    print(msg.as_string())
     #server_ssl.quit()
     server_ssl.close()
-    print 'successfully sent the mail'    
+    print('successfully sent the mail')    

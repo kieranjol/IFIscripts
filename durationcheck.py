@@ -21,7 +21,7 @@ def main():
                         os.path.join(root, filename)
                     )
                     duration += float(milliseconds)
-    print '\nDuration of', all_files, ',', duration / 1000 / 60, 'minutes\n'
+    print('\nDuration of', all_files, ',', duration / 1000 / 60, 'minutes\n')
 
 
 if __name__ == '__main__':

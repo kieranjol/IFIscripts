@@ -42,7 +42,7 @@ def remove_from_manifest(manifest, old_oe, new_log_textfile):
         checksums = file_object.readlines()
         for line in checksums:
             if old_oe in line:
-                print '%s has been removed from the package manifest' % line
+                print('%s has been removed from the package manifest' % line)
                 ififuncs.generate_log(
                     new_log_textfile,
                     'EVENT = eventType=metadata modification,'
@@ -80,7 +80,7 @@ def main(args_):
             oe_path, uuid + '_manifest.md5'
             )
     start = datetime.datetime.now()
-    print args
+    print(args)
     if args.user:
         user = args.user
     else:
@@ -106,7 +106,7 @@ def main(args_):
     for filename in args.i:
         # add test to see if it actually deleted - what if read only?
         os.remove(filename)
-        print '%s has been deleted' % filename
+        print('%s has been deleted' % filename)
         ififuncs.generate_log(
             new_log_textfile,
             'EVENT = eventType=deletion,'
@@ -117,7 +117,7 @@ def main(args_):
         for metadata in os.listdir(metadata_dir):
             if os.path.basename(filename) in metadata:
                 os.remove(os.path.join(metadata_dir, metadata))
-                print '%s has been deleted' %  os.path.join(metadata_dir, metadata)
+                print('%s has been deleted' %  os.path.join(metadata_dir, metadata))
                 ififuncs.generate_log(
                     new_log_textfile,
                     'EVENT = eventType=deletion,'
@@ -133,7 +133,7 @@ def main(args_):
     )    
     ififuncs.checksum_replace(sip_manifest, new_log_textfile, 'md5')
     finish = datetime.datetime.now()
-    print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+    print('\n', user, 'ran this script at %s and it finished at %s' % (start, finish))
 
 
 if __name__ == '__main__':

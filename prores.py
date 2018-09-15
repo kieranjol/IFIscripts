@@ -71,7 +71,7 @@ elif os.path.isdir(file_without_path):
 
 # Prints some stuff if input isn't a file or directory.
 else: 
-    print "Your input isn't a file or a directory."
+    print("Your input isn't a file or a directory.")
     
                       
 for filename in video_files:
@@ -98,11 +98,11 @@ for filename in video_files:
         filter_options = '-vf'
         
         if args.yadif:
-            print 'YADIF'
+            print('YADIF')
             filter_options += ' yadif'         
               
         if args.scale:
-            print 'scale'
+            print('scale')
             if number_of_effects > 1:
                 filter_options += (',scale=%s' % width_height)                        
             else:
@@ -112,5 +112,5 @@ for filename in video_files:
         for item in filter_options:
             ffmpeg_args.append(item)    
     ffmpeg_args.append(output)
-    print ffmpeg_args
+    print(ffmpeg_args)
     subprocess.call(ffmpeg_args)

@@ -11,7 +11,7 @@ def main():
     Prints a new UUID to the terminal
     '''
     new_uuid = create_uuid()
-    print new_uuid
+    print(new_uuid)
 
 if __name__ == '__main__':
     main()
