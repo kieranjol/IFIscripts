@@ -102,7 +102,36 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
     with open(mediaconch_xmlfile, 'wb') as xmlfile:
         xmlfile.write(mediaconch_output)
 
+def extract_provenance(filename, output_folder, output_uuid):
+    '''
+    This will extract mediainfo and mediatrace XML
+    '''
+    inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
+    inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
+    print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
+    make_mediainfo(inputxml, 'mediaxmlinput', filename)
+    print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
+    make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
+    return inputxml, inputtracexml
 
+def generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_source):
+    '''
+    This will add the mediainfo xmls to the package
+    '''
+    inputxml, inputtracexml = extract_provenance(filename, output_folder, output_uuid)
+    mediainfo_version = get_mediainfo_version()
+    generate_log(
+        log_name_source,
+        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
+    )
+    generate_log(
+        log_name_source,
+        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
+    )
+    generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
+    return inputxml, inputtracexml
 def make_qctools(input):
     '''
     Runs an ffprobe process that stores QCTools XML info as a variable.
@@ -1502,6 +1531,20 @@ def get_mediainfo_version():
     except subprocess.CalledProcessError as grepexc:
         mediainfo_version = grepexc.output.rstrip().splitlines()[1]
     return mediainfo_version
+
+def get_rawcooked_version():
+    '''
+    Returns the version of rawcooked.
+    If this is not possible, the string 'RAWcooked' is returned.
+    '''
+    rawcooked_version = 'RAWcooked'
+    try:
+        rawcooked_version = subprocess.check_output([
+            'rawcooked', '--version'
+        ]).rstrip()
+    except subprocess.CalledProcessError as grepexc:
+        rawcooked_version = grepexc.output.rstrip().splitlines()[1]
+    return rawcooked_version
 
 def get_ffprobe_dict(source):
     '''
