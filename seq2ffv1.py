@@ -261,7 +261,9 @@ def make_ffv1(
         sip_dir = os.path.join(
             os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
         )
-        sipcreator_log, sipcreator_manifest = sipcreator.main([
+        inputxml, inputtracexml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
+        supplement_cmd = ['-supplement', inputxml, inputtracexml]
+        sipcreator_cmd = [
             '-i',
             ffv1_path,
             '-u',
@@ -272,9 +274,13 @@ def make_ffv1(
             'Kieran',
             '-oe',
             object_entry,
-            '-o', os.path.dirname(ffv1_path)])
+            '-o', os.path.dirname(ffv1_path)
+        ]
+        sipcreator_cmd.extend(supplement_cmd)
+        sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
         logs_dir = os.path.join(sip_dir, 'logs')
         metadata_dir = os.path.join(sip_dir, 'metadata')
+
         for files in files_to_move:
             if files.endswith('.log'):
                 shutil.move(files, logs_dir)
