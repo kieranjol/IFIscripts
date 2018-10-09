@@ -149,7 +149,7 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-reference',
-        help='Enter the starting Filmographic reference number for the representation.'
+        help='Enter the starting Filmographic reference number for the representation. This is not required when using the -oe_csv option'
     )
     parser.add_argument(
         '-dryrun', action='store_true',
