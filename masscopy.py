@@ -56,7 +56,7 @@ def find_manifest(args):
     # Creates an empty list called dirlist.
     dirlist = []
     # Creates a list of items in your input called directory_contents.
-    directory_contents = os.listdir(args.input)
+    directory_contents = sorted(os.listdir(args.input))
     # lists all contents of your input and analyzes each one in a `for loop`.
     for item in directory_contents:
         full_path = os.path.join(args.input, item)
