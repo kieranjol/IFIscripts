@@ -397,7 +397,7 @@ def main(args_):
                 elif track.text == 'Audio':
                     silence = False
                     essenceTrackEncod_au = get_metadata(
-                        "//ns:essenceTrackEncoding",
+                        "ns:essenceTrackEncoding",
                         track.getparent(), pbcore_namespace
                     )
                     audio_codec_list.append(essenceTrackEncod_au)
@@ -412,8 +412,8 @@ def main(args_):
                     )
                     sample_rate_list.append(essenceTrackSampling)
                     essenceBitDepth_au = get_metadata(
-                        "//ns:essenceTrackBitDepth",
-                        root, pbcore_namespace
+                        "ns:essenceTrackBitDepth",
+                        track.getparent(), pbcore_namespace
                     )
                     audio_codecid_list.append(audio_codecid)
                     au_bitdepth_list.append(essenceBitDepth_au)
