@@ -48,7 +48,8 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
     license='MIT',
     install_requires=[
        'lxml',
-       'bagit'
+       'bagit',
+       'future'
     ],
     name='ifiscripts',
     version='v2018.09.03',
