@@ -260,7 +260,8 @@ def main(args_):
             if os.path.isdir(oe_record['source_path']):
                 to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent']]
                 accession_digits += 1
-    print to_accession
+    for success in sorted(to_accession.keys()):
+        print('%s will be accessioned as %s' %  (success, to_accession[success]))
     register = accession.make_register()
     if args.filmographic:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
