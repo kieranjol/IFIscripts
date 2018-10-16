@@ -39,14 +39,19 @@ def diff_manifests(manifest, strongbox_list):
     Compare the list of strongbox hashes to the original AIP manifest.
     '''
     print '\nStrongbox_fixity - IFIscripts'
-    print '\nDiffing the manifests..'
+    print('Analysing %s\n' % manifest)
     with open(manifest, 'r') as original_manifest:
         aip_manifest = original_manifest.read().splitlines()
     # A list of items in strongbox, that are different in aip sha512 manifest
     strongbox_check = [item for item in strongbox_list if item not in aip_manifest]
     # A list of items in the AIP manifest, that are different in the strongbox manifest
     aip_check =  [item for item in aip_manifest if item not in strongbox_list]
-    if len(strongbox_check) == 0:
+    # check if the files are actually on the strongbox
+    if len(strongbox_list) == 0:
+        print 'ERROR ***************************************'
+        print 'ERROR ***************************************The files are not on strongbox!!'
+    # checks if everything in the strongbox list is in the aip manifest.
+    elif len(strongbox_check) == 0:
         print 'All files in the strongbox manifest are present in your AIP manifest and the hashes validate'
     else:
         for i in strongbox_check:
@@ -56,6 +61,7 @@ def diff_manifests(manifest, strongbox_list):
     else:
         for i in strongbox_check:
             print '%s is different from the AIP manifest to the Strongbox manifest' % i
+    print('Analysis complete\n')
 def find_checksums(csv_file, identifier):
     '''
     Finds the relevant entries in the CSV and prints to terminal
