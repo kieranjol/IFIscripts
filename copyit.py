@@ -389,11 +389,6 @@ def setup(args_):
         action='store_true',
         help='Answers YES to the question: Not enough free space, would you like to continue?'
     )
-    parser.add_argument(
-        '-test',
-        action='store_true',
-        help='This will not copy any files, it will just check if existing manifests are out of date'
-    )
     rootpos = ''
     dircheck = None
     args = parser.parse_args(args_)
@@ -674,8 +669,6 @@ def main(args_):
         manifest, source_count,
         file_list, log_name_source
     )
-    if args.test:
-        return
     manifest_sidecar, manifest, rootpos = control_flow(
         manifest_sidecar, log_name_source, manifest, rootpos, args, source
     )
