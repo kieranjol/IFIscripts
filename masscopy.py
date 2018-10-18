@@ -110,7 +110,13 @@ def analyze_reports(log_names, desktop_logs_dir):
                         print 'trying to analyze %s' % logs
                         print "%-*s   : %s" % (50, os.path.basename(logs)[:-24], analyze_log(os.path.join(desktop_logs_dir, logs)))
 
-
+def check_for_errors(dirlist, args):
+    '''
+    Check in advance to see if copyit will fail on certain manifests
+    '''
+    for dirname in dirlist:
+        print('\nAnalysing %s' % dirname)
+        copyit.main([dirname, args.o, '-test'])
 def main():
     '''
     Launches the other functions wihch attempt to run multiple copyit.py
@@ -119,6 +125,7 @@ def main():
     '''
     args = parse_args()
     all_files = find_manifest(args)
+    check_for_errors(all_files, args)
     processed_dirs = []
     log_names = []
     print '\n\n**** All of these folders will be copied to %s\n' % args.o
