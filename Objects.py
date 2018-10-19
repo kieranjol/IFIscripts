@@ -34,6 +34,7 @@ import dfxml
 import os
 import sys
 import struct
+import platform
 
 _logger = logging.getLogger(os.path.basename(__file__))
 
@@ -106,6 +107,9 @@ def _intcast(val):
     """Casts input integer or string to integer.  Preserves nulls.  Balks at everything else."""
     if val is None:
         return None
+    if sys.version_info[0] < 3:
+       if isinstance(val, long):
+           return val
     if isinstance(val, int):
         return val
 
@@ -2151,12 +2155,18 @@ class FileObject(object):
         _typecheck(s, os.stat_result)
 
         self.mode = s.st_mode
-        self.inode = s.st_ino
         self.nlink = s.st_nlink
         self.uid = s.st_uid
         self.gid = s.st_gid
         self.filesize = s.st_size
         #s.st_dev is ignored for now.
+        if platform.system() == "Windows":
+            # On Windows, Python 2 reports 0L.  Treat this as absent information.
+            # On Windows, Python 3 reports the "File ID" ( see "nFileIndexLow" remark at: https://msdn.microsoft.com/en-us/library/aa363788 ).  Record this as the inode number for now.  NOTE: in the future this may become a Windows-namespaced property "fileindex"; it may be prudent to later file a follow-on to Python Issue 32878 ( https://bugs.python.org/issue32878 ).
+            if sys.version_info[0] >= 3:
+                self.inode = s.st_ino
+        else:
+            self.inode = s.st_ino
 
         if "st_mtime" in dir(s):
             self.mtime = s.st_mtime
