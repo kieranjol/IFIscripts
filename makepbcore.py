@@ -400,16 +400,16 @@ def main(args_):
                     #vcodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
                     #vcodec_attributes = 'TODO'
                     video_codecid = ififuncs.get_metadata(
-                        "//ns:CodecID",
-                        new_root, mediainfo_namespace
+                        "ns:CodecID",
+                        track, mediainfo_namespace
                     )
                     video_codec_version =  ififuncs.get_metadata(
-                        "//ns:Format_Version",
-                        new_root, mediainfo_namespace
+                        "ns:Format_Version",
+                        track, mediainfo_namespace
                     )
                     video_codec_profile = ififuncs.get_metadata(
-                        "//ns:Format_Profile",
-                        new_root, mediainfo_namespace
+                        "ns:Format_Profile",
+                        track, mediainfo_namespace
                     )
                 elif track.attrib['type'] == 'Audio':
                     silence = False
@@ -538,7 +538,7 @@ def main(args_):
         )
         # this needs to be clarified as it exists in general and codec
         format_version = ififuncs.get_metadata(
-            "//ns:Format_Version",
+            "ns:Format_Version",
             general_root, mediainfo_namespace
         )
         app_company_name = ififuncs.get_metadata(
