@@ -47,7 +47,7 @@ def diff_textfiles(source_textfile, other_textfile):
 
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     '''
-    Writes a verbose mediainfo XML output.
+    Writes a verbose mediainfo XML output using the OLDXML schema.
     '''
     mediainfo_cmd = [
         'mediainfo',
@@ -1590,3 +1590,42 @@ def get_colour_metadata(ffprobe_dict):
         else:
             continue
     return ffmpeg_colour_list
+
+def get_metadata(xpath_path, root, pbcore_namespace):
+    '''
+    Extracts values from PBCore2 XML MediaInfo outputs.
+    '''
+    value = root.xpath(
+        xpath_path,
+        namespaces={'ns':pbcore_namespace}
+    )
+    print value
+    if value == []:
+        value = 'n/a'
+    elif len(value) > 1:
+        mixed_values = ''
+        value_list = []
+        for i in value:
+            print i.getparent()
+            # Checks if multiple audio tracks have different values.
+            '''
+            if i.getparent().getparent().find(
+                'ns:track',
+                namespaces={'ns':pbcore_namespace}
+            ).attrib['type'] == 'Audio':
+            '''
+            value_list.append(i.text)
+        # Checks if values in the list are the same(1) or different (2)
+        if len(set(value_list)) is 1:
+            value = value[0].text
+        else:
+            # Return the mixed values with pipe delimiter.
+            for x in value_list:
+                mixed_values += x + '|'
+            if mixed_values[-1] == '|':
+                mixed_values = mixed_values[:-1]
+            value = mixed_values
+
+    else:
+        value = value[0].text
+    return value

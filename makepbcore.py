@@ -307,7 +307,7 @@ def main(args_):
     else:
         user = ififuncs.get_user()
     acquisition_type = ''
-    if args.acquisition_type:        
+    if args.acquisition_type:
         acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)[0]
     for dirs in os.listdir(args.input):
         if ififuncs.validate_uuid4(dirs) is None:
@@ -382,18 +382,35 @@ def main(args_):
     channels_list = []
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
+        new_metadata = subprocess.check_output(['mediainfo', '--Output=XML', source])
         root = etree.fromstring(metadata)
+        new_root = etree.fromstring(new_metadata)
         print(' - Analysing  %s') % source
         pbcore_namespace = root.xpath('namespace-uri(.)')
+        mediainfo_namespace = new_root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
+        new_track_type = new_root.xpath('//ns:track', namespaces={'ns':mediainfo_namespace})
         if len(track_type) > 0:
-            for track in track_type:
-                if track.text == 'Video':
-                    essenceTrackEncodvid = get_metadata(
-                        "ns:essenceTrackEncoding",
-                        track.getparent(), pbcore_namespace
+            for track in new_track_type:
+                if track.attrib['type'] == 'Video':
+                    essenceTrackEncodvid = ififuncs.get_metadata(
+                        "ns:Format",
+                        track, mediainfo_namespace
                     )
-                    vcodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
+                    #vcodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
+                    #vcodec_attributes = 'TODO'
+                    video_codecid = ififuncs.get_metadata(
+                        "//ns:CodecID",
+                        new_root, mediainfo_namespace
+                    )
+                    video_codec_version =  ififuncs.get_metadata(
+                        "//ns:Format_Version",
+                        new_root, mediainfo_namespace
+                    )
+                    video_codec_profile = ififuncs.get_metadata(
+                        "//ns:Format_Profile",
+                        new_root, mediainfo_namespace
+                    )
                 elif track.text == 'Audio':
                     silence = False
                     essenceTrackEncod_au = get_metadata(
@@ -423,34 +440,34 @@ def main(args_):
                     )
                     channels_list.append(channels)
         ScanType = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='ScanType']",
-            root, pbcore_namespace
+            "//ns:ScanType",
+            new_root, mediainfo_namespace
         )
         scan_types.append(ScanType)
         matrix_coefficients = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='matrix_coefficients']",
-            root, pbcore_namespace
+            "//ns:matrix_coefficients",
+            new_root, mediainfo_namespace
         )
         timecode_source,starting_timecode = get_timecode(pbcore_namespace, root, source)
         timecode_list.append(starting_timecode)
         matrix_list.append(matrix_coefficients)
-        transfer_characteris = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='transfer_characteristics']",
-            root, pbcore_namespace
+        transfer_characteris = ififuncs.get_metadata(
+            "//ns:transfer_characteristics",
+            new_root, mediainfo_namespace
         )
         transfer_list.append(transfer_characteris)
-        colour_primaries = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='colour_primaries']",
-            root, pbcore_namespace
+        colour_primaries = ififuncs.get_metadata(
+            "//ns:colour_primaries",
+            new_root, mediainfo_namespace
         )
         colour_primaries_list.append(colour_primaries)
-        FrameCount += int(get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='FrameCount']",
-            root, pbcore_namespace
+        FrameCount += int(ififuncs.get_metadata(
+            "//ns:FrameCount",
+            new_root, mediainfo_namespace
         ))
-        instantFileSize_byte += int(get_metadata(
-            "//ns:instantiationFileSize",
-            root, pbcore_namespace
+        instantFileSize_byte += int(ififuncs.get_metadata(
+            "//ns:FileSize",
+            new_root, mediainfo_namespace
         ))
         instantDataRate = round(float(ififuncs.get_mediainfo(
             'OverallBitRate', '--inform=General;%OverallBitRate%', source
@@ -458,14 +475,14 @@ def main(args_):
         instantTracks = ififuncs.get_number_of_tracks(source)
         track_count_list.append(instantTracks)
         ms += ififuncs.get_milliseconds(source)
-        ColorSpace = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='ColorSpace']",
-            root, pbcore_namespace
+        ColorSpace = ififuncs.get_metadata(
+            "//ns:ColorSpace",
+            new_root, mediainfo_namespace
         )
         color_spaces.append(ColorSpace)
         ChromaSubsampling = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='ChromaSubsampling']",
-            root, pbcore_namespace
+            "//ns:ChromaSubsampling",
+            new_root, mediainfo_namespace
         )
         chroma.append(ChromaSubsampling)
         instantMediaty = get_metadata(
@@ -477,27 +494,28 @@ def main(args_):
             root, pbcore_namespace
         )
         frame_sizes.append(essenceFrameSize)
-        PixelAspectRatio = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='PixelAspectRatio']",
-            root, pbcore_namespace
+        PixelAspectRatio = ififuncs.get_metadata(
+            "//ns:PixelAspectRatio",
+            new_root, mediainfo_namespace
         )
         par_list.append(PixelAspectRatio)
-        instantiationStandar = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Format']",
-            root, pbcore_namespace
+        general_root = new_root.xpath("//ns:track[@type='General']", namespaces={'ns':mediainfo_namespace})[0]
+        instantiationStandar = ififuncs.get_metadata(
+            "ns:Format",
+            general_root, mediainfo_namespace
         )
         container_list.append(instantiationStandar)
-        essenceFrameRate = get_metadata(
-            "//ns:essenceTrackFrameRate",
-            root, pbcore_namespace
+        essenceFrameRate = ififuncs.get_metadata(
+            "//ns:FrameRate",
+            new_root, mediainfo_namespace
         )
         fps_list.append(essenceFrameRate)
         essenceAspectRatio = ififuncs.get_mediainfo(
             'DAR', '--inform=Video;%DisplayAspectRatio_String%', source
         )
-        Interlacement = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='Interlacement']",
-            root, pbcore_namespace
+        Interlacement = ififuncs.get_metadata(
+            "//ns:ScanOrder",
+            new_root, mediainfo_namespace
         )
         # FFV1/MKV seems to have this scanorder metadata here rather than Interlacement
         # FFV1/MKV is the only example I've seen so far that behaves like this :|
@@ -509,37 +527,43 @@ def main(args_):
                 root, pbcore_namespace
             )
         interlace_list.append(Interlacement)
-        Compression_Mode = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Compression_Mode']",
-            root, pbcore_namespace
+        Compression_Mode = ififuncs.get_metadata(
+            "//ns:Compression_Mode",
+            new_root, mediainfo_namespace
         )
-        colour_range = get_metadata(
-            "//ns:essenceTrackAnnotation[@annotationType='colour_range']",
-            root, pbcore_namespace
+        colour_range = ififuncs.get_metadata(
+            "//ns:colour_range",
+            new_root, mediainfo_namespace
         )
-        format_version = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Format_Version']",
-            root, pbcore_namespace
+        # this needs to be clarified as it exists in general and codec
+        format_version = ififuncs.get_metadata(
+            "//ns:Format_Version",
+            general_root, mediainfo_namespace
         )
-        app_company_name = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_CompanyName']",
-            root, pbcore_namespace
+        app_company_name = ififuncs.get_metadata(
+            "//ns:Encoded_Application_CompanyName",
+            new_root, mediainfo_namespace
         )
-        app_name = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_Name']",
-            root, pbcore_namespace
+        app_name = ififuncs.get_metadata(
+            "//ns:Encoded_Application_Name",
+            new_root, mediainfo_namespace
         )
-        app_version = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Encoded_Application_Version']",
-            root, pbcore_namespace
+        app_version = ififuncs.get_metadata(
+            "//ns:Encoded_Application_Version",
+            new_root, mediainfo_namespace
         )
-        library_name = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Encoded_Library_Name']",
-            root, pbcore_namespace
+        library_name = ififuncs.get_metadata(
+            "//ns:Encoded_Library_Name",
+            new_root, mediainfo_namespace
         )
-        library_version = get_metadata(
-            "//ns:instantiationAnnotation[@annotationType='Encoded_Library_Version']",
-            root, pbcore_namespace
+        if library_name == 'n/a':
+            library_name = ififuncs.get_metadata(
+            "//ns:Encoded_Library",
+            general_root, mediainfo_namespace
+        )
+        library_version = ififuncs.get_metadata(
+            "//ns:Encoded_Library_Version",
+            new_root, mediainfo_namespace
         )
         compression_list.append(Compression_Mode)
         instantiationDate_mo = get_metadata(
@@ -558,6 +582,7 @@ def main(args_):
         essenceTrackEncod_au = 'n/a'
         essenceTrackSampling = 'n/a'
         channels = 'n/a'
+    '''
     video_codecid = vcodec_attributes['ref']
     video_codecid_list.append(video_codecid)
     try:
@@ -568,6 +593,7 @@ def main(args_):
         video_codec_profile = vcodec_attributes['annotation'][8:]
     except KeyError:
         video_codec_profile = 'n/a'
+    '''
     video_codec_version_list.append(video_codec_version)
     video_codec_profile_list.append(video_codec_profile)
     metadata_error = ''
@@ -752,4 +778,5 @@ def main(args_):
         print metadata_error
 if __name__ == '__main__':
     main(sys.argv[1:])
+
 
