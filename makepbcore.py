@@ -302,6 +302,7 @@ def main(args_):
     args = parse_args(args_)
     all_files = ififuncs.recursive_file_list(args.input)
     silence = True
+    audio_only = True
     if args.user:
         user = args.user
     else:
@@ -390,9 +391,10 @@ def main(args_):
         mediainfo_namespace = new_root.xpath('namespace-uri(.)')
         track_type = root.xpath('//ns:essenceTrackType', namespaces={'ns':pbcore_namespace})
         new_track_type = new_root.xpath('//ns:track', namespaces={'ns':mediainfo_namespace})
-        if len(track_type) > 0:
+        if len(new_track_type) > 0:
             for track in new_track_type:
                 if track.attrib['type'] == 'Video':
+                    audio_only = True
                     essenceTrackEncodvid = ififuncs.get_metadata(
                         "ns:Format",
                         track, mediainfo_namespace
@@ -411,6 +413,8 @@ def main(args_):
                         "ns:Format_Profile",
                         track, mediainfo_namespace
                     )
+                    video_codec_version_list.append(video_codec_version)
+                    video_codec_profile_list.append(video_codec_profile)
                 elif track.attrib['type'] == 'Audio':
                     silence = False
                     essenceTrackEncod_au = ififuncs.get_metadata(
@@ -440,6 +444,11 @@ def main(args_):
                         track, mediainfo_namespace
                     )
                     channels_list.append(channels)
+        if audio_only:
+            essenceTrackEncodvid = 'n/a'
+            video_codecid = 'n/a'
+            video_codec_version = 'n/a'
+            video_codec_profile = 'n/a'
         ScanType = ififuncs.get_metadata(
             "//ns:ScanType",
             new_root, mediainfo_namespace
@@ -462,10 +471,13 @@ def main(args_):
             new_root, mediainfo_namespace
         )
         colour_primaries_list.append(colour_primaries)
-        FrameCount += int(ififuncs.get_metadata(
-            "//ns:FrameCount",
-            new_root, mediainfo_namespace
-        ))
+        if audio_only:
+            FrameCount = 'n/a'
+        else:
+            FrameCount += int(ififuncs.get_metadata(
+                "//ns:FrameCount",
+                new_root, mediainfo_namespace
+            ))
         instantFileSize_byte += int(ififuncs.get_metadata(
             "//ns:FileSize",
             new_root, mediainfo_namespace
@@ -490,10 +502,13 @@ def main(args_):
             "//ns:instantiationMediaType",
             root, pbcore_namespace
         )
-        essenceFrameSize = get_metadata(
-            "//ns:essenceTrackFrameSize",
-            root, pbcore_namespace
-        )
+        if audio_only:
+            essenceFrameSize = 'n/a'
+        else:
+            essenceFrameSize = get_metadata(
+                "//ns:essenceTrackFrameSize",
+                root, pbcore_namespace
+            )
         frame_sizes.append(essenceFrameSize)
         PixelAspectRatio = ififuncs.get_metadata(
             "//ns:PixelAspectRatio",
@@ -577,6 +592,9 @@ def main(args_):
         pix_fmt_list.append(pix_fmt)
         audio_fmt = ififuncs.get_ffmpeg_fmt(source, 'audio')
         audio_fmt_list.append(audio_fmt)
+        essenceBitDepth_vid = ififuncs.get_mediainfo(
+            'duration', '--inform=Video;%BitDepth%', source
+        )
     if silence:
         audio_codecid = 'n/a'
         essenceBitDepth_au = 'n/a'
@@ -595,8 +613,6 @@ def main(args_):
     except KeyError:
         video_codec_profile = 'n/a'
     '''
-    video_codec_version_list.append(video_codec_version)
-    video_codec_profile_list.append(video_codec_profile)
     metadata_error = ''
     metadata_list = [
         scan_types,
@@ -677,12 +693,13 @@ def main(args_):
     instantColors = 'n/a'
     instantLanguage = 'n/a'
     instantAltMo = 'n/a'
-    essenceBitDepth_vid = ififuncs.get_mediainfo(
-        'duration', '--inform=Video;%BitDepth%', source
-    )
+
     instantiationChanCon = 'n/a'
+    '''
+    no idea why these are here
     colour_range = colour_range
     format_version = format_version
+    '''
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
     TimeCode_Source = timecode_source
     reproduction_reason = ''
