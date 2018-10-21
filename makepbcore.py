@@ -411,40 +411,41 @@ def main(args_):
                         "//ns:Format_Profile",
                         new_root, mediainfo_namespace
                     )
-                elif track.text == 'Audio':
+                elif track.attrib['type'] == 'Audio':
                     silence = False
-                    essenceTrackEncod_au = get_metadata(
-                        "ns:essenceTrackEncoding",
-                        track.getparent(), pbcore_namespace
+                    essenceTrackEncod_au = ififuncs.get_metadata(
+                        "ns:Format",
+                        track, mediainfo_namespace
                     )
                     audio_codec_list.append(essenceTrackEncod_au)
-                    acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
-                    try:
-                        audio_codecid = acodec_attributes['ref']
-                    except KeyError:
-                        audio_codecid = 'n/a'
+                    #acodec_attributes = get_attributes(track.getparent(), pbcore_namespace)
+
+                    audio_codecid = ififuncs.get_metadata(
+                        "ns:CodecID",
+                        track, mediainfo_namespace
+                    )
                     essenceTrackSampling = ififuncs.get_mediainfo(
                         'samplerate',
                         '--inform=Audio;%SamplingRate_String%', source
                     )
                     sample_rate_list.append(essenceTrackSampling)
-                    essenceBitDepth_au = get_metadata(
-                        "ns:essenceTrackBitDepth",
-                        track.getparent(), pbcore_namespace
+                    essenceBitDepth_au = ififuncs.get_metadata(
+                        "ns:BitDepth",
+                        track, mediainfo_namespace
                     )
                     audio_codecid_list.append(audio_codecid)
                     au_bitdepth_list.append(essenceBitDepth_au)
-                    channels = get_metadata(
-                        "//ns:essenceTrackAnnotation[@annotationType='Channel(s)']",
-                        track.getparent(), pbcore_namespace
+                    channels = ififuncs.get_metadata(
+                        "//ns:Channels",
+                        track, mediainfo_namespace
                     )
                     channels_list.append(channels)
-        ScanType = get_metadata(
+        ScanType = ififuncs.get_metadata(
             "//ns:ScanType",
             new_root, mediainfo_namespace
         )
         scan_types.append(ScanType)
-        matrix_coefficients = get_metadata(
+        matrix_coefficients = ififuncs.get_metadata(
             "//ns:matrix_coefficients",
             new_root, mediainfo_namespace
         )
