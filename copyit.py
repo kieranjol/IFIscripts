@@ -71,7 +71,7 @@ def remove_bad_files(root_dir, log_name_source):
     '''
     Stolen and adapted from Ben Fino-Radin. Removes annoying files.
     '''
-    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
+    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini', 'Desktop.ini']
     for root, _, files in os.walk(root_dir):
         for name in files:
             path = os.path.join(root, name)
