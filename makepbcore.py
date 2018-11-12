@@ -394,7 +394,7 @@ def main(args_):
         if len(new_track_type) > 0:
             for track in new_track_type:
                 if track.attrib['type'] == 'Video':
-                    audio_only = True
+                    audio_only = False
                     essenceTrackEncodvid = ififuncs.get_metadata(
                         "ns:Format",
                         track, mediainfo_namespace
