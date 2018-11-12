@@ -30,7 +30,6 @@ def process_mixed_values(value_list):
     mixed_values = ''
     # Check if just a single value exists. If so, just return that one value.
     if len(set(value_list)) is 1:
-        print value_list
         value = value_list[0]
     else:
         # Return the mixed values with pipe delimiter.
