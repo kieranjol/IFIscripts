@@ -261,8 +261,8 @@ def make_ffv1(
         sip_dir = os.path.join(
             os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
         )
-        inputxml, inputtracexml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
-        supplement_cmd = ['-supplement', inputxml, inputtracexml]
+        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
+        supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml]
         sipcreator_cmd = [
             '-i',
             ffv1_path,
@@ -295,6 +295,16 @@ def make_ffv1(
                     os.path.join(metadata_dir, os.path.basename(files))
                 )
         return judgement, sipcreator_log, sipcreator_manifest
+
+def make_dfxml(args,new_uuid_path,uuid):
+    '''
+    Adds Digital Forensics XML of the source sequence
+    to the supplemental folder.
+    '''
+    metadata = os.path.join(new_uuid_path, 'metadata')
+    dfxml = os.path.join(metadata, uuid + '_dfxml.xml')
+    makedfxml.main([new_uuid_path, '-n', '-o', dfxml])
+    return dfxml
 
 def setup():
     '''

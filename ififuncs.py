@@ -20,6 +20,7 @@ import json
 import ctypes
 import platform
 import itertools
+import makedfxml
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -104,21 +105,31 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
 
 def extract_provenance(filename, output_folder, output_uuid):
     '''
-    This will extract mediainfo and mediatrace XML
+    This will extract dfxml, mediainfo and mediatrace XML
+    Need to add a workaround for TIFF as folders are not
+    processed as a whole.
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
+    dfxml = "%s/%s_dfxml.xml" % (output_folder, output_uuid)
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
     make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
-    return inputxml, inputtracexml
+    if os.path.isfile(filename):
+        filename = os.path.dirname(filename)
+        # check if file without extension is provided
+        if filename == '':
+            filename = os.path.abspath(filename)
+    print(' - Generating Digital Forensics xml of input directory and saving it in %s' % dfxml)
+    makedfxml.main([filename, '-n', '-o', dfxml])
+    return inputxml, inputtracexml, dfxml
 
 def generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_source):
     '''
     This will add the mediainfo xmls to the package
     '''
-    inputxml, inputtracexml = extract_provenance(filename, output_folder, output_uuid)
+    inputxml, inputtracexml, dfxml = extract_provenance(filename, output_folder, output_uuid)
     mediainfo_version = get_mediainfo_version()
     generate_log(
         log_name_source,
@@ -130,8 +141,9 @@ def generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_sourc
     )
     generate_log(
         log_name_source,
-        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
-    return inputxml, inputtracexml
+        'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
+    )
+    return inputxml, inputtracexml, dfxml
 def make_qctools(input):
     '''
     Runs an ffprobe process that stores QCTools XML info as a variable.
