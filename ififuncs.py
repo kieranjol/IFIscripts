@@ -1614,14 +1614,12 @@ def get_metadata(xpath_path, root, pbcore_namespace):
         xpath_path,
         namespaces={'ns':pbcore_namespace}
     )
-    print value
     if value == []:
         value = 'n/a'
     elif len(value) > 1:
         mixed_values = ''
         value_list = []
         for i in value:
-            print i.getparent()
             # Checks if multiple audio tracks have different values.
             '''
             if i.getparent().getparent().find(
