@@ -48,7 +48,7 @@ def diff_textfiles(source_textfile, other_textfile):
 
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     '''
-    Writes a verbose mediainfo XML output.
+    Writes a verbose mediainfo XML output using the OLDXML schema.
     '''
     mediainfo_cmd = [
         'mediainfo',
@@ -1352,7 +1352,7 @@ def recursive_file_list(video_files):
     recursive_list = []
     for root, _, filenames in os.walk(video_files):
         for filename in filenames:
-            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF')):
+            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF', '.WAV', '.wav', '.aiff', '.AIFF', 'mp3', 'MP3')):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
 
@@ -1438,6 +1438,9 @@ def get_digital_object_descriptor(source_folder):
     mov_count = 0
     mkv_count = 0
     mp4_count = 0
+    wav_count = 0
+    aiff_count = 0
+    mp3_count = 0
     BPAV = False
     dig_object_descriptor = ''
     for root, _, filenames in os.walk(source_folder):
@@ -1450,10 +1453,22 @@ def get_digital_object_descriptor(source_folder):
                 mov_count += 1
             elif filename.lower().endswith('mp4'):
                 mp4_count += 1
+            elif filename.lower().endswith('wav'):
+                wav_count += 1
+            elif filename.lower().endswith('aiff'):
+                aiff_count += 1
+            elif filename.lower().endswith('mp3'):
+                mp3_count += 1
     if mkv_count == 1:
         dig_object_descriptor = 'Matroska'
     elif mov_count == 1:
         dig_object_descriptor = 'QuickTime'
+    elif wav_count == 1:
+        dig_object_descriptor = 'Wave'
+    elif aiff_count == 1:
+        dig_object_descriptor = 'AIFF'
+    elif mp3_count == 1:
+        dig_object_descriptor = 'MP3'
     elif mov_count > 1:
         dig_object_descriptor = 'Multiple QuickTimes'
     elif mp4_count >= 1:
@@ -1602,3 +1617,40 @@ def get_colour_metadata(ffprobe_dict):
         else:
             continue
     return ffmpeg_colour_list
+
+def get_metadata(xpath_path, root, pbcore_namespace):
+    '''
+    Extracts values from PBCore2 XML MediaInfo outputs.
+    '''
+    value = root.xpath(
+        xpath_path,
+        namespaces={'ns':pbcore_namespace}
+    )
+    if value == []:
+        value = 'n/a'
+    elif len(value) > 1:
+        mixed_values = ''
+        value_list = []
+        for i in value:
+            # Checks if multiple audio tracks have different values.
+            '''
+            if i.getparent().getparent().find(
+                'ns:track',
+                namespaces={'ns':pbcore_namespace}
+            ).attrib['type'] == 'Audio':
+            '''
+            value_list.append(i.text)
+        # Checks if values in the list are the same(1) or different (2)
+        if len(set(value_list)) is 1:
+            value = value[0].text
+        else:
+            # Return the mixed values with pipe delimiter.
+            for x in value_list:
+                mixed_values += x + '|'
+            if mixed_values[-1] == '|':
+                mixed_values = mixed_values[:-1]
+            value = mixed_values
+
+    else:
+        value = value[0].text
+    return value
