@@ -95,7 +95,8 @@ def run_loop(args):
             source_abspath,
             output_dirname,
             args,
-            log_name_source
+            log_name_source,
+            user
         )
         if args.sip:
             judgement, sipcreator_log, sipcreator_manifest = judgement
@@ -131,7 +132,8 @@ def make_ffv1(
         source_abspath,
         output_dirname,
         args,
-        log_name_source
+        log_name_source,
+        user
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
@@ -271,7 +273,7 @@ def make_ffv1(
             '-quiet',
             '-move',
             '-user',
-            'Kieran',
+            user,
             '-oe',
             object_entry,
             '-o', os.path.dirname(ffv1_path)
