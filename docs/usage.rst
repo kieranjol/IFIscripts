@@ -274,6 +274,13 @@ sha512deep.py
    hashdeep toolset.
 -  Usage: ``sha512deep.py directory``
 
+shadfxml.py
+~~~~~~~~~~~~~
+
+-  Creates DFXML and sha512 manifests but only in sipcreator/uuid packages.
+-  This will work recursively so all packages within a directory will be processed.
+-  Usage: ``shadfxml.py directory``
+
 validate.py
 ~~~~~~~~~~~
 

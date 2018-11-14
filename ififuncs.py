@@ -1054,6 +1054,7 @@ def check_for_uuid(args):
     Tries to check if a filepath contains a UUID.
     Returns false if an invalid UUID is found
     Returns the UUID if a UUID is found.
+    TO_BE_DEPRECATED in favour of check_for_uuid_generic
     '''
     source_uuid = False
     while source_uuid is False:
@@ -1061,6 +1062,28 @@ def check_for_uuid(args):
             return os.path.basename(args.i[0])
         else:
             returned_dir = check_for_sip(args.i)
+            if returned_dir is None:
+                return False
+            uuid_check = os.path.basename(returned_dir)
+            if validate_uuid4(uuid_check) != False:
+                return uuid_check
+            else:
+                return source_uuid
+
+def check_for_uuid_generic(source):
+    '''
+    Tries to check if a filepath contains a UUID.
+    Returns false if an invalid UUID is found
+    Returns the UUID if a UUID is found.
+    Duplicate of the previous function without the silly
+    args object hardcoding.
+    '''
+    source_uuid = False
+    while source_uuid is False:
+        if validate_uuid4(os.path.basename(source)) != False:
+            return os.path.basename(source)
+        else:
+            returned_dir = check_for_sip(source)
             if returned_dir is None:
                 return False
             uuid_check = os.path.basename(returned_dir)
