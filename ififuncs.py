@@ -1083,7 +1083,7 @@ def check_for_uuid_generic(source):
         if validate_uuid4(os.path.basename(source)) != False:
             return os.path.basename(source)
         else:
-            returned_dir = check_for_sip(source)
+            returned_dir = check_for_sip_generic(source)
             if returned_dir is None:
                 return False
             uuid_check = os.path.basename(returned_dir)
@@ -1106,6 +1106,20 @@ def check_for_sip(args):
             dircheck = filenames.replace('_manifest.md5', '')
             if os.path.isdir(os.path.join(args[0], dircheck)):
                 return os.path.join(args[0], dircheck)
+
+def check_for_sip_generic(source):
+    '''
+    This checks if the input folder contains the actual payload, eg:
+    the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
+    Just realised that args.i can be a list, but for our main concat workflow, a single dir will be passed.
+    Hence the args[0]
+    Also choose a better variable name than args as args=/a/path here.
+    '''
+    for filenames in os.listdir(source):
+        if 'manifest.md5' in filenames:
+            dircheck = filenames.replace('_manifest.md5', '')
+            if os.path.isdir(os.path.join(source, dircheck)):
+                return os.path.join(source, dircheck)
 
 def checksum_replace(manifest, logname, algorithm):
     '''
