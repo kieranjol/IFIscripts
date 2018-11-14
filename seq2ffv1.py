@@ -296,6 +296,9 @@ def make_ffv1(
                     sipcreator_manifest,
                     os.path.join(metadata_dir, os.path.basename(files))
                 )
+        os.remove(dfxml)
+        os.remove(inputtracexml)
+        os.remove(inputxml)
         return judgement, sipcreator_log, sipcreator_manifest
 
 def make_dfxml(args,new_uuid_path,uuid):
