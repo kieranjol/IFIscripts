@@ -11,6 +11,8 @@ import datetime
 import copyit
 import ififuncs
 import package_update
+import accession
+import manifest
 from masscopy import analyze_log
 
 
@@ -419,6 +421,21 @@ def main(args_):
         os.makedirs(supplemental_dir)
         supplement_cmd = ['-i', args.supplement, '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
+    if args.sc:
+        print('Generating Digital Forensics XML')
+        dfxml = accession.make_dfxml(args, sip_path, uuid)
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
+        )
+        ififuncs.manifest_update(new_manifest_textfile, dfxml)
+        sha512_log = manifest.main([sip_path, '-sha512', '-s'])
+        sha512_manifest = os.path.join(
+            os.path.dirname(sip_path), uuid + '_manifest-sha512.txt'
+        )
+        ififuncs.merge_logs_append(sha512_log, new_log_textfile, new_manifest_textfile)
+        ififuncs.checksum_replace(sha512_manifest, new_log_textfile, 'sha512')
+        os.remove(sha512_log)
     ififuncs.sort_manifest(new_manifest_textfile)
     if not args.quiet:
         log_report(log_names)
