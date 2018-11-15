@@ -206,6 +206,9 @@ def main(args_):
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'))))
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5_logfile.replace('\\\\', '\\').replace('\:', ':'))))
             ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
+            os.remove(dfxml)
+            os.remove(inputxml)
+            os.remove(inputtracexml)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
