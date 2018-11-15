@@ -33,13 +33,22 @@ External Dependencies
 There are some external ``subprocess`` dependencies for most of the scripts. The most frequently used ones are:
 
 * ffmpeg
+* ffprobe
 * mediainfo
 
 but the following are also needed for many scripts:
 
-* mkvpropedit
+* mkvpropedit (installed via mkvtoolnix)
 * siegfried
 * exiftool
+* git
+* clairmeta (this requires other dependencies - https://github.com/Ymagis/ClairMeta)
+* qcli
+* openssl
+* rsync
+* gcp (installed via gnu-coreutils on OSX)
+* rawcooked
+
 
 
 
