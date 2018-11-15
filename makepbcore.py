@@ -665,10 +665,6 @@ def main(args_):
             Date_Of_Donation = instantiationDate_mo.split('T')[0]
             # if a reproduction, then there's no Donor/transfer of title.
             Donor = 'n/a'
-            if ififuncs.find_concat_user(sipcreator_log) == 'Aoife Fitzmaurice':
-                reproduction_creator = 'Aoife Fitzmaurice (2016)'
-            elif ififuncs.find_concat_user(sipcreator_log) == 'Kieran O\'Leary':
-                reproduction_creator = 'Kieran O\'Leary (2013)'
     Habitat = ''
     backup_habitat = ''
     Type_Of_Deposit = acquisition_type
