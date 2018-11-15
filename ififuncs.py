@@ -1083,6 +1083,9 @@ def check_for_uuid_generic(source):
         if validate_uuid4(os.path.basename(source)) != False:
             return os.path.basename(source)
         else:
+            return False
+        '''
+        else:
             returned_dir = check_for_sip_generic(source)
             if returned_dir is None:
                 return False
@@ -1091,6 +1094,7 @@ def check_for_uuid_generic(source):
                 return uuid_check
             else:
                 return source_uuid
+        '''
 
 
 def check_for_sip(args):
