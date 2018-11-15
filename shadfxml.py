@@ -37,9 +37,9 @@ def main(args_):
     for root, _, _ in os.walk(source):
         if ififuncs.check_for_uuid_generic(root) is not False:
             print(" - Processing %s" % root)
-            oe_path = root
+            uuid_path = root
             uuid = ififuncs.check_for_uuid_generic(root)
-            uuid_path = os.path.join(oe_path, uuid)
+            logs_dir = os.path.join(uuid_path, 'logs')
             logs_dir = os.path.join(uuid_path, 'logs')
             metadata_dir = os.path.join(uuid_path, 'metadata')
             dfxml = os.path.join(metadata_dir, uuid + '_dfxml.xml')
@@ -47,7 +47,7 @@ def main(args_):
             sha512_manifest = os.path.join(
                 os.path.dirname(uuid_path), uuid + '_manifest-sha512.txt'
             )
-            if not os.path.isfile(dfxml) and os.path.isfile(sha512_manifest):
+            if not os.path.isfile(dfxml) and not os.path.isfile(sha512_manifest):
                 new_manifest_textfile = os.path.join(os.path.dirname(uuid_path), uuid) + '_manifest.md5'
                 ififuncs.generate_log(
                     new_log_textfile,
