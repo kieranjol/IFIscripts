@@ -62,7 +62,7 @@ makepbcore.py
 ~~~~~~~~~~~~~
 
 -  Describes AV objects using a combination of the PBCore 2 metadata
-   standard and the IFI technical database.
+   standard along with legacy IFI technical database fields.
 -  This script takes a folder as input. Either a single file or multiple
    objects will be described.
 -  This will produce a single PBCore CSV record per package, even if
