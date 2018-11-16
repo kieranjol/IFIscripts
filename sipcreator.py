@@ -8,12 +8,22 @@ import sys
 import shutil
 import subprocess
 import datetime
+import time
+import json
 import copyit
 import ififuncs
 import package_update
 import accession
 import manifest
 from masscopy import analyze_log
+try:
+    from clairmeta.utils.file import console_progress_bar
+    from clairmeta.utils.xml import prettyprint_xml
+    from clairmeta import DCP
+    import dicttoxml
+except ImportError:
+    print('Clairmeta is not installed. DCP options will not function!')
+    time.sleep(2)
 
 
 def make_folder_path(path, args, object_entry):
@@ -329,6 +339,12 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
+    if args.d:
+        try:
+            import clairmeta
+        except ImportError:
+            print('Exiting as Clairmeta is not installed. If there is a case for not using clairmeta, please let me know and i can make a workaround')
+            sys.exit()
     print args
     if args.user:
         user = args.user
@@ -443,11 +459,43 @@ def main(args_):
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
     if args.d:
         content_title = create_content_title_text(sip_path)
+        new_dcp_path = os.path.join('objects', content_title).replace("\\", "/")
+        absolute_dcp_path = os.path.join(sip_path, new_dcp_path)
         ififuncs.manifest_replace(
             new_manifest_textfile,
             os.path.join('objects', os.path.basename(args.i[0])).replace("\\", "/"),
-            os.path.join('objects', content_title).replace("\\", "/")
+            new_dcp_path
         )
+        '''
+        a = subprocess.check_output(['python', '-m', 'clairmeta.cli', 'check', '-type', 'dcp', absolute_dcp_path], stderr=subprocess.STDOUT)
+        b = subprocess.check_output(['python', '-m', 'clairmeta.cli', 'probe', '-type', 'dcp', '-format', 'xml', absolute_dcp_path], stderr=subprocess.STDOUT)
+        '''
+        dcp = DCP(absolute_dcp_path)
+        clairmeta_version = clairmeta.__version__
+        dcp_dict = dcp.parse()
+        # json_str = json.dumps(dcp_dict , sort_keys=True, indent=2, separators=(',', ': '))
+        xml_str = dicttoxml.dicttoxml(dcp_dict , custom_root='ClairmetaProbe', ids=False, attr_type=False)
+        xml_pretty = prettyprint_xml(xml_str)
+        status, report = dcp.check()
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = eventType=validation, eventOutcome=%s, eventDetail=%s, agentName=Clairmeta version %s' % (
+                status, report, clairmeta_version
+            )
+        )
+        clairmeta_xml = os.path.join(metadata_dir, '%s_clairmeta.xml' % content_title)
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = Metadata extraction - eventDetail=Clairmeta DCP metadata extraction, eventOutcome=%s, agentName=Clairmeta version %s' % (clairmeta_xml, clairmeta_version)
+        )
+        with open(clairmeta_xml, 'w') as fo:
+            fo.write(xml_pretty)
+        ififuncs.checksum_replace(new_manifest_textfile, new_log_textfile, 'md5')
+        ififuncs.manifest_update(new_manifest_textfile, clairmeta_xml)
+        print status
+        print report
+        print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+
     return new_log_textfile, new_manifest_textfile
 
 
