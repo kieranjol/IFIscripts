@@ -1748,5 +1748,7 @@ def find_cpl(source):
             subs_confirmation  = raw_input('Y/N')
             return cpl_parse
         return cpl
+    elif len(cpl_list) is 0:
+        return None
     else:
         return cpl_list[0]
