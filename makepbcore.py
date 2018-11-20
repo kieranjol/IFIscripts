@@ -189,7 +189,7 @@ def get_accession_number(source):
             return basename
     else:
         print('looks like your package has not been accessioned? Exiting!')
-        sys.exit()
+        return 'not_accessioned'
 
 
 def get_reference_number(source):
