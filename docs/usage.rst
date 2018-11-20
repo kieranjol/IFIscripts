@@ -274,6 +274,13 @@ sha512deep.py
    hashdeep toolset.
 -  Usage: ``sha512deep.py directory``
 
+shadfxml.py
+~~~~~~~~~~~~~
+
+-  Creates DFXML and sha512 manifests but only in sipcreator/uuid packages.
+-  This will work recursively so all packages within a directory will be processed.
+-  Usage: ``shadfxml.py directory``
+
 validate.py
 ~~~~~~~~~~~
 
@@ -398,14 +405,14 @@ batchrename.py
 Quality Control
 ---------------
 
-qctools.py
+massqc.py
 ~~~~~~~~~~
 
--  Generate QCTools xml.gz sidecar files which will load immediately in
+-  Generate QCTools xml.gz sidecar files via ``qcli`` which will load immediately in
    QCTools.
--  Usage for single file - ``qctools.py filename.mov``
+-  Usage for single file - ``massqc.py filename.mov``
 -  Usage for batch processing all videos in a directory -
-   ``qctools.py directory_name``
+   ``massqc.py directory_name``
 
 ffv1mkvvalidate.py
 ~~~~~~~~~~~~~~~~~~

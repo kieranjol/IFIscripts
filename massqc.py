@@ -12,16 +12,24 @@ def main():
     '''
     Simple recursive process that makes QCTools sidecar reports.
     '''
-    for root, _, filenames in os.walk(sys.argv[1]):
-        for filename in filenames:
-            if filename.endswith(('.mov', '.mkv')):
-                if filename[0] != '.':
-                    cmd = [
-                        'qcli',
-                        '-i',
-                        os.path.join(root, filename)
-                    ]
-                    subprocess.call(cmd)
+    source = sys.argv[1]
+    if os.path.isfile(source):
+        cmd = [
+            'qcli',
+            '-i',
+            source]
+        subprocess.call(cmd)
+    else:
+        for root, _, filenames in os.walk(source):
+            for filename in filenames:
+                if filename.endswith(('.mov', '.mkv')):
+                    if filename[0] != '.':
+                        cmd = [
+                            'qcli',
+                            '-i',
+                            os.path.join(root, filename)
+                        ]
+                        subprocess.call(cmd)
 
 
 if __name__ == '__main__':

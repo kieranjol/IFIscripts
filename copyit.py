@@ -72,7 +72,7 @@ def remove_bad_files(root_dir, log_name_source):
     '''
     Stolen and adapted from Ben Fino-Radin. Removes annoying files.
     '''
-    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini']
+    rm_these = ['.DS_Store', 'Thumbs.db', 'desktop.ini', 'Desktop.ini']
     for root, _, files in os.walk(root_dir):
         for name in files:
             path = os.path.join(root, name)
@@ -385,6 +385,11 @@ def setup(args_):
         action='store_true',
         help='Do not generate destination manifest and verify integrity :('
     )
+    parser.add_argument(
+        '-y',
+        action='store_true',
+        help='Answers YES to the question: Not enough free space, would you like to continue?'
+    )
     rootpos = ''
     dircheck = None
     args = parser.parse_args(args_)
@@ -445,7 +450,10 @@ def setup(args_):
     free_space = ififuncs.get_free_space(args.destination)
     if total_input_size > free_space:
         print('You do not have enough free space!')
-        go_forth_blindly = ififuncs.ask_yes_no('Would you like to continue anyway? Press Y or N')
+        if args.y:
+            go_forth_blindly = 'Y'
+        else:
+            go_forth_blindly = ififuncs.ask_yes_no('Would you like to continue anyway? Press Y or N')
         if go_forth_blindly == 'Y':
             generate_log(log_name_source, 'You do not have enough free space!, but the user has decided to continue anyhow')
         else:

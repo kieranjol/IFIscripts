@@ -183,13 +183,13 @@ def main(args_):
         ififuncs.generate_log(
             log_name_source,
             'EVENT = Normalization, status=finished, eventType=Normalization, agentName=ffmpeg, eventDetail=Source object normalised into=%s' % output)
-        inputxml, inputtracexml = ififuncs.generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_source)
+        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_source)
         fmd5_logfile, fmd5ffv1, verdict = verify_losslessness(output_folder, output, output_uuid, fmd5)
         ififuncs.generate_log(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation, eventOutcome=%s' % verdict)
         if args.sip:
-            supplement_cmd = ['-supplement', inputxml, inputtracexml]
+            supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml]
             sipcreator_cmd = ['-i', output, '-move', '-u', output_uuid, '-user', user, '-oe', object_entry, '-o', args.o]
             if args.supplement:
                 supplement_cmd.extend(args.supplement)
@@ -206,6 +206,9 @@ def main(args_):
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'))))
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(fmd5_logfile.replace('\\\\', '\\').replace('\:', ':'))))
             ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
+            os.remove(dfxml)
+            os.remove(inputxml)
+            os.remove(inputtracexml)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

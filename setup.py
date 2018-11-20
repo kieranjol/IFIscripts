@@ -28,6 +28,7 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'validate.py',
         'Objects.py',
         'makedfxml.py',
+        'dfxml.py',
         'walk_to_dfxml.py',
         'bitc.py',
         'prores.py',
@@ -52,6 +53,6 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'future'
     ],
     name='ifiscripts',
-    version='v2018.09.03',
+    version='v2018.10.18',
     include_package_data=True
 )

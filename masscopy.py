@@ -43,6 +43,11 @@ def parse_args():
         '-l', '-lto',
         action='store_true',
         help='use gcp instead of rsync on osx for SPEED on LTO')
+    parser.add_argument(
+        '-y',
+        action='store_true',
+        help='Answers YES to the question: Not enough free space, would you like to continue?'
+    )
     args = parser.parse_args()
     return args
 
@@ -56,7 +61,7 @@ def find_manifest(args):
     # Creates an empty list called dirlist.
     dirlist = []
     # Creates a list of items in your input called directory_contents.
-    directory_contents = os.listdir(args.input)
+    directory_contents = sorted(os.listdir(args.input))
     # lists all contents of your input and analyzes each one in a `for loop`.
     for item in directory_contents:
         full_path = os.path.join(args.input, item)
@@ -125,16 +130,13 @@ def main():
             print(('%s already exists, skipping') % (absolute_path))
         else:
             desktop_logs_dir = make_desktop_logs_dir()
+            copyit_cmd = [os.path.join(args.input, i), args.o]
             if args.l:
-                log_name = copyit.main(
-                    ['-l', os.path.join(args.input, i), args.o]
-                )
-                log_names.append(log_name)
-            else:
-                log_name = copyit.main(
-                    [os.path.join(args.input, i), args.o]
-                )
-                log_names.append(log_name)
+                copyit_cmd.append('-l')
+            elif args.y:
+                copyit_cmd.append('-y')
+            log_name = copyit.main(copyit_cmd)
+            log_names.append(log_name)
             processed_dirs.append(os.path.basename(os.path.join(args.input, i)))
             print('********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful')
             analyze_reports(log_names, desktop_logs_dir)

@@ -21,6 +21,7 @@ import ctypes
 import platform
 import itertools
 from builtins import input
+import makedfxml
 from glob import glob
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -48,7 +49,7 @@ def diff_textfiles(source_textfile, other_textfile):
 
 def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     '''
-    Writes a verbose mediainfo XML output.
+    Writes a verbose mediainfo XML output using the OLDXML schema.
     '''
     mediainfo_cmd = [
         'mediainfo',
@@ -105,21 +106,31 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
 
 def extract_provenance(filename, output_folder, output_uuid):
     '''
-    This will extract mediainfo and mediatrace XML
+    This will extract dfxml, mediainfo and mediatrace XML
+    Need to add a workaround for TIFF as folders are not
+    processed as a whole.
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
     print((' - Generating mediainfo xml of input file and saving it in %s' % inputxml))
+    dfxml = "%s/%s_dfxml.xml" % (output_folder, output_uuid)
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print((' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml))
     make_mediatrace(inputtracexml, 'mediatracexmlinput', filename)
-    return inputxml, inputtracexml
+    if os.path.isfile(filename):
+        filename = os.path.dirname(filename)
+        # check if file without extension is provided
+        if filename == '':
+            filename = os.path.abspath(filename)
+    print(' - Generating Digital Forensics xml of input directory and saving it in %s' % dfxml)
+    makedfxml.main([filename, '-n', '-o', dfxml])
+    return inputxml, inputtracexml, dfxml
 
 def generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_source):
     '''
     This will add the mediainfo xmls to the package
     '''
-    inputxml, inputtracexml = extract_provenance(filename, output_folder, output_uuid)
+    inputxml, inputtracexml, dfxml = extract_provenance(filename, output_folder, output_uuid)
     mediainfo_version = get_mediainfo_version()
     generate_log(
         log_name_source,
@@ -131,8 +142,9 @@ def generate_mediainfo_xmls(filename, output_folder, output_uuid, log_name_sourc
     )
     generate_log(
         log_name_source,
-        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
-    return inputxml, inputtracexml
+        'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
+    )
+    return inputxml, inputtracexml, dfxml
 def make_qctools(input):
     '''
     Runs an ffprobe process that stores QCTools XML info as a variable.
@@ -1044,6 +1056,7 @@ def check_for_uuid(args):
     Tries to check if a filepath contains a UUID.
     Returns false if an invalid UUID is found
     Returns the UUID if a UUID is found.
+    TO_BE_DEPRECATED in favour of check_for_uuid_generic
     '''
     source_uuid = False
     while source_uuid is False:
@@ -1059,6 +1072,32 @@ def check_for_uuid(args):
             else:
                 return source_uuid
 
+def check_for_uuid_generic(source):
+    '''
+    Tries to check if a filepath contains a UUID.
+    Returns false if an invalid UUID is found
+    Returns the UUID if a UUID is found.
+    Duplicate of the previous function without the silly
+    args object hardcoding.
+    '''
+    source_uuid = False
+    while source_uuid is False:
+        if validate_uuid4(os.path.basename(source)) != False:
+            return os.path.basename(source)
+        else:
+            return False
+        '''
+        else:
+            returned_dir = check_for_sip_generic(source)
+            if returned_dir is None:
+                return False
+            uuid_check = os.path.basename(returned_dir)
+            if validate_uuid4(uuid_check) != False:
+                return uuid_check
+            else:
+                return source_uuid
+        '''
+
 
 def check_for_sip(args):
     '''
@@ -1073,6 +1112,20 @@ def check_for_sip(args):
             dircheck = filenames.replace('_manifest.md5', '')
             if os.path.isdir(os.path.join(args[0], dircheck)):
                 return os.path.join(args[0], dircheck)
+
+def check_for_sip_generic(source):
+    '''
+    This checks if the input folder contains the actual payload, eg:
+    the UUID folder(containing logs/metadata/objects) and the manifest sidecar.
+    Just realised that args.i can be a list, but for our main concat workflow, a single dir will be passed.
+    Hence the args[0]
+    Also choose a better variable name than args as args=/a/path here.
+    '''
+    for filenames in os.listdir(source):
+        if 'manifest.md5' in filenames:
+            dircheck = filenames.replace('_manifest.md5', '')
+            if os.path.isdir(os.path.join(source, dircheck)):
+                return os.path.join(source, dircheck)
 
 def checksum_replace(manifest, logname, algorithm):
     '''
@@ -1342,7 +1395,7 @@ def recursive_file_list(video_files):
     recursive_list = []
     for root, _, filenames in os.walk(video_files):
         for filename in filenames:
-            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF')):
+            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF', '.WAV', '.wav', '.aiff', '.AIFF', 'mp3', 'MP3')):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
 
@@ -1428,6 +1481,9 @@ def get_digital_object_descriptor(source_folder):
     mov_count = 0
     mkv_count = 0
     mp4_count = 0
+    wav_count = 0
+    aiff_count = 0
+    mp3_count = 0
     BPAV = False
     dig_object_descriptor = ''
     for root, _, filenames in os.walk(source_folder):
@@ -1440,10 +1496,22 @@ def get_digital_object_descriptor(source_folder):
                 mov_count += 1
             elif filename.lower().endswith('mp4'):
                 mp4_count += 1
+            elif filename.lower().endswith('wav'):
+                wav_count += 1
+            elif filename.lower().endswith('aiff'):
+                aiff_count += 1
+            elif filename.lower().endswith('mp3'):
+                mp3_count += 1
     if mkv_count == 1:
         dig_object_descriptor = 'Matroska'
     elif mov_count == 1:
         dig_object_descriptor = 'QuickTime'
+    elif wav_count == 1:
+        dig_object_descriptor = 'Wave'
+    elif aiff_count == 1:
+        dig_object_descriptor = 'AIFF'
+    elif mp3_count == 1:
+        dig_object_descriptor = 'MP3'
     elif mov_count > 1:
         dig_object_descriptor = 'Multiple QuickTimes'
     elif mp4_count >= 1:
@@ -1592,3 +1660,93 @@ def get_colour_metadata(ffprobe_dict):
         else:
             continue
     return ffmpeg_colour_list
+
+def get_metadata(xpath_path, root, pbcore_namespace):
+    '''
+    Extracts values from PBCore2 XML MediaInfo outputs.
+    '''
+    value = root.xpath(
+        xpath_path,
+        namespaces={'ns':pbcore_namespace}
+    )
+    if value == []:
+        value = 'n/a'
+    elif len(value) > 1:
+        mixed_values = ''
+        value_list = []
+        for i in value:
+            # Checks if multiple audio tracks have different values.
+            '''
+            if i.getparent().getparent().find(
+                'ns:track',
+                namespaces={'ns':pbcore_namespace}
+            ).attrib['type'] == 'Audio':
+            '''
+            value_list.append(i.text)
+        # Checks if values in the list are the same(1) or different (2)
+        if len(set(value_list)) is 1:
+            value = value[0].text
+        else:
+            # Return the mixed values with pipe delimiter.
+            for x in value_list:
+                mixed_values += x + '|'
+            if mixed_values[-1] == '|':
+                mixed_values = mixed_values[:-1]
+            value = mixed_values
+
+    else:
+        value = value[0].text
+    return value
+
+def choose_cpl(cpl_list):
+    # Some DCPs have multiple CPLs!
+    cpl_number = 1
+    print ('Multiple CPL files found')
+    for i in cpl_list:
+        print (cpl_number,  i)
+        cpl_number += 1
+    print( 'Please select which CPL you would like to process')
+    chosen_cpl = raw_input()
+    cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
+    return cpl_list[int(chosen_cpl) - 1]
+
+
+def find_cpl(source):
+    # Generate an empty list as there may be multiple CPLs.
+    # Get a list of all XML files in the main DCP directory.
+    cpl_parse = None
+    cpl_list = []
+    # Loop through xmlfiles in order to find any CPLL files.
+    for root, dirnames, filenames in os.walk(source):
+        for i in filenames:
+            if i.endswith('.xml'):
+                full_path = os.path.join(root, i)
+                try:
+                    xmlname = etree.parse(full_path)
+                except SyntaxError:
+                    print( 'not a valid CPL!')
+                    continue
+                except KeyError:
+                    print( 'Missing CPL!')
+                    continue
+                xml_namespace = xmlname.xpath('namespace-uri(.)')
+                # Create list of CPLs.
+                if 'CPL' in xml_namespace:
+                    cpl_list.append(full_path)
+                if len(cpl_list) == 0:
+                    continue
+                elif len(cpl_list) == 1:
+                    cpl_parse = etree.parse(cpl_list[0])
+    if len(cpl_list) > 1:
+        cpl_parse = choose_cpl(cpl_list)
+        # As there can be multiple subtitles, This options gives some info/choice.
+        subs_confirmation  = raw_input('Y/N')
+        while subs_confirmation not in ['Y','y']:
+            cpl_parse = choose_cpl()
+            subs_confirmation  = raw_input('Y/N')
+            return cpl_parse
+        return cpl_parse
+    elif len(cpl_list) is 0:
+        return None
+    else:
+        return cpl_list[0]

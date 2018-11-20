@@ -149,7 +149,7 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-reference',
-        help='Enter the starting Filmographic reference number for the representation.'
+        help='Enter the starting Filmographic reference number for the representation. This is not required when using the -oe_csv option'
     )
     parser.add_argument(
         '-dryrun', action='store_true',
@@ -199,13 +199,16 @@ def process_oe_csv(oe_csv_extraction, source_path):
     '''
     oe_dicts = []
     for record in oe_csv_extraction[0]:
-        dictionary = {}
-        dictionary['Object Entry'] = record['OE No.']
-        dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
-        dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
-        dictionary['parent'] = record['Additional Information'].split('Reproduction of ')[1].split('|')[0].rstrip()
-        dictionary['reference number'] = record['Additional Information'].split('Representation of ')[1].split('|')[0].rstrip()
-        oe_dicts.append(dictionary)
+        try:
+            dictionary = {}
+            dictionary['Object Entry'] = record['OE No.']
+            dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
+            dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
+            dictionary['parent'] = record['Additional Information'].split('Reproduction of ')[1].split('|')[0].rstrip()
+            dictionary['reference number'] = record['Additional Information'].split('Representation of ')[1].split('|')[0].rstrip()
+            oe_dicts.append(dictionary)
+        except IndexError:
+            continue
     return oe_dicts
 
 def main(args_):
@@ -257,7 +260,8 @@ def main(args_):
             if os.path.isdir(oe_record['source_path']):
                 to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent']]
                 accession_digits += 1
-    print(to_accession)
+    for success in sorted(to_accession.keys()):
+        print('%s will be accessioned as %s' %  (success, to_accession[success]))
     register = accession.make_register()
     if args.filmographic:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
