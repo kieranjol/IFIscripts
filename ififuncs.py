@@ -1706,10 +1706,6 @@ def choose_cpl(cpl_list):
     print( 'Please select which CPL you would like to process')
     chosen_cpl = raw_input()
     cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
-    if args.s:
-        cpl_namespace      = cpl_parse.xpath('namespace-uri(.)')
-        subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
-        print( 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?')
     return cpl_list[int(chosen_cpl) - 1]
 
 
@@ -1740,14 +1736,14 @@ def find_cpl(source):
                 elif len(cpl_list) == 1:
                     cpl_parse = etree.parse(cpl_list[0])
     if len(cpl_list) > 1:
-        cpl_parse = choose_cpl()
+        cpl_parse = choose_cpl(cpl_list)
         # As there can be multiple subtitles, This options gives some info/choice.
         subs_confirmation  = raw_input('Y/N')
         while subs_confirmation not in ['Y','y']:
             cpl_parse = choose_cpl()
             subs_confirmation  = raw_input('Y/N')
             return cpl_parse
-        return cpl
+        return cpl_parse
     elif len(cpl_list) is 0:
         return None
     else:
