@@ -498,14 +498,18 @@ def main(args_):
             new_root, mediainfo_namespace
         )
         colour_primaries_list.append(colour_primaries)
-        if audio_only:
+        try:
+            if audio_only:
+                FrameCount = 'n/a'
+                print FrameCount
+            else:
+                FrameCount += int(ififuncs.get_metadata(
+                    "//ns:FrameCount",
+                    new_root, mediainfo_namespace
+                ))
+        except TypeError:
+            # workaround for silent pic in DCP
             FrameCount = 'n/a'
-            print FrameCount
-        else:
-            FrameCount += int(ififuncs.get_metadata(
-                "//ns:FrameCount",
-                new_root, mediainfo_namespace
-            ))
         instantFileSize_byte += int(ififuncs.get_metadata(
             "//ns:FileSize",
             new_root, mediainfo_namespace
