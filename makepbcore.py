@@ -287,7 +287,34 @@ def make_csv(csv_filename):
         'dig_object_descrip'
     ])
 
-
+def check_dcp(cpl_file):
+    cpl = cpl_file
+    print cpl
+    essenceFrameSize =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%Width%x%Height%', cpl
+    )
+    ChromaSubsampling =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%ChromaSubsampling%', cpl
+    )
+    ColorSpace =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%ColorSpace%', cpl
+    )
+    FrameCount =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%FrameCount%', cpl
+    )
+    essenceAspectRatio =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%DisplayAspectRatio/String%', cpl
+    )
+    instantiationDuratio =  ififuncs.get_mediainfo(
+        'duration', '--inform=General;%Duration/String4%', cpl
+    )
+    PixelAspectRatio =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%PixelAspectRatio%', cpl
+    )
+    ScanType =  ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%ScanType%', cpl
+    )
+    return essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType
 def main(args_):
     # if multiple file are present, this script will treat them as a single
     # instantiation/representation and get aggregate metadata about the whole
@@ -309,6 +336,7 @@ def main(args_):
     acquisition_type = ''
     if args.acquisition_type:
         acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)[0]
+    instantiationIdentif = ''
     for dirs in os.listdir(args.input):
         if ififuncs.validate_uuid4(dirs) is None:
             instantiationIdentif = dirs
@@ -472,6 +500,7 @@ def main(args_):
         colour_primaries_list.append(colour_primaries)
         if audio_only:
             FrameCount = 'n/a'
+            print FrameCount
         else:
             FrameCount += int(ififuncs.get_metadata(
                 "//ns:FrameCount",
@@ -699,6 +728,9 @@ def main(args_):
     TimeCode_Source = timecode_source
     reproduction_reason = ''
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
+    dcp_check = ififuncs.find_cpl(args.input)
+    if dcp_check is not None:
+        essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType = check_dcp(dcp_check)
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,

@@ -1695,3 +1695,58 @@ def get_metadata(xpath_path, root, pbcore_namespace):
     else:
         value = value[0].text
     return value
+
+def choose_cpl(cpl_list):
+    # Some DCPs have multiple CPLs!
+    cpl_number = 1
+    print ('Multiple CPL files found')
+    for i in cpl_list:
+        print (cpl_number,  i)
+        cpl_number += 1
+    print( 'Please select which CPL you would like to process')
+    chosen_cpl = raw_input()
+    cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
+    if args.s:
+        cpl_namespace      = cpl_parse.xpath('namespace-uri(.)')
+        subtitle_language  =  cpl_parse.findall('//ns:MainSubtitle/ns:Language',namespaces={'ns': cpl_namespace})
+        print( 'This CPL contains ', subtitle_language[0].text, ' subtitles. Proceed?')
+    return cpl_list[int(chosen_cpl) - 1]
+
+
+def find_cpl(source):
+    # Generate an empty list as there may be multiple CPLs.
+    # Get a list of all XML files in the main DCP directory.
+    cpl_parse = None
+    cpl_list = []
+    # Loop through xmlfiles in order to find any CPLL files.
+    for root, dirnames, filenames in os.walk(source):
+        for i in filenames:
+            if i.endswith('.xml'):
+                full_path = os.path.join(root, i)
+                try:
+                    xmlname = etree.parse(full_path)
+                except SyntaxError:
+                    print( 'not a valid CPL!')
+                    continue
+                except KeyError:
+                    print( 'Missing CPL!')
+                    continue
+                xml_namespace = xmlname.xpath('namespace-uri(.)')
+                # Create list of CPLs.
+                if 'CPL' in xml_namespace:
+                    cpl_list.append(full_path)
+                if len(cpl_list) == 0:
+                    continue
+                elif len(cpl_list) == 1:
+                    cpl_parse = etree.parse(cpl_list[0])
+    if len(cpl_list) > 1:
+        cpl_parse = choose_cpl()
+        # As there can be multiple subtitles, This options gives some info/choice.
+        subs_confirmation  = raw_input('Y/N')
+        while subs_confirmation not in ['Y','y']:
+            cpl_parse = choose_cpl()
+            subs_confirmation  = raw_input('Y/N')
+            return cpl_parse
+        return cpl
+    else:
+        return cpl_list[0]
