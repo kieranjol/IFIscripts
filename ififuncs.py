@@ -198,7 +198,7 @@ def get_mediainfo(var_type, type, filename):
     ]
     var_type = subprocess.check_output(mediainfo_cmd)
     print(var_type.decode().rstrip())
-    return var_type
+    return (var_type.decode().rstrip())
 
 
 def get_milliseconds(filename):
