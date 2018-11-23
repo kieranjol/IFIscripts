@@ -318,7 +318,8 @@ def check_dcp(cpl):
     ScanType =  ififuncs.get_mediainfo(
         'duration', '--inform=Video;%ScanType%', cpl
     )
-    return essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip
+    instantTracks = 'n/a'
+    return essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip, instantTracks
 def main(args_):
     # if multiple file are present, this script will treat them as a single
     # instantiation/representation and get aggregate metadata about the whole
@@ -738,7 +739,7 @@ def main(args_):
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
     dcp_check = ififuncs.find_cpl(args.input)
     if dcp_check is not None:
-        essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip = check_dcp(dcp_check)
+        essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip, instantTracks = check_dcp(dcp_check)
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,
