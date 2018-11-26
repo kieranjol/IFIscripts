@@ -204,11 +204,14 @@ def process_oe_csv(oe_csv_extraction, source_path):
             dictionary['Object Entry'] = record['OE No.']
             dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
             dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
-            dictionary['parent'] = record['Additional Information'].split('Reproduction of ')[1].split('|')[0].rstrip()
             dictionary['reference number'] = record['Additional Information'].split('Representation of ')[1].split('|')[0].rstrip()
             oe_dicts.append(dictionary)
         except IndexError:
             continue
+        try:
+            dictionary['parent'] = record['Additional Information'].split('Reproduction of ')[1].split('|')[0].rstrip()
+        except IndexError:
+            dictionary['parent'] = 'n/a'
     return oe_dicts
 
 def main(args_):
