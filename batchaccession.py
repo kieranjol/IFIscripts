@@ -309,15 +309,16 @@ def main(args_):
                 '-csv', new_csv
             ]
             if len(to_accession[package]) == 3:
-                accession_cmd.extend(['-acquisition_type', '13'])
-                if args.oe_csv:
-                    accession_cmd.extend(['-parent', to_accession[package][2]])
+                if not to_accession[package][2] == 'n/a':
+                    accession_cmd.extend(['-acquisition_type', '13'])
+                    if args.oe_csv:
+                        accession_cmd.extend(['-parent', to_accession[package][2]])
+                    else:
+                        accession_cmd.extend(['-parent', order.main(package)])
                 else:
-                    accession_cmd.extend(['-parent', order.main(package)])
-            else:
-                accession_cmd.extend(['-donor', donor])
-                accession_cmd.extend(['-depositor_reference', depositor_reference])
-                accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
+                    accession_cmd.extend(['-donor', donor])
+                    accession_cmd.extend(['-depositor_reference', depositor_reference])
+                    accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
             print accession_cmd
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
