@@ -288,7 +288,7 @@ def get_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Format identification - eventType=format identification, eventDetail=Format identification via PRONOM signatures using Siegfried, eventOutcome=%s, agentName=%s' % (inputtracexml, siegfried_version)
                     )
-def create_content_title_text(sip_path):
+def create_content_title_text(sip_path, args):
     '''
     DCPs are often delivered with inconsistent foldernames.
     This will rename the parent folder with the value recorded in <ContentTitleText>
@@ -297,17 +297,18 @@ def create_content_title_text(sip_path):
     New name: CHARBON-SMPTE-24-INTEROP-SUBS_TST_S_XX-EN_FR_XX_2K_CHA-20120613_CHA_OV
     Rename will only occur if user agrees.
     '''
+    cpl = ififuncs.find_cpl(args.i[0])
     objects_dir = os.path.join(sip_path, 'objects')
-    cpl = ififuncs.find_cpl(objects_dir)
     dcp_dirname = os.path.dirname(cpl)
-    content_title_text = ififuncs.get_contenttitletext(cpl)
-    dci_foldername = os.path.join(objects_dir, content_title_text)
-    if ififuncs.ask_yes_no(
-            'Do you want to rename %s with %s ?' % (dcp_dirname, dci_foldername)
-    ) == 'Y':
-        os.chdir(os.path.dirname(dcp_dirname))
-        os.rename(os.path.basename(dcp_dirname), content_title_text)
-    return content_title_text
+    content_title = ififuncs.get_contenttitletext(cpl)
+    dci_foldername = os.path.join(objects_dir, content_title)
+    rename_dcp = ififuncs.ask_yes_no(
+            'Do you want to rename %s with %s ?' % (os.path.basename(dcp_dirname), dci_foldername)
+    )
+    if rename_dcp == 'N':
+        print('Exiting')
+        sys.exit()
+    return content_title, rename_dcp
 
 def normalise_objects_manifest(sip_path):
     '''
@@ -388,6 +389,8 @@ def main(args_):
             ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
         ) % uuid
     new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
+    if args.d:
+        content_title, rename_dcp = create_content_title_text(sip_path, args)
     ififuncs.generate_log(
         new_log_textfile,
         'EVENT = sipcreator.py started'
@@ -458,7 +461,11 @@ def main(args_):
     finish = datetime.datetime.now()
     print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
     if args.d:
-        content_title = create_content_title_text(sip_path)
+        objects_dir = os.path.join(sip_path, 'objects')
+        cpl = ififuncs.find_cpl(objects_dir)
+        dcp_dirname = os.path.dirname(cpl)
+        os.chdir(os.path.dirname(dcp_dirname))
+        os.rename(os.path.basename(dcp_dirname), content_title)
         new_dcp_path = os.path.join('objects', content_title).replace("\\", "/")
         absolute_dcp_path = os.path.join(sip_path, new_dcp_path)
         ififuncs.manifest_replace(
