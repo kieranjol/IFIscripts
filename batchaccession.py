@@ -202,6 +202,7 @@ def process_oe_csv(oe_csv_extraction, source_path):
         try:
             dictionary = {}
             dictionary['Object Entry'] = record['OE No.']
+            dictionary['donation_date'] = record['Date Received']
             dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
             dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
             dictionary['reference number'] = record['Additional Information'].split('Representation of ')[1].split('|')[0].rstrip()
@@ -261,7 +262,7 @@ def main(args_):
         to_accession = {}
         for oe_record in oe_dicts:
             if os.path.isdir(oe_record['source_path']):
-                to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent']]
+                to_accession[oe_record['source_path']] = ['aaa' + str(accession_digits).zfill(4), oe_record['reference number'], oe_record['parent'], oe_record['donation_date']]
                 accession_digits += 1
     for success in sorted(to_accession.keys()):
         print('%s will be accessioned as %s' %  (success, to_accession[success]))
@@ -308,7 +309,7 @@ def main(args_):
                 '-register', register,
                 '-csv', new_csv
             ]
-            if len(to_accession[package]) == 3:
+            if len(to_accession[package]) == 4:
                 if not to_accession[package][2] == 'n/a':
                     accession_cmd.extend(['-acquisition_type', '13'])
                     if args.oe_csv:
@@ -319,6 +320,8 @@ def main(args_):
                     accession_cmd.extend(['-donor', donor])
                     accession_cmd.extend(['-depositor_reference', depositor_reference])
                     accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
+                    print to_accession[package][3]
+                    accession_cmd.extend(['-donation_date', to_accession[package][3]])
             print accession_cmd
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)

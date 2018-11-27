@@ -96,6 +96,10 @@ def parse_args(args_):
         '-depositor_reference',
         help='Enter a number that represents the identifier for the source of acquisition'
     )
+    parser.add_argument(
+        '-donation_date',
+        help='Enter the date of dontation/acquisition/deposit etc. 2018-12-30 or 30/12/2018 depending on source of data'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -260,6 +264,8 @@ def main(args_):
                 makepbcore_cmd.extend(['-donor', args.donor])
             if args.donor:
                 makepbcore_cmd.extend(['-depositor_reference', args.depositor_reference])
+            if args.donation_date:
+                makepbcore_cmd.extend(['-donation_date', args.donation_date])
             makepbcore.main(makepbcore_cmd)
     else:
         print 'not a valid package. The input should include a package that has been through Object Entry'

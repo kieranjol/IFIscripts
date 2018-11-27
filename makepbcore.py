@@ -174,6 +174,10 @@ def parse_args(args_):
         '-depositor_reference',
         help='Enter a number that represents the identifier for the source of acquisition'
     )
+    parser.add_argument(
+        '-donation_date',
+        help='Enter the date of dontation/acquisition/deposit etc. 2018-12-30 or 30/12/2018 depending on source of data'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -703,6 +707,8 @@ def main(args_):
             Date_Of_Donation = instantiationDate_mo.split('T')[0]
             # if a reproduction, then there's no Donor/transfer of title.
             Donor = 'n/a'
+        else:
+            Date_Of_Donation = args.donation_date
     Habitat = ''
     backup_habitat = ''
     Type_Of_Deposit = acquisition_type
