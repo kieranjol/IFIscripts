@@ -175,6 +175,10 @@ def parse_args(args_):
         '-depositor_reference',
         help='Enter a number that represents the identifier for the source of acquisition'
     )
+    parser.add_argument(
+        '-donation_date',
+        help='Enter the date of dontation/acquisition/deposit etc. 2018-12-30 or 30/12/2018 depending on source of data'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -319,7 +323,14 @@ def check_dcp(cpl):
     ScanType =  ififuncs.get_mediainfo(
         'duration', '--inform=Video;%ScanType%', cpl
     )
-    return essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip
+    instantTracks = 'n/a'
+    instantDataRate = round(float(ififuncs.get_mediainfo(
+        'OverallBitRate', '--inform=General;%OverallBitRate%', cpl
+    ))  / 1000 / 1000, 2)
+    essenceBitDepth_vid = ififuncs.get_mediainfo(
+        'duration', '--inform=Video;%BitDepth%', cpl
+    )
+    return essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip, instantTracks, instantDataRate, essenceBitDepth_vid
 def main(args_):
     # if multiple file are present, this script will treat them as a single
     # instantiation/representation and get aggregate metadata about the whole
@@ -680,12 +691,12 @@ def main(args_):
     ]
     for i in metadata_list:
         if len(set(i)) > 1:
-            metadata_error += 'WARNING - Your metadata values are not the same for all files: %s\n' % set(i)
+            metadata_error += 'WARNING - Your metadata values are not the same for all files - but this could be a false positive if dealing with atomised audio and video as with DCP: %s\n' % set(i)
             print(metadata_error)
             if args.p:
                 ififuncs.generate_log(
                     sipcreator_log,
-                    'EVENT = Metadata mismatch - Your metadata values are not the same for all files: %s' % set(i)
+                    'EVENT = Metadata mismatch - Your metadata values are not the same for all files - but this could be a false positive if dealing with atomised audio and video as with DCP: %s' % set(i)
                 )
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
@@ -704,6 +715,8 @@ def main(args_):
             Date_Of_Donation = instantiationDate_mo.split('T')[0]
             # if a reproduction, then there's no Donor/transfer of title.
             Donor = 'n/a'
+        else:
+            Date_Of_Donation = args.donation_date
     Habitat = ''
     backup_habitat = ''
     Type_Of_Deposit = acquisition_type
@@ -735,12 +748,13 @@ def main(args_):
     format_version = format_version
     '''
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
+    pix_fmt = process_mixed_values(pix_fmt_list)
     TimeCode_Source = timecode_source
     reproduction_reason = ''
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
     dcp_check = ififuncs.find_cpl(args.input)
     if dcp_check is not None:
-        essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip = check_dcp(dcp_check)
+        essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip, instantTracks, instantDataRate, essenceBitDepth_vid = check_dcp(dcp_check)
     ififuncs.append_csv(csv_filename, [
         Reference_Number,
         Donor,
