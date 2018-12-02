@@ -82,7 +82,7 @@ def consolidate_manifests(path, directory, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
                     )
-    with open(new_manifest_textfile, 'ab') as manifest_object:
+    with open(new_manifest_textfile, 'a') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
     return new_manifest_textfile
@@ -201,94 +201,6 @@ def parse_args(args_):
     return parsed_args
 
 
-def get_metadata(path, new_log_textfile):
-    '''
-    Recursively create mediainfos and mediatraces for AV files.
-    This should probably go in ififuncs as it could be used by other scripts.
-    '''
-    mediainfo_version = 'mediainfo'
-    try:
-        mediainfo_version = subprocess.check_output([
-            'mediainfo', '--Version'
-        ]).rstrip()
-    except subprocess.CalledProcessError as grepexc:
-        mediainfo_version = grepexc.output.rstrip().splitlines()[1]
-    for root, directories, filenames in os.walk(path):
-        directories[:] = [
-            d for d in directories if d != 'metadata'
-        ]
-        for av_file in filenames:
-            if av_file.lower().endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV')
-            ):
-                if av_file[0] != '.':
-                    inputxml = "%s/%s_mediainfo.xml" % (
-                        os.path.join(path, 'metadata'), os.path.basename(av_file)
-                        )
-                    inputtracexml = "%s/%s_mediatrace.xml" % (
-                        os.path.join(path, 'metadata'), os.path.basename(av_file)
-                        )
-                    print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
-                    ififuncs.make_mediainfo(
-                        inputxml, 'mediaxmlinput', os.path.join(root, av_file)
-                    )
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
-                    )
-                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
-                    ififuncs.make_mediatrace(
-                        inputtracexml,
-                        'mediatracexmlinput',
-                        os.path.join(root, av_file)
-                    )
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
-                    )
-            elif av_file.lower().endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
-            ):
-                if av_file[0] != '.':
-                    if not av_file.lower().endswith(('.txt', '.csv')):
-                        exiftool_version = 'exiftool'
-                        try:
-                            exiftool_version = subprocess.check_output([
-                                'exiftool', '-ver'
-                            ])
-                        except subprocess.CalledProcessError as grepexc:
-                            exiftool_version = grepexc.output.rstrip().splitlines()[1]
-                        inputxml = "%s/%s_exiftool.json" % (
-                            os.path.join(path, 'metadata'), os.path.basename(av_file)
-                        )
-                        ififuncs.generate_log(
-                            new_log_textfile,
-                            'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
-                        )
-                        print 'Generating exiftool json of input file and saving it in %s' % inputxml
-                        ififuncs.make_exiftool(
-                            inputxml,
-                            os.path.join(root, av_file)
-                        )
-                    siegfried_version = 'siegfried'
-                    try:
-                        siegfried_version = subprocess.check_output([
-                            'sf', '-version'
-                        ])
-                    except subprocess.CalledProcessError as grepexc:
-                        siegfried_version = grepexc.output.rstrip().splitlines()[1]
-                    inputtracexml = "%s/%s_siegfried.json" % (
-                        os.path.join(path, 'metadata'), os.path.basename(av_file)
-                        )
-                    print 'Generating Siegfried json of input file and saving it in %s' % inputtracexml
-                    ififuncs.make_siegfried(
-                        inputtracexml,
-                        os.path.join(root, av_file)
-                    )
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Format identification - eventType=format identification, eventDetail=Format identification via PRONOM signatures using Siegfried, eventOutcome=%s, agentName=%s' % (inputtracexml, siegfried_version)
-                    )
 def create_content_title_text(sip_path, args):
     '''
     DCPs are often delivered with inconsistent foldernames.
@@ -432,7 +344,7 @@ def main(args_):
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
     log_names = move_files(inputs, sip_path, args)
-    get_metadata(sip_path, new_log_textfile)
+    ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
     )
@@ -507,9 +419,9 @@ def main(args_):
             fo.write(xml_pretty)
         ififuncs.checksum_replace(new_manifest_textfile, new_log_textfile, 'md5')
         ififuncs.manifest_update(new_manifest_textfile, clairmeta_xml)
-        print status
-        print report
-        print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+        print(status)
+        print(report)
+        print('\n', user, 'ran this script at %s and it finished at %s' % (start, finish))
 
     return new_log_textfile, new_manifest_textfile
 
