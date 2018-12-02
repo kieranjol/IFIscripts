@@ -266,13 +266,6 @@ makedfxml.py
    via homebrew. This can be fixed by typing ``unset PYTHONPATH`` in the
    terminal.
 
-sha512deep.py
-~~~~~~~~~~~~~
-
--  Quick proof of concept sha512 checksum manifest generator as not many
-   command line tools support sha512 right now. name is a play on the
-   hashdeep toolset.
--  Usage: ``sha512deep.py directory``
 
 shadfxml.py
 ~~~~~~~~~~~~~
@@ -292,29 +285,10 @@ validate.py
 -  Usage: ``validate.py /path/to/manifest.md5`` or
    ``validate.py /path/to/_manifest-sha512.txt``
 
-batchfixity.py
-~~~~~~~~~~~~~~
-
--  Batch MD5 checksum generator. Accepts a parent folder as input and
-   will generate manifest for each subfolder. Designed for a specific
-   IFI Irish Film Archive workflow.
--  Usage: ``batchfixity.py /path/to/parent_folder``
 
 Image Sequences
 ---------------
 
-makedpx.py
-~~~~~~~~~~
-
--  Transcode TIFFs losslessly to DPX. Processess all sequeneces in every
-   subdirectory. WARNING - Currently relies on a local config file -
-   soon to be removed!
--  Framemd5s of source and output are created and verified for
-   losslessness.
--  Whole file manifest is created for all files.
--  Usage: ``makedpx.py parent_folder -o destination_folder`` - generally
-   we have 10 sequences in subfolders, so we pass the parent folder as
-   input.
 
 seq2ffv1.py
 ~~~~~~~~~~~
@@ -341,19 +315,6 @@ seq2prores.py
 -  seq2prores accepts multiple parent folders, so one can run
    ``seq2prores.py directory1 directory2 directory3`` etc
 
-rawbatch.py
-~~~~~~~~~~~
-
--  Specific IFI workflow that expects a particular folder path:
--  Recursively batch processes image sequence folders with seperate WAV
-   files, generating PREMIS XML log files with hardcoded IFI values.
--  A duplicate audio WAV file is created and sent to desktop as
-   workhorse.
--  A whole file MD5 manifest of everything in the SIP are also created.
-   Work in progress - more testing to be done.
--  Usage - ``rawbatch.py directory``
--  rawbatch accepts multiple parent folders, so one can run
-   ``rawbatch.py directory1 directory2 directory3`` etc
 
 seq.py
 ~~~~~~
@@ -363,14 +324,6 @@ seq.py
    the parent directory.
 -  Further options can be viewed using ``seq.py -h``
 
-playerseq.py
-~~~~~~~~~~~~
-
--  Transcodes an image sequence & WAV to 24fps ProRes 4:2:2 HQ in a MOV
-   container.
--  Usage: ``playerseq.py path/to/parent_image__folder``.The script will
-   then ask you to drag and drop the WAV file. The location is currently
-   hardcoded to facilitate a workflow.
 
 oeremove.py
 ~~~~~~~~~~~
@@ -427,24 +380,6 @@ ffv1mkvvalidate.py
 Specific Workflows
 ------------------
 
-mezzaninecheck.py
-~~~~~~~~~~~~~~~~~
-
--  Checks folders in order to see if either 0 or >1 files exist in a
-   mezzanine/objects folder.
--  
--  Usage: ``mezzaninecheck.py /path/to/parent_folder``
-
-loopline.py
-~~~~~~~~~~~
-
--  Workflow specific to the Loopline project.
--  makeffv1.py and bitc.py are run on the input, unless a DV file is
-   present, in which case bitc.py and dvsip.py will be run.
--  A proxies folder for the h264 files will be created within your
-   parent folder if it does not already exist.
--  Usage: ``loopline.py /path/to/parent_folder`` or
-   ``loopline.py /path/to/file``
 
 masscopy.py
 ~~~~~~~~~~~
@@ -459,14 +394,6 @@ masscopy.py
 -  Usage:
    ``masscopy.py /path/to/parent_folder -o /path/to/destination_folder``
 
-dvsip.py
-~~~~~~~~
-
--  Creates SIP for DV video files. Generates objects/logs/metadata dirs
-   and creates mediatrace, mediainfo, framemd5, logfiles, MD5 sidecar
-   and moves the DV file into the objects directory.
--  Usage: ``dvsip.py /path/to/parent_folder`` or
-   ``dvsip.py /path/to/file``
 
 makefolders.py
 ~~~~~~~~~~~~~~
