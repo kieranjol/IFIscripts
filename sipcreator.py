@@ -333,22 +333,11 @@ def normalise_objects_manifest(sip_path):
         shutil.move(
             objects_manifest, os.path.join(sip_path, 'objects')
         )
-
-def main(args_):
+def get_object_entry(args):
     '''
-    Launch all the functions for creating an IFI SIP.
+    Figures out which OE number to use and performs some basic validation.
+    UNITTEST - use the existing ifs to perform some True/False tests.
     '''
-    args = parse_args(args_)
-    start = datetime.datetime.now()
-    inputs = args.i
-    if args.d:
-        try:
-            import clairmeta
-        except ImportError:
-            print('Exiting as Clairmeta is not installed. If there is a case for not using clairmeta, please let me know and i can make a workaround')
-            sys.exit()
-    print args
-    user = ififuncs.determine_user(args)
     if not args.sc:
         if args.oe:
             if args.oe[:2] != 'oe':
@@ -366,7 +355,14 @@ def main(args_):
             object_entry = ififuncs.get_object_entry()
     else:
         object_entry = 'not_applicable'
-    sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
+    return object_entry
+
+
+def determine_uuid(args, sip_path):
+    '''
+    Validates a UUID to use as the SIP identifier.
+    UNITTEST = validate the existing validations.
+    '''
     if args.u:
         if ififuncs.validate_uuid4(args.u) is None:
             uuid = args.u
@@ -377,15 +373,35 @@ def main(args_):
         else:
             print 'exiting due to invalid UUID'
             uuid_event = (
-                'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % uuid
+                'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % args.u
             )
             uuid = False
+            sys.exit()
     else:
         uuid = os.path.basename(sip_path)
         uuid_event = (
             'EVENT = eventType=Identifier assignement,'
             ' eventIdentifierType=UUID, value=%s, module=uuid.uuid4'
         ) % uuid
+    return uuid, uuid_event
+def main(args_):
+    '''
+    Launch all the functions for creating an IFI SIP.
+    '''
+    args = parse_args(args_)
+    start = datetime.datetime.now()
+    inputs = args.i
+    if args.d:
+        try:
+            import clairmeta
+        except ImportError:
+            print('Exiting as Clairmeta is not installed. If there is a case for not using clairmeta, please let me know and i can make a workaround')
+            sys.exit()
+    print args
+    user = ififuncs.determine_user(args)
+    object_entry = get_object_entry(args)
+    sip_path = make_folder_path(os.path.join(args.o), args, object_entry)
+    uuid, uuid_event = determine_uuid(args, sip_path)
     new_log_textfile = os.path.join(sip_path, 'logs' + '/' + uuid + '_sip_log.log')
     if args.d:
         content_title, rename_dcp = create_content_title_text(sip_path, args)
