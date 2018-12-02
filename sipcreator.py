@@ -372,10 +372,6 @@ def determine_uuid(args, sip_path):
             ) % uuid
         else:
             print 'exiting due to invalid UUID'
-            uuid_event = (
-                'EVENT = exiting due to invalid UUID supplied on the commmand line: %s' % args.u
-            )
-            uuid = False
             sys.exit()
     else:
         uuid = os.path.basename(sip_path)
@@ -425,8 +421,6 @@ def main(args_):
         new_log_textfile,
         uuid_event
     )
-    if args.u is False:
-        sys.exit()
     if not args.sc:
         ififuncs.generate_log(
             new_log_textfile,
