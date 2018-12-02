@@ -42,6 +42,7 @@ def analyse_package(sip_path):
         package_info['metadata_dir'] = os.path.join(sip_path, 'metadata')
         package_info['objects_dir'] = os.path.join(sip_path, 'objects')
         package_info['sip_log'] = os.path.join(package_info['logs_dir'], uuid + '_sip_log.log')
+        package_info['objects'] = os.listdir(package_info['objects_dir'])
     else:
         return False
     return package_info
@@ -51,6 +52,7 @@ def test_package(package_info):
     Test if key files or folders exist.
     '''
     error_list = []
+    question_list = []
     folder_list = [
         package_info['oe_path'],
         package_info['logs_dir'],
@@ -68,12 +70,29 @@ def test_package(package_info):
     for filename in file_list:
         if not os.path.isfile(filename):
             error_list.append(filename)
+    metadata_files = os.listdir(package_info['metadata_dir'])
+    for metadata_file in metadata_files:
+        full_path = os.path.join(package_info['metadata_dir'], metadata_file)
+        if os.path.getsize(full_path) == 0:
+            question_list.append(full_path)
+    for object_files in package_info['objects']:
+        mediainfo = os.path.join(package_info['metadata_dir'], object_files + '_mediainfo.xml')
+        if not os.path.isfile(mediainfo):
+             question_list.append(mediainfo)
+        mediatrace= os.path.join(package_info['metadata_dir'], object_files + '_mediatrace.xml')
+        if not os.path.isfile(mediatrace):
+             question_list.append(mediatrace)
     if not error_list:
         print('Key files and folders all exist')
     else:
         for error in error_list:
             print('%s does not exist') % error
-    return error_list
+    if not question_list:
+        print('No further errors detected')
+    else:
+        for error in question_list:
+            print('%s requires investigation') % error
+    return error_list, question_list
 
 
 def main(args_):
@@ -89,8 +108,8 @@ def main(args_):
         print('Valid UUID not found in folder path')
     else:
         print package_info
-    error_list = test_package(package_info)
-    return package_info, error_list
+    error_list, question_list = test_package(package_info)
+    return package_info, error_list, question_list
 
 if __name__ == '__main__':
     main(sys.argv[1:])
