@@ -22,7 +22,6 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'batchaccession.py',
         'concat.py',
         'makeffv1.py',
-        'loopline.py',
         'makepbcore.py',
         'manifest.py',
         'validate.py',
@@ -49,9 +48,12 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
     license='MIT',
     install_requires=[
        'lxml',
-       'bagit'
+       'bagit',
+       'dicttoxml',
+       'future',
+       'clairmeta'
     ],
     name='ifiscripts',
-    version='v2018.10.18',
+    version='v2018.12.02',
     include_package_data=True
 )
