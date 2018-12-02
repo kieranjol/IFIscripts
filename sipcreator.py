@@ -55,29 +55,27 @@ def consolidate_manifests(path, directory, new_log_textfile):
     )
     collective_manifest = []
     for manifest in os.listdir(objects_dir):
-        if '_manifest' in manifest:
-            if manifest.endswith('.md5'):
-                if manifest[0] != '.':
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
+        if ififuncs.check_if_manifest(manifest):
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
+            )
+            with open(os.path.join(objects_dir, manifest), 'r') as fo:
+                manifest_lines = fo.readlines()
+                for i in manifest_lines:
+                    # This is what appends the new path to existing paths.
+                    new_manifest_path = uuid + '/%s/' % directory + i[34:]
+                    collective_manifest.append(
+                        i[:32] + '  ' + new_manifest_path
                     )
-                    with open(os.path.join(objects_dir, manifest), 'r') as fo:
-                        manifest_lines = fo.readlines()
-                        for i in manifest_lines:
-                            # This is what appends the new path to existing paths.
-                            new_manifest_path = uuid + '/%s/' % directory + i[34:]
-                            collective_manifest.append(
-                                i[:32] + '  ' + new_manifest_path
-                            )
-                    # Cut and paste old manifests into the log directory
-                    shutil.move(
-                        objects_dir + '/' +  manifest, os.path.join(path, 'logs')
-                    )
-                    ififuncs.generate_log(
-                        new_log_textfile,
-                        'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
-                    )
+            # Cut and paste old manifests into the log directory
+            shutil.move(
+                objects_dir + '/' +  manifest, os.path.join(path, 'logs')
+            )
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
+            )
     with open(new_manifest_textfile, 'a') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)

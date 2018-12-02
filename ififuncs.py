@@ -1850,3 +1850,12 @@ def get_technical_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Format identification - eventType=format identification, eventDetail=Format identification via PRONOM signatures using Siegfried, eventOutcome=%s, agentName=%s' % (inputtracexml, siegfried_version)
                     )
+                    
+def check_if_manifest(manifest):
+    '''
+    Basic check to see if a file is an md5 manifest
+    '''
+    if '_manifest' in manifest:
+        if manifest.endswith('.md5'):
+            if manifest[0] != '.':
+                return True
