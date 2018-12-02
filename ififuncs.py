@@ -671,16 +671,15 @@ def create_uuid():
 def make_folder_structure(path):
     '''
     Makes logs, objects, metadata directories in the supplied path
+    UNITTEST - do paths exist
     '''
     metadata_dir = "%s/metadata" % path
     log_dir = "%s/logs" % path
-    #old_manifests_dir = "%s/logs/old_manifests" % path
     data_dir = "%s/objects" % path
     # Actually create the directories.
     os.makedirs(metadata_dir)
     os.makedirs(data_dir)
     os.makedirs(log_dir)
-    #os.makedirs(old_manifests_dir)
 
 
 def get_user():
@@ -718,6 +717,19 @@ def get_user():
         user = 'Eoin O\'Donohoe'
         time.sleep(1)
     return user
+
+
+def determine_user(args):
+    '''
+    Determine who is the user.
+    UNITTEST - check if user is a string. Use mock to simulate input.
+    '''
+    if args.user:
+        user = args.user
+    else:
+        user = get_user()
+    return user
+
 
 def get_acquisition_type(acquisition_type):
     '''

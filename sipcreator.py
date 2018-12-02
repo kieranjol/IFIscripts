@@ -23,13 +23,15 @@ try:
     import dicttoxml
 except ImportError:
     print('Clairmeta is not installed. DCP options will not function!')
-    time.sleep(2)
 
 
 def make_folder_path(path, args, object_entry):
     '''
-    Generates objects/logs/metadata/UUID folder structure in output.
+    Generates objects/logs/metadata/UUID folder structure in output directory.
+    Asks user for UUID if it's not supplied in an arg.
+    Adds a workaround for special collections workflows.
     Returns the path.
+    UNITTEST - does path exist
     '''
     if not args.u:
         representation_uuid = ififuncs.create_uuid()
@@ -40,7 +42,6 @@ def make_folder_path(path, args, object_entry):
     else:
         oe_path = os.path.join(path, object_entry)
     path = os.path.join(oe_path, representation_uuid)
-    print path
     ififuncs.make_folder_structure(path)
     return path
 
@@ -347,10 +348,7 @@ def main(args_):
             print('Exiting as Clairmeta is not installed. If there is a case for not using clairmeta, please let me know and i can make a workaround')
             sys.exit()
     print args
-    if args.user:
-        user = args.user
-    else:
-        user = ififuncs.get_user()
+    user = ififuncs.determine_user(args)
     if not args.sc:
         if args.oe:
             if args.oe[:2] != 'oe':
