@@ -69,6 +69,11 @@ def set_options():
         'The default directory is the same directory as input.'
     )
     parser.add_argument(
+        '-logo',
+        help='Full path to a transparent PNG that will be '
+        'overlaid in the top right corner.'
+    )
+    parser.add_argument(
         '-scale',
         help='Rescale video.'
         ' Usage: -scale 1920x1080 or -scale 720x576 etc'
@@ -101,6 +106,8 @@ def build_filter(args, filename):
     filtergraph = ''
     if args.yadif:
         h264_options.append('yadif')
+    if args.logo:
+        h264_options.append('overlay=main_w-overlay_w-5:5')
     if args.scale:
         h264_options.append('scale=%s' % args.scale)
         # width_height = args.scale
@@ -115,7 +122,7 @@ def build_filter(args, filename):
     if len(filtergraph) > 0:
         if filtergraph[-1] == ',':
             filtergraph = filtergraph[:-1]
-        filter_list = ['-vf', filtergraph]
+        filter_list = ['-filter_complex', filtergraph]
         print filter_list
     return filter_list
 
@@ -226,6 +233,10 @@ def make_h264(filename, args, filter_list):
     ffmpeg_args = [
         'ffmpeg',
         '-i', filename,
+    ]
+    if args.logo:
+        ffmpeg_args.extend(['-i', args.logo])
+    ffmpeg_args += [
         '-c:a', 'aac',
         '-c:v', 'libx264',
         '-pix_fmt', 'yuv420p',
