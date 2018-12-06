@@ -195,7 +195,7 @@ def get_mediainfo(var_type, type, filename):
         type,
         filename
     ]
-    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '')
+    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '').replace('\r', '')
     return var_type
 
 
