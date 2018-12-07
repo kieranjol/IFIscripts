@@ -28,15 +28,13 @@ def parse_args(args_):
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
-def main(args_):
+def create_zip(source, destination):
     '''
-    Zips and verifies all files and folders within your input directory.
+    Creates an uncompressed zipfile for all files in the source directory
+    and stores the zipfile in the destination directory
     '''
-    args = parse_args(args_)
     pwd = os.getcwd()
-    source = args.i
-    destination = args.o
-    start = datetime.datetime.now()
+    zip_start = datetime.datetime.now()
     name = os.path.basename(source) + '.zip'
     full_zip = os.path.join(destination, name)
     with ZipFile(full_zip, 'w', zipfile.ZIP_STORED, allowZip64=True) as myzip:
@@ -46,11 +44,9 @@ def main(args_):
                 full_path = os.path.relpath(os.path.join(root, filename))
                 print('zipping %s' % full_path)
                 myzip.write(full_path)
-    finish = datetime.datetime.now()
-    print(start, finish)
+    zip_finish = datetime.datetime.now()
     os.chdir(pwd)
-    start = datetime.datetime.now()
-    time.sleep(5)
+    verify_start = datetime.datetime.now()
     with zipfile.ZipFile(full_zip, 'r') as myzip:
         print('verifying..')
         result = myzip.testzip()
@@ -58,8 +54,24 @@ def main(args_):
             print('Python has not detected any errors in your zipfile')
         else:
             print('ERROR DETECTED IN %s '% result)
-    finish = datetime.datetime.now()
-    print(start, finish)
+    verify_finish = datetime.datetime.now()
+    total_zip = zip_finish - zip_start
+    total_verify = verify_finish - verify_start
+    print('Zipping duration = %s seconds' % (str(total_zip)))
+    print('Verification duration = %s seconds' % (str(total_verify)))
+    print('Total duration = %s seconds' % (str(total_zip + total_verify)))
+    return result, full_zip
+
+def main(args_):
+    '''
+    Zips and verifies all files and folders within your input directory.
+    '''
+    args = parse_args(args_)
+    print(args)
+    print('makezip.py started')
+    source = args.i
+    destination = args.o
+    result, full_zip = create_zip(source, destination)
     return result, full_zip
 
 if __name__ == '__main__':
