@@ -98,7 +98,7 @@ def consolidate_logs(lognames, path):
                 log_object.write(lines)
 
 
-def move_files(inputs, sip_path, args):
+def move_files(inputs, sip_path, args, user):
     '''
     Runs moveit.py on all inputs
     '''
@@ -118,6 +118,9 @@ def move_files(inputs, sip_path, args):
                 os.rename(os.path.join(objects_dir, os.path.basename(item)), new_path)
                 manifest = os.path.join(os.path.dirname(new_path), os.path.basename(item)) + '_manifest.md5'
                 updated_lines = []
+                ififuncs.generate_log(
+                    log_name,
+                    'EVENT = Filename change - eventDetail=original filename replaced with uuid, eventOutcomeDetailNote=%s replaced with %s, agentName=%s, agentName=sipcreator.py))' % (os.path.basename(item), uuid + ext, user))
                 with open(manifest, 'r') as file_object:
                     checksums = file_object.readlines()
                     for line in checksums:
@@ -404,7 +407,7 @@ def main(args_):
     metadata_dir = os.path.join(sip_path, 'metadata')
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
-    log_names = move_files(inputs, sip_path, args)
+    log_names = move_files(inputs, sip_path, args, user)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
