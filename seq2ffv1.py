@@ -199,15 +199,27 @@ def make_ffv1(
         uuid = ififuncs.create_uuid()
         # ugly hack until i recfactor. this is the zip_path, not ffv1_path
         ffv1_path = os.path.join(output_dirname, uuid + '.zip')
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % os.path.dirname(source_abspath)
+        )
         makezip_judgement = makezip.main([
             '-i', os.path.dirname(source_abspath),
             '-o', output_dirname,
             '-basename', os.path.basename(ffv1_path)
         ])[0]
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, Source object packed into=%s' % ffv1_path
+        )
         if makezip_judgement is None:
             judgement = 'lossless'
         else:
             judgement = makezip_judgement
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
     else:
         logfile = os.path.join(
             temp_dir,
