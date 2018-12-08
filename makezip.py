@@ -25,17 +25,19 @@ def parse_args(args_):
     parser.add_argument(
         '-o', help='Output directory', required=True
     )
+    parser.add_argument(
+        '-basename', help='Specify a basename for the output file. A basename is a filename without the full path eg output.zip'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
-def create_zip(source, destination):
+def create_zip(source, destination, name):
     '''
     Creates an uncompressed zipfile for all files in the source directory
     and stores the zipfile in the destination directory
     '''
     pwd = os.getcwd()
     zip_start = datetime.datetime.now()
-    name = os.path.basename(source) + '.zip'
     full_zip = os.path.join(destination, name)
     with ZipFile(full_zip, 'w', zipfile.ZIP_STORED, allowZip64=True) as myzip:
         os.chdir(source)
@@ -71,7 +73,11 @@ def main(args_):
     print('makezip.py started')
     source = args.i
     destination = args.o
-    result, full_zip = create_zip(source, destination)
+    if args.basename:
+        name = args.basename
+    else:
+        name = os.path.basename(source) + '.zip'
+    result, full_zip = create_zip(source, destination, name)
     return result, full_zip
 
 if __name__ == '__main__':
