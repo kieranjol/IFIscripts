@@ -12,6 +12,7 @@ import ififuncs
 import package_update
 import accession
 import manifest
+import makezip
 from masscopy import analyze_log
 try:
     from clairmeta.utils.xml import prettyprint_xml
@@ -182,6 +183,10 @@ def parse_args(args_):
     parser.add_argument(
         '-sc', action='store_true',
         help='special collections workflow'
+    )
+    parser.add_argument(
+        '-zip', action='store_true',
+        help='Uses makezip.py to store the objects in an uncompressed ZIP'
     )
     parser.add_argument(
         '-oe',
@@ -382,7 +387,11 @@ def main(args_):
     metadata_dir = os.path.join(sip_path, 'metadata')
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
-    log_names = move_files(inputs, sip_path, args)
+    if args.zip:
+        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
+        makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects')])
+    else:
+        log_names = move_files(inputs, sip_path, args)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
@@ -398,6 +407,10 @@ def main(args_):
     if args.supplement:
         os.makedirs(supplemental_dir)
         supplement_cmd = ['-i', args.supplement, '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
+        package_update.main(supplement_cmd)
+    if args.zip:
+        os.makedirs(supplemental_dir)
+        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path)]
         package_update.main(supplement_cmd)
     if args.sc:
         print('Generating Digital Forensics XML')
@@ -416,7 +429,8 @@ def main(args_):
         os.remove(sha512_log)
     ififuncs.sort_manifest(new_manifest_textfile)
     if not args.quiet:
-        log_report(log_names)
+        if 'log_names' in locals():
+            log_report(log_names)
     finish = datetime.datetime.now()
     print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
     if args.d:
