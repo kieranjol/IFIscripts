@@ -389,7 +389,23 @@ def main(args_):
     logs_dir = os.path.join(sip_path, 'logs')
     if args.zip:
         inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
-        makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects')])
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % inputs[0]
+        )
+        makezip_judgement = makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects')])
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, eventDetail=Source object packed into=%s' % inputs[0]
+        )
+        if makezip_judgement is None:
+            judgement = 'lossless'
+        else:
+            judgement = makezip_judgement
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
     else:
         log_names = move_files(inputs, sip_path, args)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
