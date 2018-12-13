@@ -44,13 +44,13 @@ def create_zip(source, destination, name):
         for root, _, filenames in os.walk(source):
             for filename in filenames:
                 full_path = os.path.relpath(os.path.join(root, filename))
-                print('zipping %s' % full_path)
+                print(' - Zipping %s' % full_path)
                 myzip.write(full_path)
     zip_finish = datetime.datetime.now()
     os.chdir(pwd)
     verify_start = datetime.datetime.now()
     with zipfile.ZipFile(full_zip, 'r') as myzip:
-        print('verifying..')
+        print(' - Verifying the CRC32 checksums within the ZIP file..')
         result = myzip.testzip()
         if result is None:
             print('Python has not detected any errors in your zipfile')
