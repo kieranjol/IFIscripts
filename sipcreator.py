@@ -393,7 +393,7 @@ def main(args_):
             new_log_textfile,
             'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % inputs[0]
         )
-        makezip_judgement, zip_file = makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects')])
+        makezip_judgement, zip_file = makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects'), '-basename', uuid + '.zip'])
         ififuncs.generate_log(
             new_log_textfile,
             'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, eventDetail=Source object packed into=%s' % inputs[0]
