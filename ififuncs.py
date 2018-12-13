@@ -640,7 +640,10 @@ def parse_image_sequence(images):
     # remove trailing underscore
     root_filename = ffmpeg_friendly_name[:-1]
     ffmpeg_friendly_name += number_regex + '%s' % container
-    return ffmpeg_friendly_name, start_number, root_filename
+    fps = get_mediainfo('duration', '--inform=Image;%FrameRate%', images[0])
+    if fps == '':
+        fps = 24
+    return ffmpeg_friendly_name, start_number, root_filename, fps
 
 
 def get_date_modified(filename):

@@ -86,7 +86,7 @@ def run_loop(args):
         if images == 'none':
             continue
         (ffmpeg_friendly_name,
-         start_number, root_filename) = ififuncs.parse_image_sequence(images)
+         start_number, root_filename, fps) = ififuncs.parse_image_sequence(images)
         if args.short_test:
             short_test(images, args)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
@@ -96,7 +96,8 @@ def run_loop(args):
             output_dirname,
             args,
             log_name_source,
-            user
+            user,
+            fps
         )
         if args.sip:
             judgement, sipcreator_log, sipcreator_manifest = judgement
@@ -133,7 +134,8 @@ def make_ffv1(
         output_dirname,
         args,
         log_name_source,
-        user
+        user,
+        fps
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
@@ -165,7 +167,7 @@ def make_ffv1(
         source_framemd5_cmd = [
             'ffmpeg', '-report',
             '-f', 'image2',
-            '-framerate', '24',
+            '-framerate', fps,
             '-start_number', start_number,
             '-i', source_abspath,
             '-pix_fmt', pix_fmt,
@@ -203,7 +205,7 @@ def make_ffv1(
         ffv12dpx = [
             'ffmpeg', '-report',
             '-f', 'image2',
-            '-framerate', '24',
+            '-framerate', fps,
             '-start_number', start_number,
             '-i', source_abspath,
             '-strict', '-2',
