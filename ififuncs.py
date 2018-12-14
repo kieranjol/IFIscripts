@@ -111,7 +111,7 @@ def extract_provenance(filename, output_folder, output_uuid):
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
-    dfxml = "%s/%s_dfxml.xml" % (output_folder, output_uuid)
+    dfxml = "%s/%s_source_dfxml.xml" % (output_folder, output_uuid)
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
