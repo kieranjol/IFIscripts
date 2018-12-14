@@ -161,11 +161,10 @@ def main(args_):
                 accession_number = args.number
         else:
             accession_number = ififuncs.get_accession_number()
-        if args.pbcore:
-            if args.reference:
-                Reference_Number = args.reference.upper()
-            else:
-                Reference_Number = ififuncs.get_reference_number()
+        if args.reference:
+            Reference_Number = args.reference.upper()
+        else:
+            Reference_Number = ififuncs.get_reference_number()
         if args.acquisition_type:        
             acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)
             print acquisition_type
