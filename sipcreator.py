@@ -406,6 +406,10 @@ def main(args_):
             new_log_textfile,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
         )
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
     else:
         log_names = move_files(inputs, sip_path, args)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
@@ -415,6 +419,14 @@ def main(args_):
     if args.sc:
         normalise_objects_manifest(sip_path)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
+    if args.zip:
+        ififuncs.generate_log(
+            new_log_textfile, 'EVENT = Message Digest Calculation: status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+        )
+        ififuncs.manifest_update(new_manifest_textfile, zip_file)
+        ififuncs.generate_log(
+            new_log_textfile, 'EVENT = Message Digest Calculation: status=closed, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+        )
     consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
         logs_dir, new_manifest_textfile,
@@ -426,7 +438,7 @@ def main(args_):
         package_update.main(supplement_cmd)
     if args.zip:
         os.makedirs(supplemental_dir)
-        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path)]
+        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
     if args.sc:
         print('Generating Digital Forensics XML')
