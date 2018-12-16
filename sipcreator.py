@@ -389,6 +389,19 @@ def main(args_):
     logs_dir = os.path.join(sip_path, 'logs')
     if args.zip:
         inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
+        source_manifest = os.path.join(
+            args.i[0],
+            os.path.basename(args.i[0]) + '_manifest-md5.txt'
+        )
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+        )
+        ififuncs.hashlib_manifest(args.i[0], source_manifest, os.path.dirname(args.i[0]))
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+        )
         ififuncs.generate_log(
             new_log_textfile,
             'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % inputs[0]
@@ -419,13 +432,14 @@ def main(args_):
     if args.sc:
         normalise_objects_manifest(sip_path)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
+
     if args.zip:
         ififuncs.generate_log(
-            new_log_textfile, 'EVENT = Message Digest Calculation: status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+            new_log_textfile, 'EVENT = Message Digest Calculation, status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
         )
         ififuncs.manifest_update(new_manifest_textfile, zip_file)
         ififuncs.generate_log(
-            new_log_textfile, 'EVENT = Message Digest Calculation: status=closed, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+            new_log_textfile, 'EVENT = Message Digest Calculation, status=finished, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
         )
     consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
@@ -438,7 +452,7 @@ def main(args_):
         package_update.main(supplement_cmd)
     if args.zip:
         os.makedirs(supplemental_dir)
-        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
+        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml, source_manifest], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
     if args.sc:
         print('Generating Digital Forensics XML')
