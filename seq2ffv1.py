@@ -190,7 +190,7 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
         )
-        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path]
+        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
         if args.audio:
             rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
         ffv12dpx = (rawcooked_cmd)
