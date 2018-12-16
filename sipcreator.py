@@ -12,6 +12,7 @@ import ififuncs
 import package_update
 import accession
 import manifest
+import makezip
 from masscopy import analyze_log
 try:
     from clairmeta.utils.xml import prettyprint_xml
@@ -182,6 +183,10 @@ def parse_args(args_):
     parser.add_argument(
         '-sc', action='store_true',
         help='special collections workflow'
+    )
+    parser.add_argument(
+        '-zip', action='store_true',
+        help='Uses makezip.py to store the objects in an uncompressed ZIP'
     )
     parser.add_argument(
         '-oe',
@@ -382,7 +387,44 @@ def main(args_):
     metadata_dir = os.path.join(sip_path, 'metadata')
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
-    log_names = move_files(inputs, sip_path, args)
+    if args.zip:
+        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
+        source_manifest = os.path.join(
+            args.i[0],
+            os.path.basename(args.i[0]) + '_manifest-md5.txt'
+        )
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+        )
+        ififuncs.hashlib_manifest(args.i[0], source_manifest, os.path.dirname(args.i[0]))
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+        )
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % inputs[0]
+        )
+        makezip_judgement, zip_file = makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects'), '-basename', uuid + '.zip'])
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, eventDetail=Source object packed into=%s' % zip_file
+        )
+        if makezip_judgement is None:
+            judgement = 'lossless'
+        else:
+            judgement = makezip_judgement
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
+        ififuncs.generate_log(
+            new_log_textfile,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
+    else:
+        log_names = move_files(inputs, sip_path, args)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
@@ -390,6 +432,15 @@ def main(args_):
     if args.sc:
         normalise_objects_manifest(sip_path)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
+
+    if args.zip:
+        ififuncs.generate_log(
+            new_log_textfile, 'EVENT = Message Digest Calculation, status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+        )
+        ififuncs.manifest_update(new_manifest_textfile, zip_file)
+        ififuncs.generate_log(
+            new_log_textfile, 'EVENT = Message Digest Calculation, status=finished, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+        )
     consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
         logs_dir, new_manifest_textfile,
@@ -398,6 +449,10 @@ def main(args_):
     if args.supplement:
         os.makedirs(supplemental_dir)
         supplement_cmd = ['-i', args.supplement, '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
+        package_update.main(supplement_cmd)
+    if args.zip:
+        os.makedirs(supplemental_dir)
+        supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml, source_manifest], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
     if args.sc:
         print('Generating Digital Forensics XML')
@@ -416,7 +471,8 @@ def main(args_):
         os.remove(sha512_log)
     ififuncs.sort_manifest(new_manifest_textfile)
     if not args.quiet:
-        log_report(log_names)
+        if 'log_names' in locals():
+            log_report(log_names)
     finish = datetime.datetime.now()
     print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
     if args.d:

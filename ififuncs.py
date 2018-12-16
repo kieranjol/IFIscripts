@@ -111,7 +111,7 @@ def extract_provenance(filename, output_folder, output_uuid):
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
-    dfxml = "%s/%s_dfxml.xml" % (output_folder, output_uuid)
+    dfxml = "%s/%s_source_dfxml.xml" % (output_folder, output_uuid)
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
@@ -1811,7 +1811,7 @@ def get_technical_metadata(path, new_log_textfile):
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
             elif av_file.lower().endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip' )
             ):
                 if av_file[0] != '.':
                     if not av_file.lower().endswith(('.txt', '.csv')):

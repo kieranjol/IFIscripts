@@ -27,6 +27,7 @@ import shutil
 import time
 import ififuncs
 import sipcreator
+import makezip
 
 def short_test(images, args):
     '''
@@ -151,10 +152,11 @@ def make_ffv1(
     )
     temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
-    source_textfile = os.path.join(
-        temp_dir, uuid + '_source.framemd5'
-    )
-    files_to_move.append(source_textfile)
+    if not args.zip:
+        source_textfile = os.path.join(
+            temp_dir, uuid + '_source.framemd5'
+        )
+        files_to_move.append(source_textfile)
     # Just perform framemd5 at this stage
     if args.rawcooked:
         logfile = os.path.join(
@@ -190,10 +192,36 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
         )
-        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '-o', ffv1_path]
+        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
         if args.audio:
             rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
         ffv12dpx = (rawcooked_cmd)
+        print(ffv12dpx)
+    elif args.zip:
+        uuid = ififuncs.create_uuid()
+        # ugly hack until i recfactor. this is the zip_path, not ffv1_path
+        ffv1_path = os.path.join(output_dirname, uuid + '.zip')
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % os.path.dirname(source_abspath)
+        )
+        makezip_judgement = makezip.main([
+            '-i', os.path.dirname(source_abspath),
+            '-o', output_dirname,
+            '-basename', os.path.basename(ffv1_path)
+        ])[0]
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, Source object packed into=%s' % ffv1_path
+        )
+        if makezip_judgement is None:
+            judgement = 'lossless'
+        else:
+            judgement = makezip_judgement
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
+        )
     else:
         logfile = os.path.join(
             temp_dir,
@@ -219,46 +247,47 @@ def make_ffv1(
             '-f', 'framemd5', source_textfile
         ]
         normalisation_tool = 'FFmpeg'
-    print(ffv12dpx)
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-        % normalisation_tool
-    )
-    subprocess.call(ffv12dpx, env=env_dict)
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
-        % normalisation_tool
-    )
-    ffv1_md5 = os.path.join(
-        temp_dir,
-        uuid + '_ffv1.framemd5'
-    )
-    files_to_move.append(ffv1_md5)
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
-    )
-    ffv1_fmd5_cmd = [
-        'ffmpeg', '-report',
-        '-i', ffv1_path,
-        '-pix_fmt', pix_fmt,
-        '-f', 'framemd5',
-        ffv1_md5
-    ]
-    ffv1_fmd5_logfile = os.path.join(
-        temp_dir, '%s_ffv1_framemd5.log' % uuid
-    )
-    files_to_move.append(ffv1_fmd5_logfile)
-    ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
-    ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
-    subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
-    judgement = verify_losslessness(source_textfile, ffv1_md5)
-    ififuncs.generate_log(
-        log_name_source,
-        'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
-    )
+        print(ffv12dpx)
+    if not args.zip:
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = normalisation, status=started, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+            % normalisation_tool
+        )
+        subprocess.call(ffv12dpx, env=env_dict)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
+            % normalisation_tool
+        )
+        ffv1_md5 = os.path.join(
+            temp_dir,
+            uuid + '_ffv1.framemd5'
+        )
+        files_to_move.append(ffv1_md5)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
+        )
+        ffv1_fmd5_cmd = [
+            'ffmpeg', '-report',
+            '-i', ffv1_path,
+            '-pix_fmt', pix_fmt,
+            '-f', 'framemd5',
+            ffv1_md5
+        ]
+        ffv1_fmd5_logfile = os.path.join(
+            temp_dir, '%s_ffv1_framemd5.log' % uuid
+        )
+        files_to_move.append(ffv1_fmd5_logfile)
+        ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
+        ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
+        subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
+        judgement = verify_losslessness(source_textfile, ffv1_md5)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
+        )
     if not args.sip:
         return judgement
     else:
@@ -343,6 +372,10 @@ def setup():
     parser.add_argument(
         '-rawcooked',
         help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
+    )
+    parser.add_argument(
+        '-zip',
+        help='Use makezip.py to generate an uncompressed zip file', action='store_true'
     )
     parser.add_argument(
         '-short_test',

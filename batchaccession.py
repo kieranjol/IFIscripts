@@ -202,6 +202,7 @@ def process_oe_csv(oe_csv_extraction, source_path):
         try:
             dictionary = {}
             dictionary['Object Entry'] = record['OE No.']
+            dictionary['format'] = record['Format']
             dictionary['donation_date'] = record['Date Received']
             dictionary['normalised_oe_number']  = dictionary['Object Entry'][:2].lower() + dictionary['Object Entry'][3:]
             dictionary['source_path'] = os.path.join(source_path, dictionary['normalised_oe_number'])
@@ -303,12 +304,16 @@ def main(args_):
         for package in sorted(to_accession.keys(), key=natural_keys):
             accession_cmd = [
                 package, '-user', user,
-                '-pbcore', '-f',
+                '-f',
                 '-number', to_accession[package][0],
                 '-reference', to_accession[package][1],
                 '-register', register,
                 '-csv', new_csv
             ]
+            for oe_record in oe_dicts:
+                if oe_record['source_path'] == package:
+                    if not oe_record['format'].lower() == 'dcdm':
+                        accession_cmd.append('-pbcore')
             if len(to_accession[package]) == 4:
                 if not to_accession[package][2] == 'n/a':
                     accession_cmd.extend(['-acquisition_type', '13'])
