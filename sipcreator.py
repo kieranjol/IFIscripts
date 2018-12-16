@@ -409,7 +409,7 @@ def main(args_):
         makezip_judgement, zip_file = makezip.main(['-i', inputs[0], '-o', os.path.join(sip_path, 'objects'), '-basename', uuid + '.zip'])
         ififuncs.generate_log(
             new_log_textfile,
-            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, eventDetail=Source object packed into=%s' % inputs[0]
+            'EVENT = packing, status=finished, eventType=packing, agentName=makezip.py, eventDetail=Source object packed into=%s' % zip_file
         )
         if makezip_judgement is None:
             judgement = 'lossless'
