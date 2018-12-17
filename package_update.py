@@ -132,7 +132,7 @@ def main(args_):
             relative_new_path = args.new_folder.replace(sip_path, '')
             print relative_new_path, 'relative'
             if (relative_new_path[0] == '/') or relative_new_path[0] == '\\':
-                relative_new_path = relative_new_path[1:]
+                relative_new_path = relative_new_path[1:].replace('\\', '/')
             sipcreator.consolidate_manifests(sip_path, relative_new_path, new_log_textfile)
             log_manifest = os.path.join(os.path.dirname(new_log_textfile), os.path.basename(filenames) + '_manifest.md5')
             ififuncs.manifest_update(sip_manifest, log_manifest)
