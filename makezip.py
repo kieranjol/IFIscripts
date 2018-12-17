@@ -8,6 +8,7 @@ import sys
 import os
 import time
 import argparse
+import subprocess
 import datetime
 
 
@@ -39,13 +40,8 @@ def create_zip(source, destination, name):
     pwd = os.getcwd()
     zip_start = datetime.datetime.now()
     full_zip = os.path.join(destination, name)
-    with ZipFile(full_zip, 'w', zipfile.ZIP_STORED, allowZip64=True) as myzip:
-        os.chdir(source)
-        for root, _, filenames in os.walk(source):
-            for filename in filenames:
-                full_path = os.path.relpath(os.path.join(root, filename))
-                print(' - Zipping %s' % full_path)
-                myzip.write(full_path)
+    os.chdir(os.path.dirname(source))
+    subprocess.call(['7za', 'a', '-tzip', '-mx=0', full_zip, os.path.basename(source)])
     zip_finish = datetime.datetime.now()
     os.chdir(pwd)
     verify_start = datetime.datetime.now()
