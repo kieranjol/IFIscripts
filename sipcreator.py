@@ -390,7 +390,7 @@ def main(args_):
     if args.zip:
         inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
         source_manifest = os.path.join(
-            args.i[0],
+            args.o,
             os.path.basename(args.i[0]) + '_manifest-md5.txt'
         )
         ififuncs.generate_log(
