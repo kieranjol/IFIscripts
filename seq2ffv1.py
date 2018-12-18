@@ -69,6 +69,8 @@ def reversibility_verification(ffv1_mkv, source_manifest):
     converted_manifest = os.path.join(temp_dir, '123.md5')
     ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, source_manifest)
+    print(' - Deleting temp directory %s' % temp_dir)
+    shutil.rmtree(temp_dir)
     return judgement
 def run_loop(args):
     '''
