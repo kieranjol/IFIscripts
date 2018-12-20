@@ -111,7 +111,7 @@ def extract_provenance(filename, output_folder, output_uuid):
     '''
     inputxml = "%s/%s_source_mediainfo.xml" % (output_folder, output_uuid)
     inputtracexml = "%s/%s_source_mediatrace.xml" % (output_folder, output_uuid)
-    dfxml = "%s/%s_dfxml.xml" % (output_folder, output_uuid)
+    dfxml = "%s/%s_source_dfxml.xml" % (output_folder, output_uuid)
     print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
     make_mediainfo(inputxml, 'mediaxmlinput', filename)
     print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
@@ -195,7 +195,7 @@ def get_mediainfo(var_type, type, filename):
         type,
         filename
     ]
-    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '')
+    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '').replace('\r', '')
     return var_type
 
 
@@ -640,7 +640,10 @@ def parse_image_sequence(images):
     # remove trailing underscore
     root_filename = ffmpeg_friendly_name[:-1]
     ffmpeg_friendly_name += number_regex + '%s' % container
-    return ffmpeg_friendly_name, start_number, root_filename
+    fps = get_mediainfo('duration', '--inform=Image;%FrameRate%', images[0])
+    if fps == '':
+        fps = 24
+    return ffmpeg_friendly_name, start_number, root_filename, fps
 
 
 def get_date_modified(filename):
@@ -1808,7 +1811,7 @@ def get_technical_metadata(path, new_log_textfile):
                         'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                     )
             elif av_file.lower().endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv' )
+                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip' )
             ):
                 if av_file[0] != '.':
                     if not av_file.lower().endswith(('.txt', '.csv')):
