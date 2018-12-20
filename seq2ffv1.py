@@ -56,14 +56,14 @@ def short_test(images, args):
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
     ififuncs.diff_textfiles(converted_manifest, restored_manifest)
 
-def reversibility_verification(ffv1_mkv, source_manifest):
+def reversibility_verification(ffv1_mkv, source_manifest, reversibility_dir):
     '''
     Restore the MKV back to DPX, create a checksum, and compare to source DPX
     checksums.
     Return a value of lossy or lossless.
     '''
     temp_uuid = ififuncs.create_uuid()
-    temp_dir = os.path.join(tempfile.gettempdir(), temp_uuid)
+    temp_dir = os.path.join(reversibility_dir, temp_uuid)
     os.makedirs(temp_dir)
     subprocess.call(['rawcooked', ffv1_mkv, '-o', temp_dir])
     converted_manifest = os.path.join(temp_dir, '123.md5')
@@ -241,7 +241,11 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibility of %s back to its original form, followed by checksum verification using %s ' % (normalisation_tool, ffv1_path, source_manifest)
         )
-        judgement = reversibility_verification(ffv1_path, source_manifest)
+        if args.reversibility_dir:
+            reversibility_dir = args.reversibility_dir
+        else:
+            reversibility_dir  = args.o
+        judgement = reversibility_verification(ffv1_path, source_manifest, reversibility_dir)
         ififuncs.generate_log(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, ffv1_path, source_manifest, judgement)
@@ -320,6 +324,9 @@ def setup():
     parser.add_argument(
         '-audio',
         help='Full path to audio file.')
+    parser.add_argument(
+        '-reversibility_dir',
+        help='This argument requires the full path of the location that you want to use for the reversibility directory. By default, seq2ffv1 will use your output dir for storing the temporary reversibility files.')
     parser.add_argument(
         '-zip',
         help='Use makezip.py to generate an uncompressed zip file', action='store_true'
