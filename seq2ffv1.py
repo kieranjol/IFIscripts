@@ -160,7 +160,7 @@ def make_ffv1(
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
     # Just perform framemd5 at this stage
     rawcooked_logfile = os.path.join(
-        temp_dir, '%s_rawcooked.log' % uuid
+        args.o, '%s_rawcooked.log' % uuid
     )
     normalisation_tool = ififuncs.get_rawcooked_version()
     files_to_move.append(rawcooked_logfile)
