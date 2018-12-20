@@ -103,17 +103,15 @@ def run_loop(args):
         if images == 'none':
             continue
         (ffmpeg_friendly_name,
-         start_number, root_filename, fps) = ififuncs.parse_image_sequence(images)
+         _, root_filename, _) = ififuncs.parse_image_sequence(images)
         short_test(images, args)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
         judgement = make_ffv1(
-            start_number,
             source_abspath,
             output_dirname,
             args,
             log_name_source,
             user,
-            fps
         )
         if args.sip:
             judgement, sipcreator_log, sipcreator_manifest = judgement
@@ -145,13 +143,11 @@ def verify_losslessness(source_textfile, ffv1_md5):
                         checksum_mismatches.append(1)
     return judgement
 def make_ffv1(
-        start_number,
         source_abspath,
         output_dirname,
         args,
         log_name_source,
         user,
-        fps
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
@@ -161,10 +157,6 @@ def make_ffv1(
     if args.sip:
         object_entry = ififuncs.get_object_entry()
     files_to_move = []
-    pix_fmt = ififuncs.img_seq_pixfmt(
-        start_number,
-        source_abspath
-    )
     temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
     # Just perform framemd5 at this stage
@@ -244,7 +236,7 @@ def make_ffv1(
         if args.reversibility_dir:
             reversibility_dir = args.reversibility_dir
         else:
-            reversibility_dir  = args.o
+            reversibility_dir = args.o
         judgement = reversibility_verification(ffv1_path, source_manifest, reversibility_dir)
         ififuncs.generate_log(
             log_name_source,
@@ -287,15 +279,6 @@ def make_ffv1(
         os.remove(inputxml)
         return judgement, sipcreator_log, sipcreator_manifest
 
-def make_dfxml(args,new_uuid_path,uuid):
-    '''
-    Adds Digital Forensics XML of the source sequence
-    to the supplemental folder.
-    '''
-    metadata = os.path.join(new_uuid_path, 'metadata')
-    dfxml = os.path.join(metadata, uuid + '_dfxml.xml')
-    makedfxml.main([new_uuid_path, '-n', '-o', dfxml])
-    return dfxml
 
 def setup():
     '''
