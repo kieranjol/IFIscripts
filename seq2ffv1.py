@@ -325,14 +325,22 @@ def make_ffv1(
         )
         ififuncs.generate_log(
             log_name_source,
-            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
         )
         ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
         ififuncs.generate_log(
             log_name_source,
-            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
+        )
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibility of %s back to its original form, followed by checksum verification using %s ' % (normalisation_tool, ffv1_path, source_manifest)
         )
         judgement = reversibility_verification(ffv1_path, source_manifest)
+        ififuncs.generate_log(
+            log_name_source,
+            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, ffv1_path, source_manifest, judgement)
+        )
         supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml, source_manifest]
         sipcreator_cmd = [
             '-i',
