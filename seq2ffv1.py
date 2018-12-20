@@ -56,15 +56,31 @@ def short_test(images, args):
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
     ififuncs.diff_textfiles(converted_manifest, restored_manifest)
 
+def reversibility_verification(ffv1_mkv, source_manifest, reversibility_dir):
+    '''
+    Restore the MKV back to DPX, create a checksum, and compare to source DPX
+    checksums.
+    Return a value of lossy or lossless.
+    '''
+    temp_uuid = ififuncs.create_uuid()
+    temp_dir = os.path.join(reversibility_dir, temp_uuid)
+    os.makedirs(temp_dir)
+    subprocess.call(['rawcooked', ffv1_mkv, '-o', temp_dir])
+    converted_manifest = os.path.join(temp_dir, '123.md5')
+    ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
+    judgement = ififuncs.diff_textfiles(converted_manifest, source_manifest)
+    print(' - Deleting temp directory %s' % temp_dir)
+    shutil.rmtree(temp_dir)
+    return judgement
 def run_loop(args):
     '''
-    Launches a recursive loop to process all images sequences in your
-    subdirectories.
+    This will only process one sequence. Batch processing will come later.
     '''
     if args.user:
         user = args.user
     else:
         user = ififuncs.get_user()
+    object_entry = ififuncs.get_object_entry()
     log_name_source = os.path.join(
         args.o, '%s_seq2ffv1_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S")
     )
@@ -87,27 +103,23 @@ def run_loop(args):
         if images == 'none':
             continue
         (ffmpeg_friendly_name,
-         start_number, root_filename, fps) = ififuncs.parse_image_sequence(images)
-        if args.short_test:
-            short_test(images, args)
+         _, root_filename, _) = ififuncs.parse_image_sequence(images)
+        short_test(images, args)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
         judgement = make_ffv1(
-            start_number,
             source_abspath,
             output_dirname,
             args,
             log_name_source,
             user,
-            fps
+            object_entry
         )
-        if args.sip:
-            judgement, sipcreator_log, sipcreator_manifest = judgement
+        judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
-            print("%-*s   : %s" % (50, verdict[0], verdict[1]))
+            print("%-*s   : %s" % (50, args.i, verdict[1]))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
-    if args.sip:
-        ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
+    ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
@@ -129,75 +141,37 @@ def verify_losslessness(source_textfile, ffv1_md5):
                     else:
                         checksum_mismatches.append(1)
     return judgement
+
 def make_ffv1(
-        start_number,
         source_abspath,
         output_dirname,
         args,
         log_name_source,
         user,
-        fps
+        object_entry
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
     uuid = ififuncs.create_uuid()
-    if args.sip:
-        object_entry = ififuncs.get_object_entry()
     files_to_move = []
-    pix_fmt = ififuncs.img_seq_pixfmt(
-        start_number,
-        source_abspath
-    )
     temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
-    if not args.zip:
-        source_textfile = os.path.join(
-            temp_dir, uuid + '_source.framemd5'
-        )
-        files_to_move.append(source_textfile)
     # Just perform framemd5 at this stage
-    if args.rawcooked:
-        logfile = os.path.join(
-            temp_dir,
-            '%s_source_framemd5.log' % uuid
-        )
-        files_to_move.append(logfile)
-        logfile = "\'" + logfile + "\'"
-        source_framemd5_env_dict = ififuncs.set_environment(logfile)
-        source_framemd5_cmd = [
-            'ffmpeg', '-report',
-            '-f', 'image2',
-            '-framerate', fps,
-            '-start_number', start_number,
-            '-i', source_abspath,
-            '-pix_fmt', pix_fmt,
-            '-f', 'framemd5', source_textfile
-        ]
-        print(source_abspath)
-        rawcooked_logfile = os.path.join(
-            temp_dir, '%s_rawcooked.log' % uuid
-        )
-        normalisation_tool = ififuncs.get_rawcooked_version()
-        files_to_move.append(rawcooked_logfile)
-        rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
-        env_dict = ififuncs.set_environment(rawcooked_logfile)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
-        )
-        subprocess.call(source_framemd5_cmd, env=source_framemd5_env_dict)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
-        )
-        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
-        if args.audio:
-            rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
-        ffv12dpx = (rawcooked_cmd)
-        print(ffv12dpx)
-    elif args.zip:
+    rawcooked_logfile = os.path.join(
+        temp_dir, '%s_rawcooked.log' % uuid
+    )
+    normalisation_tool = ififuncs.get_rawcooked_version()
+    files_to_move.append(rawcooked_logfile)
+    rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
+    env_dict = ififuncs.set_environment(rawcooked_logfile)
+    rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
+    if args.audio:
+        rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
+    ffv12dpx = (rawcooked_cmd)
+    print(ffv12dpx)
+    if args.zip:
         uuid = ififuncs.create_uuid()
         # ugly hack until i recfactor. this is the zip_path, not ffv1_path
         ffv1_path = os.path.join(output_dirname, uuid + '.zip')
@@ -222,32 +196,6 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
         )
-    else:
-        logfile = os.path.join(
-            temp_dir,
-            '%s_ffv1_transcode.log' % uuid
-            )
-        files_to_move.append(logfile)
-        logfile = "\'" + logfile + "\'"
-        env_dict = ififuncs.set_environment(logfile)
-        ffv12dpx = [
-            'ffmpeg', '-report',
-            '-f', 'image2',
-            '-framerate', fps,
-            '-start_number', start_number,
-            '-i', source_abspath,
-            '-strict', '-2',
-            '-c:v', 'ffv1',
-            '-level', '3',
-            '-g', '1',
-            '-slicecrc', '1',
-            '-slices', '16',
-            '-pix_fmt', pix_fmt,
-            ffv1_path,
-            '-f', 'framemd5', source_textfile
-        ]
-        normalisation_tool = 'FFmpeg'
-        print(ffv12dpx)
     if not args.zip:
         ififuncs.generate_log(
             log_name_source,
@@ -260,87 +208,73 @@ def make_ffv1(
             'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
             % normalisation_tool
         )
-        ffv1_md5 = os.path.join(
-            temp_dir,
-            uuid + '_ffv1.framemd5'
-        )
-        files_to_move.append(ffv1_md5)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
-        )
-        ffv1_fmd5_cmd = [
-            'ffmpeg', '-report',
-            '-i', ffv1_path,
-            '-pix_fmt', pix_fmt,
-            '-f', 'framemd5',
-            ffv1_md5
-        ]
-        ffv1_fmd5_logfile = os.path.join(
-            temp_dir, '%s_ffv1_framemd5.log' % uuid
-        )
-        files_to_move.append(ffv1_fmd5_logfile)
-        ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
-        ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
-        subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
-        judgement = verify_losslessness(source_textfile, ffv1_md5)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
-        )
-    if not args.sip:
-        return judgement
+    sip_dir = os.path.join(
+        os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
+    )
+    inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
+    source_manifest = os.path.join(
+        args.o,
+        os.path.basename(args.i) + '_manifest-md5.txt'
+    )
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
+    )
+    ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
+    )
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibility of %s back to its original form, followed by checksum verification using %s ' % (normalisation_tool, ffv1_path, source_manifest)
+    )
+    if args.reversibility_dir:
+        reversibility_dir = args.reversibility_dir
     else:
-        sip_dir = os.path.join(
-            os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
-        )
-        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
-        supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml]
-        sipcreator_cmd = [
-            '-i',
-            ffv1_path,
-            '-u',
-            uuid,
-            '-quiet',
-            '-move',
-            '-user',
-            user,
-            '-oe',
-            object_entry,
-            '-o', os.path.dirname(ffv1_path)
-        ]
-        sipcreator_cmd.extend(supplement_cmd)
-        sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
-        logs_dir = os.path.join(sip_dir, 'logs')
-        metadata_dir = os.path.join(sip_dir, 'metadata')
+        reversibility_dir = args.o
+    judgement = reversibility_verification(ffv1_path, source_manifest, reversibility_dir)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, ffv1_path, source_manifest, judgement)
+    )
+    supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml, source_manifest]
+    sipcreator_cmd = [
+        '-i',
+        ffv1_path,
+        '-u',
+        uuid,
+        '-quiet',
+        '-move',
+        '-user',
+        user,
+        '-oe',
+        object_entry,
+        '-o', os.path.dirname(ffv1_path)
+    ]
+    sipcreator_cmd.extend(supplement_cmd)
+    sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
+    logs_dir = os.path.join(sip_dir, 'logs')
+    metadata_dir = os.path.join(sip_dir, 'metadata')
 
-        for files in files_to_move:
-            if files.endswith('.log'):
-                shutil.move(files, logs_dir)
-                ififuncs.manifest_update(
-                    sipcreator_manifest,
-                    os.path.join(logs_dir, os.path.basename(files))
-                )
-            elif files.endswith('.framemd5'):
-                shutil.move(files, metadata_dir)
-                ififuncs.manifest_update(
-                    sipcreator_manifest,
-                    os.path.join(metadata_dir, os.path.basename(files))
-                )
-        os.remove(dfxml)
-        os.remove(inputtracexml)
-        os.remove(inputxml)
-        return judgement, sipcreator_log, sipcreator_manifest
+    for files in files_to_move:
+        if files.endswith('.log'):
+            shutil.move(files, logs_dir)
+            ififuncs.manifest_update(
+                sipcreator_manifest,
+                os.path.join(logs_dir, os.path.basename(files))
+            )
+        elif files.endswith('.framemd5'):
+            shutil.move(files, metadata_dir)
+            ififuncs.manifest_update(
+                sipcreator_manifest,
+                os.path.join(metadata_dir, os.path.basename(files))
+            )
+    os.remove(dfxml)
+    os.remove(inputtracexml)
+    os.remove(inputxml)
+    return judgement, sipcreator_log, sipcreator_manifest
 
-def make_dfxml(args,new_uuid_path,uuid):
-    '''
-    Adds Digital Forensics XML of the source sequence
-    to the supplemental folder.
-    '''
-    metadata = os.path.join(new_uuid_path, 'metadata')
-    dfxml = os.path.join(metadata, uuid + '_dfxml.xml')
-    makedfxml.main([new_uuid_path, '-n', '-o', dfxml])
-    return dfxml
 
 def setup():
     '''
@@ -360,26 +294,17 @@ def setup():
         help='Destination directory'
     )
     parser.add_argument(
-        '-sip',
-        help='Run sipcreator.py on the resulting file.', action='store_true'
-    )
-    parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
     parser.add_argument(
         '-audio',
         help='Full path to audio file.')
     parser.add_argument(
-        '-rawcooked',
-        help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
-    )
+        '-reversibility_dir',
+        help='This argument requires the full path of the location that you want to use for the reversibility directory. By default, seq2ffv1 will use your output dir for storing the temporary reversibility files.')
     parser.add_argument(
         '-zip',
         help='Use makezip.py to generate an uncompressed zip file', action='store_true'
-    )
-    parser.add_argument(
-        '-short_test',
-        help='Perform a test on the first 24 frames that will encode via Rawcooked, then decode back to the original form, and the whole file checksums of the original 24 frames and the restored 24 frames are compared.', action='store_true'
     )
     args = parser.parse_args()
     return args
