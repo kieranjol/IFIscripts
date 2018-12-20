@@ -104,8 +104,7 @@ def run_loop(args):
             continue
         (ffmpeg_friendly_name,
          start_number, root_filename, fps) = ififuncs.parse_image_sequence(images)
-        if args.short_test:
-            short_test(images, args)
+        short_test(images, args)
         source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
         judgement = make_ffv1(
             start_number,
@@ -168,58 +167,20 @@ def make_ffv1(
     )
     temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
-    '''
-    if not args.zip:
-        source_textfile = os.path.join(
-            temp_dir, uuid + '_source.framemd5'
-        )
-        files_to_move.append(source_textfile)
-    '''
     # Just perform framemd5 at this stage
-    if args.rawcooked:
-        '''
-        logfile = os.path.join(
-            temp_dir,
-            '%s_source_framemd5.log' % uuid
-        )
-        files_to_move.append(logfile)
-        logfile = "\'" + logfile + "\'"
-        source_framemd5_env_dict = ififuncs.set_environment(logfile)
-        source_framemd5_cmd = [
-            'ffmpeg', '-report',
-            '-f', 'image2',
-            '-framerate', fps,
-            '-start_number', start_number,
-            '-i', source_abspath,
-            '-pix_fmt', pix_fmt,
-            '-f', 'framemd5', source_textfile
-        ]
-        print(source_abspath)
-        '''
-        rawcooked_logfile = os.path.join(
-            temp_dir, '%s_rawcooked.log' % uuid
-        )
-        normalisation_tool = ififuncs.get_rawcooked_version()
-        files_to_move.append(rawcooked_logfile)
-        rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
-        env_dict = ififuncs.set_environment(rawcooked_logfile)
-        '''
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
-        )
-        subprocess.call(source_framemd5_cmd, env=source_framemd5_env_dict)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of source'
-        )
-        '''
-        rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
-        if args.audio:
-            rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
-        ffv12dpx = (rawcooked_cmd)
-        print(ffv12dpx)
-    elif args.zip:
+    rawcooked_logfile = os.path.join(
+        temp_dir, '%s_rawcooked.log' % uuid
+    )
+    normalisation_tool = ififuncs.get_rawcooked_version()
+    files_to_move.append(rawcooked_logfile)
+    rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
+    env_dict = ififuncs.set_environment(rawcooked_logfile)
+    rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-o', ffv1_path]
+    if args.audio:
+        rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
+    ffv12dpx = (rawcooked_cmd)
+    print(ffv12dpx)
+    if args.zip:
         uuid = ififuncs.create_uuid()
         # ugly hack until i recfactor. this is the zip_path, not ffv1_path
         ffv1_path = os.path.join(output_dirname, uuid + '.zip')
@@ -244,31 +205,6 @@ def make_ffv1(
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
         )
-    else:
-        logfile = os.path.join(
-            temp_dir,
-            '%s_ffv1_transcode.log' % uuid
-            )
-        files_to_move.append(logfile)
-        logfile = "\'" + logfile + "\'"
-        env_dict = ififuncs.set_environment(logfile)
-        ffv12dpx = [
-            'ffmpeg', '-report',
-            '-f', 'image2',
-            '-framerate', fps,
-            '-start_number', start_number,
-            '-i', source_abspath,
-            '-strict', '-2',
-            '-c:v', 'ffv1',
-            '-level', '3',
-            '-g', '1',
-            '-slicecrc', '1',
-            '-slices', '16',
-            '-pix_fmt', pix_fmt,
-            ffv1_path,
-        ]
-        normalisation_tool = 'FFmpeg'
-        print(ffv12dpx)
     if not args.zip:
         ififuncs.generate_log(
             log_name_source,
@@ -281,37 +217,6 @@ def make_ffv1(
             'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
             % normalisation_tool
         )
-        
-        '''
-        ffv1_md5 = os.path.join(
-            temp_dir,
-            uuid + '_ffv1.framemd5'
-        )
-        files_to_move.append(ffv1_md5)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image'
-        )
-        ffv1_fmd5_cmd = [
-            'ffmpeg', '-report',
-            '-i', ffv1_path,
-            '-pix_fmt', pix_fmt,
-            '-f', 'framemd5',
-            ffv1_md5
-        ]
-        ffv1_fmd5_logfile = os.path.join(
-            temp_dir, '%s_ffv1_framemd5.log' % uuid
-        )
-        files_to_move.append(ffv1_fmd5_logfile)
-        ffv1_fmd5_logfile = "\'" + ffv1_fmd5_logfile + "\'"
-        ffv1_fmd5_env_dict = ififuncs.set_environment(ffv1_fmd5_logfile)
-        subprocess.call(ffv1_fmd5_cmd, env=ffv1_fmd5_env_dict)
-        judgement = verify_losslessness(source_textfile, ffv1_md5)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=Frame level checksums of image, eventOutcome=%s' % judgement
-        )
-        '''
     if not args.sip:
         return judgement
     else:
@@ -416,16 +321,8 @@ def setup():
         '-audio',
         help='Full path to audio file.')
     parser.add_argument(
-        '-rawcooked',
-        help='Use RAWcooked for the normalisation to FFV1/Matroska.', action='store_true'
-    )
-    parser.add_argument(
         '-zip',
         help='Use makezip.py to generate an uncompressed zip file', action='store_true'
-    )
-    parser.add_argument(
-        '-short_test',
-        help='Perform a test on the first 24 frames that will encode via Rawcooked, then decode back to the original form, and the whole file checksums of the original 24 frames and the restored 24 frames are compared.', action='store_true'
     )
     args = parser.parse_args()
     return args
