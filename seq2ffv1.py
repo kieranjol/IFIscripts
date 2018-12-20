@@ -74,13 +74,13 @@ def reversibility_verification(ffv1_mkv, source_manifest, reversibility_dir):
     return judgement
 def run_loop(args):
     '''
-    Launches a recursive loop to process all images sequences in your
-    subdirectories.
+    This will only process one sequence. Batch processing will come later.
     '''
     if args.user:
         user = args.user
     else:
         user = ififuncs.get_user()
+    object_entry = ififuncs.get_object_entry()
     log_name_source = os.path.join(
         args.o, '%s_seq2ffv1_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S")
     )
@@ -112,15 +112,14 @@ def run_loop(args):
             args,
             log_name_source,
             user,
+            object_entry
         )
-        if args.sip:
-            judgement, sipcreator_log, sipcreator_manifest = judgement
+        judgement, sipcreator_log, sipcreator_manifest = judgement
         verdicts.append([root_filename, judgement])
         for verdict in verdicts:
-            print("%-*s   : %s" % (50, verdict[0], verdict[1]))
+            print("%-*s   : %s" % (50, args.i, verdict[1]))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
-    if args.sip:
-        ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
+    ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
 
 def verify_losslessness(source_textfile, ffv1_md5):
@@ -142,20 +141,20 @@ def verify_losslessness(source_textfile, ffv1_md5):
                     else:
                         checksum_mismatches.append(1)
     return judgement
+
 def make_ffv1(
         source_abspath,
         output_dirname,
         args,
         log_name_source,
         user,
+        object_entry
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
     uuid = ififuncs.create_uuid()
-    if args.sip:
-        object_entry = ififuncs.get_object_entry()
     files_to_move = []
     temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
@@ -209,75 +208,72 @@ def make_ffv1(
             'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
             % normalisation_tool
         )
-    if not args.sip:
-        return judgement
+    sip_dir = os.path.join(
+        os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
+    )
+    inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
+    source_manifest = os.path.join(
+        args.o,
+        os.path.basename(args.i) + '_manifest-md5.txt'
+    )
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
+    )
+    ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
+    )
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibility of %s back to its original form, followed by checksum verification using %s ' % (normalisation_tool, ffv1_path, source_manifest)
+    )
+    if args.reversibility_dir:
+        reversibility_dir = args.reversibility_dir
     else:
-        sip_dir = os.path.join(
-            os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
-        )
-        inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
-        source_manifest = os.path.join(
-            args.o,
-            os.path.basename(args.i) + '_manifest-md5.txt'
-        )
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
-        )
-        ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
-        )
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=started, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibility of %s back to its original form, followed by checksum verification using %s ' % (normalisation_tool, ffv1_path, source_manifest)
-        )
-        if args.reversibility_dir:
-            reversibility_dir = args.reversibility_dir
-        else:
-            reversibility_dir = args.o
-        judgement = reversibility_verification(ffv1_path, source_manifest, reversibility_dir)
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, ffv1_path, source_manifest, judgement)
-        )
-        supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml, source_manifest]
-        sipcreator_cmd = [
-            '-i',
-            ffv1_path,
-            '-u',
-            uuid,
-            '-quiet',
-            '-move',
-            '-user',
-            user,
-            '-oe',
-            object_entry,
-            '-o', os.path.dirname(ffv1_path)
-        ]
-        sipcreator_cmd.extend(supplement_cmd)
-        sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
-        logs_dir = os.path.join(sip_dir, 'logs')
-        metadata_dir = os.path.join(sip_dir, 'metadata')
+        reversibility_dir = args.o
+    judgement = reversibility_verification(ffv1_path, source_manifest, reversibility_dir)
+    ififuncs.generate_log(
+        log_name_source,
+        'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, ffv1_path, source_manifest, judgement)
+    )
+    supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml, source_manifest]
+    sipcreator_cmd = [
+        '-i',
+        ffv1_path,
+        '-u',
+        uuid,
+        '-quiet',
+        '-move',
+        '-user',
+        user,
+        '-oe',
+        object_entry,
+        '-o', os.path.dirname(ffv1_path)
+    ]
+    sipcreator_cmd.extend(supplement_cmd)
+    sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
+    logs_dir = os.path.join(sip_dir, 'logs')
+    metadata_dir = os.path.join(sip_dir, 'metadata')
 
-        for files in files_to_move:
-            if files.endswith('.log'):
-                shutil.move(files, logs_dir)
-                ififuncs.manifest_update(
-                    sipcreator_manifest,
-                    os.path.join(logs_dir, os.path.basename(files))
-                )
-            elif files.endswith('.framemd5'):
-                shutil.move(files, metadata_dir)
-                ififuncs.manifest_update(
-                    sipcreator_manifest,
-                    os.path.join(metadata_dir, os.path.basename(files))
-                )
-        os.remove(dfxml)
-        os.remove(inputtracexml)
-        os.remove(inputxml)
-        return judgement, sipcreator_log, sipcreator_manifest
+    for files in files_to_move:
+        if files.endswith('.log'):
+            shutil.move(files, logs_dir)
+            ififuncs.manifest_update(
+                sipcreator_manifest,
+                os.path.join(logs_dir, os.path.basename(files))
+            )
+        elif files.endswith('.framemd5'):
+            shutil.move(files, metadata_dir)
+            ififuncs.manifest_update(
+                sipcreator_manifest,
+                os.path.join(metadata_dir, os.path.basename(files))
+            )
+    os.remove(dfxml)
+    os.remove(inputtracexml)
+    os.remove(inputxml)
+    return judgement, sipcreator_log, sipcreator_manifest
 
 
 def setup():
@@ -296,10 +292,6 @@ def setup():
     parser.add_argument(
         '-o',
         help='Destination directory'
-    )
-    parser.add_argument(
-        '-sip',
-        help='Run sipcreator.py on the resulting file.', action='store_true'
     )
     parser.add_argument(
         '-user',
