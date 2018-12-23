@@ -62,9 +62,9 @@ def short_test(images, args):
     restored_dir = os.path.join(rawcooked_dir, temp_uuid)
     restored_manifest = os.path.join(restored_dir, '456.md5')
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
-    ififuncs.diff_textfiles(converted_manifest, restored_manifest)
+    return ififuncs.diff_textfiles(converted_manifest, restored_manifest)
 
-def reversibility_verification(ffv1_mkv, source_manifest, reversibility_dir):
+def reversibility_verification(objects, source_manifest, reversibility_dir):
     '''
     Restore the MKV back to DPX, create a checksum, and compare to source DPX
     checksums.
@@ -73,7 +73,8 @@ def reversibility_verification(ffv1_mkv, source_manifest, reversibility_dir):
     temp_uuid = ififuncs.create_uuid()
     temp_dir = os.path.join(reversibility_dir, temp_uuid)
     os.makedirs(temp_dir)
-    subprocess.call(['rawcooked', ffv1_mkv, '-o', temp_dir])
+    for ffv1_mkv in objects:
+        subprocess.call(['rawcooked', ffv1_mkv, '-o', temp_dir])
     converted_manifest = os.path.join(temp_dir, '123.md5')
     ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, source_manifest)
@@ -118,9 +119,16 @@ def run_loop(args):
         images = [source_directory]
     reel_number = 1
     objects = []
+    short_test_reports = []
     for reel in images:
         print images
-        short_test(reel, args)
+        short_test_reports.append(short_test(reel, args))
+        for i in short_test_reports:
+            print(' - 24 frame reversibility test for %s is %s' % (os.path.basename(reel), i))
+            if i == 'lossy':
+                print('It appears that this sequence is not reversible - exiting')
+                sys.exit()
+        time.sleep(2)
         ffv1_path, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, rawcooked_logfile = make_ffv1(
             reel,
             output_dirname,
@@ -241,7 +249,7 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
         log_name_source,
         'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
     )
-    ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
+    ififuncs.hashlib_manifest(args.i, source_manifest, args.i)
     ififuncs.generate_log(
         log_name_source,
         'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
@@ -254,8 +262,8 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
         reversibility_dir = args.reversibility_dir
     else:
         reversibility_dir = args.o
-    for mkv_file in objects:
-        judgement = reversibility_verification(mkv_file, source_manifest, reversibility_dir)
+
+    judgement = reversibility_verification(objects, source_manifest, reversibility_dir)
     ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, objects, source_manifest, judgement)
