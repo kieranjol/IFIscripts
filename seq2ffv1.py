@@ -25,6 +25,7 @@ import argparse
 import tempfile
 import shutil
 import time
+import sys
 import ififuncs
 import sipcreator
 import makezip
@@ -97,27 +98,25 @@ def run_loop(args):
         'EVENT = agentName=%s' % user
     )
     verdicts = []
-    for source_directory, _, _ in os.walk(args.i):
-        output_dirname = args.o
-        images = ififuncs.get_image_sequence_files(source_directory)
-        if images == 'none':
-            continue
-        (ffmpeg_friendly_name,
-         _, root_filename, _) = ififuncs.parse_image_sequence(images)
-        short_test(images, args)
-        source_abspath = os.path.join(source_directory, ffmpeg_friendly_name)
-        judgement = make_ffv1(
-            source_abspath,
-            output_dirname,
-            args,
-            log_name_source,
-            user,
-            object_entry
-        )
-        judgement, sipcreator_log, sipcreator_manifest = judgement
-        verdicts.append([root_filename, judgement])
-        for verdict in verdicts:
-            print("%-*s   : %s" % (50, args.i, verdict[1]))
+    output_dirname = args.o
+    source_directory = args.i
+    images = ififuncs.get_image_sequence_files(source_directory)
+    if images == 'none':
+        print('no images found in directory')
+        sys.exit()
+    short_test(images, args)
+    judgement = make_ffv1(
+        source_directory,
+        output_dirname,
+        args,
+        log_name_source,
+        user,
+        object_entry
+    )
+    judgement, sipcreator_log, sipcreator_manifest = judgement
+    verdicts.append([source_directory, judgement])
+    for verdict in verdicts:
+        print("%-*s   : %s" % (50, args.i, verdict[1]))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
     ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
@@ -156,7 +155,6 @@ def make_ffv1(
     '''
     uuid = ififuncs.create_uuid()
     files_to_move = []
-    temp_dir = tempfile.gettempdir()
     ffv1_path = os.path.join(output_dirname, uuid + '.mkv')
     # Just perform framemd5 at this stage
     rawcooked_logfile = os.path.join(
@@ -166,7 +164,7 @@ def make_ffv1(
     files_to_move.append(rawcooked_logfile)
     rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
     env_dict = ififuncs.set_environment(rawcooked_logfile)
-    rawcooked_cmd = ['rawcooked', os.path.dirname(source_abspath), '--check', 'full', '-c:a', 'copy', '-o', ffv1_path]
+    rawcooked_cmd = ['rawcooked', source_abspath, '--check', 'full', '-c:a', 'copy', '-o', ffv1_path]
     if args.audio:
         rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
     ffv12dpx = (rawcooked_cmd)
@@ -177,10 +175,10 @@ def make_ffv1(
         ffv1_path = os.path.join(output_dirname, uuid + '.zip')
         ififuncs.generate_log(
             log_name_source,
-            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % os.path.dirname(source_abspath)
+            'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % source_abspath
         )
         makezip_judgement = makezip.main([
-            '-i', os.path.dirname(source_abspath),
+            '-i', source_abspath,
             '-o', output_dirname,
             '-basename', os.path.basename(ffv1_path)
         ])[0]
@@ -211,7 +209,7 @@ def make_ffv1(
     sip_dir = os.path.join(
         os.path.dirname(ffv1_path), os.path.join(object_entry, uuid)
     )
-    inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(os.path.dirname(source_abspath), args.o, uuid, log_name_source)
+    inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(source_abspath, args.o, uuid, log_name_source)
     source_manifest = os.path.join(
         args.o,
         os.path.basename(args.i) + '_manifest-md5.txt'
