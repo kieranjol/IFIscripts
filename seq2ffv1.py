@@ -107,21 +107,23 @@ def run_loop(args):
     )
     uuid = ififuncs.create_uuid()
     verdicts = []
+    multi_reeler = False
     output_dirname = args.o
     source_directory = args.i
     images = ififuncs.get_image_sequence_files(source_directory)
     if images == 'none':
         print('no images found in directory - checking for multi-reel sequence')
         images = ififuncs.check_multi_reel(source_directory)
+        multi_reeler = True
         if images == 'none':
             sys.exit()
-    if len(images) == 1:
+    # this is checking for a single reeler.
+    else:
         images = [source_directory]
     reel_number = 1
     objects = []
     short_test_reports = []
     for reel in images:
-        print images
         short_test_reports.append(short_test(reel, args))
         for i in short_test_reports:
             print(' - 24 frame reversibility test for %s is %s' % (os.path.basename(reel), i))
@@ -141,7 +143,7 @@ def run_loop(args):
         )
         objects.append(ffv1_path)
         reel_number += 1
-    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile)
+    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile, multi_reeler)
     judgement, sipcreator_log, sipcreator_manifest = judgement
     verdicts.append([source_directory, judgement])
     for verdict in verdicts:
@@ -236,7 +238,8 @@ def make_ffv1(
             % normalisation_tool
         )
     return ffv1_path, object_entry, uuid, reel, args, log_name_source, normalisation_tool, rawcooked_logfile
-def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile):
+
+def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile,multi_reeler):
     sip_dir = os.path.join(
         args.o, os.path.join(object_entry, uuid)
     )
@@ -249,7 +252,10 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
         log_name_source,
         'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
     )
-    ififuncs.hashlib_manifest(args.i, source_manifest, args.i)
+    if multi_reeler:
+        ififuncs.hashlib_manifest(args.i, source_manifest, args.i)
+    else:
+        ififuncs.hashlib_manifest(args.i, source_manifest, os.path.dirname(args.i))
     ififuncs.generate_log(
         log_name_source,
         'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files'
