@@ -2,29 +2,15 @@
 
 '''
 Usage: seq2ffv1.py source_parent_directory output_directory
-The script will look through all subdirectories beneath the
-source_parent_directory for a DPX or image sequence.
+The script will fnd a single reel, multi-reel (with or without sidecar WAV)
+image sequence beneath the source_parent_directory.
 The script will then:
-Create folder structure for each image sequence in
+* Create a folder structure for each image sequence in
 your designated output_directory.
-Create framemd5 values of the source sequence
-Transcode to a single FFV1 in Matroska file
-Create framemd5 values for the FFV1 in Matroska file
-Verify losslessness
-(There will most likely be a warning about pixel aspect ratio
-- https://www.ietf.org/mail-archive/web/cellar/current/msg00739.html)
-
-the rawcooked option should just replace the ffmpeg encode with rawcooked
-then perform the same losslessness checks via framemd5.
-however there should be a whole file md5 option, and a basic test
-that just tests the md5s of the first 24 frames.
-
-
-multi-reel
-loop through eachdir, use
-uuid_reeln.mkv
-
-same for short_test
+* Transcode to a single FFV1 in Matroska file, or multiple Matroska files
+for multi-reel films.
+* Verify losslessness by fully reversing the FFV1/MKV file and validating
+the source checksums.
 '''
 import subprocess
 import os
@@ -43,12 +29,11 @@ def short_test(images):
     then decode back to the original form,
     and the whole file checksums of the original 24 frames
     and the restored 24 frames are compared.
-    maybe all that needs to happen is that 24 frames are copied to a temp
-    location, then the functions run, and use ififuncs to check the sums
     '''
     temp_uuid = ififuncs.create_uuid()
     temp_dir = os.path.join(tempfile.gettempdir(), temp_uuid)
     os.makedirs(temp_dir)
+    # Only analyse the first 24 frames.
     for image in sorted(os.listdir(images))[:24]:
         full_path = os.path.join(images, image)
         shutil.copy(full_path, temp_dir)
@@ -81,6 +66,7 @@ def reversibility_verification(objects, source_manifest, reversibility_dir):
     print(' - Deleting temp directory %s' % temp_dir)
     shutil.rmtree(temp_dir)
     return judgement
+
 def run_loop(args):
     '''
     This will only process one sequence. Batch processing will come later.
@@ -108,7 +94,6 @@ def run_loop(args):
     uuid = ififuncs.create_uuid()
     verdicts = []
     multi_reeler = False
-    output_dirname = args.o
     source_directory = args.i
     images = ififuncs.get_image_sequence_files(source_directory)
     if images == 'none':
@@ -131,12 +116,10 @@ def run_loop(args):
                 print('It appears that this sequence is not reversible - exiting')
                 sys.exit()
         time.sleep(2)
-        ffv1_path, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, rawcooked_logfile = make_ffv1(
+        ffv1_path, source_abspath, args, log_name_source, normalisation_tool, rawcooked_logfile = make_ffv1(
             reel,
-            output_dirname,
             args,
             log_name_source,
-            object_entry,
             reel_number,
             uuid,
             multi_reeler
@@ -174,10 +157,8 @@ def verify_losslessness(source_textfile, ffv1_md5):
 
 def make_ffv1(
         reel,
-        output_dirname,
         args,
         log_name_source,
-        object_entry,
         reel_number,
         uuid,
         multi_reeler
@@ -186,6 +167,7 @@ def make_ffv1(
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
+    output_dirname = args.o
     if multi_reeler:
         mkv_basename = uuid + '_reel%s.mkv' % str(reel_number)
     else:
@@ -238,9 +220,12 @@ def make_ffv1(
             'EVENT = normalisation, status=finshed, eventType=Creation, agentName=%s, eventDetail=Image sequence normalised to FFV1 in a Matroska container'
             % normalisation_tool
         )
-    return ffv1_path, object_entry, uuid, reel, args, log_name_source, normalisation_tool, rawcooked_logfile
+    return ffv1_path, reel, args, log_name_source, normalisation_tool, rawcooked_logfile
 
-def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile,multi_reeler):
+def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile, multi_reeler):
+    '''
+    Package the MKV using sipcreator.py
+    '''
     sip_dir = os.path.join(
         args.o, os.path.join(object_entry, uuid)
     )
@@ -342,7 +327,6 @@ def main():
     '''
     args = setup()
     run_loop(args)
-
 
 if __name__ == '__main__':
     main()
