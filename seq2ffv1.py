@@ -37,7 +37,7 @@ import ififuncs
 import sipcreator
 import makezip
 
-def short_test(images, args):
+def short_test(images):
     '''
     Perform a test on the first 24 frames that will encode via Rawcooked,
     then decode back to the original form,
@@ -124,7 +124,7 @@ def run_loop(args):
     objects = []
     short_test_reports = []
     for reel in images:
-        short_test_reports.append(short_test(reel, args))
+        short_test_reports.append(short_test(reel))
         for i in short_test_reports:
             print(' - 24 frame reversibility test for %s is %s' % (os.path.basename(reel), i))
             if i == 'lossy':
@@ -136,10 +136,10 @@ def run_loop(args):
             output_dirname,
             args,
             log_name_source,
-            user,
             object_entry,
             reel_number,
             uuid,
+            multi_reeler
         )
         objects.append(ffv1_path)
         reel_number += 1
@@ -177,16 +177,19 @@ def make_ffv1(
         output_dirname,
         args,
         log_name_source,
-        user,
         object_entry,
         reel_number,
-        uuid
+        uuid,
+        multi_reeler
     ):
     '''
     This launches the image sequence to FFV1/Matroska process
     as well as framemd5 losslessness verification.
     '''
-    mkv_basename = uuid + '_reel%s.mkv' % str(reel_number)
+    if multi_reeler:
+        mkv_basename = uuid + '_reel%s.mkv' % str(reel_number)
+    else:
+        mkv_basename = uuid + '.mkv'
     ffv1_path = os.path.join(output_dirname, mkv_basename)
     # Just perform framemd5 at this stage
     rawcooked_logfile = os.path.join(
@@ -196,8 +199,6 @@ def make_ffv1(
     rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
     env_dict = ififuncs.set_environment(rawcooked_logfile)
     rawcooked_cmd = ['rawcooked', reel, '--check', 'full', '-c:a', 'copy', '-o', ffv1_path]
-    if args.audio:
-        rawcooked_cmd.extend([args.audio, '-c:a', 'copy'])
     ffv12dpx = (rawcooked_cmd)
     print(ffv12dpx)
     if args.zip:
@@ -294,7 +295,6 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
     sipcreator_cmd.extend(supplement_cmd)
     sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
     logs_dir = os.path.join(sip_dir, 'logs')
-    metadata_dir = os.path.join(sip_dir, 'metadata')
     rawcooked_logfile = rawcooked_logfile.replace('\'', '')
     shutil.move(rawcooked_logfile, logs_dir)
     ififuncs.manifest_update(
@@ -326,9 +326,6 @@ def setup():
     parser.add_argument(
         '-user',
         help='Declare who you are. If this is not set, you will be prompted.')
-    parser.add_argument(
-        '-audio',
-        help='Full path to audio file.')
     parser.add_argument(
         '-reversibility_dir',
         help='This argument requires the full path of the location that you want to use for the reversibility directory. By default, seq2ffv1 will use your output dir for storing the temporary reversibility files.')
