@@ -24,6 +24,7 @@ import sipcreator
 import makezip
 import deletefiles
 
+pwd = os.path.dirname(os.path.abspath(sys.argv[0]))
 def short_test(images):
     '''
     Perform a test on the first 24 frames that will encode via Rawcooked,
@@ -291,6 +292,13 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
         ififuncs.manifest_update(
             sipcreator_manifest,
             os.path.join(logs_dir, os.path.basename(rawcooked_logfile))
+        )
+    metadata_dir = os.path.join(sip_dir, 'metadata')
+    os.chdir(pwd)
+    shutil.copy(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'film_scan_aip_documentation.txt'), metadata_dir)
+    ififuncs.manifest_update(
+            sipcreator_manifest,
+            os.path.join(metadata_dir, 'film_scan_aip_documentation.txt')
         )
     os.remove(dfxml)
     os.remove(inputtracexml)
