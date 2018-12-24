@@ -15,7 +15,7 @@ parent_directory - either OE (oe##### - Object_Entry Spectrum Collections Manage
 Example tree structure and explanation for a film scan normalised to FFV1/Matroska via seq2ffv1.py. 
 Additional files appear when the accession/batchaccession process runs.
 
-/home/kieran110s/test_files/oe0001 | parent_directory
+oe0001 | parent_directory
 ├── da990f5e-9846-4a8c-9792-3ee677d50591 |uuid_directory
 │   ├── logs | directory for logs generated via IFIscripts
 │   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel3.mkv_rawcooked.log | rawcooked_log via ffmpeg

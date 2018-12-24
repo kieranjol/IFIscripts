@@ -24,7 +24,6 @@ import sipcreator
 import makezip
 import deletefiles
 
-pwd = os.path.dirname(os.path.abspath(sys.argv[0]))
 def short_test(images):
     '''
     Perform a test on the first 24 frames that will encode via Rawcooked,
@@ -73,6 +72,7 @@ def run_loop(args):
     '''
     This will only process one sequence. Batch processing will come later.
     '''
+    current_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     if args.user:
         user = args.user
     else:
@@ -130,7 +130,7 @@ def run_loop(args):
         objects.append(ffv1_path)
         rawcooked_logfiles.append(rawcooked_logfile)
         reel_number += 1
-    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler)
+    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler, current_dir)
     judgement, sipcreator_log, sipcreator_manifest = judgement
     verdicts.append([source_directory, judgement])
     for verdict in verdicts:
@@ -225,7 +225,7 @@ def make_ffv1(
         )
     return ffv1_path, reel, args, log_name_source, normalisation_tool, rawcooked_logfile
 
-def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler):
+def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler, current_dir):
     '''
     Package the MKV using sipcreator.py
     '''
@@ -285,7 +285,7 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
     logs_dir = os.path.join(sip_dir, 'logs')
     for files in os.listdir(logs_dir):
         if files.endswith('.md5'):
-            deletefiles.main(['-i', os.path.join(logs_dir,files), '-uuid_path', sip_dir, '-user', user])
+            deletefiles.main(['-i', os.path.join(logs_dir, files), '-uuid_path', sip_dir, '-user', user])
     for rawcooked_logfile in rawcooked_logfiles:
         rawcooked_logfile = rawcooked_logfile.replace('\'', '')
         shutil.move(rawcooked_logfile, logs_dir)
@@ -294,12 +294,12 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
             os.path.join(logs_dir, os.path.basename(rawcooked_logfile))
         )
     metadata_dir = os.path.join(sip_dir, 'metadata')
-    os.chdir(pwd)
+    os.chdir(current_dir)
     shutil.copy(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'film_scan_aip_documentation.txt'), metadata_dir)
     ififuncs.manifest_update(
-            sipcreator_manifest,
-            os.path.join(metadata_dir, 'film_scan_aip_documentation.txt')
-        )
+        sipcreator_manifest,
+        os.path.join(metadata_dir, 'film_scan_aip_documentation.txt')
+    )
     os.remove(dfxml)
     os.remove(inputtracexml)
     os.remove(inputxml)
