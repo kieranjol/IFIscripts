@@ -109,6 +109,7 @@ def run_loop(args):
     reel_number = 1
     objects = []
     short_test_reports = []
+    rawcooked_logfiles = []
     for reel in images:
         short_test_reports.append(short_test(reel))
         for i in short_test_reports:
@@ -126,8 +127,9 @@ def run_loop(args):
             multi_reeler
         )
         objects.append(ffv1_path)
+        rawcooked_logfiles.append(rawcooked_logfile)
         reel_number += 1
-    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile, multi_reeler)
+    judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler)
     judgement, sipcreator_log, sipcreator_manifest = judgement
     verdicts.append([source_directory, judgement])
     for verdict in verdicts:
@@ -174,7 +176,6 @@ def make_ffv1(
     else:
         mkv_basename = uuid + '.mkv'
     ffv1_path = os.path.join(output_dirname, mkv_basename)
-    # Just perform framemd5 at this stage
     rawcooked_logfile = os.path.join(
         args.o, '%s_rawcooked.log' % mkv_basename
     )
@@ -223,7 +224,7 @@ def make_ffv1(
         )
     return ffv1_path, reel, args, log_name_source, normalisation_tool, rawcooked_logfile
 
-def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfile, multi_reeler):
+def package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler):
     '''
     Package the MKV using sipcreator.py
     '''
@@ -284,12 +285,13 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
     for files in os.listdir(logs_dir):
         if files.endswith('.md5'):
             deletefiles.main(['-i', os.path.join(logs_dir,files), '-uuid_path', sip_dir, '-user', user])
-    rawcooked_logfile = rawcooked_logfile.replace('\'', '')
-    shutil.move(rawcooked_logfile, logs_dir)
-    ififuncs.manifest_update(
-        sipcreator_manifest,
-        os.path.join(logs_dir, os.path.basename(rawcooked_logfile))
-    )
+    for rawcooked_logfile in rawcooked_logfiles:
+        rawcooked_logfile = rawcooked_logfile.replace('\'', '')
+        shutil.move(rawcooked_logfile, logs_dir)
+        ififuncs.manifest_update(
+            sipcreator_manifest,
+            os.path.join(logs_dir, os.path.basename(rawcooked_logfile))
+        )
     os.remove(dfxml)
     os.remove(inputtracexml)
     os.remove(inputxml)
