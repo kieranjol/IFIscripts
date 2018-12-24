@@ -22,6 +22,7 @@ import sys
 import ififuncs
 import sipcreator
 import makezip
+import deletefiles
 
 def short_test(images):
     '''
@@ -280,6 +281,9 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
     sipcreator_cmd.extend(supplement_cmd)
     sipcreator_log, sipcreator_manifest = sipcreator.main(sipcreator_cmd)
     logs_dir = os.path.join(sip_dir, 'logs')
+    for files in os.listdir(logs_dir):
+        if files.endswith('.md5'):
+            deletefiles.main(['-i', os.path.join(logs_dir,files), '-uuid_path', sip_dir, '-user', user])
     rawcooked_logfile = rawcooked_logfile.replace('\'', '')
     shutil.move(rawcooked_logfile, logs_dir)
     ififuncs.manifest_update(
