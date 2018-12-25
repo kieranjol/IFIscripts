@@ -48,7 +48,14 @@ def short_test(images):
     restored_dir = os.path.join(rawcooked_dir, temp_uuid)
     restored_manifest = os.path.join(restored_dir, '456.md5')
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
-    return ififuncs.diff_textfiles(converted_manifest, restored_manifest)
+    judgement = ififuncs.diff_textfiles(converted_manifest, restored_manifest)
+    print(' - Deleting temp directory %s' % temp_dir)
+    shutil.rmtree(temp_dir)
+    print(' - Deleting temp reversibility directory %s' % rawcooked_dir)
+    shutil.rmtree(rawcooked_dir)
+    print(' - Deleting temp FFV1/MKV %s' % mkv_file)
+    os.remove(mkv_file)
+    return judgement
 
 def reversibility_verification(objects, source_manifest, reversibility_dir):
     '''
