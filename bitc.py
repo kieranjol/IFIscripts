@@ -59,6 +59,11 @@ def set_options():
         help='Yet Another DeInterlace Filter'
     )
     parser.add_argument(
+        '-middle',
+        action='store_true',
+        help='Put timecode in the middle'
+    )
+    parser.add_argument(
         '-crf',
         help='Set quality. Default is 23, lower number ='
         ' large file/high quality, high number = small file/poor quality'
@@ -196,8 +201,12 @@ def setup_drawtext(args, filename):
         elif sys.platform == "win32":
             timecode_test = timecode_test_raw.replace(':', '\\:').rstrip()
     # This removes the new line character from the framemrate.
-    timecode_option = "drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2" % (font_path, font_size, timecode_test, framerate)
-    watermark_option = "drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4"  % (font_path, watermark_size)
+    if args.middle:
+        timecode_option = "drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=(h-text_h)/2" % (font_path, font_size, timecode_test, framerate)
+        watermark_option = "drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':x=(w-text_w)/2:y=h/1.2:fontsize=%s:alpha=0.4"  % (font_path, watermark_size)
+    else:
+        timecode_option = "drawtext=%s:fontcolor=white:fontsize=%s:timecode=%s:rate=%s:boxcolor=0x000000AA:box=1:x=(w-text_w)/2:y=h/1.2" % (font_path, font_size, timecode_test, framerate)
+        watermark_option = "drawtext=%s:fontcolor=white:text='IFI IRISH FILM ARCHIVE':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=%s:alpha=0.4"  % (font_path, watermark_size)
     bitc_watermark = timecode_option + ',' + watermark_option
     if args.timecode:
         return timecode_option
