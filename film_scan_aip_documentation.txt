@@ -4,9 +4,9 @@ Changelog: v1.1 - temporary manifests removed from logs_directory.
 
 parent_directory - either OE (oe##### - Object_Entry Spectrum Collections Management( Identifier or Accession Number (aaa####)
 ├── uuid_directory - this directory contains the AIP. The identifier is  for the entire representation/package.
-│   ├── logs - logs that are generated via IFIscripts. This can include process logs for ffmpeg/rawcooked and other tools. 
+│   ├── logs - logs that are generated via IFIscripts. This can include process logs for FFmpeg/rawcooked and other tools.
 │   │   └── uuid_sip_log.log - the most important log - this is a rolling log for all processes that IFIscripts will execute.
-│   ├── metadata - for AV objects - mediainfo and mediatrace XML files. For non-AV objects, Siegfriend/PRONOM and EXIFTOOL JSON reports. Once the package is accessioned, there will be a Digital Forensics XML minus the hashes. This will also contain PBCore/Technical metadata CSV and IFI Filmograpic CSV in the accessioned package.
+│   ├── metadata - for AV objects - mediainfo and mediatrace XML files. For non-AV objects, Siegfried/PRONOM and EXIFTOOL JSON reports. Once the package is accessioned, there will be a Digital Forensics XML minus the hashes. This will also contain PBCore/Technical metadata CSV and IFI Filmographic CSV in the accessioned package.
 │   │   └── supplemental - For normalised objects, checksum manifests, mediainfo, mediatrace and Digital Forensics XML regarding the source object.
 │   └── objects - the actual focus of preservation. 
 └── uuid_directory_manifest.md5 - MD5 manifest for entire package.
