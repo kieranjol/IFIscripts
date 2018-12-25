@@ -271,6 +271,8 @@ def package(objects, object_entry, uuid, source_abspath, args, log_name_source, 
         'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=%s, eventDetail=Full reversibilty of %s back to its original form, followed by checksum verification using %s , eventOutcome=%s' % (normalisation_tool, objects, source_manifest, judgement)
     )
     supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml, source_manifest]
+    if args.supplement:
+        supplement_cmd.extend(args.supplement)
     sipcreator_cmd = [
         '-i',
     ]
@@ -338,6 +340,10 @@ def setup():
     parser.add_argument(
         '-zip',
         help='Use makezip.py to generate an uncompressed zip file', action='store_true'
+    )
+    parser.add_argument(
+        '-supplement', nargs='+',
+        help='Enter the full path of files or folders that are to be added to the supplemental subfolder within the metadata folder. Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
     )
     args = parser.parse_args()
     return args
