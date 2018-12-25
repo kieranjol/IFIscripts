@@ -59,12 +59,12 @@ def main():
         '-f', 'lavfi', '-i', 'sine', '-ac', '2', '-c:a', 'pcm_s24le', '-t', '20', os.path.join(reel1, 'ten_bit_reel1.wav')
         ]
     reel2_cmd = [
-        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc',
+        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc2',
         '-pix_fmt', 'gbrp10le', '-t', '20', os.path.join(reel2, 'ten_bit_reel2_%06d.dpx'),
         '-f', 'lavfi', '-i', 'sine', '-ac', '2', '-c:a', 'pcm_s24le', '-t', '20', os.path.join(reel2, 'ten_bit_reel2.wav')
         ]
     reel3_cmd = [
-        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc',
+        'ffmpeg', '-f', 'lavfi', '-i', 'mandelbrot',
         '-pix_fmt', 'gbrp10le', '-t', '20', os.path.join(reel3, 'ten_bit_reel3_%06d.dpx'),
         '-f', 'lavfi', '-i', 'sine', '-ac', '2', '-c:a', 'pcm_s24le', '-t', '20', os.path.join(reel3, 'ten_bit_reel3.wav')
         ]
