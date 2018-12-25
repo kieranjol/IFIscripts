@@ -54,7 +54,8 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'future',
        'clairmeta'
     ],
+    data_files=[('', ['film_scan_aip_documentation.txt', '26_XYZ-22_Rec709.cube'])],
+    include_package_data=True,
     name='ifiscripts',
-    version='v2018.12.25.1',
-    include_package_data=True
+    version='v2018.12.25.3',
 )
