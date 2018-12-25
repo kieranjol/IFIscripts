@@ -54,6 +54,6 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
        'clairmeta'
     ],
     name='ifiscripts',
-    version='v2018.12.02',
+    version='v2018.12.25',
     include_package_data=True
 )
