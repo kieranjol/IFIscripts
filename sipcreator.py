@@ -449,7 +449,7 @@ def main(args_):
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
         )
     else:
-        log_names = move_files(inputs, sip_path, args)
+        log_names = move_files(inputs, sip_path, args, user)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
