@@ -99,7 +99,7 @@ def consolidate_logs(lognames, path):
                 log_object.write(lines)
 
 
-def move_files(inputs, sip_path, args):
+def move_files(inputs, sip_path, args, user):
     '''
     Runs moveit.py on all inputs
     '''
@@ -110,7 +110,28 @@ def move_files(inputs, sip_path, args):
             cmd.append('-move')
         log_name = copyit.main(cmd)
         log_names.append(log_name)
-    consolidate_logs(log_names, sip_path)
+        if args.rename_uuid:
+            if os.path.isfile(item):
+                objects_dir = os.path.join(sip_path, 'objects')
+                uuid = os.path.basename(sip_path)
+                old_basename, ext = os.path.splitext(item)
+                new_path = os.path.join(objects_dir, uuid + ext)
+                os.rename(os.path.join(objects_dir, os.path.basename(item)), new_path)
+                manifest = os.path.join(os.path.dirname(new_path), os.path.basename(item)) + '_manifest.md5'
+                updated_lines = []
+                ififuncs.generate_log(
+                    log_name,
+                    'EVENT = Filename change - eventDetail=original filename replaced with uuid, eventOutcomeDetailNote=%s replaced with %s, agentName=%s, agentName=sipcreator.py))' % (os.path.basename(item), uuid + ext, user))
+                with open(manifest, 'r') as file_object:
+                    checksums = file_object.readlines()
+                    for line in checksums:
+                        if os.path.basename(item) in line:
+                            line = line.replace(os.path.basename(item), os.path.basename(new_path))
+                            updated_lines.append(line)
+                with open(manifest, 'w') as fo:
+                    for lines in updated_lines:
+                        fo.write(lines)
+                consolidate_logs(log_names, sip_path)
     return log_names
 
 
@@ -163,6 +184,10 @@ def parse_args(args_):
     parser.add_argument(
         '-u', '-uuid',
         help='Use a pre-existing UUID instead of a newly generated UUID.'
+    )
+    parser.add_argument(
+        '-rename_uuid', action='store_true',
+        help='Use with caution! This will rename an object with a randonly generated UUID'
     )
     parser.add_argument(
         '-user',
@@ -424,7 +449,7 @@ def main(args_):
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=makezip.py, eventDetail=embedded crc32 checksum validation, eventOutcome=%s' % judgement
         )
     else:
-        log_names = move_files(inputs, sip_path, args)
+        log_names = move_files(inputs, sip_path, args, user)
     ififuncs.get_technical_metadata(sip_path, new_log_textfile)
     ififuncs.hashlib_manifest(
         metadata_dir, metadata_dir + '/metadata_manifest.md5', metadata_dir
