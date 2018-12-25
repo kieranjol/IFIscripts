@@ -1,0 +1,45 @@
+v1.1 Image Sequence AIP
+This textfile - Generic description of the features of the Archival Information Package.
+Changelog: v1.1 - temporary manifests removed from logs_directory.
+
+parent_directory - either OE (oe##### - Object_Entry Spectrum Collections Management( Identifier or Accession Number (aaa####)
+├── uuid_directory - this directory contains the AIP. The identifier is  for the entire representation/package.
+│   ├── logs - logs that are generated via IFIscripts. This can include process logs for FFmpeg/rawcooked and other tools.
+│   │   └── uuid_sip_log.log - the most important log - this is a rolling log for all processes that IFIscripts will execute.
+│   ├── metadata - for AV objects - mediainfo and mediatrace XML files. For non-AV objects, Siegfried/PRONOM and EXIFTOOL JSON reports. Once the package is accessioned, there will be a Digital Forensics XML minus the hashes. This will also contain PBCore/Technical metadata CSV and IFI Filmographic CSV in the accessioned package.
+│   │   └── supplemental - For normalised objects, checksum manifests, mediainfo, mediatrace and Digital Forensics XML regarding the source object.
+│   └── objects - the actual focus of preservation. 
+└── uuid_directory_manifest.md5 - MD5 manifest for entire package.
+└── uuid_directory_manifest-sha512.txt - This will only be generated at the accessioning phase. SHA512 manifest for the entire package.
+
+Example tree structure and explanation for a film scan normalised to FFV1/Matroska via seq2ffv1.py. 
+Additional files appear when the accession/batchaccession process runs.
+
+oe0001 | parent_directory
+├── da990f5e-9846-4a8c-9792-3ee677d50591 |uuid_directory
+│   ├── logs | directory for logs generated via IFIscripts
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel3.mkv_rawcooked.log | rawcooked_log via ffmpeg
+│   │   └── da990f5e-9846-4a8c-9792-3ee677d50591_sip_log.log | central log for all IFIscripts processes
+│   ├── metadata | directory for metadata
+│   │   ├── aaa0001_pbcore.csv | ONLY APPEARS WITH ACCESSION.py/BATCHACCESSION.py - CSV containing metadata ready for ingest into IFI technical database. Loosely based on PBCore, with many custom IFI legacy fields.
+│   │   ├── AF12345_filmographic.csv | ONLY APPEARS WITH ACCESSION.py/BATCHACCESSION.py - CSV containing descriptive metadata ready for ingest into IFI Filmographic/descriptive database. Loosely based on the original FIAF cataloguing guidelines.
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_dfxml.xml | ONLY APPEARS WITH ACCESSION.py/BATCHACCESSION.py - file system metadata in Digital Forensics XML format for all files within the package.
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel1.mkv_mediainfo.xml | technical metadata in XML format via mediainfo
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel1.mkv_mediatrace.xml | granular technical metadata in XML format via mediainfo
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel2.mkv_mediainfo.xml | technical metadata in XML format via mediainfo
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel2.mkv_mediatrace.xml granular technical metadata in XML format via mediainfo
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel3.mkv_mediainfo.xml | technical metadata in XML format via mediainfo
+│   │   ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel3.mkv_mediatrace.xml | granular technical metadata in XML format via mediainfo
+│   │   └── supplemental | directory for metadata for the source object, prior to normalisation
+│   │       ├── da990f5e-9846-4a8c-9792-3ee677d50591_source_dfxml.xml | file system metadata in Digital Forensics XML format for the source DPX sequence.
+│   │       ├── da990f5e-9846-4a8c-9792-3ee677d50591_source_mediainfo.xml | technical metadata in XML format for the source DPX sequence.
+│   │       ├── da990f5e-9846-4a8c-9792-3ee677d50591_source_mediatrace.xml | granulartechnical metadata in XML format for the source DPX sequence.
+│   │       └── multi_reel_manifest-md5.txt | md5 checksum manifest for the source DPX sequence
+│   └── objects | directory for the preservation
+│       ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel1.mkv | FFV1/Matroska normalisation of image sequence.
+│       ├── da990f5e-9846-4a8c-9792-3ee677d50591_reel2.mkv | FFV1/Matroska normalisation of image sequence.
+│       └── da990f5e-9846-4a8c-9792-3ee677d50591_reel3.mkv | FFV1/Matroska normalisation of image sequence.
+├── da990f5e-9846-4a8c-9792-3ee677d50591_manifest.md5 | MD5 checksum manifest for the whole package.
+└── da990f5e-9846-4a8c-9792-3ee677d50591_manifest-sha512.txt |  ONLY APPEARS WITH ACCESSION.py/BATCHACCESSION.py SHA512 checksum manifest for the whole package.
+
+

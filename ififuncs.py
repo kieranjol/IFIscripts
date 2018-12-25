@@ -581,6 +581,18 @@ def get_image_sequence_files(directory):
         return 'none'
     return images
 
+def check_multi_reel(directory):
+    # This function accepts a directory as input. It checks if there are
+    # subdirectories that contain image sequences.
+    image_sequences = []
+    for dirs in os.listdir(directory):
+        full_path = (os.path.join(directory, dirs))
+        if os.path.isdir(full_path):
+            if get_image_sequence_files(full_path) is not 'none':
+                image_sequences.append(full_path)
+    return sorted (image_sequences)
+
+
 def get_ffmpeg_friendly_name(images):
     '''
     Parses image sequence filenames so that they are easily passed to ffmpeg.
