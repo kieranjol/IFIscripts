@@ -38,11 +38,11 @@ def diff_textfiles(source_textfile, other_textfile):
     Compares two textfiles. Returns strings that indicate losslessness.
     '''
     if filecmp.cmp(source_textfile, other_textfile, shallow=False):
-        print "YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!"
+        print(" - YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!")
         return 'lossless'
 
     else:
-        print "CHECKSUM MISMATCH - Further information on the next line!!!"
+        print(" - CHECKSUM MISMATCH - Further information on the next line!!!")
         return 'lossy'
 
 
@@ -98,7 +98,7 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
         '-fx',
         full_path
     ]
-    print 'Mediaconch is analyzing %s' % full_path
+    print(' - Mediaconch is analyzing %s' % full_path)
     mediaconch_output = subprocess.check_output(mediaconch_cmd)
     with open(mediaconch_xmlfile, 'wb') as xmlfile:
         xmlfile.write(mediaconch_output)
@@ -152,7 +152,7 @@ def make_qctools(input):
     qctools_args = ['ffprobe', '-f', 'lavfi', '-i',]
     qctools_args += ["movie=%s:s=v+a[in0][in1],[in0]signalstats=stat=tout+vrep+brng,cropdetect=reset=1:round=1,split[a][b];[a]field=top[a1];[b]field=bottom[b1],[a1][b1]psnr[out0];[in1]ebur128=metadata=1,astats=metadata=1:reset=1:length=0.4[out1]" % input]
     qctools_args += ['-show_frames', '-show_versions', '-of', 'xml=x=1:q=1', '-noprivate']
-    print qctools_args
+    print(qctools_args)
     qctoolsreport = subprocess.check_output(qctools_args)
     return qctoolsreport
 
@@ -271,10 +271,10 @@ def send_gmail(email_to, attachment, subject, email_body, email_address, passwor
     server_ssl.login(username, password)
     # ssl server doesn't support or need tls, so don't call server_ssl.starttls()
     server_ssl.sendmail(emailfrom, emailto, msg.as_string())
-    print msg.as_string()
+    print(msg.as_string())
     #server_ssl.quit()
     server_ssl.close()
-    print 'successfully sent the mail'
+    print(' - successfully sent the mail')
 
 def frames_to_seconds(audio_entry_point):
     audio_frame_count = float(audio_entry_point)
@@ -292,12 +292,12 @@ def set_environment(logfile):
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
-        with open(log, "wb") as fo:
+        with open(log, "w") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
     else:
-        with open(log, "ab") as fo:
+        with open(log, "a") as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
@@ -360,7 +360,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            print(" - Calculating number of files to process in current directory -  %s files        \r"% file_count,)
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -368,7 +368,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print(' - Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             md5 = hashlib_md5(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -397,7 +397,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            print(" - Calculating number of files to process in current directory -  %s files        \r"% file_count,)
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -405,7 +405,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if f[0] != '.']
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
-            print 'Generating SHA512 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print(' - Generating SHA512 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             sha512 = hashlib_sha512(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -433,7 +433,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print "Calculating number of files to process in current directory -  %s files        \r"% file_count,
+            print(" - Calculating number of files to process in current directory -  %s files        \r"% file_count,)
             file_count += 1
     manifest_generator = ''
     md5_counter = 1
@@ -441,7 +441,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print 'Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count)
+            print(' - Generating MD5 for %s - file %d of %d' % (os.path.join(root, files), md5_counter, file_count))
             md5 = hashlib_md5(os.path.join(root, files))
             md5_counter += 1
             root2 = os.path.abspath(root).replace(path_to_remove, '')
@@ -474,7 +474,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
                 fo.write(i + '\n')
         return files_in_manifest
     else:
-        print 'Manifest already exists'
+        print(' - Manifest already exists')
         sys.exit()
 def make_mediatrace(tracefilename, xmlvariable, inputfilename):
     with open(tracefilename, "w+") as fo:
@@ -492,19 +492,19 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
 
 def check_overwrite(file2check):
     if os.path.isfile(file2check):
-        print 'A manifest already exists at your destination. Overwrite? Y/N?'
+        print(' - A manifest already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_manifest = ''
         while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
             overwrite_destination_manifest = raw_input()
             if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-                print 'Incorrect input. Please enter Y or N'
+                print(' - Incorrect input. Please enter Y or N')
         return overwrite_destination_manifest
 def manifest_file_count(manifest2check):
     '''
     Checks how many entries are in a manifest
     '''
     if os.path.isfile(manifest2check):
-        print 'A manifest already exists'
+        print(' - A manifest already exists')
         with open(manifest2check, "r") as fo:
             manifest_lines = [line.split(',') for line in fo.readlines()]
             count_in_manifest = len(manifest_lines)
@@ -614,7 +614,7 @@ def get_ffmpeg_friendly_name(images):
         numberless_filename = images[0].split(".")[0:-1]
         for i in numberless_filename[:-1]:
             ffmpeg_friendly_name += i + '.'
-        print ffmpeg_friendly_name
+        print(ffmpeg_friendly_name)
     else:
         while  counter < len(numberless_filename):
             ffmpeg_friendly_name += numberless_filename[counter] + '_'
@@ -817,11 +817,11 @@ def sanitise_filenames(video_files):
     renamed_files = []
     for video in video_files:
         if '\'' in video:
-            print 'A quote is in your filename %s , replace with underscore?' % video
+            print(' - A quote is in your filename %s , replace with underscore?' % video)
             while overwrite not in ('Y', 'y', 'N', 'n'):
                 overwrite = raw_input()
                 if overwrite not in ('Y', 'y', 'N', 'n'):
-                    print 'Incorrect input. Please enter Y or N'
+                    print(' - Incorrect input. Please enter Y or N')
                 if overwrite in ('Y', 'y'):
                     rename = video.replace('\'', '_')
                     os.rename(video, rename)
@@ -854,7 +854,7 @@ def get_script_version(scriptname):
     os.chdir(home)
     if os.path.isdir('ifigit/ifiscripts'):
         os.chdir('ifigit/ifiscripts')
-        print("Changing directory to %s to extract script version`") %os.getcwd()
+        print("Changing directory to %s to extract script version`" % os.getcwd())
         script_version = subprocess.check_output([
             'git', 'log', '-n', '1', '--pretty=format:%H:%aI', scriptname
         ])
@@ -920,14 +920,14 @@ def get_object_entry():
         if object_entry[:4] == 'scoe':
             return object_entry
         if object_entry[:2] != 'oe':
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print(' - First two characters must be \'oe\' and last four characters must be four digits')
             object_entry = False
         elif len(object_entry[2:]) not in range(4, 6):
             object_entry = False
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print(' - First two characters must be \'oe\' and last four characters must be four digits')
         elif not object_entry[2:].isdigit():
             object_entry = False
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print(' - First two characters must be \'oe\' and last four characters must be four digits')
         else:
             return object_entry
 
@@ -941,14 +941,14 @@ def get_accession_number():
             '\n\n**** Please enter the accession number of the representation\n\n'
         )
         if accession_number[:3] != 'aaa':
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print(' - First three characters must be \'aaa\' and last four characters must be four digits')
             accession_number = False
         elif len(accession_number[3:]) != 4:
             accession_number = False
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print(' - First three characters must be \'aaa\' and last four characters must be four digits')
         elif not accession_number[3:].isdigit():
             accession_number = False
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print(' - First three characters must be \'aaa\' and last four characters must be four digits')
         else:
             return accession_number
 
@@ -962,14 +962,14 @@ def get_reference_number():
             '\n\n**** Please enter the Filmographic reference number of the representation\n\n'
         )
         if reference_number[:3] != 'af1':
-            print 'First two characters must be \'af\' and the last five characters must be five digits'
+            print(' - First two characters must be \'af\' and the last five characters must be five digits')
             reference_number = False
         elif len(reference_number[2:]) != 5:
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be five digits'
+            print(' - First two characters must be \'af\' and last five characters must be five digits')
         elif not reference_number[2:].isdigit():
             reference_number = False
-            print 'First two characters must be \'af\' and last five characters must be five digits'
+            print(' - First two characters must be \'af\' and last five characters must be five digits')
         else:
             return reference_number.upper()
 
@@ -1001,11 +1001,11 @@ def ask_yes_no(question):
     Returns Y or N. The question variable is just a string.
     '''
     answer = ''
-    print '\n', question, '\n', 'enter Y or N'
+    print(' - \n', question, '\n', 'enter Y or N')
     while answer not in ('Y', 'y', 'N', 'n'):
         answer = raw_input()
         if answer not in ('Y', 'y', 'N', 'n'):
-            print 'Incorrect input. Please enter Y or N'
+            print(' - Incorrect input. Please enter Y or N')
         if answer in ('Y', 'y'):
             return 'Y'
         elif answer in ('N,' 'n'):
@@ -1464,7 +1464,7 @@ def check_dependencies(dependencies):
             if e.returncode is 2:
                 continue
         except OSError:
-            print '%s is not installed, so this script can not run!' % dependency
+            print('%s is not installed, so this script can not run!' % dependency)
             sys.exit()
 
 
@@ -1726,9 +1726,9 @@ def get_metadata(xpath_path, root, pbcore_namespace):
 def choose_cpl(cpl_list):
     # Some DCPs have multiple CPLs!
     cpl_number = 1
-    print ('Multiple CPL files found')
+    print('Multiple CPL files found')
     for i in cpl_list:
-        print (cpl_number,  i)
+        print(cpl_number,  i)
         cpl_number += 1
     print( 'Please select which CPL you would like to process')
     chosen_cpl = raw_input()
@@ -1804,7 +1804,7 @@ def get_technical_metadata(path, new_log_textfile):
                     inputtracexml = "%s/%s_mediatrace.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
-                    print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
+                    print(' - Generating mediainfo xml of input file and saving it in %s' % inputxml)
                     make_mediainfo(
                         inputxml, 'mediaxmlinput', os.path.join(root, av_file)
                     )
@@ -1812,7 +1812,7 @@ def get_technical_metadata(path, new_log_textfile):
                         new_log_textfile,
                         'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputxml, mediainfo_version)
                     )
-                    print 'Generating mediatrace xml of input file and saving it in %s' % inputtracexml
+                    print(' - Generating mediatrace xml of input file and saving it in %s' % inputtracexml)
                     make_mediatrace(
                         inputtracexml,
                         'mediatracexmlinput',
@@ -1841,7 +1841,7 @@ def get_technical_metadata(path, new_log_textfile):
                             new_log_textfile,
                             'EVENT = Metadata extraction - eventDetail=Technical metadata extraction via exiftool, eventOutcome=%s, agentName=%s' % (inputxml, exiftool_version)
                         )
-                        print 'Generating exiftool json of input file and saving it in %s' % inputxml
+                        print(' - Generating exiftool json of input file and saving it in %s' % inputxml)
                         make_exiftool(
                             inputxml,
                             os.path.join(root, av_file)
@@ -1856,7 +1856,7 @@ def get_technical_metadata(path, new_log_textfile):
                     inputtracexml = "%s/%s_siegfried.json" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
                         )
-                    print 'Generating Siegfried json of input file and saving it in %s' % inputtracexml
+                    print(' - Generating Siegfried json of input file and saving it in %s' % inputtracexml)
                     make_siegfried(
                         inputtracexml,
                         os.path.join(root, av_file)

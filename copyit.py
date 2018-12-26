@@ -169,7 +169,7 @@ def make_manifest(
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "wb") as text:
+    with open(manifest_textfile, "w") as text:
         for i in manifest_list:
             text.write(i + '\n')
     return files_in_manifest
@@ -237,7 +237,7 @@ def copy_dir(
             )
             print(cmd)
             subprocess.call(cmd)
-    elif sys.platform == "linux2":
+    elif 'linux' in sys.platform:
         # https://github.com/amiaopensource/ltopers/blob/master/writelto#L51
         cmd = [
             'cp', '--preserve=mode,timestamps',
@@ -675,7 +675,7 @@ def main(args_):
             log_name_source,
             'EVENT = Exiting without destination manifest or verification due to the use of -justcopy'
         )
-        print 'Exiting without destination manifest or verification due to the use of -justcopy'
+        print('Exiting without destination manifest or verification due to the use of -justcopy')
         sys.exit()
     else:
         files_in_manifest = make_destination_manifest(
@@ -696,7 +696,7 @@ def main(args_):
             os.close(manifest_temp[0]) # Needed for windows.
             with open(manifest, 'r') as fo:
                 dest_manifest_list = fo.readlines()
-                with open(manifest_temp[1], 'wb') as temp_object:
+                with open(manifest_temp[1], 'w') as temp_object:
                     for i in dest_manifest_list:
                         temp_object.write(i[:33] + ' ' + os.path.basename(os.path.dirname(destination_final_path)) + '/' +  i[34:])
                 legacy_manifest = manifest
@@ -718,7 +718,7 @@ def main(args_):
             sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
             if os.path.isfile(sha512_manifest):
                 shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
-                print '%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))
+                print('%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path)))
         return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
