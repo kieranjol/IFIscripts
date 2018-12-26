@@ -52,6 +52,9 @@ parser.add_argument(
 parser.add_argument(
                     '-hd',
                     action='store_true',help='Scale to 1920:1080 while preserving the aspect ratio')
+parser.add_argument(
+                    '-lowres',
+                    help='[0,1,2]Use the jpeg2000 lowres option for rescaling and speed increases. Accepts a value of 0 (original size), 1 (50% size), 2 (25% size)')
 args = parser.parse_args()
 '''
 if args.bag:
@@ -241,12 +244,16 @@ def burn_subs():
             current_sub_counter +=1 
         current_sub_counter= 0
         os.chdir(os.path.dirname(lut_path))
+        if args.lowres:
+            resolution = args.lowres
+        else:
+            resolution = '0'
         if delays == 0:
             print( 'There were no audio delays.')
-            command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
+            command = ['ffmpeg', '-lowres', resolution, '-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',aud_mxfs[counter],
             '-c:a','copy', '-c:v', 'libx264', '-vf', 'lut3d=26_XYZ-22_Rec709.cube']
         else:
-            command = ['ffmpeg','-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
+            command = ['ffmpeg', '-lowres', resolution, '-c:v ','libopenjpeg','-i',pic_mxfs[counter],'-i',temp_dir + '/' + aud_mxfs[counter] + '.mkv',
             '-c:a','copy', '-c:v', 'libx264','-vf', 'lut3d=26_XYZ-22_Rec709.cube']
         pix_fmt = ['-pix_fmt','yuv420p']   
         subs_command =  ['-vf', 'format=yuv420p,subtitles=%s' % srt_file]
@@ -491,7 +498,11 @@ for root,dirnames,filenames in os.walk(dcp_dir):
         write_textfile(video_concat_textfile, finalpic)
         write_textfile(audio_concat_textfile, finalaudio)
         os.chdir(os.path.dirname(lut_path))
-        command = ['ffmpeg','-f','concat','-safe', '0','-c:v ','libopenjpeg',
+        if args.lowres:
+            resolution = args.lowres
+        else:
+            resolution = '0'
+        command = ['ffmpeg','-lowres', resolution,'-f','concat','-safe', '0','-c:v ','libopenjpeg',
                    '-i',video_concat_textfile,'-f','concat','-safe', '0',
                    '-i',audio_concat_textfile, '-vf', 'lut3d=./26_XYZ-22_Rec709.cube','-c:v']
 
