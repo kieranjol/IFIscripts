@@ -29,8 +29,14 @@ def parse_manifest(manifest, log_name_source):
     Returns a list of missing files and a dictionary containing checksums
     and paths.
     '''
+    source_dir = os.path.join(
+        os.path.dirname(manifest), os.path.basename(manifest).replace('_manifest.md5','')
+    )
+    source_count, file_list = ififuncs.count_stuff(source_dir)
     missing_files_list = []
     manifest_dict = {}
+    paths = []
+    proceed = 'Y'
     os.chdir(os.path.dirname(manifest))
     with open(manifest, 'rb') as manifest_object:
         manifest_list = manifest_object.readlines()
@@ -50,18 +56,31 @@ def parse_manifest(manifest, log_name_source):
                 missing_files_list.append(path)
             elif os.path.isfile(path):
                 manifest_dict[path] = checksum
-    if len(missing_files_list) > 0:
-        print 'The number of missing files: %s' % len(missing_files_list)
-        ififuncs.generate_log(
-            log_name_source,
-            'The number of missing files is: %s' % len(missing_files_list)
-        )
-    elif len(missing_files_list) == 0:
-        print 'All files present'
-        ififuncs.generate_log(
-            log_name_source,
-            'All files present'
-        )
+                paths.append(path)
+    manifest_file_count = len(manifest_list)
+    if source_count != manifest_file_count:
+        print(' - There is masmatch between your file count and the manifest file count')
+        print(' - checking which files are different')
+        for i in file_list:
+            if i not in paths:
+                print(i, 'is present in your source directory but not in the source manifest')
+        proceed = ififuncs.ask_yes_no('Do you want to proceed regardless?')
+    if proceed == 'N':
+        print('Exiting')
+        sys.exit()
+    else:
+        if len(missing_files_list) > 0:
+            print 'The number of missing files: %s' % len(missing_files_list)
+            ififuncs.generate_log(
+                log_name_source,
+                'The number of missing files is: %s' % len(missing_files_list)
+            )
+        elif len(missing_files_list) == 0:
+            print 'All files present'
+            ififuncs.generate_log(
+                log_name_source,
+                'All files present'
+            )
     return manifest_dict, missing_files_list
 
 def validate(manifest_dict, manifest, log_name_source, missing_files_list):
