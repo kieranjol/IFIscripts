@@ -1874,3 +1874,21 @@ def check_if_manifest(manifest):
         if manifest.endswith('.md5'):
             if manifest[0] != '.':
                 return True
+
+def count_stuff(source):
+    '''
+    Counts total files to be processed.
+    '''
+    source_count = 0
+    file_list = []
+    for root, directories, filenames in os.walk(source):
+        filenames = [f for f in filenames if f[0] != '.']
+        directories[:] = [d for d in directories if d[0] != '.']
+        for files in filenames:
+            source_count += 1
+            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            file_list.append(relative_path)
+    if os.path.isfile(source):
+        if len(file_list) == 0:
+            source_count = 1
+    return source_count, file_list

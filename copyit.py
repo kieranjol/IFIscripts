@@ -460,26 +460,6 @@ def setup(args_):
             sys.exit()
     return args, rootpos, manifest_sidecar, log_name_source, destination_final_path, manifest_root, manifest_destination, manifest, destination, dirname, desktop_manifest_dir
 
-
-def count_stuff(source):
-    '''
-    Counts total files to be processed.
-    '''
-    source_count = 0
-    file_list = []
-    for root, directories, filenames in os.walk(source):
-        filenames = [f for f in filenames if f[0] != '.']
-        directories[:] = [d for d in directories if d[0] != '.']
-        for files in filenames:
-            source_count += 1
-            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
-            file_list.append(relative_path)
-    if os.path.isfile(source):
-        if len(file_list) == 0:
-            source_count = 1
-    return source_count, file_list
-
-
 def overwrite_check(
         destination, log_name_source,
         destination_final_path, manifest_destination
@@ -661,7 +641,7 @@ def main(args_):
     remove_bad_files(
         source, log_name_source
     )
-    source_count, file_list = count_stuff(
+    source_count, file_list = ififuncs.count_stuff(
         source
     )
     manifest_existence(
