@@ -12,6 +12,7 @@ import time
 import argparse
 import hashlib
 import shutil
+from builtins import input
 import ififuncs
 from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
 
@@ -299,7 +300,7 @@ def check_overwrite(file2check):
         print('A manifest already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_manifest = ''
         while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-            overwrite_destination_manifest = raw_input()
+            overwrite_destination_manifest = input()
             if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
                 print('Incorrect input. Please enter Y or N')
         return overwrite_destination_manifest
@@ -330,7 +331,7 @@ def check_overwrite_dir(dir2check):
             print('A directory already exists at your destination. Overwrite? Y/N?')
             overwrite_destination_dir = ''
             while overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
-                overwrite_destination_dir = raw_input()
+                overwrite_destination_dir = input()
                 if overwrite_destination_dir not in ('Y', 'y', 'N', 'n'):
                     print('Incorrect input. Please enter Y or N')
             return overwrite_destination_dir

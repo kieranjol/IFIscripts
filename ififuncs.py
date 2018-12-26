@@ -20,6 +20,7 @@ import json
 import ctypes
 import platform
 import itertools
+from builtins import input
 import makedfxml
 from glob import glob
 from email.mime.multipart import MIMEMultipart
@@ -495,7 +496,7 @@ def check_overwrite(file2check):
         print(' - A manifest already exists at your destination. Overwrite? Y/N?')
         overwrite_destination_manifest = ''
         while overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
-            overwrite_destination_manifest = raw_input()
+            overwrite_destination_manifest = input()
             if overwrite_destination_manifest not in ('Y', 'y', 'N', 'n'):
                 print(' - Incorrect input. Please enter Y or N')
         return overwrite_destination_manifest
@@ -703,11 +704,11 @@ def get_user():
     '''
     user = ''
     if user not in ('1', '2', '3', '4', '5', '6', '7'):
-        user = raw_input(
+        user = input(
             '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
         )
         while user not in ('1', '2', '3', '4', '5', '6', '7'):
-            user = raw_input(
+            user = input(
                 '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
             )
     if user == '1':
@@ -751,11 +752,11 @@ def get_acquisition_type(acquisition_type):
     Asks user for the type of acquisition
     '''
     if acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
-        acquisition_type = raw_input(
+        acquisition_type = input(
             '\n\n**** What is the type of acquisition? - This will not affect Reproductions that have been auto-detected.\nPress 1,2,4,5,7,8,13,14\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
         )
         while acquisition_type not in ('1', '2', '4', '5', '7', '8', '13', '14'):
-            acquisition_type = raw_input(
+            acquisition_type = input(
                 '\n\n**** What is the type of acquisition? - This will not affect Reproductions that have been auto-detected.\nPress 1,2,4,5,7,8,13,14\n\n1. IFB -  deposited  in compliance with IFB delivery requirements\n2. BAI  - deposited  in compliance with BAI delivery requirements\n4. Deposit\n5. Purchased for collection\n7. Unknown at present\n8. Arts Council- deposited in compliance with Arts council delivery requirements\n13. Reproduction\n14. Donation\n'
             )
     if acquisition_type == '1':
@@ -819,7 +820,7 @@ def sanitise_filenames(video_files):
         if '\'' in video:
             print(' - A quote is in your filename %s , replace with underscore?' % video)
             while overwrite not in ('Y', 'y', 'N', 'n'):
-                overwrite = raw_input()
+                overwrite = input()
                 if overwrite not in ('Y', 'y', 'N', 'n'):
                     print(' - Incorrect input. Please enter Y or N')
                 if overwrite in ('Y', 'y'):
@@ -887,7 +888,7 @@ def get_source_uuid():
     '''
     source_uuid = False
     while source_uuid is False:
-        uuid_ = raw_input(
+        uuid_ = input(
             '\n\n**** Please enter the UUID of the source representation\n\n'
         )
         source_uuid = validate_uuid4(uuid_)
@@ -900,7 +901,7 @@ def ask_question(question):
     '''
     answer = ''
     while answer is '':
-        answer = raw_input(
+        answer = input(
             '\n\n**** %s\n\n'
          % question)
     proceed = 'n'
@@ -914,7 +915,7 @@ def get_object_entry():
     '''
     object_entry = False
     while object_entry is False:
-        object_entry = raw_input(
+        object_entry = input(
             '\n\n**** Please enter the object entry number of the representation\n\n'
         )
         if object_entry[:4] == 'scoe':
@@ -937,7 +938,7 @@ def get_accession_number():
     '''
     accession_number = False
     while accession_number is False:
-        accession_number = raw_input(
+        accession_number = input(
             '\n\n**** Please enter the accession number of the representation\n\n'
         )
         if accession_number[:3] != 'aaa':
@@ -958,7 +959,7 @@ def get_reference_number():
     '''
     reference_number = False
     while reference_number is False:
-        reference_number = raw_input(
+        reference_number = input(
             '\n\n**** Please enter the Filmographic reference number of the representation\n\n'
         )
         if reference_number[:3] != 'af1':
@@ -1003,7 +1004,7 @@ def ask_yes_no(question):
     answer = ''
     print(' - \n', question, '\n', 'enter Y or N')
     while answer not in ('Y', 'y', 'N', 'n'):
-        answer = raw_input()
+        answer = input()
         if answer not in ('Y', 'y', 'N', 'n'):
             print(' - Incorrect input. Please enter Y or N')
         if answer in ('Y', 'y'):
@@ -1731,7 +1732,7 @@ def choose_cpl(cpl_list):
         print(cpl_number,  i)
         cpl_number += 1
     print( 'Please select which CPL you would like to process')
-    chosen_cpl = raw_input()
+    chosen_cpl = input()
     cpl_parse = etree.parse(cpl_list[int(chosen_cpl) - 1]) # The -1 is due to python zero-indexing.
     return cpl_list[int(chosen_cpl) - 1]
 
@@ -1765,10 +1766,10 @@ def find_cpl(source):
     if len(cpl_list) > 1:
         cpl_parse = choose_cpl(cpl_list)
         # As there can be multiple subtitles, This options gives some info/choice.
-        subs_confirmation  = raw_input('Y/N')
+        subs_confirmation  = input('Y/N')
         while subs_confirmation not in ['Y','y']:
             cpl_parse = choose_cpl()
-            subs_confirmation  = raw_input('Y/N')
+            subs_confirmation  = input('Y/N')
             return cpl_parse
         return cpl_parse
     elif len(cpl_list) is 0:
