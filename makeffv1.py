@@ -22,6 +22,7 @@ try:
     from ififuncs import append_csv
     from ififuncs import create_csv
     from ififuncs import generate_log
+    from ififuncs import get_ffmpeg_fmt
 except ImportError:
     print '*** ERROR - IFIFUNCS IS MISSING - *** \n'
     'Makeffv1 requires that ififuncs.py is located in the same directory'
@@ -193,10 +194,12 @@ def make_ffv1(video_files, csv_report_filename):
             )
         fmd5_logfile = log_dir + '/%s_framemd5.log' % outputfilename
         fmd5_env_dict = set_environment(fmd5_logfile)
+        pix_fmt = get_ffmpeg_fmt(filename, 'video')
         fmd5_command = [
             'ffmpeg',    # Create decoded md5 checksums for every frame
             '-i', output,
             '-report',
+            '-pix_fmt', pix_fmt,
             '-f', 'framemd5', '-an',
             fmd5ffv1
             ]
@@ -214,7 +217,10 @@ def make_ffv1(video_files, csv_report_filename):
             )
         compression_ratio = float(source_video_size) / float(ffv1_video_size)
         if os.path.basename(sys.argv[0]) == 'makeffv1.py':
-            shutil.copy(sys.argv[0], log_dir)
+            try:
+                shutil.copy(sys.argv[0], log_dir)
+            except IOError:
+                pass
         print 'Generating mediainfo xml of input file and saving it in %s' % inputxml
         make_mediainfo(inputxml, 'mediaxmlinput', filename)
         print 'Generating mediainfo xml of output file and saving it in %s' % outputxml
