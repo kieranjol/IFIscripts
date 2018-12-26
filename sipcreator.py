@@ -178,10 +178,6 @@ def parse_args(args_):
         help='full path of output directory', required=True
     )
     parser.add_argument(
-        '-m', '-manifest',
-        help='full path to a pre-existing manifest'
-    )
-    parser.add_argument(
         '-u', '-uuid',
         help='Use a pre-existing UUID instead of a newly generated UUID.'
     )
@@ -216,6 +212,10 @@ def parse_args(args_):
     parser.add_argument(
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
+    )
+    parser.add_argument(
+        '-manifest',
+        help='Enter the full path to a manifest for the files within a ZIP. This will be stored in the supplemental folder.'
     )
     parser.add_argument(
         '-supplement', nargs='+',
@@ -414,19 +414,23 @@ def main(args_):
     logs_dir = os.path.join(sip_path, 'logs')
     if args.zip:
         inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
-        source_manifest = os.path.join(
-            args.o,
-            os.path.basename(args.i[0]) + '_manifest-md5.txt'
-        )
-        ififuncs.generate_log(
-            new_log_textfile,
-            'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
-        )
-        ififuncs.hashlib_manifest(args.i[0], source_manifest, os.path.dirname(args.i[0]))
-        ififuncs.generate_log(
-            new_log_textfile,
-            'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
-        )
+        if args.manifest:
+            shutil.copy(args.manifest, args.manifest.replace('_manifest.md5', '_manifest-md5.txt'))
+            source_manifest = args.manifest.replace('_manifest.md5', '_manifest-md5.txt')
+        else:
+            source_manifest = os.path.join(
+                args.o,
+                os.path.basename(args.i[0]) + '_manifest-md5.txt'
+            )
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = message digest calculation, status=started, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+            )
+            ififuncs.hashlib_manifest(args.i[0], source_manifest, os.path.dirname(args.i[0]))
+            ififuncs.generate_log(
+                new_log_textfile,
+                'EVENT = message digest calculation, status=finished, eventType=messageDigestCalculation, agentName=hashlib, eventDetail=MD5 checksum of source files within ZIP'
+            )
         ififuncs.generate_log(
             new_log_textfile,
             'EVENT = packing, status=started, eventType=packing, agentName=makezip.py, eventDetail=Source object to be packed=%s' % inputs[0]
