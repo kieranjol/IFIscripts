@@ -14,6 +14,7 @@ import shutil
 import time
 import ififuncs
 import sipcreator
+import deletefiles
 
 def parse_args(args_):
     '''
@@ -201,6 +202,10 @@ def main(args_):
             shutil.move(fmd5ffv1, metadata_dir)
             shutil.move(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'), os.path.dirname(sipcreator_log))
             logs_dir = os.path.dirname(sipcreator_log)
+            sip_dir = os.path.dirname(logs_dir)
+            for files in os.listdir(logs_dir):
+                if files.endswith('.md5'):
+                    deletefiles.main(['-i', os.path.join(logs_dir, files), '-uuid_path', sip_dir, '-user', user])
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(metadata_dir, os.path.basename(fmd5)))
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(metadata_dir, os.path.basename(fmd5ffv1)))
             ififuncs.manifest_update(sipcreator_manifest, os.path.join(logs_dir, os.path.basename(ffv1_logfile.replace('\\\\', '\\').replace('\:', ':'))))
