@@ -15,10 +15,10 @@ def get_input(manifest):
     Figures out what kind of input is passed to the script.
     '''
     if not manifest.endswith(('.txt', '.md5', '.exf')):
-        print 'Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.'
+        print('Usage: validate.py manifest \nManifests can be a .txt or a .md5 or an ExactFile .exf file.')
         sys.exit()
     elif manifest.endswith('.exf'):
-        print 'ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this. It will list some missing files but will validate checksums as usual.'
+        print('ExactFile manifests have 5 lines of extra info which will confuse validate.py until I get around to fixing this. It will list some missing files but will validate checksums as usual.')
         return manifest
     else:
         return manifest
@@ -38,7 +38,7 @@ def parse_manifest(manifest, log_name_source):
     paths = []
     proceed = 'Y'
     os.chdir(os.path.dirname(manifest))
-    with open(manifest, 'rb') as manifest_object:
+    with open(manifest, 'r') as manifest_object:
         manifest_list = manifest_object.readlines()
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
@@ -52,7 +52,7 @@ def parse_manifest(manifest, log_name_source):
                     log_name_source,
                     '%s is missing' % path
                 )
-                print '%s is missing' % path
+                print(('%s is missing' % path))
                 missing_files_list.append(path)
             elif os.path.isfile(path):
                 manifest_dict[path] = checksum
@@ -63,20 +63,20 @@ def parse_manifest(manifest, log_name_source):
         print(' - checking which files are different')
         for i in file_list:
             if i not in paths:
-                print(i, 'is present in your source directory but not in the source manifest')
+                print((i, 'is present in your source directory but not in the source manifest'))
         proceed = ififuncs.ask_yes_no('Do you want to proceed regardless?')
     if proceed == 'N':
         print('Exiting')
         sys.exit()
     else:
         if len(missing_files_list) > 0:
-            print 'The number of missing files: %s' % len(missing_files_list)
+            print(('The number of missing files: %s' % len(missing_files_list)))
             ififuncs.generate_log(
                 log_name_source,
                 'The number of missing files is: %s' % len(missing_files_list)
             )
         elif len(missing_files_list) == 0:
-            print 'All files present'
+            print('All files present')
             ififuncs.generate_log(
                 log_name_source,
                 'All files present'
@@ -96,15 +96,15 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
     os.chdir(manifest_directory)
     error_list = []
     for i in sorted(manifest_dict.keys()):
-        print 'Validating %s' % i
+        print(('Validating %s' % i))
         if 'manifest-sha512.txt' in manifest:
             current_hash = ififuncs.hashlib_sha512(i)
         else:
             current_hash = ififuncs.hashlib_md5(i)
         if current_hash == manifest_dict[i]:
-            print '%s has validated' % i
+            print(('%s has validated' % i))
         else:
-            print '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
+            print(('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)))
             ififuncs.generate_log(
                 log_name_source,
                 '%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash)
@@ -112,28 +112,28 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
             error_list.append('%s has mismatched checksum - %s expected - %s hashed' % (i, manifest_dict[i], current_hash))
             error_counter += 1
     if error_counter > 0:
-        print '\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter
+        print(('\n\n*****ERRORS***********!!!!\n***********\nThe number of mismatched checksums is: %s\n***********\n' % error_counter))
         ififuncs.generate_log(
             log_name_source,
             'The number of mismatched checksums is: %s' % error_counter
         )
-        print '***** List of mismatched files*****'
+        print('***** List of mismatched files*****')
         for i in error_list:
-            print i
+            print(i)
     elif len(missing_files_list) == 0:
-        print 'All checksums have validated'
+        print('All checksums have validated')
         ififuncs.generate_log(
             log_name_source,
             'All checksums have validated'
         )
     if len(missing_files_list) > 0:
-        print 'ERRORS - The number of missing files: %s' % len(missing_files_list)
+        print(('ERRORS - The number of missing files: %s' % len(missing_files_list)))
         ififuncs.generate_log(
             log_name_source,
             'ERRORS - The number of mismatched checksums is: %s' % len(missing_files_list)
         )
         for i in missing_files_list:
-            print('%s is missing') % i
+            print((('%s is missing') % i))
 
 
 def make_parser():
@@ -175,7 +175,7 @@ def log_results(manifest, log, args):
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
-        with open(logfile, 'ab') as ba:
+        with open(logfile, 'a') as ba:
             for lines in validate_log:
                 ba.write(lines)
         for possible_manifest in possible_manifests:
@@ -189,7 +189,7 @@ def log_results(manifest, log, args):
                             elif '_manifest.md5' in possible_manifest:
                                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
                         updated_manifest.append(lines)
-                with open(possible_manifest, 'wb') as fo:
+                with open(possible_manifest, 'w') as fo:
                     for lines in updated_manifest:
                         fo.write(lines)
                 updated_manifest = []
