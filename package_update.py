@@ -52,7 +52,7 @@ def update_manifest(manifest, old_path, new_path, new_log_textfile):
         for line in checksums:
             if old_path in line:
                 line = line.replace(old_path, new_path)
-                print 'the following path: %s has been updated with %s in the package manifest' % (old_path, new_path)
+                print(('the following path: %s has been updated with %s in the package manifest' % (old_path, new_path)))
                 ififuncs.generate_log(
                     new_log_textfile,
                     'EVENT = eventType=metadata modification,'
@@ -91,7 +91,7 @@ def main(args_):
             oe_path, uuid + '_manifest.md5'
             )
     start = datetime.datetime.now()
-    print args
+    print(args)
     if args.user:
         user = args.user
     else:
@@ -130,7 +130,7 @@ def main(args_):
             # this is hardcoded - pick this apart so that any folder can be added to.
             # this must be fixed in normalise.py as well.
             relative_new_path = args.new_folder.replace(sip_path, '')
-            print relative_new_path, 'relative'
+            print((relative_new_path, 'relative'))
             if (relative_new_path[0] == '/') or relative_new_path[0] == '\\':
                 relative_new_path = relative_new_path[1:].replace('\\', '/')
             sipcreator.consolidate_manifests(sip_path, relative_new_path, new_log_textfile)
@@ -147,7 +147,7 @@ def main(args_):
                 ' agentName=shutil.move()'
                 % (filenames, args.new_folder)
             )
-            print '%s has been moved into %s' % (filenames, args.new_folder)
+            print(('%s has been moved into %s' % (filenames, args.new_folder)))
             relative_filename = filenames.replace(os.path.dirname(args.input) + '/', '').replace('\\', '/')
             relative_filename = filenames.replace(os.path.dirname(args.input) + '\\', '').replace('\\', '/')
             relative_new_folder = args.new_folder.replace(os.path.dirname(args.input) + '/', '').replace('\\', '/')
@@ -164,7 +164,7 @@ def main(args_):
     )
     ififuncs.checksum_replace(sip_manifest, new_log_textfile, 'md5')
     finish = datetime.datetime.now()
-    print '\n', user, 'ran this script at %s and it finished at %s' % (start, finish)
+    print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
 
 
 if __name__ == '__main__':

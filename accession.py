@@ -149,14 +149,14 @@ def main(args_):
             user = ififuncs.get_user()
         if args.number:
             if args.number[:3] != 'aaa':
-                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+                print('First three characters must be \'aaa\' and last four characters must be four digits')
                 accession_number = ififuncs.get_accession_number()
             elif len(args.number[3:]) != 4:
                 accession_number = ififuncs.get_accession_number()
-                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+                print('First three characters must be \'aaa\' and last four characters must be four digits')
             elif not args.number[3:].isdigit():
                 accession_number = ififuncs.get_accession_number()
-                print 'First three characters must be \'aaa\' and last four characters must be four digits'
+                print('First three characters must be \'aaa\' and last four characters must be four digits')
             else:
                 accession_number = args.number
         else:
@@ -167,7 +167,7 @@ def main(args_):
             Reference_Number = ififuncs.get_reference_number()
         if args.acquisition_type:        
             acquisition_type = ififuncs.get_acquisition_type(args.acquisition_type)
-            print acquisition_type
+            print(acquisition_type)
         accession_path = os.path.join(
             os.path.dirname(oe_path), accession_number
         )
@@ -267,7 +267,7 @@ def main(args_):
                 makepbcore_cmd.extend(['-donation_date', args.donation_date])
             makepbcore.main(makepbcore_cmd)
     else:
-        print 'not a valid package. The input should include a package that has been through Object Entry'
+        print('not a valid package. The input should include a package that has been through Object Entry')
 
 if __name__ == '__main__':
     main(sys.argv[1:])

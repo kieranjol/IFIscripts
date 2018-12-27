@@ -25,7 +25,7 @@ def remove_bad_files(root_dir, log_name_source):
             path = os.path.join(root, name)
             for i in rm_these:
                 if name == i:
-                    print '***********************' + 'removing: ' + path
+                    print(('***********************' + 'removing: ' + path))
                     generate_log(
                         log_name_source,
                         'EVENT = Unwanted file removal - %s was removed' % path
@@ -33,7 +33,7 @@ def remove_bad_files(root_dir, log_name_source):
                     try:
                         os.remove(path)
                     except OSError:
-                        print 'can\'t delete as source is read-only'
+                        print('can\'t delete as source is read-only')
 def main(args_):
     '''
     Overly long main function that makes a sidecar manifest.
@@ -115,12 +115,12 @@ def main(args_):
         'eventDetail=manifest.py %s' % ififuncs.get_script_version('manifest.py'))
     generate_log(log_name_source, 'Source: %s' % source)
     if os.path.isfile(source):
-        print '\nFile checksum is not currently supported, only directories.\n'
+        print('\nFile checksum is not currently supported, only directories.\n')
         generate_log(log_name_source, 'Error: Attempted to generate manifest for file. Only Directories/Folders are currently supported')
         generate_log(log_name_source, 'manifest.py exit')
         sys.exit()
     elif not os.path.isdir(source):
-        print ' %s is either not a directory or it does not exist' % source
+        print((' %s is either not a directory or it does not exist' % source))
         generate_log(log_name_source, ' %s is either not a directory or it does not exist' % source)
         generate_log(log_name_source, 'manifest.py exit')
         sys.exit()
@@ -133,12 +133,12 @@ def main(args_):
     if os.path.isfile(manifest):
         count_in_manifest = manifest_file_count(manifest)
         if source_count != count_in_manifest:
-            print 'This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest'
+            print('This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest')
             generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')
             sys.exit()
     if not os.path.isfile(manifest):
         try:
-            print 'Generating source manifest'
+            print('Generating source manifest')
             generate_log(log_name_source, 'EVENT = Generating source manifest')
             if args.f:
                 if args.sha512:
@@ -152,11 +152,11 @@ def main(args_):
                 else:
                     hashlib_manifest(source, manifest, source_parent_dir)
         except OSError:
-            print 'You do not have access to this directory. Perhaps it is read only, or the wrong file system\n'
+            print('You do not have access to this directory. Perhaps it is read only, or the wrong file system\n')
             sys.exit()
     else:
         generate_log(log_name_source, 'EVENT = Existing source manifest check - Source manifest already exists. Script will exit. ')
-    print 'Manifest created in %s' % manifest
+    print(('Manifest created in %s' % manifest))
     generate_log(log_name_source, 'Manifest created in %s' % manifest)
     return log_name_source
 

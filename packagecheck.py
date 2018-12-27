@@ -86,12 +86,12 @@ def test_package(package_info):
         print('Key files and folders all exist')
     else:
         for error in error_list:
-            print('%s does not exist') % error
+            print((('%s does not exist') % error))
     if not question_list:
         print('No further errors detected')
     else:
         for error in question_list:
-            print('%s requires investigation') % error
+            print((('%s requires investigation') % error))
     return error_list, question_list
 
 
@@ -107,7 +107,7 @@ def main(args_):
     if package_info is False:
         print('Valid UUID not found in folder path')
     else:
-        print package_info
+        print(package_info)
     error_list, question_list = test_package(package_info)
     return package_info, error_list, question_list
 

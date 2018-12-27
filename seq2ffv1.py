@@ -49,11 +49,11 @@ def short_test(images):
     restored_manifest = os.path.join(restored_dir, '456.md5')
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, restored_manifest)
-    print(' - Deleting temp directory %s' % temp_dir)
+    print((' - Deleting temp directory %s' % temp_dir))
     shutil.rmtree(temp_dir)
-    print(' - Deleting temp reversibility directory %s' % rawcooked_dir)
+    print((' - Deleting temp reversibility directory %s' % rawcooked_dir))
     shutil.rmtree(rawcooked_dir)
-    print(' - Deleting temp FFV1/MKV %s' % mkv_file)
+    print((' - Deleting temp FFV1/MKV %s' % mkv_file))
     os.remove(mkv_file)
     return judgement
 
@@ -71,7 +71,7 @@ def reversibility_verification(objects, source_manifest, reversibility_dir):
     converted_manifest = os.path.join(temp_dir, '123.md5')
     ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, source_manifest)
-    print(' - Deleting temp directory %s' % temp_dir)
+    print((' - Deleting temp directory %s' % temp_dir))
     shutil.rmtree(temp_dir)
     return judgement
 
@@ -121,7 +121,7 @@ def run_loop(args):
     for reel in images:
         short_test_reports.append(short_test(reel))
         for i in short_test_reports:
-            print(' - 24 frame reversibility test for %s is %s' % (os.path.basename(reel), i))
+            print((' - 24 frame reversibility test for %s is %s' % (os.path.basename(reel), i)))
             if i == 'lossy':
                 print('It appears that this sequence is not reversible - exiting')
                 sys.exit()
@@ -141,7 +141,7 @@ def run_loop(args):
     judgement, sipcreator_log, sipcreator_manifest = judgement
     verdicts.append([source_directory, judgement])
     for verdict in verdicts:
-        print("%-*s   : %s" % (50, args.i, verdict[1]))
+        print(("%-*s   : %s" % (50, args.i, verdict[1])))
     ififuncs.generate_log(log_name_source, 'seq2ffv1.py finished.')
     ififuncs.merge_logs(log_name_source, sipcreator_log, sipcreator_manifest)
 
