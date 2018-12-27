@@ -59,7 +59,7 @@ def test_write_capabilities(directory, log_name_source):
         generate_log(log_name_source, 'move.py exit')
         sys.exit()
     else:
-        print(' %s is either not a directory or it does not exist' % directory)
+        print((' %s is either not a directory or it does not exist' % directory))
         generate_log(
             log_name_source,
             ' %s is either not a directory or it does not exist' % directory
@@ -78,7 +78,7 @@ def remove_bad_files(root_dir, log_name_source):
             path = os.path.join(root, name)
             for i in rm_these:
                 if name == i:
-                    print('***********************' + 'removing: ' + path)
+                    print(('***********************' + 'removing: ' + path))
                     if not log_name_source == None:
                         generate_log(
                             log_name_source,
@@ -151,9 +151,9 @@ def make_manifest(
     if len(checksum_list) == 1:
         source_counter = 1
     for files in checksum_list:
-        print('Generating MD5 for %s - %d of %d' % (
+        print(('Generating MD5 for %s - %d of %d' % (
             os.path.join(files[0], files[1]), counter2, source_counter)
-            )
+            ))
         md5 = hashlib_md5(os.path.join(files[0], files[1]))
         root2 = files[0].replace(path_to_remove, '')
         try:
@@ -264,7 +264,7 @@ def diff_report(file1, file2, log_name_source):
         destlist = file2_manifest.readlines()
     for i in sourcelist:
         if i not in destlist:
-            print('%s was expected, but a different value was found in destination manifest' % i.rstrip())
+            print(('%s was expected, but a different value was found in destination manifest' % i.rstrip()))
             generate_log(
                 log_name_source,
                 'ERROR = %s was expected, but a different value was found in destination manifest' % i.rstrip())
@@ -286,7 +286,7 @@ def check_extra_files(file1, file2, log_name_source):
         sourcelist_files.append(source_files[32:])
     for i in destlist_files:
         if i not in sourcelist_files:
-            print('%s is in your destination manifest but is not in the source manifest' % i.rstrip())
+            print(('%s is in your destination manifest but is not in the source manifest' % i.rstrip()))
             generate_log(
                 log_name_source,
                 'ERROR = %s is in your destination manifest but is not in the source manifest' % i.rstrip())
@@ -513,12 +513,12 @@ def manifest_existence(
             print('checking which files are different')
             for i in file_list:
                 if i not in manifest_files:
-                    print(i, 'is present in your source directory but not in the source manifest')
+                    print((i, 'is present in your source directory but not in the source manifest'))
             for i in manifest_files:
                 if i not in file_list:
-                    print(i, 'is present in manifest but is missing in your source files')
+                    print((i, 'is present in manifest but is missing in your source files'))
             print('This manifest may be outdated as the number of files in your directory does not match the number of files in the manifest')
-            print('There are', source_count, 'files in your source directory', count_in_manifest, 'in the manifest')
+            print(('There are', source_count, 'files in your source directory', count_in_manifest, 'in the manifest'))
             generate_log(log_name_source, 'EVENT = Existing source manifest check - Failure - The number of files in the source directory is not equal to the number of files in the source manifest ')
             sys.exit()
     return proceed, count_in_manifest, manifest_files
@@ -583,17 +583,17 @@ def verify_copy(manifest, manifest_destination, log_name_source, overwrite_desti
                 log_name_source,
                 'EVENT = File Transfer Outcome - Failure, eventOutcome=fail'
             )
-            print(' There are: \n %s files in your destination manifest \n' % files_in_manifest)
-            print(' %s files in your destination \n %s files at source' % (
+            print((' There are: \n %s files in your destination manifest \n' % files_in_manifest))
+            print((' %s files in your destination \n %s files at source' % (
                 destination_count, source_count)
-            )
+            ))
             diff_report(manifest, manifest_destination, log_name_source)
             check_extra_files(manifest, manifest_destination, log_name_source)
             generate_log(log_name_source, 'EVENT = File Transfer Failure Explanation -  %s files in your destination,  %s files at source' % (destination_count, source_count))
         else:
-            print(' %s files in your destination \n %s files at source' % (
+            print((' %s files in your destination \n %s files at source' % (
                 destination_count, source_count)
-            )
+            ))
 def control_flow(manifest_sidecar, log_name_source, manifest, rootpos, args, source):
     if os.path.isfile(manifest_sidecar):
         print('Manifest Sidecar exists - Source manifest Generation will be skipped.')
@@ -719,7 +719,7 @@ def main(args_):
             sha512_manifest = manifest.replace('_manifest.md5', '_manifest-sha512.txt')
             if os.path.isfile(sha512_manifest):
                 shutil.copy2(sha512_manifest, os.path.dirname(destination_final_path))
-                print('%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path)))
+                print(('%s has been copied to %s' % (sha512_manifest, os.path.dirname(destination_final_path))))
         return log_name_source
 if __name__ == '__main__':
     main(sys.argv[1:])
