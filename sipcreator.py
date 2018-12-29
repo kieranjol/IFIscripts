@@ -13,6 +13,7 @@ import package_update
 import accession
 import manifest
 import makezip
+import deletefiles
 from masscopy import analyze_log
 try:
     from clairmeta.utils.xml import prettyprint_xml
@@ -483,6 +484,9 @@ def main(args_):
         os.makedirs(supplemental_dir)
         supplement_cmd = ['-i', [inputxml, inputtracexml, dfxml, source_manifest], '-user', user, '-new_folder', supplemental_dir, os.path.dirname(sip_path), '-copy']
         package_update.main(supplement_cmd)
+    for files in os.listdir(logs_dir):
+        if files.endswith('.md5'):
+            deletefiles.main(['-i', os.path.join(logs_dir, files), '-uuid_path', sip_path, '-user', user])
     if args.sc:
         print('Generating Digital Forensics XML')
         dfxml = accession.make_dfxml(args, sip_path, uuid)
