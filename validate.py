@@ -134,16 +134,18 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
         )
         for i in missing_files_list:
             print((('%s is missing') % i))
+    return error_counter
 
 
-def make_parser():
+def make_parser(args_):
     '''
     Creates command line arguments and help.
     '''
     parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
                                      ' Written by Kieran O\'Leary.')
     parser.add_argument('input', help='file path of md5 checksum file')
-    return parser
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
 
 
 def check_manifest(input, log_name_source):
@@ -152,8 +154,8 @@ def check_manifest(input, log_name_source):
     '''
     manifest = get_input(input)
     manifest_dict, missing_files_list = parse_manifest(manifest, log_name_source)
-    validate(manifest_dict, manifest, log_name_source, missing_files_list)
-    return manifest
+    error_counter = validate(manifest_dict, manifest, log_name_source, missing_files_list)
+    return manifest, error_counter
 
 
 def log_results(manifest, log, args):
@@ -195,12 +197,11 @@ def log_results(manifest, log, args):
                 updated_manifest = []
 
 
-def main():
+def main(args_):
     '''
     Launches all other functions when called from the command line.
     '''
-    parser = make_parser()
-    args = parser.parse_args()
+    args = make_parser(args_)
     desktop_logs_dir = make_desktop_logs_dir()
     log_name_source_ = os.path.basename(args.input) + time.strftime("_%Y_%m_%dT%H_%M_%S")
     log_name_source = "%s/%s_fixity_validation.log" % (desktop_logs_dir, log_name_source_)
@@ -216,9 +217,9 @@ def main():
         log_name_source,
         'Command line arguments: %s' % args
     )
-    manifest = check_manifest(args.input, log_name_source)
+    manifest, error_counter = check_manifest(args.input, log_name_source)
     log_results(manifest, log_name_source, args)
-
+    return error_counter
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
