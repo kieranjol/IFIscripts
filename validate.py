@@ -134,7 +134,7 @@ def validate(manifest_dict, manifest, log_name_source, missing_files_list):
         )
         for i in missing_files_list:
             print((('%s is missing') % i))
-    return error_counter
+    return error_counter + len(missing_files_list)
 
 
 def make_parser(args_):
@@ -144,15 +144,16 @@ def make_parser(args_):
     parser = argparse.ArgumentParser(description='MD5 checksum manifest validator. Currently this script expects an md5 checksum, followed by two spaces, followed by a file path.'
                                      ' Written by Kieran O\'Leary.')
     parser.add_argument('input', help='file path of md5 checksum file')
+    parser.add_argument('-update_log', help='updates the package log file with the fixity check information', action='store_true')
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def check_manifest(input, log_name_source):
+def check_manifest(args, log_name_source):
     '''
     Launches other functions.
     '''
-    manifest = get_input(input)
+    manifest = get_input(args.input)
     manifest_dict, missing_files_list = parse_manifest(manifest, log_name_source)
     error_counter = validate(manifest_dict, manifest, log_name_source, missing_files_list)
     return manifest, error_counter
@@ -217,8 +218,9 @@ def main(args_):
         log_name_source,
         'Command line arguments: %s' % args
     )
-    manifest, error_counter = check_manifest(args.input, log_name_source)
-    log_results(manifest, log_name_source, args)
+    manifest, error_counter = check_manifest(args, log_name_source)
+    if args.update_log:
+        log_results(manifest, log_name_source, args)
     return error_counter
 
 if __name__ == '__main__':
