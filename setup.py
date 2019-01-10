@@ -44,7 +44,8 @@ NOTE: Objects.py has been copied from https://github.com/simsong/dfxml. walk_to_
         'packagecheck.py',
         'testfiles.py',
         'normalise.py',
-        'makezip.py'
+        'makezip.py',
+        'multicopy.py'
     ],
     license='MIT',
     install_requires=[
