@@ -144,12 +144,7 @@ def main(args_):
     print(args)
     source = args.i
     output_folder = args.o
-    log_name_source = os.path.join(args.o, '%s_normalise_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
-    ififuncs.generate_log(log_name_source, 'normalise.py started.')
-    ififuncs.generate_log(
-        log_name_source,
-        'Command line arguments: %s' % args
-    )
+    file_list = ififuncs.get_video_files(source)
     if args.sip:
         if args.user:
             user = args.user
@@ -169,12 +164,18 @@ def main(args_):
                 object_entry = args.oe
         else:
             object_entry = ififuncs.get_object_entry()
+    oe_digits = int(object_entry.replace('oe', ''))
+    for filename in file_list:
+        log_name_source = os.path.join(args.o, '%s_normalise_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
+        ififuncs.generate_log(log_name_source, 'normalise.py started.')
+        ififuncs.generate_log(
+            log_name_source,
+            'Command line arguments: %s' % args
+        )
         ififuncs.generate_log(
             log_name_source,
             'EVENT = agentName=%s' % user
         )
-    file_list = ififuncs.get_video_files(source)
-    for filename in file_list:
         print('\n - Processing: %s' % filename)
         ififuncs.generate_log(
             log_name_source,
@@ -189,8 +190,9 @@ def main(args_):
             log_name_source,
             'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation, eventOutcome=%s' % verdict)
         if args.sip:
+            object_entry_complete = 'oe' + str(oe_digits)
             supplement_cmd = ['-supplement', inputxml, inputtracexml, dfxml]
-            sipcreator_cmd = ['-i', output, '-move', '-u', output_uuid, '-user', user, '-oe', object_entry, '-o', args.o]
+            sipcreator_cmd = ['-i', output, '-move', '-u', output_uuid, '-user', user, '-oe', object_entry_complete, '-o', args.o]
             if args.supplement:
                 supplement_cmd.extend(args.supplement)
             sipcreator_cmd.extend(supplement_cmd)
@@ -209,6 +211,7 @@ def main(args_):
             os.remove(dfxml)
             os.remove(inputxml)
             os.remove(inputtracexml)
+            oe_digits += 1
 
 if __name__ == '__main__':
     main(sys.argv[1:])
