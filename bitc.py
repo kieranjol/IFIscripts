@@ -27,7 +27,7 @@ def getffprobe(variable, streamvalue, which_file):
     return variable
 
 
-def set_options():
+def set_options(args_):
     '''
     Parse command line options.
     '''
@@ -99,7 +99,8 @@ def set_options():
         action='store_true',
         help='uses yadif, 4:3 DAR with 1:1 PAR, with no watermark or timecode.'
     )
-    return parser.parse_args()
+    parsed_args = parser.parse_args(args_)
+    return parsed_args
 
 
 def build_filter(args, filename):
@@ -216,11 +217,11 @@ def setup_drawtext(args, filename):
         return bitc_watermark
 
 
-def main():
+def main(args_):
     '''
     Launch the various functions that will make a h264/mp4 access copy.
     '''
-    args = set_options()
+    args = set_options(args_)
     video_files = get_filenames(args)
     for filename in video_files:
         filter_list = build_filter(args, filename)
@@ -270,4 +271,4 @@ def make_h264(filename, args, filter_list):
             fo.write('%s  %s' % (h264_md5, filename))
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
