@@ -50,9 +50,15 @@ def short_test(images):
     ififuncs.hashlib_manifest(restored_dir, restored_manifest, restored_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, restored_manifest)
     print((' - Deleting temp directory %s' % temp_dir))
-    shutil.rmtree(temp_dir)
+    try:
+        shutil.rmtree(temp_dir)
+    except WindowsError:
+        print('Sorry, we do not have permission to delete these files')
     print((' - Deleting temp reversibility directory %s' % rawcooked_dir))
-    shutil.rmtree(rawcooked_dir)
+    try:
+        shutil.rmtree(rawcooked_dir)
+    except WindowsError:
+        print('Sorry, we do not have permission to delete these files')
     print((' - Deleting temp FFV1/MKV %s' % mkv_file))
     os.remove(mkv_file)
     return judgement
@@ -72,7 +78,10 @@ def reversibility_verification(objects, source_manifest, reversibility_dir):
     ififuncs.hashlib_manifest(temp_dir, converted_manifest, temp_dir)
     judgement = ififuncs.diff_textfiles(converted_manifest, source_manifest)
     print((' - Deleting temp directory %s' % temp_dir))
-    shutil.rmtree(temp_dir)
+    try:
+        shutil.rmtree(temp_dir)
+    except WindowsError:
+        print('Unable to delete temp directory, sorry!')
     return judgement
 
 def run_loop(args):
