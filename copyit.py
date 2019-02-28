@@ -570,7 +570,11 @@ def make_destination_manifest(
 
 
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
-    if filecmp.cmp(manifest, manifest_destination, shallow=False):
+    with open(manifest, 'r') as source_manifest_object:
+        source_manifest_lines = source_manifest_object.read()
+    with open(manifest_destination, 'r') as destination_manifest_object:
+        destination_manifest_lines = destination_manifest_object.read()
+    if source_manifest_lines == destination_manifest_lines:
         print("Your files have reached their destination and the checksums match")
         generate_log(
             log_name_source,
