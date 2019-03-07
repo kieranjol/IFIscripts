@@ -2,6 +2,8 @@
 A collection of functions that other scripts can use.
 
 '''
+from __future__ import print_function
+
 import subprocess
 import sys
 import time
@@ -361,7 +363,8 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
         filenames = [f for f in filenames if not f[0] == '.']
         directories[:] = [d for d in directories if not d[0] == '.']
         for files in filenames:
-            print(" - Calculating number of files to process in current directory -  %s files        \r"% file_count,)
+            #print(" - Calculating number of files to process in current directory -  %s files        \r "% file_count)
+            print("- Calculating number of files to process in current directory - {0} files ".format(file_count), end="\r")
             file_count += 1
     manifest_generator = ''
     md5_counter = 1

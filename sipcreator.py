@@ -549,7 +549,7 @@ def main(args_):
         if 'log_names' in locals():
             log_report(log_names)
     finish = datetime.datetime.now()
-    print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
+    print('\n- %s ran this script at %s and it finished at %s' % (user, start, finish))
     if args.d:
         process_dcp(sip_path, content_title, args, new_manifest_textfile, new_log_textfile, metadata_dir, clairmeta_version)
     if args.accession:
