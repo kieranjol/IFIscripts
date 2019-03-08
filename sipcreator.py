@@ -1,18 +1,23 @@
 #!/usr/bin/env python
 '''
 Generates SIPS by calling various microservices and functions.
+
+
+add in a check at the start - check if AF number is actually in the CSV.
 '''
 import os
 import argparse
 import sys
 import shutil
 import datetime
+import time
 import copyit
 import ififuncs
 import package_update
 import accession
 import manifest
 import makezip
+import accession
 from masscopy import analyze_log
 try:
     from clairmeta.utils.xml import prettyprint_xml
@@ -210,6 +215,14 @@ def parse_args(args_):
         help='Uses makezip.py to store the objects in an uncompressed ZIP'
     )
     parser.add_argument(
+        '-accession', action='store_true',
+        help='Launches accession.py immediately after sipcreator.py finishes. This is only useful if the SIP has already passed QC and will definitely be accessioned and ingested.'
+    )
+    parser.add_argument(
+        '-csv',
+        help='Enter the path to the Filmographic CSV so that the metadata will be stored within the package.'
+    )
+    parser.add_argument(
         '-oe',
         help='Enter the Object Entry number for the representation.SIP will be placed in a folder with this name.'
     )
@@ -360,6 +373,31 @@ def process_dcp(sip_path, content_title, args, new_manifest_textfile, new_log_te
     ififuncs.manifest_update(new_manifest_textfile, clairmeta_xml)
     print(status)
     print(report)
+
+def make_oe_register():
+    '''
+    This sends a placeholder oe register to the desktop logs directory.
+    This should get rid of some of the more painful, repetitive identifier matching.
+    '''
+    desktop_logs_dir = ififuncs.make_desktop_logs_dir()
+    oe_register = os.path.join(
+        desktop_logs_dir,
+        'oe_helper_register_' + time.strftime("%Y-%m-%dT%H_%M_%S.csv")
+    )
+    ififuncs.create_csv(oe_register, (
+        'OE No.',
+        'Date Received',
+        'Quantity',
+        'Format',
+        'Description',
+        'Contact Name',
+        'Type of Acquisition',
+        'Accession No.',
+        'Additional Information',
+        'Habitat',
+        'Vinegar No'
+    ))
+    return oe_register
 def main(args_):
     '''
     Launch all the functions for creating an IFI SIP.
@@ -412,6 +450,14 @@ def main(args_):
     metadata_dir = os.path.join(sip_path, 'metadata')
     supplemental_dir = os.path.join(metadata_dir, 'supplemental')
     logs_dir = os.path.join(sip_path, 'logs')
+    if args.accession:
+        accession_number = ififuncs.get_accession_number()
+        reference_number = ififuncs.get_reference_number()
+        parent = ififuncs.ask_question('What is the parent record? eg MV 1234. Enter n/a if this is a born digital acquisition with no parent.')
+        donor = ififuncs.ask_question('Who is the source of acquisition, as appears on the donor agreement? This will not affect Reproductions.')
+        depositor_reference = ififuncs.ask_question('What is the donor/depositor number? This will not affect Reproductions.')
+        acquisition_type = ififuncs.get_acquisition_type('')
+        donation_date = ififuncs.ask_question('When was the donation date in DD/MM/YYYY format? Eg. 31/12/1999 - Unfortunately this is NOT using ISO 8601.')
     if args.zip:
         inputxml, inputtracexml, dfxml = ififuncs.generate_mediainfo_xmls(inputs[0], args.o, uuid, new_log_textfile)
         if args.manifest:
@@ -503,9 +549,37 @@ def main(args_):
         if 'log_names' in locals():
             log_report(log_names)
     finish = datetime.datetime.now()
-    print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
+    print('\n- %s ran this script at %s and it finished at %s' % (user, start, finish))
     if args.d:
         process_dcp(sip_path, content_title, args, new_manifest_textfile, new_log_textfile, metadata_dir, clairmeta_version)
+    if args.accession:
+        register = accession.make_register()
+        filmographic_dict = ififuncs.extract_metadata(args.csv)[0]
+        for filmographic_record in filmographic_dict:
+            if filmographic_record['Reference Number'].lower() == reference_number.lower():
+                if filmographic_record['Title'] == '':
+                    title = filmographic_record['TitleSeries'] + '; ' + filmographic_record['EpisodeNo']
+                else:
+                    title = filmographic_record['Title']
+        oe_register = make_oe_register()
+        ififuncs.append_csv(oe_register, (object_entry.upper()[:2] + '-' + object_entry[2:], donation_date, '1','',title,donor,acquisition_type[1], accession_number, 'Representation of %s|Reproduction of %s' % (reference_number, parent), ''))
+        accession_cmd = [
+            os.path.dirname(sip_path), '-user', user,
+            '-f',
+            '-number', accession_number,
+            '-reference', reference_number,
+            '-register', register,
+            '-csv', args.csv,
+            '-pbcore'
+        ]
+        if not parent.lower() == 'n/a':
+            accession_cmd.extend(['-parent', parent])
+        accession_cmd.extend(['-donor', donor])
+        accession_cmd.extend(['-depositor_reference', depositor_reference])
+        accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
+        accession_cmd.extend(['-donation_date', donation_date])
+        print(accession_cmd)
+        accession.main(accession_cmd)
     return new_log_textfile, new_manifest_textfile
 
 

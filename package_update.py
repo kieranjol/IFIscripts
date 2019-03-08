@@ -164,7 +164,7 @@ def main(args_):
     )
     ififuncs.checksum_replace(sip_manifest, new_log_textfile, 'md5')
     finish = datetime.datetime.now()
-    print(('\n', user, 'ran this script at %s and it finished at %s' % (start, finish)))
+    print('\n- %s ran this script at %s and it finished at %s' % (user, start, finish))
 
 
 if __name__ == '__main__':
