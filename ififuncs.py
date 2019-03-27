@@ -958,24 +958,13 @@ def get_accession_number():
 
 def get_reference_number():
     '''
-    Asks user for a Filmographic reference number. A valid number (af1####) must be provided.
+    Asks user for a Filmographic reference number. Due to the variety of reference numbers, validation
+    will be removed for now.
     '''
-    reference_number = False
-    while reference_number is False:
-        reference_number = input(
-            '\n\n**** Please enter the Filmographic reference number of the representation\n\n'
-        )
-        if reference_number[:3] != 'af1':
-            print(' - First two characters must be \'af\' and the last five characters must be five digits')
-            reference_number = False
-        elif len(reference_number[2:]) != 5:
-            reference_number = False
-            print(' - First two characters must be \'af\' and last five characters must be five digits')
-        elif not reference_number[2:].isdigit():
-            reference_number = False
-            print(' - First two characters must be \'af\' and last five characters must be five digits')
-        else:
-            return reference_number.upper()
+    reference_number = input(
+        '\n\n**** Please enter the Filmographic reference number of the representation- if there is more than one work that is represented, seperate them with an ampersand, eg af1234&aa675\n\n'
+    )
+    return reference_number.upper()
 
 def get_contenttitletext(cpl):
     '''

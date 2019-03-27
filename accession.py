@@ -70,7 +70,7 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-reference',
-        help='Enter the Filmographic reference number for the representation. This is only relevant when used with -pbcore' 
+        help='Enter the Filmographic reference number for the representation. This is only relevant when used with -pbcore. For multiple works that are represented, seperate each reference number with a + sign eg AF1234+AC456'
     )
     parser.add_argument(
         '-register',
@@ -236,15 +236,20 @@ def main(args_):
         # want to make the pbcore csv, perhaps because the latter already exists.
         if args.csv:
             metadata_dir = os.path.join(new_uuid_path, 'metadata')
-            package_filmographic = os.path.join(metadata_dir, Reference_Number + '_filmographic.csv')
-            insert_filmographic(args.csv, Reference_Number, package_filmographic)
-            ififuncs.generate_log(
-                sipcreator_log,
-                'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
-            )
-            ififuncs.manifest_update(sip_manifest, package_filmographic)
-            ififuncs.sha512_update(sha512_manifest, package_filmographic)
-            print('Filmographic descriptive metadata added to metadata folder')
+            if '+' in Reference_Number:
+                reference_list = Reference_Number.split('+')
+            else:
+                reference_list = [Reference_Number]
+            for ref in reference_list:
+                package_filmographic = os.path.join(metadata_dir, ref + '_filmographic.csv')
+                insert_filmographic(args.csv, ref , package_filmographic)
+                ififuncs.generate_log(
+                    sipcreator_log,
+                    'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
+                )
+                ififuncs.manifest_update(sip_manifest, package_filmographic)
+                ififuncs.sha512_update(sha512_manifest, package_filmographic)
+                print('Filmographic descriptive metadata added to metadata folder')
         ififuncs.generate_log(
             sipcreator_log,
             'EVENT = accession.py finished'
@@ -254,18 +259,19 @@ def main(args_):
         ififuncs.manifest_update(sip_manifest, dfxml)
         ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
-            makepbcore_cmd = [accession_path, '-p', '-user', user, '-reference', Reference_Number]
-            if args.parent:
-                makepbcore_cmd.extend(['-parent', args.parent])
-            if args.acquisition_type:
-                makepbcore_cmd.extend(['-acquisition_type', args.acquisition_type])
-            if args.donor:
-                makepbcore_cmd.extend(['-donor', args.donor])
-            if args.donor:
-                makepbcore_cmd.extend(['-depositor_reference', args.depositor_reference])
-            if args.donation_date:
-                makepbcore_cmd.extend(['-donation_date', args.donation_date])
-            makepbcore.main(makepbcore_cmd)
+            for ref in reference_list:
+                makepbcore_cmd = [accession_path, '-p', '-user', user, '-reference', ref]
+                if args.parent:
+                    makepbcore_cmd.extend(['-parent', args.parent])
+                if args.acquisition_type:
+                    makepbcore_cmd.extend(['-acquisition_type', args.acquisition_type])
+                if args.donor:
+                    makepbcore_cmd.extend(['-donor', args.donor])
+                if args.donor:
+                    makepbcore_cmd.extend(['-depositor_reference', args.depositor_reference])
+                if args.donation_date:
+                    makepbcore_cmd.extend(['-donation_date', args.donation_date])
+                makepbcore.main(makepbcore_cmd)
     else:
         print('not a valid package. The input should include a package that has been through Object Entry')
 
