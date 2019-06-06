@@ -135,6 +135,9 @@ def run_loop(args):
                 print('It appears that this sequence is not reversible - exiting')
                 sys.exit()
         time.sleep(2)
+        # check for a/b rolls
+        if reel[-1] in ['a', 'b']:
+            reel_number = reel[-2]
         ffv1_path, source_abspath, args, log_name_source, normalisation_tool, rawcooked_logfile = make_ffv1(
             reel,
             args,
@@ -145,7 +148,9 @@ def run_loop(args):
         )
         objects.append(ffv1_path)
         rawcooked_logfiles.append(rawcooked_logfile)
-        reel_number += 1
+        # check for a/b rolls
+        if not reel[-1] in ['a', 'b']:
+            reel_number += 1
     judgement = package(objects, object_entry, uuid, source_abspath, args, log_name_source, normalisation_tool, user, rawcooked_logfiles, multi_reeler, current_dir)
     judgement, sipcreator_log, sipcreator_manifest = judgement
     verdicts.append([source_directory, judgement])
@@ -189,7 +194,10 @@ def make_ffv1(
     '''
     output_dirname = args.o
     if multi_reeler:
-        mkv_basename = uuid + '_reel%s.mkv' % str(reel_number)
+        if reel[-1] in ['a', 'b']:    
+            mkv_basename = uuid + '_reel%s%s.mkv' % (str(reel_number), reel[-1])
+        else:
+            mkv_basename = uuid + '_reel%s.mkv' % str(reel_number)
     else:
         mkv_basename = uuid + '.mkv'
     ffv1_path = os.path.join(output_dirname, mkv_basename)
