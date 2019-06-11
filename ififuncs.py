@@ -708,11 +708,11 @@ def get_user():
     user = ''
     if user not in ('1', '2', '3', '4', '5', '6', '7'):
         user = input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
+            '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8.Yujing Huang\n9. Thomas Mc Keon\n'
         )
         while user not in ('1', '2', '3', '4', '5', '6', '7'):
             user = input(
-                '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n'
+                '\n\n**** Who are you?\nPress 1,2,3,4,5,6\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Thomas Mc Keon\n'
             )
     if user == '1':
         user = 'Leanne Ledwidge'
@@ -734,6 +734,12 @@ def get_user():
         time.sleep(1)
     elif user == '7':
         user = 'Eoin O\'Donohoe'
+        time.sleep(1)
+    elif user == '8':
+        user = 'Yujing Haung'
+        time.sleep(1)
+    elif user == '9':
+        user = 'Thomas Mc Keon'
         time.sleep(1)
     return user
 
