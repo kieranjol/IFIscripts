@@ -736,7 +736,7 @@ def get_user():
         user = 'Eoin O\'Donohoe'
         time.sleep(1)
     elif user == '8':
-        user = 'Yujing Haung'
+        user = 'Yujing Huang'
         time.sleep(1)
     elif user == '9':
         user = 'Thomas Mc Keon'
