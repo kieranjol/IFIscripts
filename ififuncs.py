@@ -1581,6 +1581,48 @@ def check_for_fcp(filename):
             if height == '576':
                 if width == '720':
                     return True
+
+def check_for_blackmagic(filename):
+    '''
+    Blackmagic Media Express writes a lot of significant metadata
+    to a MOV file that needs to be specified or altered when migrating
+    to FFV1/Matroska. For example, BME writes a clap atom and a pasp
+    atom in the mov file that sipulates a clean aperture width of 702
+    along with a pixel aspect ratio of 1.093. This will result in the MKV
+    file having a DAR of 1.38 rather than 1.33.
+    '''
+    par_clap = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw', '--Full',
+            "--Inform=Video;%PixelAspectRatio_CleanAperture%", filename
+        ]
+        ).rstrip()
+    scan_order = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%ScanOrder%", filename
+        ]
+        ).rstrip()
+    height_clap = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Height_CleanAperture%",
+            filename
+        ]
+        ).rstrip()
+    width_clap = subprocess.check_output(
+        [
+            'mediainfo', '--Language=raw',
+            '--Full', "--Inform=Video;%Width_CleanAperture%",
+            filename
+        ]
+        ).rstrip()
+    print(par_clap, scan_order, height_clap, width_clap)
+    if par_clap == '1.093':
+        if scan_order == 'TFF':
+            if height_clap == '576':
+                if width_clap == '702':
+                    return True
 def read_non_comment_lines(infile):
     '''
     This was pulled from makeffv1, and it looks like the key line has actually been commented out.
