@@ -19,14 +19,14 @@ def parse_args(args_):
         ' Written by Kieran O\'Leary.'
     )
     parser.add_argument(
-        '-register', help='Path to helper accessions register'
+        '-sorted_csv', help='Path to sorted helper CSV'
     )
     parser.add_argument(
-        '-technical',
+        '-pbcore_csv',
         help='Path to technical/PBCore CSV.'
     )
     parser.add_argument(
-        '-filmographic',
+        '-filmo_csv',
         help='Path to Filmographic CSV. Must contain reference numbers.'
     )
     parsed_args = parser.parse_args(args_)
@@ -54,17 +54,17 @@ def main(args_):
     Launches functions that will generate a helper accessions register
     '''
     args = parse_args(args_)
-    register_dict = ififuncs.extract_metadata(args.register)[0]
-    technical_dict = ififuncs.extract_metadata(args.technical)[0]
-    filmographic_dict = ififuncs.extract_metadata(args.filmographic)[0]
-    for accession in register_dict:
+    sorted_csv_dict = ififuncs.extract_metadata(args.sorted_csv)[0]
+    pbcore_csv_dict = ififuncs.extract_metadata(args.pbcore_csv)[0]
+    filmo_csv_dict = ififuncs.extract_metadata(args.filmo_csv)[0]
+    for accession in sorted_csv_dict:
         number = accession['accession number']
-        for technical_record in technical_dict:
+        for technical_record in pbcore_csv_dict:
             if technical_record['Accession Number'] == number:
                 accession['acquisition method'] = technical_record['Type Of Deposit']
                 accession['acquired from'] = technical_record['Donor']
                 accession['date acquired'] = technical_record['Date Of Donation']
-                for filmographic_record in filmographic_dict:
+                for filmographic_record in filmo_csv_dict:
                     if filmographic_record['Reference Number'] == technical_record['Reference Number']:
                         if filmographic_record['Title'] == '':
                             title = filmographic_record['TitleSeries'] + '; ' + filmographic_record['EpisodeNo']
@@ -78,10 +78,10 @@ def main(args_):
     new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + 'helper_register.csv'
     new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
     with open(new_csv, 'w') as csvfile:
-            fieldnames = ififuncs.extract_metadata(args.register)[1]
+            fieldnames = ififuncs.extract_metadata(args.sorted_csv)[1]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-            for i in register_dict:
+            for i in sorted_csv_dict:
                 writer.writerow(i)
     print('\nYour helper CSV file is located here: %s\n' % new_csv)
 
