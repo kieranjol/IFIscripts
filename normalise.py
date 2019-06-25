@@ -93,6 +93,9 @@ def normalise_process(filename, output_folder):
         # let's stipulate the colour metadata if not present for SD PAL material.
         if not ififuncs.get_colour_metadata(ffprobe_dict):
             ffv1_command += ['-color_primaries', 'bt470bg', '-color_trc', 'bt709', '-colorspace', 'bt470bg' ]
+    elif ififuncs.check_for_blackmagic(filename) is True:
+        print(' - A 720/576  with TFF scan type, clap atom featuring 702 width and a PAR of 1.093 has been detected.')
+        ffv1_command += ['-vf', 'setdar=4/3', '-color_primaries', 'bt470bg', '-color_trc', 'bt709', '-colorspace', 'bt470bg']
     ffv1_command += [
         output,
         '-f', 'framemd5', '-an',  # Create decoded md5 checksums for every frame of the input. -an ignores audio
