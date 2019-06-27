@@ -219,7 +219,7 @@ def parse_args(args_):
         help='Launches accession.py immediately after sipcreator.py finishes. This is only useful if the SIP has already passed QC and will definitely be accessioned and ingested.'
     )
     parser.add_argument(
-        '-csv',
+        '-filmo_csv',
         help='Enter the path to the Filmographic CSV so that the metadata will be stored within the package.'
     )
     parser.add_argument(
@@ -554,7 +554,7 @@ def main(args_):
         process_dcp(sip_path, content_title, args, new_manifest_textfile, new_log_textfile, metadata_dir, clairmeta_version)
     if args.accession:
         register = accession.make_register()
-        filmographic_dict = ififuncs.extract_metadata(args.csv)[0]
+        filmographic_dict = ififuncs.extract_metadata(args.filmo_csv)[0]
         for filmographic_record in filmographic_dict:
             if filmographic_record['Reference Number'].lower() == reference_number.lower():
                 if filmographic_record['Title'] == '':
@@ -569,7 +569,7 @@ def main(args_):
             '-number', accession_number,
             '-reference', reference_number,
             '-register', register,
-            '-csv', args.csv,
+            '-filmo_csv', args.filmo_csv,
             '-pbcore'
         ]
         if not parent.lower() == 'n/a':
