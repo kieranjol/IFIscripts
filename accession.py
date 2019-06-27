@@ -77,7 +77,7 @@ def parse_args(args_):
         help='Path of accessions register CSV file. Mostly to be used by batchaccession.py'
     )
     parser.add_argument(
-        '-csv',
+        '-filmo_csv',
         help='Enter the path to the Filmographic CSV so that the metadata will be stored within the package.'
     )
     parser.add_argument(
@@ -234,7 +234,7 @@ def main(args_):
         # this is inefficient. The script should not have to ask for reference
         # number twice if someone wants to insert the filmographic but do not
         # want to make the pbcore csv, perhaps because the latter already exists.
-        if args.csv:
+        if args.filmo_csv:
             metadata_dir = os.path.join(new_uuid_path, 'metadata')
             if '+' in Reference_Number:
                 reference_list = Reference_Number.split('+')
@@ -242,7 +242,7 @@ def main(args_):
                 reference_list = [Reference_Number]
             for ref in reference_list:
                 package_filmographic = os.path.join(metadata_dir, ref + '_filmographic.csv')
-                insert_filmographic(args.csv, ref , package_filmographic)
+                insert_filmographic(args.filmo_csv, ref , package_filmographic)
                 ififuncs.generate_log(
                     sipcreator_log,
                     'EVENT = Metadata extraction - eventDetail=Filmographic descriptive metadata added to metadata folder, eventOutcome=%s, agentName=accession.py' % (package_filmographic)
