@@ -140,7 +140,7 @@ def parse_args(args_):
         help='Enter the Accession number for the first package. The script will increment by one for each subsequent package.'
     )
     parser.add_argument(
-        '-filmographic',
+        '-filmo_csv',
         help='Enter the path to the Filmographic CSV'
     )
     parser.add_argument(
@@ -223,7 +223,7 @@ def main(args_):
     args = parse_args(args_)
     oe_list = []
     if args.oe_csv:
-        if not args.filmographic:
+        if not args.filmo_csv:
             print(' - batchaccession.py - ERROR\n - No -filmographic argument supplied. This is mandatory when using the -oe_csv option. \n - Exiting..')
             sys.exit()
         oe_csv_extraction = ififuncs.extract_metadata(args.oe_csv)
@@ -231,11 +231,11 @@ def main(args_):
         oe_dicts = process_oe_csv(oe_csv_extraction, args.input)
         # temp hack while we're performing both workflows
         helper_csv = args.oe_csv
-    elif args.filmographic:
-        initial_oe_list = ififuncs.extract_metadata(args.filmographic)[0]
+    elif args.filmo_csv:
+        initial_oe_list = ififuncs.extract_metadata(args.filmo_csv)[0]
         # temp hack while we're performing both workflows
-        helper_csv = args.filmographic
-    if args.oe_csv or args.filmographic:
+        helper_csv = args.filmo_csv
+    if args.oe_csv or args.filmo_csv:
         for line_item in ififuncs.extract_metadata(helper_csv)[0]:
             try:
                 oe_number = line_item['Object Entry'].lower()
@@ -268,15 +268,15 @@ def main(args_):
     for success in sorted(to_accession.keys()):
         print('%s will be accessioned as %s' %  (success, to_accession[success]))
     register = accession.make_register()
-    if args.filmographic:
+    if args.filmo_csv:
         desktop_logs_dir = ififuncs.make_desktop_logs_dir()
         if args.dryrun:
-            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_DRYRUN_SHEET_PLEASE_DO_NOT_INGEST_JUST_IGNORE_COMPLETELY") + os.path.basename(args.filmographic)
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_DRYRUN_SHEET_PLEASE_DO_NOT_INGEST_JUST_IGNORE_COMPLETELY") + os.path.basename(args.filmo_csv)
         else:
-            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.filmographic)
+            new_csv_filename = time.strftime("%Y-%m-%dT%H_%M_%S_") + os.path.basename(args.filmo_csv)
         new_csv = os.path.join(desktop_logs_dir, new_csv_filename)
         if not args.oe_csv:
-            filmographic_dict, headers = ififuncs.extract_metadata(args.filmographic)
+            filmographic_dict, headers = ififuncs.extract_metadata(args.filmo_csv)
             for oe_package in to_accession:
                 for filmographic_record in filmographic_dict:
                     if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
@@ -299,7 +299,7 @@ def main(args_):
         'Do you want to proceed?'
     )
     if args.oe_csv:
-        new_csv = args.filmographic
+        new_csv = args.filmo_csv
     if proceed == 'Y':
         for package in sorted(to_accession.keys(), key=natural_keys):
             accession_cmd = [
