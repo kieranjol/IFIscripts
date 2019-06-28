@@ -54,7 +54,7 @@ parser.add_argument(
                     action='store_true',help='Scale to 1920:1080 while preserving the aspect ratio')
 parser.add_argument(
                     '-lowres',
-                    help='[0,1,2]Use the jpeg2000 lowres option for rescaling and speed increases. Accepts a value of 0 (original size), 1 (50% size), 2 (25% size)')
+                    help='[0,1,2]Use the jpeg2000 lowres option for rescaling and speed increases. Accepts a value of 0 (original size), 1 (50 PERCENT size), 2 (25 PERCENT size)')
 args = parser.parse_args()
 '''
 if args.bag:
