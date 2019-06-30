@@ -28,6 +28,11 @@ parser.add_argument(
                     '-map',
                     action='store_true',
                     help='Force default mapping, eg. 1 audio/video stream')
+parser.add_argument(
+                    '-o',
+                    help='Set output directory.'
+                    'The default directory is the same as the input directory')
+  
 args = parser.parse_args()
 prores_options = []
     
@@ -76,7 +81,15 @@ else:
                       
 for filename in video_files:
     #pdb.set_trace()
-    output = filename + "_prores.mov"
+    
+    if args.o:
+        output = args.o + '/' + os.path.basename(filename) + "_prores.mov"
+    else:
+        output = filename + "_prores.mov"
+    ffmpeg_args = [
+        'ffmpeg',
+        '-i', filename,
+    ]
     
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
@@ -87,7 +100,6 @@ for filename in video_files:
         ffmpeg_args.append('0:a?')
         ffmpeg_args.append('-map')
         ffmpeg_args.append('0:v')
-        
                 
     if args.hq:
         ffmpeg_args.append('-profile:v')
