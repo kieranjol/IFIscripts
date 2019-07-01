@@ -565,7 +565,7 @@ def main(args_):
         ififuncs.append_csv(oe_register, (object_entry.upper()[:2] + '-' + object_entry[2:], donation_date, '1','',title,donor,acquisition_type[1], accession_number, 'Representation of %s|Reproduction of %s' % (reference_number, parent), ''))
         accession_cmd = [
             os.path.dirname(sip_path), '-user', user,
-            '-f',
+            '-force',
             '-number', accession_number,
             '-reference', reference_number,
             '-register', register,

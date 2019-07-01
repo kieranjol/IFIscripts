@@ -304,11 +304,11 @@ def main(args_):
         for package in sorted(to_accession.keys(), key=natural_keys):
             accession_cmd = [
                 package, '-user', user,
-                '-f',
+                '-force',
                 '-number', to_accession[package][0],
                 '-reference', to_accession[package][1],
                 '-register', register,
-                '-csv', new_csv
+                '-filmo_csv', new_csv
             ]
             for oe_record in oe_dicts:
                 if oe_record['source_path'] == package:
