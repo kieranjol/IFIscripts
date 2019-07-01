@@ -208,6 +208,8 @@ def make_ffv1(
     rawcooked_logfile = "\'" + rawcooked_logfile + "\'"
     env_dict = ififuncs.set_environment(rawcooked_logfile)
     rawcooked_cmd = ['rawcooked', reel, '--check', 'full', '-c:a', 'copy', '-o', ffv1_path]
+    if args.framerate:
+        rawcooked_cmd.extend(['-framerate', args.framerate])
     ffv12dpx = (rawcooked_cmd)
     print(ffv12dpx)
     if args.zip:
@@ -354,6 +356,9 @@ def setup():
     parser.add_argument(
         '-reversibility_dir',
         help='This argument requires the full path of the location that you want to use for the reversibility directory. By default, seq2ffv1 will use your output dir for storing the temporary reversibility files.')
+    parser.add_argument(
+        '-framerate',
+        help='This argument triggers the -framerate option in rawcooked and allows you to override the default fps value, eg -framerate 16')
     parser.add_argument(
         '-zip',
         help='Use makezip.py to generate an uncompressed zip file', action='store_true'
