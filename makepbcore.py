@@ -698,12 +698,12 @@ def main(args_):
     for i in metadata_list:
         if len(set(i)) > 1:
             metadata_error += 'WARNING - Your metadata values are not the same for all files - but this could be a false positive if dealing with atomised audio and video as with DCP: %s\n' % set(i)
-            print(metadata_error)
             if args.p:
                 ififuncs.generate_log(
                     sipcreator_log,
                     'EVENT = Metadata mismatch - Your metadata values are not the same for all files - but this could be a false positive if dealing with atomised audio and video as with DCP: %s' % set(i)
                 )
+    print(metadata_error)
     tc = ififuncs.convert_millis(ms)
     instantiationDuratio = ififuncs.convert_timecode(25, tc)
     if args.donor:
@@ -758,6 +758,7 @@ def main(args_):
     '''
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
     pix_fmt = process_mixed_values(pix_fmt_list)
+    audio_fmt = process_mixed_values(audio_fmt_list)
     TimeCode_Source = timecode_source
     reproduction_reason = ''
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
