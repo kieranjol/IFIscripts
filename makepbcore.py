@@ -178,6 +178,10 @@ def parse_args(args_):
         '-donation_date',
         help='Enter the date of dontation/acquisition/deposit etc. 2018-12-30 or 30/12/2018 depending on source of data'
     )
+    parser.add_argument(
+        '-reproduction_creator',
+        help='Enter the person/organisation that created the reproduction. Only suitable for reprodctions, not donations!'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -707,7 +711,10 @@ def main(args_):
     Date_Last_Modified = ''
     Film_Or_Tape = 'Digital AV Object'
     Date_Of_Donation = ''
-    reproduction_creator = ''
+    if args.reproduction_creator:
+        reproduction_creator = args.reproduction_creator
+    else:
+        reproduction_creator = ''
     if args.acquisition_type:
         if acquisition_type == 'Reproduction':
             Date_Of_Donation = instantiationDate_mo.split('T')[0]

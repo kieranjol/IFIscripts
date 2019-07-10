@@ -100,6 +100,10 @@ def parse_args(args_):
         '-donation_date',
         help='Enter the date of dontation/acquisition/deposit etc. 2018-12-30 or 30/12/2018 depending on source of data'
     )
+    parser.add_argument(
+        '-reproduction_creator',
+        help='Enter the person/organisation that created the reproduction. Only suitable for reprodctions, not donations!'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -269,6 +273,8 @@ def main(args_):
                     makepbcore_cmd.extend(['-donor', args.donor])
                 if args.donor:
                     makepbcore_cmd.extend(['-depositor_reference', args.depositor_reference])
+                if args.reproduction_creator:
+                    makepbcore_cmd.extend(['-reproduction_creator', args.reproduction_creator])
                 if args.donation_date:
                     makepbcore_cmd.extend(['-donation_date', args.donation_date])
                 makepbcore.main(makepbcore_cmd)

@@ -455,6 +455,7 @@ def main(args_):
         reference_number = ififuncs.get_reference_number()
         parent = ififuncs.ask_question('What is the parent record? eg MV 1234. Enter n/a if this is a born digital acquisition with no parent.')
         donor = ififuncs.ask_question('Who is the source of acquisition, as appears on the donor agreement? This will not affect Reproductions.')
+        reproduction_creator = ififuncs.ask_question('Who is the reproduction creator? This will not affect acquisitions. Enter n/a if not applicable')
         depositor_reference = ififuncs.ask_question('What is the donor/depositor number? This will not affect Reproductions.')
         acquisition_type = ififuncs.get_acquisition_type('')
         donation_date = ififuncs.ask_question('When was the donation date in DD/MM/YYYY format? Eg. 31/12/1999 - Unfortunately this is NOT using ISO 8601.')
@@ -578,6 +579,7 @@ def main(args_):
         accession_cmd.extend(['-depositor_reference', depositor_reference])
         accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
         accession_cmd.extend(['-donation_date', donation_date])
+        accession_cmd.extend(['-reproduction_creator', reproduction_creator])
         print(accession_cmd)
         accession.main(accession_cmd)
     return new_log_textfile, new_manifest_textfile
