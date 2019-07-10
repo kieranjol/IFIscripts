@@ -305,6 +305,10 @@ def check_dcp(cpl):
     essenceFrameSize =  ififuncs.get_mediainfo(
         'duration', '--inform=Video;%Width%x%Height%', cpl
     )
+    if essenceFrameSize[-2:] == 'x0':
+        essenceFrameSize =  ififuncs.get_mediainfo(
+            'duration', '--inform=Video;%Width%x%Sampled_Height%', cpl
+        )
     ChromaSubsampling =  ififuncs.get_mediainfo(
         'duration', '--inform=Video;%ChromaSubsampling%', cpl
     )
