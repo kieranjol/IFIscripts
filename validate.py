@@ -59,7 +59,7 @@ def parse_manifest(manifest, log_name_source):
                 paths.append(path)
     manifest_file_count = len(manifest_list)
     if source_count != manifest_file_count:
-        print(' - There is masmatch between your file count and the manifest file count')
+        print(' - There is mismatch between your file count and the manifest file count')
         print(' - checking which files are different')
         for i in file_list:
             if i not in paths:
