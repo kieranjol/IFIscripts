@@ -136,7 +136,7 @@ def move_files(inputs, sip_path, args, user):
                 with open(manifest, 'w') as fo:
                     for lines in updated_lines:
                         fo.write(lines)
-                consolidate_logs(log_names, sip_path)
+    consolidate_logs(log_names, sip_path)
     return log_names
 
 
