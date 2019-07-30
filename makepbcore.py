@@ -431,6 +431,10 @@ def main(args_):
     video_codec_profile_list = []
     timecode_list = []
     channels_list = []
+    stl = False
+    subtitle_check = ififuncs.get_digital_object_descriptor(args.input)
+    if 'STL' in subtitle_check:
+        stl = True
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         new_metadata = subprocess.check_output(['mediainfo', '--Output=XML', source])
@@ -542,6 +546,8 @@ def main(args_):
         ))  / 1000 / 1000, 2)
         instantTracks = ififuncs.get_number_of_tracks(source)
         track_count_list.append(instantTracks)
+        if stl is True:
+            track_count_list.append('STL sidecar')
         ms += ififuncs.get_milliseconds(source)
         ColorSpace = ififuncs.get_metadata(
             "//ns:ColorSpace",
@@ -759,6 +765,7 @@ def main(args_):
     TimeCode_FirstFrame = process_mixed_values(timecode_list)
     pix_fmt = process_mixed_values(pix_fmt_list)
     audio_fmt = process_mixed_values(audio_fmt_list)
+    instantTracks = process_mixed_values(track_count_list)
     TimeCode_Source = timecode_source
     reproduction_reason = ''
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
