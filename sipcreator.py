@@ -113,6 +113,8 @@ def move_files(inputs, sip_path, args, user):
         cmd = [item, os.path.join(sip_path, 'objects')]
         if args.move:
             cmd.append('-move')
+        if args.l:
+            cmd.append('-l')
         log_name = copyit.main(cmd)
         log_names.append(log_name)
         if args.rename_uuid:
@@ -205,6 +207,10 @@ def parse_args(args_):
     parser.add_argument(
         '-move', action='store_true',
         help='invokes the -move argument in copyit.py - moves instead of copy.'
+    )
+    parser.add_argument(
+        '-l', action='store_true',
+        help='invokes the -lto argument in copyit.py - uses gcp instead of rsync.'
     )
     parser.add_argument(
         '-sc', action='store_true',
