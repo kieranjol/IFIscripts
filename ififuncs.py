@@ -1540,10 +1540,12 @@ def get_digital_object_descriptor(source_folder):
         dig_object_descriptor = 'Matroska'
     elif stl_count == 1:
         if mxf_count == 1:
-            dig_object_descriptor = 'AS-11 package with STL sidecar'
+            if as11 == True:
+                dig_object_descriptor = 'AS-11 package with STL sidecar'
     elif mxf_count == 1:
         if stl_count == 0:
-            dig_object_descriptor = 'AS-11 package'
+            if as11 == True:
+                dig_object_descriptor = 'AS-11 package'
     elif mov_count == 1:
         dig_object_descriptor = 'QuickTime'
     elif wav_count == 1:
