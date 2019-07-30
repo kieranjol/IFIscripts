@@ -1508,7 +1508,10 @@ def get_digital_object_descriptor(source_folder):
     wav_count = 0
     aiff_count = 0
     mp3_count = 0
+    stl_count = 0
+    mxf_count = 0
     BPAV = False
+    as11 = False
     dig_object_descriptor = ''
     for root, _, filenames in os.walk(source_folder):
         if os.path.basename(root) == 'BPAV':
@@ -1526,8 +1529,21 @@ def get_digital_object_descriptor(source_folder):
                 aiff_count += 1
             elif filename.lower().endswith('mp3'):
                 mp3_count += 1
+            elif filename.lower().endswith('stl'):
+                stl_count += 1
+            elif filename.lower().endswith('mxf'):
+                mxf_count += 1
+                as_11_check = subprocess.check_output(['mediainfo', os.path.join(root, filename)])
+                if 'as-11' in as_11_check.lower():
+                    as11 = True
     if mkv_count == 1:
         dig_object_descriptor = 'Matroska'
+    elif stl_count == 1:
+        if mxf_count == 1:
+            dig_object_descriptor = 'AS-11 package with STL sidecar'
+    elif mxf_count == 1:
+        if stl_count == 0:
+            dig_object_descriptor = 'AS-11 package'
     elif mov_count == 1:
         dig_object_descriptor = 'QuickTime'
     elif wav_count == 1:
@@ -1836,7 +1852,7 @@ def get_technical_metadata(path, new_log_textfile):
         ]
         for av_file in filenames:
             if av_file.lower().endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV')
+                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV', '.stl', '.STL')
             ):
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
