@@ -1541,7 +1541,7 @@ def get_digital_object_descriptor(source_folder):
     elif stl_count == 1:
         if mxf_count == 1:
             if as11 == True:
-                dig_object_descriptor = 'AS-11 package with STL sidecar'
+                dig_object_descriptor = 'AS-11 package'
     elif mxf_count == 1:
         if stl_count == 0:
             if as11 == True:
