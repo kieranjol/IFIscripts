@@ -19,11 +19,14 @@ def gather_metadata(source):
             if filename.endswith('csv'):
                 with open(os.path.join(root,filename), 'r') as csv_file:
                     csv_rows = csv_file.readlines()
-                if metadata:
-                    metadata.append([csv_rows[1]])
+                if len(csv_rows) > 1:
+                    if metadata:
+                        metadata.append([csv_rows[1]])
+                    else:
+                        metadata.append([csv_rows[0]])
+                        metadata.append([csv_rows[1]])
                 else:
-                    metadata.append([csv_rows[0]])
-                    metadata.append([csv_rows[1]])
+                    print('%s has been skipped due to no actual data in the CSV' % filename)
     collated_pbcore = os.path.join(
         ififuncs.make_desktop_logs_dir(),
         time.strftime("%Y-%m-%dT%H_%M_%S_collated.csv")
