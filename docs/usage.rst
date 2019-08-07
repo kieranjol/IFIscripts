@@ -95,6 +95,15 @@ mergepbcore.py
 -  Usage ``mergepbcore.py /path/to/folder_that_contains_accessioned_packages``
 -  Run ``mergepbcore.py -h`` for all options.
 
+mergecsv.py
+~~~~~~~~~~~~~~
+
+-  Collates CSV records into a single merged CSV.
+-  The merged csv will be stored in the Desktop ifiscripts_logs folder. There is no error checking.
+-  This script takes a parent folder containing CSV files as input.
+-  Usage ``mergecsv.py /path/to/folder_that_contains_csv_files``
+-  Run ``mergecsv.py -h`` for all options.
+
 deletefiles.py
 ~~~~~~~~~~~~~~
 
