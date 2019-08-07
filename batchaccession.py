@@ -294,6 +294,9 @@ def main(args_):
                     # Only include records that have reference numbers
                     if not i['Reference Number'] == '':
                         writer.writerow(i)
+    if not to_accession:
+        print('`/*** Exiting as there is no data to process. This is usually because:\n* Your OE register does not match the values\n* OR your "representation of: " values in the Object entry do not match to values in your filmographic CSV\n* OR your filmographic CSV does not contain values that match to the representation of values in the Object Entry CSV')
+        sys.exit()
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
