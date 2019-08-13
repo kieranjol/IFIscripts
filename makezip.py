@@ -10,6 +10,7 @@ import time
 import argparse
 import subprocess
 import datetime
+import ififuncs
 
 
 def parse_args(args_):
@@ -41,7 +42,12 @@ def create_zip(source, destination, name):
     zip_start = datetime.datetime.now()
     full_zip = os.path.join(destination, name)
     os.chdir(os.path.dirname(source))
-    subprocess.call(['7za', 'a', '-tzip', '-mx=0', full_zip, os.path.basename(source)])
+    # check if input folder size is greater than 500 gigs 500000000000
+    if ififuncs.get_folder_size(source) > 500000000000:
+        subprocess.call(['7za', 'a', '-tzip', '-v500g', '-mx=0', full_zip, os.path.basename(source)])
+        full_zip = full_zip + '.001'
+    else:
+        subprocess.call(['7za', 'a', '-tzip', '-mx=0', full_zip, os.path.basename(source)])
     zip_finish = datetime.datetime.now()
     os.chdir(pwd)
     verify_start = datetime.datetime.now()
