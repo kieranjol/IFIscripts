@@ -167,7 +167,8 @@ def main(args_):
                 object_entry = args.oe
         else:
             object_entry = ififuncs.get_object_entry()
-    oe_digits = int(object_entry.replace('oe', ''))
+    if args.sip:
+        oe_digits = int(object_entry.replace('oe', ''))
     for filename in file_list:
         log_name_source = os.path.join(args.o, '%s_normalise_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
         ififuncs.generate_log(log_name_source, 'normalise.py started.')
@@ -175,10 +176,11 @@ def main(args_):
             log_name_source,
             'Command line arguments: %s' % args
         )
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = agentName=%s' % user
-        )
+        if args.sip:
+            ififuncs.generate_log(
+                log_name_source,
+                'EVENT = agentName=%s' % user
+            )
         print('\n - Processing: %s' % filename)
         ififuncs.generate_log(
             log_name_source,
