@@ -149,7 +149,7 @@ def log_report(log_names):
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     for i in log_names:
         if os.path.isfile(i):
-            print(("%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))))
+            print(("%-*s   :  copyit job was a %s" % (50, os.path.basename(i)[:-24], analyze_log(i))))
         else:
             print((i, 'can\'t find log file, trying again...'))
             log_names.remove(i)
