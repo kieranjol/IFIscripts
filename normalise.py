@@ -214,6 +214,7 @@ def main(args_):
             os.remove(dfxml)
             os.remove(inputxml)
             os.remove(inputtracexml)
+            print('The judgement above only refers to the copyit job, the losslessness judgement is: %s' % verdict)
             oe_digits += 1
 
 if __name__ == '__main__':
