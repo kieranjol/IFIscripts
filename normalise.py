@@ -123,7 +123,7 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
         '-f', 'framemd5', '-an',
         fmd5ffv1
         ]
-    print fmd5_command
+    print(fmd5_command)
     subprocess.call(fmd5_command, env=fmd5_env_dict)
     checksum_mismatches = ififuncs.diff_framemd5s(fmd5, fmd5ffv1)
     if len(checksum_mismatches) == 1:
@@ -131,13 +131,13 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
             print('Image is lossless, but the Pixel Aspect Ratio is different than the source - this may have been intended.')
             verdict = 'Image is lossless, but the Pixel Aspect Ratio is different than the source - this may have been intended.'
         else:
-            print 'not lossless'
+            print('not lossless')
             verdict = 'not lossless'
     elif len(checksum_mismatches) > 1:
-        print 'not lossless'
+        print('not lossless')
         verdict = 'not lossless'
     elif len(checksum_mismatches) == 0:
-        print 'YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!'
+        print('YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!')
         verdict = 'lossless'
     return fmd5_logfile, fmd5ffv1, verdict
 
@@ -155,14 +155,14 @@ def main(args_):
             user = ififuncs.get_user()
         if args.oe:
             if args.oe[:2] != 'oe':
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
             elif len(args.oe[2:]) not in range(4, 6):
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
             elif not args.oe[2:].isdigit():
                object_entry = ififuncs.get_object_entry()
-               print 'First two characters must be \'oe\' and last four characters must be four digits'
+               print('First two characters must be \'oe\' and last four characters must be four digits')
             else:
                 object_entry = args.oe
         else:
