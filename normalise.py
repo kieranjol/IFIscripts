@@ -147,7 +147,7 @@ def main(args_):
     print(args)
     source = args.i
     output_folder = args.o
-    file_list = ififuncs.get_video_files(source)
+    file_list = sorted(ififuncs.get_video_files(source))
     if args.sip:
         if args.user:
             user = args.user
