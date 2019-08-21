@@ -51,13 +51,24 @@ def create_zip(source, destination, name):
     zip_finish = datetime.datetime.now()
     os.chdir(pwd)
     verify_start = datetime.datetime.now()
-    with zipfile.ZipFile(full_zip, 'r') as myzip:
-        print(' - Verifying the CRC32 checksums within the ZIP file..')
-        result = myzip.testzip()
-        if result is None:
+    print(' - Verifying the CRC32 checksums within the ZIP file..')
+    if full_zip.endswith('.001'):
+        try:
+            result = subprocess.check_output(['7za', 't', full_zip,], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            if 'Error' in e.output:
+                result = 'FAILURE - Error Detected'
+                print(e.output)
+                print(result)
+        if 'Everything is Ok' in result:
             print('Python has not detected any errors in your zipfile')
-        else:
-            print('ERROR DETECTED IN %s '% result)
+    else:
+        with zipfile.ZipFile(full_zip, 'r') as myzip:
+            result = myzip.testzip()
+            if result is None:
+                print('Python has not detected any errors in your zipfile')
+            else:
+                print('ERROR DETECTED IN %s '% result)
     verify_finish = datetime.datetime.now()
     total_zip = zip_finish - zip_start
     total_verify = verify_finish - verify_start
