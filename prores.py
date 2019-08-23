@@ -6,6 +6,7 @@ import sys
 import os
 from glob import glob
 import pdb
+import ififuncs
 
 parser = argparse.ArgumentParser(description='IFI Pro Res 4:2:2 ffmpeg Encoder.'
                                  ' Written by Kieran O\'Leary.')
@@ -90,11 +91,14 @@ for filename in video_files:
         'ffmpeg',
         '-i', filename,
     ]
-    
+    pix_fmt = ififuncs.get_ffmpeg_fmt(filename, 'video')
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
-            '-c:a', 'copy',
-            '-c:v', 'prores',]
+            '-c:a', 'copy',]
+    if ('rgb' in pix_fmt) or  ('gbr' in pix_fmt):
+        ffmpeg_args.extend(['-c:v', 'prores_ks'])
+    else:
+        ffmpeg_args.extend(['-c:v', 'prores'])
     if not args.map:
         ffmpeg_args.append('-map')
         ffmpeg_args.append('0:a?')
