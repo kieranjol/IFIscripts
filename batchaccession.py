@@ -297,6 +297,15 @@ def main(args_):
     if not to_accession:
         print('`/*** Exiting as there is no data to process. This is usually because:\n* Your OE register does not match the values\n* OR your "representation of: " values in the Object entry do not match to values in your filmographic CSV\n* OR your filmographic CSV does not contain values that match to the representation of values in the Object Entry CSV')
         sys.exit()
+    filmographic_dict, headers = ififuncs.extract_metadata(args.filmo_csv)
+    for package in to_accession:
+        filmo = False
+        filmo_ref = to_accession[package][1]
+        for record in filmographic_dict:
+            if filmo_ref.upper() == record["Reference Number"]:
+                filmo = True
+        if filmo is False:
+            print('\n*** WARNING it appears that %s is not present in your filmographic CSV - proceeding will probably result in a crash' % filmo_ref)
     if args.dryrun:
         sys.exit()
     proceed = ififuncs.ask_yes_no(
