@@ -104,7 +104,7 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
     ]
     print(' - Mediaconch is analyzing %s' % full_path)
     mediaconch_output = subprocess.check_output(mediaconch_cmd)
-    with open(mediaconch_xmlfile, 'wb') as xmlfile:
+    with open(mediaconch_xmlfile, 'w') as xmlfile:
         xmlfile.write(mediaconch_output)
 
 def extract_provenance(filename, output_folder, output_uuid):
@@ -474,7 +474,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-        with open(manifest_textfile, "wb") as fo:
+        with open(manifest_textfile, "w") as fo:
             for i in manifest_list:
                 fo.write(i + '\n')
         return files_in_manifest
@@ -518,7 +518,7 @@ def manifest_file_count(manifest2check):
 
 
 def create_csv(csv_file, *args):
-    f = open(csv_file, 'wb')
+    f = open(csv_file, 'w')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -527,7 +527,7 @@ def create_csv(csv_file, *args):
 
 
 def append_csv(csv_file, *args):
-    f = open(csv_file, 'ab')
+    f = open(csv_file, 'a')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -1020,7 +1020,7 @@ def manifest_replace(manifest, to_be_replaced, replaced_with):
     '''
     with open(manifest, 'r') as fo:
         original_lines = fo.readlines()
-    with open(manifest, 'wb') as ba:
+    with open(manifest, 'w') as ba:
         for lines in original_lines:
             new_lines = lines.replace(to_be_replaced, replaced_with)
             ba.write(new_lines)
@@ -1047,7 +1047,7 @@ def manifest_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -1074,7 +1074,7 @@ def sha512_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 def check_for_uuid(args):
@@ -1172,7 +1172,7 @@ def checksum_replace(manifest, logname, algorithm):
                 elif algorithm == 'sha512':
                     lines = lines[127:].replace(lines[127:], new_checksum + lines[128:])
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1261,7 +1261,7 @@ def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in concat_lines:
             fo.write(lines)
         for remaining_lines in sipcreator_lines:
@@ -1279,7 +1279,7 @@ def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in sipcreator_lines:
             fo.write(lines)
         for remaining_lines in concat_lines:
@@ -1329,7 +1329,7 @@ def log_results(manifest, log, parent_dir):
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
-        with open(logfile, 'ab') as ba:
+        with open(logfile, 'a') as ba:
             for lines in validate_log:
                 ba.write(lines)
     with open(manifest, 'r') as manifesto:
@@ -1338,7 +1338,7 @@ def log_results(manifest, log, parent_dir):
             if os.path.basename(logname) in lines:
                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
