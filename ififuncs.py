@@ -1663,7 +1663,7 @@ def diff_framemd5s(fmd5, fmd5ffv1):
     checksum_mismatches = []
     with open(fmd5) as f1:
         with open(fmd5ffv1) as f2:
-            for (lineno1, line1), (lineno2, line2) in itertools.izip(
+            for (lineno1, line1), (lineno2, line2) in zip(
                     read_non_comment_lines(f1),
                     read_non_comment_lines(f2)
                     ):
