@@ -42,12 +42,11 @@ def main(args):
                     if 'not a child' in uuid_search:
                         # Checks if a single AV file is in the objects dir.
                         uuid_dir = os.path.join(os.path.dirname(root))
-                        print root
                         if file_count(os.path.join(uuid_dir, 'objects')) == 1:
-                            print '%s has no parent but this could be because it is a single file' % os.path.basename(os.path.dirname(uuid_dir))
+                            print('%s has no parent but this could be because it is a single file' % os.path.basename(os.path.dirname(uuid_dir)))
                             proceed = ififuncs.ask_yes_no('add %s to accession list?' % os.path.basename(os.path.dirname(uuid_dir)))
                             if proceed == 'Y':
-                                print os.path.basename(os.path.dirname(uuid_dir))
+                                print(os.path.basename(os.path.dirname(uuid_dir)))
                                 return os.path.basename(os.path.dirname(uuid_dir))
                         else:
                             # master
@@ -56,7 +55,7 @@ def main(args):
                         parent = uuid_search.split()[-1]
                         # Commenting this out for now - this just adds the dash really.
                         # print parent[:2].upper() + '-' + parent[2:]
-                        print parent
+                        print(parent)
                         return parent
 
 if __name__ == '__main__':
