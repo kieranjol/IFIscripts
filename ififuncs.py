@@ -1190,7 +1190,7 @@ def img_seq_pixfmt(start_number, path):
         'stream=pix_fmt',
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding)
     return pix_fmt
 
 def get_ffmpeg_fmt(path, file_type):
@@ -1212,7 +1212,7 @@ def get_ffmpeg_fmt(path, file_type):
         metadata,
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().replace("\n", '|')
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).replace("\n", '|')
     return pix_fmt
 
 def get_number_of_tracks(path):
@@ -1228,7 +1228,7 @@ def get_number_of_tracks(path):
         'stream=codec_type',
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    type_list = subprocess.check_output(ffprobe_cmd).rstrip().splitlines()
+    type_list = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).splitlines()
     types = {}
     final_count = ''
     for i in type_list:
