@@ -61,8 +61,9 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         '--output=OLDXML',
         inputfilename
     ]
-    with open(xmlfilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(mediainfo_cmd)
+    with open(xmlfilename, "w") as fo:
+        # https://stackoverflow.com/a/21486747
+        xmlvariable = subprocess.check_output(mediainfo_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 
 def make_exiftool(xmlfilename, inputfilename):
@@ -387,7 +388,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -424,7 +425,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -460,7 +461,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "ab") as fo:
+    with open(manifest_textfile, "a") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -489,7 +490,8 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
             '--output=XML',
             inputfilename
         ]
-        xmlvariable = subprocess.check_output(mediatrace_cmd)       #input filename
+        # https://stackoverflow.com/a/21486747
+        xmlvariable = subprocess.check_output(mediatrace_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 
 
@@ -800,7 +802,7 @@ def sort_manifest(manifest_textfile):
     '''
     with open(manifest_textfile, "r") as fo:
         manifest_lines = fo.readlines()
-        with open(manifest_textfile,"wb") as ba:
+        with open(manifest_textfile,"w") as ba:
             manifest_list = sorted(manifest_lines, key=lambda x: (x[34:]))
             for i in manifest_list:
                 ba.write(i)
@@ -811,7 +813,7 @@ def concat_textfile(video_files, concat_file):
     a condition is needed elsewhere to ensure concat_file is empty
     '''
     for video in video_files:
-        with open(concat_file, 'ab') as textfile:
+        with open(concat_file, 'a') as textfile:
             textfile.write('file \'%s\'\n' % video)
 
 
