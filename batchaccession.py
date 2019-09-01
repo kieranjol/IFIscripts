@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Batch process packages by running accession.py and makepbcore.py
 The outcome will be:

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 '''
 Runs (Spectrum) accessioning procedures on packages
 that have been through the Object Entry process

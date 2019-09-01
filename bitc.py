@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Accept options from command line and make access copy.
 Use bitc.py -h for help

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Audits logfiles to determine the parent of a derivative package.
 This script can aid in automating large accessioning procedures that involve

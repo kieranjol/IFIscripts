@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Usage: seq2ffv1.py source_parent_directory output_directory
