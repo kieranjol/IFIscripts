@@ -10,6 +10,7 @@ import sys
 import os
 import argparse
 import time
+import collections
 import csv
 import ififuncs
 import manifest
@@ -130,7 +131,7 @@ def insert_filmographic(filmographic_csv, Reference_Number, package_filmographic
     csv_dict = ififuncs.extract_metadata(filmographic_csv)
     for items in csv_dict:
         for x in items:
-            if type(x) is dict:
+            if type(x) is collections.OrderedDict:
                 if Reference_Number in x['Reference Number'].upper():
                     with open(package_filmographic, 'w') as csvfile:
                         fieldnames = csv_dict[1]
