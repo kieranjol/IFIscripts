@@ -99,7 +99,7 @@ def consolidate_logs(lognames, path):
     for log in lognames:
         with open(log, 'r') as fo:
             log_lines = fo.readlines()
-        with open(new_log_textfile, 'ab') as log_object:
+        with open(new_log_textfile, 'a') as log_object:
             for lines in log_lines:
                 log_object.write(lines)
 
