@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Generates SIPS by calling various microservices and functions.
 
@@ -99,7 +99,7 @@ def consolidate_logs(lognames, path):
     for log in lognames:
         with open(log, 'r') as fo:
             log_lines = fo.readlines()
-        with open(new_log_textfile, 'ab') as log_object:
+        with open(new_log_textfile, 'a') as log_object:
             for lines in log_lines:
                 log_object.write(lines)
 
@@ -149,7 +149,7 @@ def log_report(log_names):
     desktop_logs_dir = ififuncs.make_desktop_logs_dir()
     for i in log_names:
         if os.path.isfile(i):
-            print(("%-*s   : %s" % (50, os.path.basename(i)[:-24], analyze_log(i))))
+            print(("%-*s   :  copyit job was a %s" % (50, os.path.basename(i)[:-24], analyze_log(i))))
         else:
             print((i, 'can\'t find log file, trying again...'))
             log_names.remove(i)

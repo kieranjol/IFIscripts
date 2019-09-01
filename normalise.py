@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Performs normalisation to FFV1/Matroska.
 This performs a basic normalisation and does not enforce any folder structure.
@@ -123,7 +123,7 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
         '-f', 'framemd5', '-an',
         fmd5ffv1
         ]
-    print fmd5_command
+    print(fmd5_command)
     subprocess.call(fmd5_command, env=fmd5_env_dict)
     checksum_mismatches = ififuncs.diff_framemd5s(fmd5, fmd5ffv1)
     if len(checksum_mismatches) == 1:
@@ -131,13 +131,13 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
             print('Image is lossless, but the Pixel Aspect Ratio is different than the source - this may have been intended.')
             verdict = 'Image is lossless, but the Pixel Aspect Ratio is different than the source - this may have been intended.'
         else:
-            print 'not lossless'
+            print('not lossless')
             verdict = 'not lossless'
     elif len(checksum_mismatches) > 1:
-        print 'not lossless'
+        print('not lossless')
         verdict = 'not lossless'
     elif len(checksum_mismatches) == 0:
-        print 'YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!'
+        print('YOUR FILES ARE LOSSLESS YOU SHOULD BE SO HAPPY!!!')
         verdict = 'lossless'
     return fmd5_logfile, fmd5ffv1, verdict
 
@@ -147,7 +147,7 @@ def main(args_):
     print(args)
     source = args.i
     output_folder = args.o
-    file_list = ififuncs.get_video_files(source)
+    file_list = sorted(ififuncs.get_video_files(source))
     if args.sip:
         if args.user:
             user = args.user
@@ -155,19 +155,20 @@ def main(args_):
             user = ififuncs.get_user()
         if args.oe:
             if args.oe[:2] != 'oe':
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
             elif len(args.oe[2:]) not in range(4, 6):
-                print 'First two characters must be \'oe\' and last four characters must be four digits'
+                print('First two characters must be \'oe\' and last four characters must be four digits')
                 object_entry = ififuncs.get_object_entry()
             elif not args.oe[2:].isdigit():
                object_entry = ififuncs.get_object_entry()
-               print 'First two characters must be \'oe\' and last four characters must be four digits'
+               print('First two characters must be \'oe\' and last four characters must be four digits')
             else:
                 object_entry = args.oe
         else:
             object_entry = ififuncs.get_object_entry()
-    oe_digits = int(object_entry.replace('oe', ''))
+    if args.sip:
+        oe_digits = int(object_entry.replace('oe', ''))
     for filename in file_list:
         log_name_source = os.path.join(args.o, '%s_normalise_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
         ififuncs.generate_log(log_name_source, 'normalise.py started.')
@@ -175,10 +176,11 @@ def main(args_):
             log_name_source,
             'Command line arguments: %s' % args
         )
-        ififuncs.generate_log(
-            log_name_source,
-            'EVENT = agentName=%s' % user
-        )
+        if args.sip:
+            ififuncs.generate_log(
+                log_name_source,
+                'EVENT = agentName=%s' % user
+            )
         print('\n - Processing: %s' % filename)
         ififuncs.generate_log(
             log_name_source,
@@ -214,6 +216,7 @@ def main(args_):
             os.remove(dfxml)
             os.remove(inputxml)
             os.remove(inputtracexml)
+            print('The judgement above only refers to the copyit job, the losslessness judgement is: %s' % verdict)
             oe_digits += 1
 
 if __name__ == '__main__':

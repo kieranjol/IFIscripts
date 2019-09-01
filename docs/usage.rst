@@ -22,6 +22,18 @@ sipcreator.py
    ``sipcreator.py -i /path/to/directory_name1 /path/to/directory_name2 -o /path/to/output_folder``
 -  Run ``sipcreator.py -h`` for all options.
 
+batchsipcreator.py
+~~~~~~~~~~~~~~~~~
+
+-  Batch process packages by running ``sipcreator.py``
+-  The script will only process files within subfolders.
+-  The script will ask for the starting OE number, and each further package
+   will auto-increment by one.
+-  Usage for processing all subdirectories that (for example) places all XML/PDF/TXT 
+   files in the supplemental metadata subdirectory, and place all MF and STL files within objects-
+   ``batchsipcreator.py -i  /path/to/directory_name -o /path/to/output_folder -supplement_extension_pattern xml pdf txt -object_extension_pattern mxf stl``
+-  Run ``batchsipcreator.py -h`` for all options.
+
 accession.py
 ~~~~~~~~~~~~
 
@@ -82,6 +94,15 @@ mergepbcore.py
 -  This script takes a parent folder containing accessioned packages as input.
 -  Usage ``mergepbcore.py /path/to/folder_that_contains_accessioned_packages``
 -  Run ``mergepbcore.py -h`` for all options.
+
+mergecsv.py
+~~~~~~~~~~~~~~
+
+-  Collates CSV records into a single merged CSV.
+-  The merged csv will be stored in the Desktop ifiscripts_logs folder. There is no error checking.
+-  This script takes a parent folder containing CSV files as input.
+-  Usage ``mergecsv.py /path/to/folder_that_contains_csv_files``
+-  Run ``mergecsv.py -h`` for all options.
 
 deletefiles.py
 ~~~~~~~~~~~~~~

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Describe AV objects using PBCore in CSV form.
 Ideas for improvement:
@@ -17,6 +17,7 @@ import sys
 import os
 import subprocess
 import argparse
+import lxml
 from lxml import etree
 import ififuncs
 
@@ -438,8 +439,13 @@ def main(args_):
     for source in all_files:
         metadata = subprocess.check_output(['mediainfo', '--Output=PBCore2', source])
         new_metadata = subprocess.check_output(['mediainfo', '--Output=XML', source])
-        root = etree.fromstring(metadata)
-        new_root = etree.fromstring(new_metadata)
+        try:
+            root = etree.fromstring(metadata)
+            new_root = etree.fromstring(new_metadata)
+        except lxml.etree.XMLSyntaxError:
+            print('Windows encoding detected - transforming into utf-8')
+            root = etree.fromstring(metadata.decode('cp1252').encode('utf-8'))
+            new_root = etree.fromstring(new_metadata.decode('cp1252').encode('utf-8'))
         print(((' - Analysing  %s') % source))
         pbcore_namespace = root.xpath('namespace-uri(.)')
         mediainfo_namespace = new_root.xpath('namespace-uri(.)')
@@ -769,6 +775,8 @@ def main(args_):
     TimeCode_Source = timecode_source
     reproduction_reason = ''
     dig_object_descrip = ififuncs.get_digital_object_descriptor(args.input)
+    if 'STL' in dig_object_descrip:
+        dig_object_descrip = 'AS-11 package'
     dcp_check = ififuncs.find_cpl(args.input)
     if dcp_check is not None:
         essenceFrameSize, ChromaSubsampling, ColorSpace, FrameCount, essenceAspectRatio, instantiationDuratio, PixelAspectRatio, ScanType, dig_object_descrip, instantTracks, instantDataRate, essenceBitDepth_vid, instantMediaty = check_dcp(dcp_check)

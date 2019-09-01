@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 '''
 Runs (Spectrum) accessioning procedures on packages
 that have been through the Object Entry process
@@ -10,6 +10,7 @@ import sys
 import os
 import argparse
 import time
+import collections
 import csv
 import ififuncs
 import manifest
@@ -130,7 +131,7 @@ def insert_filmographic(filmographic_csv, Reference_Number, package_filmographic
     csv_dict = ififuncs.extract_metadata(filmographic_csv)
     for items in csv_dict:
         for x in items:
-            if type(x) is dict:
+            if type(x) is collections.OrderedDict:
                 if Reference_Number in x['Reference Number'].upper():
                     with open(package_filmographic, 'w') as csvfile:
                         fieldnames = csv_dict[1]
@@ -230,11 +231,19 @@ def main(args_):
         ififuncs.merge_logs_append(sha512_log, sipcreator_log, sip_manifest)
         os.remove(sha512_log)
         print('Generating Digital Forensics XML')
-        dfxml = make_dfxml(args, new_uuid_path, uuid)
-        ififuncs.generate_log(
-            sipcreator_log,
-            'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
-        )
+        dfxml_check = True
+        try:
+            dfxml = make_dfxml(args, new_uuid_path, uuid)
+            ififuncs.generate_log(
+                sipcreator_log,
+                'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=%s, agentName=makedfxml' % (dfxml)
+            )
+        except UnicodeDecodeError:
+            ififuncs.generate_log(
+                sipcreator_log,
+                'EVENT = Metadata extraction - eventDetail=File system metadata extraction using Digital Forensics XML, eventOutcome=FAILURE due to UnicodeDecodeError, agentName=makedfxml'
+            )
+            dfxml_check = False
         # this is inefficient. The script should not have to ask for reference
         # number twice if someone wants to insert the filmographic but do not
         # want to make the pbcore csv, perhaps because the latter already exists.
@@ -260,8 +269,9 @@ def main(args_):
         )
         ififuncs.checksum_replace(sip_manifest, sipcreator_log, 'md5')
         ififuncs.checksum_replace(sha512_manifest, sipcreator_log, 'sha512')
-        ififuncs.manifest_update(sip_manifest, dfxml)
-        ififuncs.sha512_update(sha512_manifest, dfxml)
+        if dfxml_check is True:
+            ififuncs.manifest_update(sip_manifest, dfxml)
+            ififuncs.sha512_update(sha512_manifest, dfxml)
         if args.pbcore:
             for ref in reference_list:
                 makepbcore_cmd = [accession_path, '-p', '-user', user, '-reference', ref]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import subprocess
@@ -6,6 +6,7 @@ import sys
 import os
 from glob import glob
 import pdb
+import ififuncs
 
 parser = argparse.ArgumentParser(description='IFI Pro Res 4:2:2 ffmpeg Encoder.'
                                  ' Written by Kieran O\'Leary.')
@@ -76,7 +77,7 @@ elif os.path.isdir(file_without_path):
 
 # Prints some stuff if input isn't a file or directory.
 else: 
-    print "Your input isn't a file or a directory."
+    print("Your input isn't a file or a directory.")
     
                       
 for filename in video_files:
@@ -90,11 +91,14 @@ for filename in video_files:
         'ffmpeg',
         '-i', filename,
     ]
-    
+    pix_fmt = ififuncs.get_ffmpeg_fmt(filename, 'video')
     ffmpeg_args =   ['ffmpeg',
             '-i', filename,
-            '-c:a', 'copy',
-            '-c:v', 'prores',]
+            '-c:a', 'copy',]
+    if ('rgb' in pix_fmt) or  ('gbr' in pix_fmt):
+        ffmpeg_args.extend(['-c:v', 'prores_ks'])
+    else:
+        ffmpeg_args.extend(['-c:v', 'prores'])
     if not args.map:
         ffmpeg_args.append('-map')
         ffmpeg_args.append('0:a?')
@@ -110,11 +114,9 @@ for filename in video_files:
         filter_options = '-vf'
         
         if args.yadif:
-            print 'YADIF'
             filter_options += ' yadif'         
               
         if args.scale:
-            print 'scale'
             if number_of_effects > 1:
                 filter_options += (',scale=%s' % width_height)                        
             else:
@@ -124,5 +126,5 @@ for filename in video_files:
         for item in filter_options:
             ffmpeg_args.append(item)    
     ffmpeg_args.append(output)
-    print ffmpeg_args
+    print(ffmpeg_args)
     subprocess.call(ffmpeg_args)
