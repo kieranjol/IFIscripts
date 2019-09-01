@@ -61,8 +61,9 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
         '--output=OLDXML',
         inputfilename
     ]
-    with open(xmlfilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(mediainfo_cmd)
+    with open(xmlfilename, "w") as fo:
+        # https://stackoverflow.com/a/21486747
+        xmlvariable = subprocess.check_output(mediainfo_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 
 def make_exiftool(xmlfilename, inputfilename):
@@ -103,7 +104,7 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
     ]
     print(' - Mediaconch is analyzing %s' % full_path)
     mediaconch_output = subprocess.check_output(mediaconch_cmd)
-    with open(mediaconch_xmlfile, 'wb') as xmlfile:
+    with open(mediaconch_xmlfile, 'w') as xmlfile:
         xmlfile.write(mediaconch_output)
 
 def extract_provenance(filename, output_folder, output_uuid):
@@ -198,7 +199,7 @@ def get_mediainfo(var_type, type, filename):
         type,
         filename
     ]
-    var_type = subprocess.check_output(mediainfo_cmd).replace('\n', '').replace('\r', '')
+    var_type = subprocess.check_output(mediainfo_cmd).decode(sys.stdout.encoding).replace('\n', '').replace('\r', '')
     return var_type
 
 
@@ -387,7 +388,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -424,7 +425,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest_textfile, "wb") as fo:
+    with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -460,7 +461,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "ab") as fo:
+    with open(manifest_textfile, "a") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -473,7 +474,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-        with open(manifest_textfile, "wb") as fo:
+        with open(manifest_textfile, "w") as fo:
             for i in manifest_list:
                 fo.write(i + '\n')
         return files_in_manifest
@@ -489,7 +490,8 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
             '--output=XML',
             inputfilename
         ]
-        xmlvariable = subprocess.check_output(mediatrace_cmd)       #input filename
+        # https://stackoverflow.com/a/21486747
+        xmlvariable = subprocess.check_output(mediatrace_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 
 
@@ -516,7 +518,7 @@ def manifest_file_count(manifest2check):
 
 
 def create_csv(csv_file, *args):
-    f = open(csv_file, 'wb')
+    f = open(csv_file, 'w')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -525,7 +527,7 @@ def create_csv(csv_file, *args):
 
 
 def append_csv(csv_file, *args):
-    f = open(csv_file, 'ab')
+    f = open(csv_file, 'a')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -800,7 +802,7 @@ def sort_manifest(manifest_textfile):
     '''
     with open(manifest_textfile, "r") as fo:
         manifest_lines = fo.readlines()
-        with open(manifest_textfile,"wb") as ba:
+        with open(manifest_textfile,"w") as ba:
             manifest_list = sorted(manifest_lines, key=lambda x: (x[34:]))
             for i in manifest_list:
                 ba.write(i)
@@ -811,7 +813,7 @@ def concat_textfile(video_files, concat_file):
     a condition is needed elsewhere to ensure concat_file is empty
     '''
     for video in video_files:
-        with open(concat_file, 'ab') as textfile:
+        with open(concat_file, 'a') as textfile:
             textfile.write('file \'%s\'\n' % video)
 
 
@@ -1018,7 +1020,7 @@ def manifest_replace(manifest, to_be_replaced, replaced_with):
     '''
     with open(manifest, 'r') as fo:
         original_lines = fo.readlines()
-    with open(manifest, 'wb') as ba:
+    with open(manifest, 'w') as ba:
         for lines in original_lines:
             new_lines = lines.replace(to_be_replaced, replaced_with)
             ba.write(new_lines)
@@ -1045,7 +1047,7 @@ def manifest_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 
@@ -1072,7 +1074,7 @@ def sha512_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest,"wb") as fo:
+    with open(manifest,"w") as fo:
         for i in manifest_list:
             fo.write(i + '\n')
 def check_for_uuid(args):
@@ -1170,7 +1172,7 @@ def checksum_replace(manifest, logname, algorithm):
                 elif algorithm == 'sha512':
                     lines = lines[127:].replace(lines[127:], new_checksum + lines[128:])
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1188,7 +1190,7 @@ def img_seq_pixfmt(start_number, path):
         'stream=pix_fmt',
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip()
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding)
     return pix_fmt
 
 def get_ffmpeg_fmt(path, file_type):
@@ -1210,7 +1212,7 @@ def get_ffmpeg_fmt(path, file_type):
         metadata,
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().replace("\n", '|')
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).replace("\n", '|')
     return pix_fmt
 
 def get_number_of_tracks(path):
@@ -1226,7 +1228,7 @@ def get_number_of_tracks(path):
         'stream=codec_type',
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    type_list = subprocess.check_output(ffprobe_cmd).rstrip().splitlines()
+    type_list = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).splitlines()
     types = {}
     final_count = ''
     for i in type_list:
@@ -1259,7 +1261,7 @@ def merge_logs(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in concat_lines:
             fo.write(lines)
         for remaining_lines in sipcreator_lines:
@@ -1277,7 +1279,7 @@ def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
         concat_lines = concat_log.readlines()
     with open(sipcreator_log, 'r') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'wb') as fo:
+    with open(sipcreator_log, 'w') as fo:
         for lines in sipcreator_lines:
             fo.write(lines)
         for remaining_lines in concat_lines:
@@ -1327,7 +1329,7 @@ def log_results(manifest, log, parent_dir):
     if os.path.isfile(logfile):
         with open(log, 'r') as fo:
             validate_log = fo.readlines()
-        with open(logfile, 'ab') as ba:
+        with open(logfile, 'a') as ba:
             for lines in validate_log:
                 ba.write(lines)
     with open(manifest, 'r') as manifesto:
@@ -1336,7 +1338,7 @@ def log_results(manifest, log, parent_dir):
             if os.path.basename(logname) in lines:
                 lines = lines[:31].replace(lines[:31], ififuncs.hashlib_md5(logfile)) + lines[32:]
             updated_manifest.append(lines)
-    with open(manifest, 'wb') as fo:
+    with open(manifest, 'w') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1661,7 +1663,7 @@ def diff_framemd5s(fmd5, fmd5ffv1):
     checksum_mismatches = []
     with open(fmd5) as f1:
         with open(fmd5ffv1) as f2:
-            for (lineno1, line1), (lineno2, line2) in itertools.izip(
+            for (lineno1, line1), (lineno2, line2) in zip(
                     read_non_comment_lines(f1),
                     read_non_comment_lines(f2)
                     ):

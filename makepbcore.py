@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Describe AV objects using PBCore in CSV form.
 Ideas for improvement:

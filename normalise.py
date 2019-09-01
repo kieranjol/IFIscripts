@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Performs normalisation to FFV1/Matroska.
 This performs a basic normalisation and does not enforce any folder structure.

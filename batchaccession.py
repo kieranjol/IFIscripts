@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Batch process packages by running accession.py and makepbcore.py
 The outcome will be:
@@ -109,9 +109,9 @@ def initial_check(args, accession_digits, oe_list, reference_number):
                             reference_digits += 1
                             accession_digits += 1
     for fails in wont_accession:
-        print '%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails
+        print('%s looks like it is not a fully formed SIP. Perhaps loopline_repackage.py should proccess it?' % fails)
     for success in sorted(to_accession.keys()):
-        print '%s will be accessioned as %s' %  (success, to_accession[success])
+        print('%s will be accessioned as %s' %  (success, to_accession[success]))
     return to_accession
 
 def get_filmographic_titles(to_accession, filmographic_dict):
@@ -123,7 +123,7 @@ def get_filmographic_titles(to_accession, filmographic_dict):
         oe = oe_number[:2].upper() + '-' + oe_number[2:]
         for record in filmographic_dict:
             if record['Object Entry'] == oe:
-                print record['Title']
+                print(record['Title'])
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -178,14 +178,14 @@ def get_number(args):
     '''
     if args.start_number:
         if args.start_number[:3] != 'aaa':
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
             accession_number = ififuncs.get_accession_number()
         elif len(args.start_number[3:]) not in range(4, 6):
             accession_number = ififuncs.get_accession_number()
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         elif not args.start_number[3:].isdigit():
             accession_number = ififuncs.get_accession_number()
-            print 'First three characters must be \'aaa\' and last four characters must be four digits'
+            print('First three characters must be \'aaa\' and last four characters must be four digits')
         else:
             accession_number = args.start_number
     else:
@@ -339,14 +339,14 @@ def main(args_):
                     accession_cmd.extend(['-donor', donor])
                     accession_cmd.extend(['-depositor_reference', depositor_reference])
                     accession_cmd.extend(['-acquisition_type', acquisition_type[2]])
-                    print to_accession[package][3]
+                    print(to_accession[package][3])
                     accession_cmd.extend(['-donation_date', to_accession[package][3]])
-            print accession_cmd
+            print(accession_cmd)
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     sorted_filepath = ififuncs.sort_csv(register, 'accession number')
-    print '\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath
-    print '\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv
-    print '\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore
+    print('\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath)
+    print('\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv)
+    print('\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore)
 if __name__ == '__main__':
     main(sys.argv[1:])
