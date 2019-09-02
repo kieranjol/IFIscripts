@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Analyses the CSV file reports from Strongbox.
 Accepts an identifier input, at least the package ID but
@@ -11,6 +11,7 @@ so that the script can tell if they are identical.
 '''
 import os
 import sys
+import collections
 import argparse
 import ififuncs
 
@@ -38,7 +39,7 @@ def diff_manifests(manifest, strongbox_list):
     '''
     Compare the list of strongbox hashes to the original AIP manifest.
     '''
-    print '\nStrongbox_fixity - IFIscripts'
+    print('\nStrongbox_fixity - IFIscripts')
     print('Analysing %s\n' % manifest)
     with open(manifest, 'r') as original_manifest:
         aip_manifest = original_manifest.read().splitlines()
@@ -48,19 +49,19 @@ def diff_manifests(manifest, strongbox_list):
     aip_check =  [item for item in aip_manifest if item not in strongbox_list]
     # check if the files are actually on the strongbox
     if len(strongbox_list) == 0:
-        print 'ERROR ***************************************'
-        print 'ERROR ***************************************The files are not on strongbox!!'
+        print('ERROR ***************************************')
+        print('ERROR ***************************************The files are not on strongbox!!')
     # checks if everything in the strongbox list is in the aip manifest.
     elif len(strongbox_check) == 0:
-        print 'All files in the strongbox manifest are present in your AIP manifest and the hashes validate'
+        print('All files in the strongbox manifest are present in your AIP manifest and the hashes validate')
     else:
         for i in strongbox_check:
-            print '%s is different from the strongbox_csv to the AIP manifest' % i
+            print('%s is different from the strongbox_csv to the AIP manifest' % i)
     if len(aip_check) == 0:
-        print 'All files in the AIP manifest are present in your strongbox manifest and the hashes validate'
+        print('All files in the AIP manifest are present in your strongbox manifest and the hashes validate')
     else:
         for i in strongbox_check:
-            print '%s is different from the AIP manifest to the Strongbox manifest' % i
+            print('%s is different from the AIP manifest to the Strongbox manifest' % i)
     print('Analysis complete\n')
 def find_checksums(csv_file, identifier):
     '''
@@ -70,7 +71,7 @@ def find_checksums(csv_file, identifier):
     manifest_lines = []
     for items in csv_dict:
         for x in items:
-            if type(x) is dict:
+            if type(x) is collections.OrderedDict:
                 if identifier in x['path']:
                     identifier_string = "/%s/" % identifier
                     manifest_line = x['hash_code'] + '  ' + x['path'].replace(identifier_string, '')
