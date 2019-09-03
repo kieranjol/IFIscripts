@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Generates a helper accessions register based on the metadata in other
 spreadsheets.

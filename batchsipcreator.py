@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Allow sipcreator to batch process multiple folders in a directory
 -dcp option is needed to process folders and grab html files
