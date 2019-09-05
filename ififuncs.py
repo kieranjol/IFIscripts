@@ -1535,7 +1535,7 @@ def get_digital_object_descriptor(source_folder):
                 stl_count += 1
             elif filename.lower().endswith('mxf'):
                 mxf_count += 1
-                as_11_check = subprocess.check_output(['mediainfo', os.path.join(root, filename)])
+                as_11_check = subprocess.check_output(['mediainfo', os.path.join(root, filename)]).decode(sys.stdout.encoding)
                 if 'as-11' in as_11_check.lower():
                     as11 = True
     if mkv_count == 1:
