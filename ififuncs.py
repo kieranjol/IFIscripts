@@ -1948,7 +1948,7 @@ def count_stuff(source):
         for files in filenames:
             source_count += 1
             relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
-            file_list.append(relative_path)
+            file_list.append(relative_path.replace("\\", "/"))
     if os.path.isfile(source):
         if len(file_list) == 0:
             source_count = 1
