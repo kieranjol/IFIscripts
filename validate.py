@@ -39,7 +39,11 @@ def parse_manifest(manifest, log_name_source):
     proceed = 'Y'
     os.chdir(os.path.dirname(manifest))
     with open(manifest, 'r') as manifest_object:
-        manifest_list = manifest_object.readlines()
+        try:
+            manifest_list = manifest_object.readlines()
+        except UnicodeDecodeError:
+            with open(manifest, 'r', encoding='cp1252') as manifest_object:
+                manifest_list = manifest_object.readlines()
         for entries in manifest_list:
             checksum = entries.split(' ')[0]
             if 'manifest-sha512.txt' in manifest:
