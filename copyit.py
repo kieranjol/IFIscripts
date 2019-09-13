@@ -259,10 +259,18 @@ def diff_report(file1, file2, log_name_source):
     Analyzes checksum manifests in order to find mismatches.
     '''
     print('Comparing manifests to verify file transfer')
-    with open(file1, 'r') as file1_manifest:
-        sourcelist = file1_manifest.readlines()
-    with open(file2, 'r') as file2_manifest:
-        destlist = file2_manifest.readlines()
+    try:
+        with open(file1, 'r') as file1_manifest:
+            sourcelist = file1_manifest.readlines()
+    except UnicodeDecodeError:
+        with open(file1, 'r', encoding='cp1252') as file1_manifest:
+            sourcelist = file1_manifest.readlines()
+    try:
+        with open(file2, 'r') as file2_manifest:
+            destlist = file2_manifest.readlines()
+    except UnicodeDecodeError:
+        with open(file2, 'r') as file2_manifest:
+            destlist = file2_manifest.readlines()
     for i in sourcelist:
         if i not in destlist:
             print(('%s was expected, but a different value was found in destination manifest' % i.rstrip()))
@@ -275,10 +283,18 @@ def check_extra_files(file1, file2, log_name_source):
     '''
     Are there any extra files in the destination directory?
     '''
-    with open(file1, 'r') as file1_manifest:
-        sourcelist = file1_manifest.readlines()
-    with open(file2, 'r') as file2_manifest:
-        destlist = file2_manifest.readlines()
+    try:
+        with open(file1, 'r') as file1_manifest:
+            sourcelist = file1_manifest.readlines()
+    except UnicodeDecodeError:
+        with open(file1, 'r', encoding='cp1251') as file1_manifest:
+            sourcelist = file1_manifest.readlines()
+    try:
+        with open(file2, 'r') as file2_manifest:
+            destlist = file2_manifest.readlines()
+    except UnicodeDecodeError:
+        with open(file2, 'r') as file2_manifest:
+            destlist = file2_manifest.readlines()
     destlist_files = []
     sourcelist_files = []
     for dest_files in destlist:
@@ -312,14 +328,18 @@ def manifest_file_count(manifest2check):
     Checks an ixisting manifest for file count and file list
     '''
     if os.path.isfile(manifest2check):
+        manifest_files = []
         print('A manifest already exists - Checking if manifest is up to date')
-        with open(manifest2check, "r") as fo:
-            manifest_files = []
-            manifest_lines = [line.split(',') for line in fo.readlines()]
-            for line in manifest_lines:
-                manifest_files.append(line[0][34:].rstrip())
-            count_in_manifest = len(manifest_lines)
-            manifest_info = [count_in_manifest, manifest_files]
+        try:
+            with open(manifest2check, "r") as fo:
+                manifest_lines = [line.split(',') for line in fo.readlines()]
+        except UnicodeDecodeError:
+            with open(manifest2check, "r",  encoding='cp1252') as fo:
+                manifest_lines = [line.split(',') for line in fo.readlines()]
+        for line in manifest_lines:
+            manifest_files.append(line[0][34:].rstrip())
+        count_in_manifest = len(manifest_lines)
+        manifest_info = [count_in_manifest, manifest_files]
     return manifest_info
 
 
@@ -571,10 +591,18 @@ def make_destination_manifest(
 
 
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
-    with open(manifest, 'r') as source_manifest_object:
-        source_manifest_lines = source_manifest_object.read()
-    with open(manifest_destination, 'r') as destination_manifest_object:
-        destination_manifest_lines = destination_manifest_object.read()
+    try:
+        with open(manifest, 'r') as source_manifest_object:
+            source_manifest_lines = source_manifest_object.read()
+    except UnicodeDecodeError:
+        with open(manifest, 'r',  encoding='cp1252') as source_manifest_object:
+            source_manifest_lines = source_manifest_object.read()
+    try:
+        with open(manifest_destination, 'r') as destination_manifest_object:
+            destination_manifest_lines = destination_manifest_object.read()
+    except UnicodeDecodeError:
+        with open(manifest_destination, 'r', encoding='cp1252') as destination_manifest_object:
+            destination_manifest_lines = destination_manifest_object.read()
     if source_manifest_lines == destination_manifest_lines:
         print("Your files have reached their destination and the checksums match")
         generate_log(
