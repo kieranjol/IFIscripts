@@ -13,6 +13,7 @@ import time
 import argparse
 import hashlib
 import shutil
+import unicodedata
 from builtins import input
 import ififuncs
 from ififuncs import make_desktop_logs_dir, make_desktop_manifest_dir, generate_log
@@ -277,6 +278,7 @@ def diff_report(file1, file2, log_name_source):
             generate_log(
                 log_name_source,
                 'ERROR = %s was expected, but a different value was found in destination manifest' % i.rstrip())
+    print(' - End of Diff report\n')
 
 
 def check_extra_files(file1, file2, log_name_source):
@@ -307,6 +309,7 @@ def check_extra_files(file1, file2, log_name_source):
             generate_log(
                 log_name_source,
                 'ERROR = %s is in your destination manifest but is not in the source manifest' % i.rstrip())
+    print(' - End of extra file report - if source and destination manifests appear visually identical, perhaps one manifest is utf-8 and the other is cp1252')
 
 
 def check_overwrite(file2check):
@@ -591,16 +594,19 @@ def make_destination_manifest(
 
 
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
+    unicode_mismatch = False
     try:
         with open(manifest, 'r') as source_manifest_object:
             source_manifest_lines = source_manifest_object.read()
     except UnicodeDecodeError:
+        unicode_mismatch = True
         with open(manifest, 'r',  encoding='cp1252') as source_manifest_object:
             source_manifest_lines = source_manifest_object.read()
     try:
         with open(manifest_destination, 'r') as destination_manifest_object:
             destination_manifest_lines = destination_manifest_object.read()
     except UnicodeDecodeError:
+        unicode_mismatch = True
         with open(manifest_destination, 'r', encoding='cp1252') as destination_manifest_object:
             destination_manifest_lines = destination_manifest_object.read()
     if source_manifest_lines == destination_manifest_lines:
@@ -609,6 +615,22 @@ def verify_copy(manifest, manifest_destination, log_name_source, overwrite_desti
             log_name_source,
             'EVENT = File Transfer Judgement - Success, eventOutcome=pass'
         )
+    elif unicode_mismatch is True:
+        print(' - Checking if there is a text encoding mismatch that is triggering a false negative')
+        print(' - Using python to normalise the characters using unicodedata.normalize() purely for comparison')
+        source_manifest_casefolded = unicodedata.normalize('NFD', source_manifest_lines)
+        destination_manifest_casefolded = unicodedata.normalize('NFD', destination_manifest_lines)
+
+        if source_manifest_casefolded == destination_manifest_casefolded:
+            generate_log(
+                log_name_source,
+                'EVENT = File Transfer Judgement - Success, eventOutcome=pass, eventDetail=source and destination manifests appear to have different encodings and are only identical when compared by eye or when normalized'
+            )
+            generate_log(
+                log_name_source,
+                ' Using python to normalise the characters using unicodedata.normalize() purely for comparison'
+            )
+            print(' - Source and destination manifests appear to have different encodings and are only identical when compared by eye or when normalized')
     else:
         print("***********YOUR CHECKSUMS DO NOT MATCH*************")
         if overwrite_destination_manifest not in ('N', 'n'):
