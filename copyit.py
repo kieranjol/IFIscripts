@@ -620,15 +620,14 @@ def verify_copy(manifest, manifest_destination, log_name_source, overwrite_desti
         print(' - Using python to normalise the characters using unicodedata.normalize() purely for comparison')
         source_manifest_casefolded = unicodedata.normalize('NFD', source_manifest_lines)
         destination_manifest_casefolded = unicodedata.normalize('NFD', destination_manifest_lines)
-
+        generate_log(
+            log_name_source,
+            ' Using python to normalise the characters using unicodedata.normalize() purely for comparison'
+        )
         if source_manifest_casefolded == destination_manifest_casefolded:
             generate_log(
                 log_name_source,
                 'EVENT = File Transfer Judgement - Success, eventOutcome=pass, eventDetail=source and destination manifests appear to have different encodings and are only identical when compared by eye or when normalized'
-            )
-            generate_log(
-                log_name_source,
-                ' Using python to normalise the characters using unicodedata.normalize() purely for comparison'
             )
             print(' - Source and destination manifests appear to have different encodings and are only identical when compared by eye or when normalized')
     else:
