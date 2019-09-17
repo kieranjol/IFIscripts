@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Zips and verifies all files and folders within your input directory.
 '''
@@ -42,6 +42,7 @@ def create_zip(source, destination, name):
     zip_start = datetime.datetime.now()
     full_zip = os.path.join(destination, name)
     os.chdir(os.path.dirname(source))
+
     # check if input folder size is greater than 500 gigs 500000000000
     if ififuncs.get_folder_size(source) > 500000000000:
         subprocess.call(['7za', 'a', '-tzip', '-v500g', '-mx=0', full_zip, os.path.basename(source)])
@@ -54,7 +55,7 @@ def create_zip(source, destination, name):
     print(' - Verifying the CRC32 checksums within the ZIP file..')
     if full_zip.endswith('.001'):
         try:
-            result = subprocess.check_output(['7za', 't', full_zip,], stderr=subprocess.STDOUT)
+            result = subprocess.check_output(['7za', 't', full_zip,], stderr=subprocess.STDOUT).decode(sys.stdout.encoding)
         except subprocess.CalledProcessError as e:
             if 'Error' in e.output:
                 result = 'FAILURE - Error Detected'
