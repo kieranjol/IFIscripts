@@ -76,7 +76,7 @@ def make_exiftool(xmlfilename, inputfilename):
         inputfilename
     ]
     with open(xmlfilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(exiftool_cmd)
+        xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 def make_siegfried(xmlfilename, inputfilename):
     '''
@@ -89,7 +89,7 @@ def make_siegfried(xmlfilename, inputfilename):
     ]
     
     with open(xmlfilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(siegfried_cmd)
+        xmlvariable = subprocess.check_output(siegfried_cmd).decode(sys.stdout.encoding)
         parsed = json.loads(xmlvariable)
         fo.write(json.dumps(parsed, indent=4, sort_keys=True))
 
@@ -103,7 +103,7 @@ def make_mediaconch(full_path, mediaconch_xmlfile):
         full_path
     ]
     print(' - Mediaconch is analyzing %s' % full_path)
-    mediaconch_output = subprocess.check_output(mediaconch_cmd)
+    mediaconch_output = subprocess.check_output(mediaconch_cmd).decode(sys.stdout.encoding)
     with open(mediaconch_xmlfile, 'w') as xmlfile:
         xmlfile.write(mediaconch_output)
 
