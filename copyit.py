@@ -258,7 +258,9 @@ def copy_dir(
 def diff_report(file1, file2, log_name_source):
     '''
     Analyzes checksum manifests in order to find mismatches.
+    The outcome variable is for unittesting.
     '''
+    outcome = True
     print('Comparing manifests to verify file transfer')
     try:
         with open(file1, 'r') as file1_manifest:
@@ -278,13 +280,16 @@ def diff_report(file1, file2, log_name_source):
             generate_log(
                 log_name_source,
                 'ERROR = %s was expected, but a different value was found in destination manifest' % i.rstrip())
+            outcome = False
     print(' - End of Diff report\n')
+    return outcome
 
 
 def check_extra_files(file1, file2, log_name_source):
     '''
     Are there any extra files in the destination directory?
     '''
+    outcome = True
     try:
         with open(file1, 'r') as file1_manifest:
             sourcelist = file1_manifest.readlines()
@@ -309,7 +314,9 @@ def check_extra_files(file1, file2, log_name_source):
             generate_log(
                 log_name_source,
                 'ERROR = %s is in your destination manifest but is not in the source manifest' % i.rstrip())
+            outcome = False
     print(' - End of extra file report - if source and destination manifests appear visually identical, perhaps one manifest is utf-8 and the other is cp1252')
+    return outcome
 
 
 def check_overwrite(file2check):
