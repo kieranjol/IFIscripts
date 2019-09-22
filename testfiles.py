@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Creates some test video files via ffmpeg.
 Usage: testfiles.py -o path/to/dir
@@ -9,7 +9,7 @@ import subprocess
 import os
 import argparse
 
-def parse_args():
+def parse_args(args_):
     '''
     Parse command line arguments.
     '''
@@ -21,17 +21,17 @@ def parse_args():
         '-o', '-output',
         help='full path of output directory', required=True
     )
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def main():
+def main(args_):
     '''
     Creates three v210/mov tesfiles in a test_files subdirectory
     '''
-    args = parse_args()
+    args = parse_args(args_)
     output_dir = os.path.join(os.path.abspath(args.o), 'test_files')
-    print output_dir
+    print(output_dir)
     ten_bit_dpx_dir = os.path.join(output_dir, 'ten_bit_dpx')
     sixteen_bit_dpx_dir = os.path.join(output_dir, 'sixteen_bit_dpx')
     multi_reel_dir = os.path.join(output_dir, 'multi_reel')
@@ -72,7 +72,7 @@ def main():
         'ffmpeg', '-f', 'lavfi', '-i', 'testsrc2',
         '-pix_fmt', 'rgb48le', '-t', '20', os.path.join(sixteen_bit_dpx_dir, 'sixteen_bit_%06d.dpx')
         ]
-    print life_cmd
+    print(life_cmd)
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
     if not os.path.isdir(ten_bit_dpx_dir):
@@ -95,6 +95,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 
 
