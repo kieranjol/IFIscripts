@@ -514,15 +514,24 @@ def main(args_):
     if args.sc:
         normalise_objects_manifest(sip_path)
     new_manifest_textfile = consolidate_manifests(sip_path, 'objects', new_log_textfile)
-
     if args.zip:
-        ififuncs.generate_log(
-            new_log_textfile, 'EVENT = Message Digest Calculation, status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
-        )
-        ififuncs.manifest_update(new_manifest_textfile, zip_file)
-        ififuncs.generate_log(
-            new_log_textfile, 'EVENT = Message Digest Calculation, status=finished, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
-        )
+        if zip_file.endswith('.001'):
+            for split_archive in os.listdir(os.path.dirname(zip_file)):
+                ififuncs.generate_log(
+                    new_log_textfile, 'EVENT = Message Digest Calculation, status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % split_archive
+                )
+                ififuncs.manifest_update(new_manifest_textfile, os.path.join(os.path.dirname(zip_file), split_archive))
+                ififuncs.generate_log(
+                    new_log_textfile, 'EVENT = Message Digest Calculation, status=finished, eventType=message digest calculation, eventDetail=%s module=hashlib' % split_archive
+                )
+        else:
+            ififuncs.generate_log(
+                new_log_textfile, 'EVENT = Message Digest Calculation, status=started, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+            )
+            ififuncs.manifest_update(new_manifest_textfile, zip_file)
+            ififuncs.generate_log(
+                new_log_textfile, 'EVENT = Message Digest Calculation, status=finished, eventType=message digest calculation, eventDetail=%s module=hashlib' % zip_file
+            )
     consolidate_manifests(sip_path, 'metadata', new_log_textfile)
     ififuncs.hashlib_append(
         logs_dir, new_manifest_textfile,
