@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Just a helper script that collates CSV files within a folder
 '''
@@ -53,6 +53,6 @@ def main():
     args = parse_args()
     source = args.input
     collated_pbcore = gather_metadata(source)
-    print 'Merged CSV is stored in %s' % collated_pbcore
+    print('Merged CSV is stored in %s' % collated_pbcore)
 if __name__ == '__main__':
     main()

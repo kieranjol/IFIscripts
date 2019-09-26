@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Just a helper script that collates PBCore CSV files from packages
 '''
@@ -23,7 +23,7 @@ def main():
     args = parse_args()
     source = args.input
     collated_pbcore = batchaccession.gather_metadata(source)
-    print 'Merged PBCore CSV is stored in %s' % collated_pbcore
+    print('Merged PBCore CSV is stored in %s' % collated_pbcore)
 if __name__ == '__main__':
     main()
 
