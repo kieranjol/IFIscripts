@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Launches multiple copyit jobs. This is different to masscopy.py,
 which takes a single directory as input and launches multiple copyit jobs.
@@ -57,7 +57,7 @@ def main():
         elif args.y:
             copyit_cmd.append('-y')
         log_names.append(copyit.main(copyit_cmd))
-    print '********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful'
+    print('********\nWARNING - Please check the ifiscripts_logs directory on your Desktop to verify if ALL of your transfers were successful')
     masscopy.analyze_reports(log_names, desktop_logs_dir)
 
 
