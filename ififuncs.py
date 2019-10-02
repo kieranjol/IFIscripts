@@ -63,7 +63,10 @@ def make_mediainfo(xmlfilename, xmlvariable, inputfilename):
     ]
     with open(xmlfilename, "w") as fo:
         # https://stackoverflow.com/a/21486747
-        xmlvariable = subprocess.check_output(mediainfo_cmd).decode(sys.stdout.encoding)
+        try:
+            xmlvariable = subprocess.check_output(mediainfo_cmd).decode(sys.stdout.encoding)
+        except UnicodeDecodeError:
+            xmlvariable = subprocess.check_output(mediainfo_cmd).decode('cp1252')
         fo.write(xmlvariable)
 
 def make_exiftool(xmlfilename, inputfilename):
