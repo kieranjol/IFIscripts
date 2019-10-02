@@ -485,7 +485,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         print(' - Manifest already exists')
         sys.exit()
 def make_mediatrace(tracefilename, xmlvariable, inputfilename):
-    with open(tracefilename, "w+") as fo:
+    with open(tracefilename, "w") as fo:
         mediatrace_cmd = [
             'mediainfo',
             '-f',
@@ -494,7 +494,10 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
             inputfilename
         ]
         # https://stackoverflow.com/a/21486747
-        xmlvariable = subprocess.check_output(mediatrace_cmd).decode(sys.stdout.encoding)
+        try:
+            xmlvariable = subprocess.check_output(mediatrace_cmd).decode(sys.stdout.encoding)
+        except UnicodeDecodeError:
+            xmlvariable = subprocess.check_output(mediatrace_cmd).decode('cp1252')
         fo.write(xmlvariable)
 
 
