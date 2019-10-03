@@ -22,6 +22,7 @@ import json
 import ctypes
 import platform
 import itertools
+import unicodedata
 from builtins import input
 import makedfxml
 from glob import glob
@@ -497,7 +498,11 @@ def make_mediatrace(tracefilename, xmlvariable, inputfilename):
         try:
             xmlvariable = subprocess.check_output(mediatrace_cmd).decode(sys.stdout.encoding)
         except UnicodeDecodeError:
-            xmlvariable = subprocess.check_output(mediatrace_cmd).decode('cp1252')
+            try:
+                xmlvariable = subprocess.check_output(mediatrace_cmd).decode('cp1252')
+            except UnicodeDecodeError:
+                # Some N19/STL files seem to produce characters which are incompatible with uff-8 and cp1252.
+                xmlvariable = 'None'
         fo.write(xmlvariable)
 
 
@@ -1885,10 +1890,19 @@ def get_technical_metadata(path, new_log_textfile):
                         'mediatracexmlinput',
                         os.path.join(root, av_file)
                     )
-                    generate_log(
-                        new_log_textfile,
-                        'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
-                    )
+                    with open(inputtracexml, 'r') as fo:
+                        none_test = fo.read()
+                    if none_test == 'None':
+                        os.remove(inputtracexml)
+                        generate_log(
+                            new_log_textfile,
+                            'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventDetail=Failure, mediatrace could not be created due to characters not compatible with UTF-8 and cp1252. mediatrace XML not included in package as a result, agentName=%s'
+                        )
+                    else:
+                        generate_log(
+                            new_log_textfile,
+                            'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
+                        )
             elif av_file.lower().endswith(
                     ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip' )
             ):
