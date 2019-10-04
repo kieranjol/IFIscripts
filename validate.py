@@ -29,9 +29,14 @@ def parse_manifest(manifest, log_name_source):
     Returns a list of missing files and a dictionary containing checksums
     and paths.
     '''
-    source_dir = os.path.join(
-        os.path.dirname(manifest), os.path.basename(manifest).replace('_manifest.md5','')
-    )
+    if manifest.endswith('md5'):
+        source_dir = os.path.join(
+            os.path.dirname(manifest), os.path.basename(manifest).replace('_manifest.md5','')
+        )
+    elif manifest.endswith('sha512.txt'):
+        source_dir = os.path.join(
+            os.path.dirname(manifest), os.path.basename(manifest).replace('_manifest-sha512.txt','')
+        )
     source_count, file_list = ififuncs.count_stuff(source_dir)
     missing_files_list = []
     manifest_dict = {}
