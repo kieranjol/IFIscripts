@@ -13,6 +13,7 @@ import os
 import sys
 import collections
 import argparse
+import unicodedata
 import ififuncs
 
 def parse_args(args_):
@@ -44,9 +45,10 @@ def diff_manifests(manifest, strongbox_list):
     with open(manifest, 'r') as original_manifest:
         aip_manifest = original_manifest.read().splitlines()
     # A list of items in strongbox, that are different in aip sha512 manifest
-    strongbox_check = [item for item in strongbox_list if item not in aip_manifest]
+    strongbox_check = [item for item in strongbox_list if unicodedata.normalize('NFD', item) not in aip_manifest]
+    new_manifest = []
     # A list of items in the AIP manifest, that are different in the strongbox manifest
-    aip_check =  [item for item in aip_manifest if item not in strongbox_list]
+    aip_check =  [item for item in aip_manifest if unicodedata.normalize('NFD', item) not in strongbox_list]
     # check if the files are actually on the strongbox
     if len(strongbox_list) == 0:
         print('ERROR ***************************************')
