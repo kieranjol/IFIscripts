@@ -10,9 +10,10 @@ Introduction
 Summary
 -------
 
-These are Python 2.7 scripts that facilitate collections management workflows within the IFI Irish Film Archive. These scripts have been tested
-in OSX, Windows 7 & 10, Ubuntu 14.04 & 16.04. They are located here on github: https://github.com/kieranjol/IFIscripts
+These scriptsfacilitate collections management workflows within the IFI Irish Film Archive. These scripts have been tested
+in OSX, Windows 7 & 10, Ubuntu 14.04 & 16.04 & 18.04. They are located here on github: https://github.com/kieranjol/IFIscripts
 
+They are mostly Python 3.7 compatible but some are still Python 2.7 only.
 Most scripts take either a file or a directory as their input, for
 example ``makeffv1.py filename.mov`` or
 ``premis.py path/to/folder_of_stuff``. (It's best to just drag and drop
