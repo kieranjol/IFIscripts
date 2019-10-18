@@ -492,7 +492,7 @@ for root,dirnames,filenames in os.walk(dcp_dir):
                 # Wrapping PCM in matroska as WAV has 4 gig limit.
                 rewrap = ['ffmpeg','-ss',str(video_delay[i][0]),'-c:v ','libopenjpeg',
                 '-i',video_delay[i][2],'-t',str(video_delay[i][1]),
-                '-c:v','copy', temp_dir + '/'+ video_delay[i][2] + '.mkv']
+                '-c:a','copy', temp_dir + '/'+ video_delay[i][2] + '.mkv']
                 print(rewrap)
                 subprocess.call(rewrap)        
         write_textfile(video_concat_textfile, finalpic)
