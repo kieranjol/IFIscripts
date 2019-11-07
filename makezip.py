@@ -45,10 +45,10 @@ def create_zip(source, destination, name):
 
     # check if input folder size is greater than 100 gigs 100000000000
     if ififuncs.get_folder_size(source) > 100000000000:
-        subprocess.call(['7za', 'a', '-tzip', '-v100g', '-mx=0', full_zip, os.path.basename(source)])
+        subprocess.call(['7za', 'a', '-tzip', '-v100g', '-mm=LZMA', '-mx=3', full_zip, os.path.basename(source)])
         full_zip = full_zip + '.001'
     else:
-        subprocess.call(['7za', 'a', '-tzip', '-mx=0', full_zip, os.path.basename(source)])
+        subprocess.call(['7za', 'a', '-tzip', '-mm=LZMA', '-mx=3', full_zip, os.path.basename(source)])
     zip_finish = datetime.datetime.now()
     os.chdir(pwd)
     verify_start = datetime.datetime.now()
