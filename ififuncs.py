@@ -721,11 +721,11 @@ def get_user():
     user = ''
     if user not in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
         user = input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Thomas Mc Keon\n'
+            '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
         )
         while user not in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
             user = input(
-                '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Thomas Mc Keon\n'
+                '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Wentao Ma\n6. Raven Cooke\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
             )
     if user == '1':
         user = 'Leanne Ledwidge'
@@ -752,7 +752,7 @@ def get_user():
         user = 'Yujing Huang'
         time.sleep(1)
     elif user == '9':
-        user = 'Thomas Mc Keon'
+        user = 'Colm Connolly'
         time.sleep(1)
     return user
 
