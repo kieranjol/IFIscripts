@@ -529,16 +529,17 @@ def manifest_file_count(manifest2check):
 
 
 def create_csv(csv_file, *args):
-    f = open(csv_file, 'w')
+    f = open(csv_file, 'w', newline='')
     try:
         writer = csv.writer(f)
+        print(*args)
         writer.writerow(*args)
     finally:
         f.close()
 
 
 def append_csv(csv_file, *args):
-    f = open(csv_file, 'a')
+    f = open(csv_file, 'a', newline='')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
