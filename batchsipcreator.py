@@ -89,7 +89,10 @@ def main(args_):
     for folder in sorted(os.listdir(source_folder)):
         full_path = os.path.join(source_folder, folder)
         if os.path.isdir(full_path):
-            folder_contents = os.listdir(full_path)
+            try:
+                folder_contents = os.listdir(full_path)
+            except PermissionError:
+                continue
             object_entry_complete = 'oe' + str(oe_digits)
             inputs = []
             supplements = []
