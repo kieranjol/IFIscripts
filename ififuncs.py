@@ -1224,7 +1224,7 @@ def get_ffmpeg_fmt(path, file_type):
         metadata,
         '-of', 'default=noprint_wrappers=1:nokey=1'
     ]
-    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).replace("\n", '|')
+    pix_fmt = subprocess.check_output(ffprobe_cmd).rstrip().decode(sys.stdout.encoding).replace("\n", '|').replace("\r", '')
     return pix_fmt
 
 def get_number_of_tracks(path):
