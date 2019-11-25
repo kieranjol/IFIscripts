@@ -191,6 +191,17 @@ prores.py
 -  This script has many extra options, such as deinterlacing, quality
    settings, rescaling. Use ``prores.py -h`` to see all options
 
+makedip.py
+~~~~~~~~~
+
+-  Runs bitc.py or prores.py but only for use with accessioned packages.
+-  Usage for running bitc.py all accessioned objects in a parent directory -
+   ``makedip.py path/to/lots_of_accessioned_directories -o path/to/output``
+-  The ``-prores`` option will use run ``prores.py`` instead of ``bitc.py``
+-  The script will rename the output file so that it contains the accession number
+-  If it sees that a proxy already exists, then it will skip the video.
+-  Use ``makedip.py -h`` to see all options
+
 concat.py
 ~~~~~~~~~
 
