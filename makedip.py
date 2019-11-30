@@ -43,14 +43,14 @@ def main():
     for root, _, filenames in os.walk(source):
         for filename in filenames:
             full_path = os.path.join(root, filename)
-            if full_path.endswith(('.mov', '.mkv', '.mxf')):
+            if full_path.endswith(('.mov', '.mkv', '.mxf', '.dv')):
                 if args.prores:
                     prores.main([full_path, '-o', args.o, '-hq'])
                     proxy_filename = os.path.join(args.o, filename +'_prores.mov')
                     if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
                         os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_prores.mov')
                 else:
-                    if not os.path.isfile(os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov'):
+                    if not (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) in str(os.listdir(args.o)):
                         bitc.main([full_path, '-o', args.o, '-clean'])
                         proxy_filename = os.path.join(args.o, filename +'_h264.mov')
                         if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
