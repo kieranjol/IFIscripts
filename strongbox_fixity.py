@@ -73,7 +73,7 @@ def find_checksums(csv_file, identifier):
     manifest_lines = []
     for items in csv_dict:
         for x in items:
-            if type(x) is collections.OrderedDict:
+            if type(x) in [collections.OrderedDict, dict]:
                 if identifier in x['path']:
                     identifier_string = "/%s/" % identifier
                     manifest_line = x['hash_code'] + '  ' + x['path'].replace(identifier_string, '')
