@@ -65,11 +65,11 @@ def main(args_):
                 accession['acquired from'] = technical_record['Donor']
                 accession['date acquired'] = technical_record['Date Of Donation']
                 for filmographic_record in filmo_csv_dict:
-                    if filmographic_record['Reference Number'] == technical_record['Reference Number']:
-                        if filmographic_record['Title'] == '':
-                            title = filmographic_record['TitleSeries'] + '; ' + filmographic_record['EpisodeNo']
+                    if filmographic_record['Filmographic URN'] == technical_record['Reference Number']:
+                        if filmographic_record['Title/Name'] == '':
+                            title = filmographic_record['Series Title'] + '; ' + filmographic_record['Episode No']
                         else:
-                            title = filmographic_record['Title']
+                            title = filmographic_record['Title/Name']
                         simple = '%s (%s) | %s' % (title, filmographic_record['Year'], technical_record['dig_object_descrip'])
                         if accession['acquisition method'] == 'Reproduction':
                             simple += ' | Reproduction of %s' % technical_record['TTape Origin']
