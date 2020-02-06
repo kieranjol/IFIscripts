@@ -132,7 +132,7 @@ def insert_filmographic(filmographic_csv, Reference_Number, package_filmographic
     for items in csv_dict:
         for x in items:
             if type(x) in [collections.OrderedDict, dict]:
-                if Reference_Number in x['Reference Number'].upper():
+                if Reference_Number in x['Filmographic URN'].upper():
                     with open(package_filmographic, 'w') as csvfile:
                         fieldnames = csv_dict[1]
                         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

@@ -281,7 +281,7 @@ def main(args_):
             for oe_package in to_accession:
                 for filmographic_record in filmographic_dict:
                     if os.path.basename(oe_package).upper()[:2] + '-' + os.path.basename(oe_package)[2:] == filmographic_record['Object Entry']:
-                        filmographic_record['Reference Number'] = to_accession[oe_package][1]
+                        filmographic_record['Filmographic URN'] = to_accession[oe_package][1]
             get_filmographic_titles(to_accession, filmographic_dict)
             with open(new_csv, 'w') as csvfile:
                 fieldnames = headers
@@ -292,7 +292,7 @@ def main(args_):
                 for i in filmographic_dict:
                     i.pop('Object Entry', None)
                     # Only include records that have reference numbers
-                    if not i['Reference Number'] == '':
+                    if not i['Filmographic URN'] == '':
                         writer.writerow(i)
     if not to_accession:
         print('`/*** Exiting as there is no data to process. This is usually because:\n* Your OE register does not match the values\n* OR your "representation of: " values in the Object entry do not match to values in your filmographic CSV\n* OR your filmographic CSV does not contain values that match to the representation of values in the Object Entry CSV')
@@ -302,7 +302,7 @@ def main(args_):
         filmo = False
         filmo_ref = to_accession[package][1]
         for record in filmographic_dict:
-            if filmo_ref.upper() == record["Reference Number"]:
+            if filmo_ref.upper() == record["Filmographic URN"]:
                 filmo = True
         if filmo is False:
             print('\n*** WARNING it appears that %s is not present in your filmographic CSV - proceeding will probably result in a crash' % filmo_ref)
