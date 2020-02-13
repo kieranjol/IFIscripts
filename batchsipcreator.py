@@ -54,11 +54,11 @@ def parse_args(args_):
     )
     parser.add_argument(
         '-supplement_extension_pattern', nargs='+',
-        help='Enter the full path of files or folders that are to be added to the supplemental subfolder within the metadata folder. Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
+        help='Enter the filename extensions, seperated by spaces, which determine which files to be added to the supplemental subfolder within the metadata directory. For example -supplement_extension_pattern xml pdf txt docx will take all filenames with these extensions within your input directory and store them in metadata/supplemental.  Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
     )
     parser.add_argument(
         '-object_extension_pattern', nargs='+',
-        help='Enter the full path of files or folders that are to be added to the supplemental subfolder within the metadata folder. Use this for information that supplements your preservation objects but is not to be included in the objects folder.'
+        help='Enter the filename extensions, seperated by spaces, which determine which files to be added to the objects directory. For example -object_extension_pattern mxf stl will take all filenames with these extensions within your input directory and store them in objects.'
     )
     parser.add_argument(
         '-y',
