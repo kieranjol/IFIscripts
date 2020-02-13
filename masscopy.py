@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Launches copyit.py for subfolders that have md5 anifests.
 '''
