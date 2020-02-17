@@ -411,6 +411,15 @@ massqc.py
 -  Usage for batch processing all videos in a directory -
    ``massqc.py directory_name``
 
+framemd5.py
+~~~~~~~~~~
+
+-  Creates framemd5 sidecars on all mov/mkv files in all subfolders beneath your input.
+-  If the input is a file, then ``framemd5.py`` will just generate a sidecar for this one file.
+-  Usage for single file - ``framemd5.py -i filename.mov``
+-  Usage for batch processing all videos in a directory -
+   ``framemd5.py -i directory_name``
+
 ffv1mkvvalidate.py
 ~~~~~~~~~~~~~~~~~~
 
