@@ -139,6 +139,18 @@ package_update.py
    ``package_update.py /path/to/oe_folder -i path/to/uuid/objects/file1.mov -new_folder path/to/uuid/objects/new_foldername``
 -  Run ``package_update.py -h`` for all options.
 
+subfolders.py
+~~~~~~~~~~~~~~
+
+-  Generates subfolders based on filenames within the input directory
+   and if ``-move`` is used, moves the relevant files into these new directories.
+-  Eg. An input directory contains file1.mkv, file1.xml file2.mkv, file2.xml
+   This will result in directories called file1 and file2 being created, and
+   file1.mkv and file1.xml will be moved into the file1 directory, with a similar action
+   for file2
+-  Usage to just make subfolders: ``subfolders.py -i path/to/input``
+-  Usage to make subfolders and move files: ``subfolders.py -move -i path/to/input``
+
 Transcodes
 ----------
 
