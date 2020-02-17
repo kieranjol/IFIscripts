@@ -26,7 +26,7 @@ def parse_args():
     )
     parser.add_argument(
         '-i',
-        help='full path of input file or directory', required=True
+        help='full path of input directory', required=True
     )
     parser.add_argument(
         '-move',
