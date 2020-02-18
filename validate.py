@@ -6,6 +6,7 @@ import sys
 import os
 import argparse
 import time
+import unicodedata
 import ififuncs
 from ififuncs import make_desktop_logs_dir
 
@@ -55,7 +56,9 @@ def parse_manifest(manifest, log_name_source):
                 path = entries[130:].replace('\r', '').replace('\n', '')
             else:
                 path = entries[34:].replace('\r', '').replace('\n', '')
-            path = path.replace('\\', '/')
+            path = unicodedata.normalize('NFC', path).replace('\\', '/')
+            if not os.path.isfile(path):
+                path = unicodedata.normalize('NFD', path)
             if not os.path.isfile(path):
                 ififuncs.generate_log(
                     log_name_source,

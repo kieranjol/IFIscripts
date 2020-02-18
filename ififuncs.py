@@ -394,7 +394,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
     with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     '''
@@ -431,7 +431,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
     with open(manifest_textfile, "w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     '''
@@ -467,7 +467,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
     with open(manifest_textfile, "a") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
@@ -480,7 +480,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
         with open(manifest_textfile, "w") as fo:
             for i in manifest_list:
-                fo.write(i + '\n')
+                fo.write((unicodedata.normalize('NFC', i) + '\n'))
         return files_in_manifest
     else:
         print(' - Manifest already exists')
@@ -1061,7 +1061,7 @@ def manifest_update(manifest, path):
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
     with open(manifest,"w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def sha512_update(manifest, path):
     '''
@@ -1088,7 +1088,7 @@ def sha512_update(manifest, path):
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
     with open(manifest,"w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 def check_for_uuid(args):
     '''
     Tries to check if a filepath contains a UUID.
@@ -1971,8 +1971,9 @@ def count_stuff(source):
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
             source_count += 1
-            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            relative_path = unicodedata.normalize('NFC', os.path.join(root, files).replace(os.path.dirname(source), ''))[1:]
             file_list.append(relative_path.replace("\\", "/"))
+    print(file_list)
     if os.path.isfile(source):
         if len(file_list) == 0:
             source_count = 1
