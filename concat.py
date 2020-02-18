@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Concatenates video files using FFmpeg stream copy for general use but
 particularly for XDCAM workflows in the IFI Irish Film Institute.
@@ -65,8 +65,8 @@ def ffmpeg_concat(concat_file, args, uuid, container):
     '''
     fmd5_logfile = os.path.join(args.o, '%s_concat.log' % uuid).replace('\\', '\\\\').replace(':', '\:')
     fmd5_env_dict = ififuncs.set_environment(fmd5_logfile)
-    print fmd5_logfile
-    print fmd5_env_dict
+    print( fmd5_logfile)
+    print( fmd5_env_dict)
     cmd = [
         'ffmpeg', '-report', '-f', 'concat', '-safe', '0',
         '-i', concat_file,
@@ -74,7 +74,7 @@ def ffmpeg_concat(concat_file, args, uuid, container):
         os.path.join(args.o, '%s.%s' % (uuid, container)),
         '-f', 'md5', '-map', '0:v', '-map', '0:a?','-c', 'copy',  '-'
     ]
-    print cmd
+    print(cmd)
     source_bitstream_md5 = subprocess.check_output(
         cmd, env=fmd5_env_dict
     )
@@ -88,14 +88,14 @@ def recursive_file_list(video_files):
     recursive_list = []
     for directory in video_files:
         if not os.path.isdir(directory):
-            print 'You have selected the recursive option, but not all of your inputs are directories.'
+            print( 'You have selected the recursive option, but not all of your inputs are directories.')
             sys.exit()
         else:
             for root, _, filenames in os.walk(directory):
                 for filename in filenames:
                     if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', 'MXF')):
                         recursive_list.append(os.path.join(root, filename))
-    print recursive_list
+    print(recursive_list)
     return recursive_list
 
 def make_chapters(video_files):
@@ -117,7 +117,7 @@ def make_chapters(video_files):
         count+=1
     chapter_counter = 1
     # uh use a real path/filename.
-    with open('chapters.txt', 'wb') as fo:
+    with open('chapters.txt', 'w') as fo:
         for i in chapter_list:
             fo.write('CHAPTER%s=%s\nCHAPTER%sNAME=%s\n' % (str(chapter_counter).zfill(2), i[0], str(chapter_counter).zfill(2), i[1]))
             chapter_counter += 1
@@ -129,7 +129,7 @@ def main(args_):
     '''
     uuid = ififuncs.create_uuid()
     args = parse_args(args_)
-    print args
+    print(args)
     log_name_source = os.path.join(args.o, '%s_concat_log.log' % time.strftime("_%Y_%m_%dT%H_%M_%S"))
     ififuncs.generate_log(log_name_source, 'concat.py started.')
     if args.mov:
@@ -149,14 +149,14 @@ def main(args_):
         user = ififuncs.get_user()
     if args.oe:
         if args.oe[:2] != 'oe':
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print('First two characters must be \'oe\' and last four characters must be four digits')
             object_entry = ififuncs.get_object_entry()
         elif len(args.oe[2:]) not in range(4, 6):
-            print 'First two characters must be \'oe\' and last four characters must be four digits'
+            print('First two characters must be \'oe\' and last four characters must be four digits')
             object_entry = ififuncs.get_object_entry()
         elif not args.oe[2:].isdigit():
            object_entry = ififuncs.get_object_entry()
-           print 'First two characters must be \'oe\' and last four characters must be four digits'
+           print('First two characters must be \'oe\' and last four characters must be four digits')
         else:
             object_entry = args.oe
     else:
@@ -213,14 +213,14 @@ def main(args_):
         log_name_source,
         'EVENT = losslessness verification, status=finished, eventType=messageDigestCalculation, agentName=ffmpeg, eventDetail=MD5s of AV streams of output file generated for validation')
     if source_bitstream_md5 == output_bitstream_md5:
-        print 'process appears to be lossless'
-        print source_bitstream_md5, output_bitstream_md5
+        print( 'process appears to be lossless')
+        print( source_bitstream_md5, output_bitstream_md5)
         ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, eventOutcome=pass')
     else:
-        print 'something went wrong - not lossless!'
-        print source_bitstream_md5,output_bitstream_md5
+        print( 'something went wrong - not lossless!')
+        print( source_bitstream_md5,output_bitstream_md5)
         ififuncs.generate_log(
         log_name_source,
         'EVENT = losslessness verification, eventOutcome=fail')
