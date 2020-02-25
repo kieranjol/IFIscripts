@@ -22,6 +22,9 @@ def set_options(args_):
                         '-yadif',
                         action='store_true',help='Yet Another DeInterlace Filter')
     parser.add_argument(
+                        '-wide',
+                        action='store_true',help='Adds 16:9 metadata flag')
+    parser.add_argument(
                         '-scale',
                         help='Rescale video.'
                         ' Usage: -scale 1920x1080 or -scale 720x576 etc')
@@ -119,7 +122,9 @@ def main(args_):
         if args.hq:
             ffmpeg_args.append('-profile:v')
             ffmpeg_args.append('3')
-        
+        if args.wide:
+            ffmpeg_args.append('-aspect')
+            ffmpeg_args.append('16:9')
         if args.yadif or args.scale:
         
             filter_options = '-vf'
