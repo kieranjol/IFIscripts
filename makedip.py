@@ -56,6 +56,8 @@ def main():
                     proxy_filename = os.path.join(args.o, filename +'_prores.mov')
                     if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
                         os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_prores.mov')
+                    elif os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('oe'):
+                        os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_prores.mov')
                 else:
                     if not (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) in str(os.listdir(args.o)):
                         if not args.wide:
@@ -64,6 +66,8 @@ def main():
                             bitc.main([full_path, '-wide', '-o', args.o, '-clean'])
                         proxy_filename = os.path.join(args.o, filename +'_h264.mov')
                         if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
+                            os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov')
+                        if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('oe'):
                             os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov')
                     else:
                         print('Skipping %s as the proxy already exists' % os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov')
