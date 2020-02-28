@@ -99,6 +99,10 @@ def set_options(args_):
         action='store_true',
         help='uses yadif, 4:3 DAR with 1:1 PAR, with no watermark or timecode.'
     )
+    parser.add_argument(
+        '-wide',
+        action='store_true',help='Adds 16:9 metadata flag'
+    )
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -252,6 +256,9 @@ def make_h264(filename, args, filter_list):
         '-pix_fmt', 'yuv420p',
         '-crf', crf_value
     ]
+    if args.wide:
+        ffmpeg_args.append('-aspect')
+        ffmpeg_args.append('16:9')
     if not args.map:
         ffmpeg_args.append('-map')
         ffmpeg_args.append('0:a?')

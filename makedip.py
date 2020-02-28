@@ -32,6 +32,10 @@ def set_options():
         help='Use ProRes HQ instead of h264'
         'The default codec is h264'
     )
+    parser.add_argument(
+        '-wide',
+        action='store_true',help='Adds 16:9 metadata flag'
+    )
     return parser.parse_args()
 
 def main():
@@ -45,13 +49,19 @@ def main():
             full_path = os.path.join(root, filename)
             if full_path.endswith(('.mov', '.mkv', '.mxf', '.dv')):
                 if args.prores:
-                    prores.main([full_path, '-o', args.o, '-hq'])
+                    if not args.wide:
+                        prores.main([full_path, '-o', args.o, '-hq'])
+                    else:
+                        prores.main([full_path, '-wide', '-o', args.o, '-hq'])
                     proxy_filename = os.path.join(args.o, filename +'_prores.mov')
                     if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
                         os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_prores.mov')
                 else:
                     if not (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) in str(os.listdir(args.o)):
-                        bitc.main([full_path, '-o', args.o, '-clean'])
+                        if not args.wide:
+                            bitc.main([full_path, '-o', args.o, '-clean'])
+                        else:
+                            bitc.main([full_path, '-wide', '-o', args.o, '-clean'])
                         proxy_filename = os.path.join(args.o, filename +'_h264.mov')
                         if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
                             os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov')
