@@ -9,7 +9,7 @@ import subprocess
 import os
 import argparse
 
-def parse_args():
+def parse_args(args_):
     '''
     Parse command line arguments.
     '''
@@ -21,15 +21,15 @@ def parse_args():
         '-o', '-output',
         help='full path of output directory', required=True
     )
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(args_)
     return parsed_args
 
 
-def main():
+def main(args_):
     '''
     Creates three v210/mov tesfiles in a test_files subdirectory
     '''
-    args = parse_args()
+    args = parse_args(args_)
     output_dir = os.path.join(os.path.abspath(args.o), 'test_files')
     ten_bit_dpx_dir = os.path.join(output_dir, 'ten_bit_dpx')
     sixteen_bit_dpx_dir = os.path.join(output_dir, 'sixteen_bit_dpx')
@@ -93,4 +93,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
