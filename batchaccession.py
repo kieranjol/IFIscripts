@@ -20,6 +20,7 @@ import ififuncs
 import accession
 import copyit
 import order
+import accession_register
 
 '''
 the following two functions for natural sorting are stolen from
@@ -345,8 +346,10 @@ def main(args_):
             accession.main(accession_cmd)
     collated_pbcore = gather_metadata(args.input)
     sorted_filepath = ififuncs.sort_csv(register, 'accession number')
+    accession_csv = accession_register.main(['-sorted_csv', sorted_filepath, '-pbcore_csv', collated_pbcore, '-filmo_csv', args.filmo_csv])
     print('\nA helper accessions register has been generated in order to help with registration - located here: %s' % sorted_filepath)
     print('\nA modified filmographic CSV has been generated with added reference numbers - located here: %s' % new_csv)
     print('\nA collated CSV consisting of each PBCore report has been generated for batch database import - located here: %s' % collated_pbcore)
+    print('\naccession_register.py has run and the output csv is - located here: %s' % accession_csv)
 if __name__ == '__main__':
     main(sys.argv[1:])

@@ -84,6 +84,7 @@ def main(args_):
             for i in sorted_csv_dict:
                 writer.writerow(i)
     print('\nYour helper CSV file is located here: %s\n' % new_csv)
+    return new_csv
 
 
 
