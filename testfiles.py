@@ -8,6 +8,7 @@ Written by Kieran O'Leary.
 import subprocess
 import os
 import argparse
+import sys
 
 def parse_args(args_):
     '''
@@ -20,6 +21,10 @@ def parse_args(args_):
     parser.add_argument(
         '-o', '-output',
         help='full path of output directory', required=True
+    )
+    parser.add_argument(
+        '-onlyvideo',
+        help='Only creates video, no image sequences', action='store_true'
     )
     parsed_args = parser.parse_args(args_)
     return parsed_args
@@ -73,24 +78,24 @@ def main(args_):
         ]
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
-    if not os.path.isdir(ten_bit_dpx_dir):
-        os.makedirs(ten_bit_dpx_dir)
-    if not os.path.isdir(sixteen_bit_dpx_dir):
-        os.makedirs(sixteen_bit_dpx_dir)
-    if not os.path.isdir(reel1):
-        os.makedirs(reel1)
-    if not os.path.isdir(reel2):
-        os.makedirs(reel2)
-    if not os.path.isdir(reel3):
-        os.makedirs(reel3)
     subprocess.call(bars_cmd)
     subprocess.call(mandel_cmd)
-    subprocess.call(life_cmd)
-    subprocess.call(dpx16_cmd)
-    subprocess.call(reel1_cmd)
-    subprocess.call(reel2_cmd)
-    subprocess.call(reel3_cmd)
-
+    if not args.onlyvideo:
+        if not os.path.isdir(ten_bit_dpx_dir):
+            os.makedirs(ten_bit_dpx_dir)
+        if not os.path.isdir(sixteen_bit_dpx_dir):
+            os.makedirs(sixteen_bit_dpx_dir)
+        if not os.path.isdir(reel1):
+            os.makedirs(reel1)
+        if not os.path.isdir(reel2):
+            os.makedirs(reel2)
+        if not os.path.isdir(reel3):
+            os.makedirs(reel3)
+        subprocess.call(dpx16_cmd)
+        subprocess.call(reel1_cmd)
+        subprocess.call(reel2_cmd)
+        subprocess.call(reel3_cmd)
+        subprocess.call(life_cmd)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
