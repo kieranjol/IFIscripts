@@ -43,12 +43,12 @@ def main(args_):
     reel2 = os.path.join(multi_reel_dir, 'whatever_reel2')
     reel3 = os.path.join(multi_reel_dir, 'whatever_reel3')
     bars_cmd = [
-        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc',
+        'ffmpeg', '-f', 'lavfi', '-i', 'testsrc', '-n',
         '-f', 'lavfi', '-i', 'sine', '-c:v', 'v210', '-ac', '2', '-c:a', 'pcm_s24le',
         '-t', '20', os.path.join(output_dir, 'bars_v210_pcm24le_stereo_20sec.mov')
         ]
     mandel_cmd = [
-        'ffmpeg', '-f', 'lavfi', '-i', 'mandelbrot',
+        'ffmpeg', '-f', 'lavfi', '-i', 'mandelbrot', '-n',
         '-c:v', 'v210', '-t', '5', os.path.join(output_dir, 'mandel_silent.mov')
         ]
 
