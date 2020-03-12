@@ -11,7 +11,7 @@ for root, dirname, filenames in os.walk(source):
         if files.endswith('_manifest.md5'):
             if  os.path.basename(root) != 'logs':
                 manifest = os.path.join(root, files)
-                print manifest
+                print(manifest)
                 if os.path.isfile(manifest):
                     error_counter = validate.main([manifest])
                     if error_counter == 0:
@@ -19,12 +19,12 @@ for root, dirname, filenames in os.walk(source):
                     else:
                         results.append([root, 'failure'])
                     for result in results:
-                        print result
+                        print(result)
             else:
                 continue
 
 for result in results:
-        print result
+        print(result)
     
                 
     
