@@ -79,7 +79,7 @@ def make_exiftool(xmlfilename, inputfilename):
         '-j',
         inputfilename
     ]
-    with open(xmlfilename, "w+") as fo:
+    with open(xmlfilename, "w", encoding='utf8') as fo:
         xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
         fo.write(xmlvariable)
 def make_siegfried(xmlfilename, inputfilename):
