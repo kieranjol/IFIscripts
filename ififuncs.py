@@ -300,12 +300,12 @@ def set_environment(logfile):
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
-        with open(log, "w") as fo:
+        with open(log, "w", encoding='utf-8') as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
     else:
-        with open(log, "a") as fo:
+        with open(log, "a", encoding='utf-8') as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
@@ -392,7 +392,7 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "w") as fo:
+    with open(manifest_textfile, "w", encoding='utf-8') as fo:
         for i in manifest_list:
             fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
@@ -429,7 +429,7 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest_textfile, "w") as fo:
+    with open(manifest_textfile, "w", encoding='utf-8') as fo:
         for i in manifest_list:
             fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
@@ -465,7 +465,7 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "a") as fo:
+    with open(manifest_textfile, "a", encoding='utf-8') as fo:
         for i in manifest_list:
             fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
@@ -478,7 +478,7 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-        with open(manifest_textfile, "w") as fo:
+        with open(manifest_textfile, "w", encoding='utf-8') as fo:
             for i in manifest_list:
                 fo.write((unicodedata.normalize('NFC', i) + '\n'))
         return files_in_manifest
