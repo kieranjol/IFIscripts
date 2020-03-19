@@ -79,8 +79,16 @@ def make_exiftool(xmlfilename, inputfilename):
         '-j',
         inputfilename
     ]
-    with open(xmlfilename, "w+") as fo:
-        xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
+    with open(xmlfilename, "w", encoding='utf8') as fo:
+        try:
+            xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
+        # exiftool has difficulties with unicode support on windows.
+        # instead of exiftool reading the file, the file is loading into memory
+        # and exiftool anaylses that instead.
+        # https://exiftool.org/exiftool_pod.html#WINDOWS-UNICODE-FILE-NAMES
+        except subprocess.CalledProcessError:
+            with open(inputfilename, 'rb') as file_object:
+                xmlvariable = subprocess.check_output(['exiftool', '-j', '-'], stdin=file_object).decode("utf-8")
         fo.write(xmlvariable)
 def make_siegfried(xmlfilename, inputfilename):
     '''
@@ -300,12 +308,12 @@ def set_environment(logfile):
 
 def generate_log(log, what2log):
     if not os.path.isfile(log):
-        with open(log, "w") as fo:
+        with open(log, "w", encoding='utf-8') as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
     else:
-        with open(log, "a") as fo:
+        with open(log, "a", encoding='utf-8') as fo:
             fo.write(time.strftime("%Y-%m-%dT%H:%M:%S ")
                      + getpass.getuser()
                      + ' ' + what2log + ' \n')
@@ -392,9 +400,9 @@ def hashlib_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "w") as fo:
+    with open(manifest_textfile, "w", encoding='utf-8') as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     '''
@@ -429,9 +437,9 @@ def sha512_manifest(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest_textfile, "w") as fo:
+    with open(manifest_textfile, "w", encoding='utf-8') as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     '''
@@ -465,9 +473,9 @@ def hashlib_append(manifest_dir, manifest_textfile, path_to_remove):
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "a") as fo:
+    with open(manifest_textfile, "a", encoding='utf-8') as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 
 def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
@@ -478,9 +486,9 @@ def make_manifest(manifest_dir, relative_manifest_path, manifest_textfile):
         files_in_manifest = len(manifest_list)
         # http://stackoverflow.com/a/31306961/2188572
         manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-        with open(manifest_textfile, "w") as fo:
+        with open(manifest_textfile, "w", encoding='utf-8') as fo:
             for i in manifest_list:
-                fo.write(i + '\n')
+                fo.write((unicodedata.normalize('NFC', i) + '\n'))
         return files_in_manifest
     else:
         print(' - Manifest already exists')
@@ -1061,7 +1069,7 @@ def manifest_update(manifest, path):
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
     with open(manifest,"w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
 def sha512_update(manifest, path):
     '''
@@ -1088,7 +1096,7 @@ def sha512_update(manifest, path):
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
     with open(manifest,"w") as fo:
         for i in manifest_list:
-            fo.write(i + '\n')
+            fo.write((unicodedata.normalize('NFC', i) + '\n'))
 def check_for_uuid(args):
     '''
     Tries to check if a filepath contains a UUID.
@@ -1971,8 +1979,9 @@ def count_stuff(source):
         directories[:] = [d for d in directories if d[0] != '.']
         for files in filenames:
             source_count += 1
-            relative_path = os.path.join(root, files).replace(os.path.dirname(source), '')[1:]
+            relative_path = unicodedata.normalize('NFC', os.path.join(root, files).replace(os.path.dirname(source), ''))[1:]
             file_list.append(relative_path.replace("\\", "/"))
+    print(file_list)
     if os.path.isfile(source):
         if len(file_list) == 0:
             source_count = 1
