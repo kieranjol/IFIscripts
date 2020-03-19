@@ -80,7 +80,15 @@ def make_exiftool(xmlfilename, inputfilename):
         inputfilename
     ]
     with open(xmlfilename, "w", encoding='utf8') as fo:
-        xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
+        try:
+            xmlvariable = subprocess.check_output(exiftool_cmd).decode(sys.stdout.encoding)
+        # exiftool has difficulties with unicode support on windows.
+        # instead of exiftool reading the file, the file is loading into memory
+        # and exiftool anaylses that instead.
+        # https://exiftool.org/exiftool_pod.html#WINDOWS-UNICODE-FILE-NAMES
+        except subprocess.CalledProcessError:
+            with open(inputfilename, 'rb') as file_object:
+                xmlvariable = subprocess.check_output(['exiftool', '-j', '-'], stdin=file_object).decode("utf-8")
         fo.write(xmlvariable)
 def make_siegfried(xmlfilename, inputfilename):
     '''
