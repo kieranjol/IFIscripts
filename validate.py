@@ -44,7 +44,7 @@ def parse_manifest(manifest, log_name_source):
     paths = []
     proceed = 'Y'
     os.chdir(os.path.dirname(manifest))
-    with open(manifest, 'r') as manifest_object:
+    with open(manifest, 'r', encoding='utf-8') as manifest_object:
         try:
             manifest_list = manifest_object.readlines()
         except UnicodeDecodeError:
