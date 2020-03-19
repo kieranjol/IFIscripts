@@ -172,7 +172,7 @@ def make_manifest(
     files_in_manifest = len(manifest_list)
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest_textfile, "w") as text:
+    with open(manifest_textfile, "w", encoding='utf-8') as text:
         for i in manifest_list:
             text.write(i + '\n')
     return files_in_manifest
