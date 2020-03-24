@@ -66,7 +66,7 @@ def consolidate_manifests(path, directory, new_log_textfile):
                 new_log_textfile,
                 'EVENT = Manifest consolidation - Checksums from %s merged into %s' % (os.path.join(objects_dir, manifest), new_manifest_textfile)
             )
-            with open(os.path.join(objects_dir, manifest), 'r') as fo:
+            with open(os.path.join(objects_dir, manifest), 'r', encoding='utf-8') as fo:
                 manifest_lines = fo.readlines()
                 for i in manifest_lines:
                     # This is what appends the new path to existing paths.
@@ -82,7 +82,7 @@ def consolidate_manifests(path, directory, new_log_textfile):
                 new_log_textfile,
                 'EVENT = Manifest movement - Manifest from %s to %s' % (objects_dir + '/' +  manifest, os.path.join(path, 'logs'))
             )
-    with open(new_manifest_textfile, 'a') as manifest_object:
+    with open(new_manifest_textfile, 'a', encoding='utf-8') as manifest_object:
         for checksums in collective_manifest:
             manifest_object.write(checksums)
     return new_manifest_textfile

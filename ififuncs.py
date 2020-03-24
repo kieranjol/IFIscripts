@@ -820,9 +820,9 @@ def sort_manifest(manifest_textfile):
     Sorts an md5 manifest in alphabetical order.
     Some scripts like moveit.py will require a manifest to be ordered like this.
     '''
-    with open(manifest_textfile, "r") as fo:
+    with open(manifest_textfile, "r", encoding='utf-8') as fo:
         manifest_lines = fo.readlines()
-        with open(manifest_textfile,"w") as ba:
+        with open(manifest_textfile, "w", encoding='utf-8') as ba:
             manifest_list = sorted(manifest_lines, key=lambda x: (x[34:]))
             for i in manifest_list:
                 ba.write(i)
@@ -1050,7 +1050,7 @@ def manifest_update(manifest, path):
     Adds a new entry to your manifest and sort.
     '''
     manifest_generator = ''
-    with open(manifest, 'r') as fo:
+    with open(manifest, 'r', encoding='utf-8') as fo:
         original_lines = fo.readlines()
         md5 = hashlib_md5(path)
         path_to_remove = os.path.dirname(os.path.dirname(os.path.dirname(path)))
@@ -1067,7 +1067,7 @@ def manifest_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[34:]))
-    with open(manifest,"w") as fo:
+    with open(manifest, "w", encoding='utf-8') as fo:
         for i in manifest_list:
             fo.write((unicodedata.normalize('NFC', i) + '\n'))
 
@@ -1077,7 +1077,7 @@ def sha512_update(manifest, path):
     Yet another SHA512 script that needs to be merged with the MD5 functions.
     '''
     manifest_generator = ''
-    with open(manifest, 'r') as fo:
+    with open(manifest, 'r', encoding='utf-8') as fo:
         original_lines = fo.readlines()
         sha512 = hashlib_sha512(path)
         path_to_remove = os.path.dirname(os.path.dirname(os.path.dirname(path)))
@@ -1094,7 +1094,7 @@ def sha512_update(manifest, path):
     manifest_list = manifest_generator.splitlines()
     # http://stackoverflow.com/a/31306961/2188572
     manifest_list = sorted(manifest_list, key=lambda x: (x[130:]))
-    with open(manifest,"w") as fo:
+    with open(manifest, "w", encoding='utf-8') as fo:
         for i in manifest_list:
             fo.write((unicodedata.normalize('NFC', i) + '\n'))
 def check_for_uuid(args):
@@ -1183,7 +1183,7 @@ def checksum_replace(manifest, logname, algorithm):
         new_checksum = hashlib_md5(logname)
     elif algorithm == 'sha512':
         new_checksum = hashlib_sha512(logname)
-    with open(manifest, 'r') as manifesto:
+    with open(manifest, 'r', encoding='utf-8') as manifesto:
         manifest_lines = manifesto.readlines()
         for lines in manifest_lines:
             if os.path.basename(logname) in lines:
@@ -1192,7 +1192,7 @@ def checksum_replace(manifest, logname, algorithm):
                 elif algorithm == 'sha512':
                     lines = lines[127:].replace(lines[127:], new_checksum + lines[128:])
             updated_manifest.append(lines)
-    with open(manifest, 'w') as fo:
+    with open(manifest, 'w', encoding='utf-8') as fo:
         for lines in updated_manifest:
             fo.write(lines)
 
@@ -1295,11 +1295,11 @@ def merge_logs_append(log_name_source, sipcreator_log, sipcreator_manifest):
     This is almost identical to the merge_logs function,except that log_name_source
     is appended to sipcreator_log,not prepended.
     '''
-    with open(log_name_source, 'r') as concat_log:
+    with open(log_name_source, 'r', encoding='utf-8') as concat_log:
         concat_lines = concat_log.readlines()
-    with open(sipcreator_log, 'r') as sipcreator_log_object:
+    with open(sipcreator_log, 'r', encoding='utf-8') as sipcreator_log_object:
         sipcreator_lines = sipcreator_log_object.readlines()
-    with open(sipcreator_log, 'w') as fo:
+    with open(sipcreator_log, 'w', encoding='utf-8') as fo:
         for lines in sipcreator_lines:
             fo.write(lines)
         for remaining_lines in concat_lines:

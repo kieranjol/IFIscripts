@@ -334,7 +334,7 @@ def manifest_file_count(manifest2check):
         manifest_files = []
         print('A manifest already exists - Checking if manifest is up to date')
         try:
-            with open(manifest2check, "r") as fo:
+            with open(manifest2check, "r", encoding='utf-8') as fo:
                 manifest_lines = [line.split(',') for line in fo.readlines()]
         except UnicodeDecodeError:
             with open(manifest2check, "r",  encoding='cp1252') as fo:
@@ -596,14 +596,14 @@ def make_destination_manifest(
 def verify_copy(manifest, manifest_destination, log_name_source, overwrite_destination_manifest, files_in_manifest, destination_count, source_count):
     unicode_mismatch = False
     try:
-        with open(manifest, 'r') as source_manifest_object:
+        with open(manifest, 'r', encoding='utf-8') as source_manifest_object:
             source_manifest_lines = source_manifest_object.read()
     except UnicodeDecodeError:
         unicode_mismatch = True
         with open(manifest, 'r',  encoding='cp1252') as source_manifest_object:
             source_manifest_lines = source_manifest_object.read()
     try:
-        with open(manifest_destination, 'r') as destination_manifest_object:
+        with open(manifest_destination, 'r', encoding='utf-8') as destination_manifest_object:
             destination_manifest_lines = destination_manifest_object.read()
     except UnicodeDecodeError:
         unicode_mismatch = True
