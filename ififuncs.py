@@ -540,7 +540,6 @@ def create_csv(csv_file, *args):
     f = open(csv_file, 'w', newline='')
     try:
         writer = csv.writer(f)
-        print(*args)
         writer.writerow(*args)
     finally:
         f.close()
