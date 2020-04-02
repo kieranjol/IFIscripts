@@ -534,12 +534,19 @@ def main(args_):
         try:
             if audio_only:
                 FrameCount = 'n/a'
-                print(FrameCount)
             else:
-                FrameCount += int(ififuncs.get_metadata(
-                    "//ns:FrameCount",
-                    new_root, mediainfo_namespace
-                ))
+                # increment if multiple objects are present
+                try:
+                    FrameCount += int(ififuncs.get_metadata(
+                        "//ns:FrameCount",
+                        new_root, mediainfo_namespace
+                    ))
+                except ValueError:
+                    # don't increment if multiple values are returned as str
+                    FrameCount = ififuncs.get_metadata(
+                        "//ns:FrameCount",
+                        new_root, mediainfo_namespace
+                    )
         except TypeError:
             # workaround for silent pic in DCP
             FrameCount = 'n/a'
