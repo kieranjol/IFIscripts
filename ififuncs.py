@@ -1465,7 +1465,7 @@ def extract_metadata(csv_file):
     Read the csv and store the data in a list of dictionaries.
     '''
     object_dictionaries = []
-    input_file = csv.DictReader(open(csv_file))
+    input_file = csv.DictReader(open(csv_file, encoding='utf-8'))
     headers = input_file.fieldnames
     for rows in input_file:
         object_dictionaries.append(rows)
