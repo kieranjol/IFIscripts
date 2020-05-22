@@ -174,7 +174,7 @@ def setup_drawtext(args, filename):
     watermark_size = video_height / 14
     if sys.platform == "darwin":
         font_path = "fontfile=/Library/Fonts/AppleGothic.ttf"
-    elif sys.platform == "linux2":
+    elif sys.platform.startswith("linux"):
         font_path = "fontfile=/usr/share/fonts/truetype/freefont/FreeSerifBold.ttf"
     elif sys.platform == "win32":
         font_path = "'fontfile=C\:\\\Windows\\\Fonts\\\\'arial.ttf'"
@@ -194,14 +194,14 @@ def setup_drawtext(args, filename):
         # The timecode needs to be phrased in a way unique to each O.S.
         # Note the backslashes.
         # This section makes up a timecode if none is present in the file.
-        if sys.platform == "darwin" or sys.platform == "linux2":
+        if sys.platform == "darwin" or sys.platform.startswith("linux"):
             timecode_test = '01\\\:00\\\:00\\\:00'
         elif sys.platform == "win32":
             timecode_test = '01\:00\:00\:00'
     else:
         # If timecode is present, this will escape the colons
         # so that it is compatible with each operating system.
-        if sys.platform == "darwin" or sys.platform == "linux2":
+        if sys.platform == "darwin" or sys.platform.startswith("linux"):
             timecode_test = timecode_test_raw.replace(':', '\\\:').rstrip()
         elif sys.platform == "win32":
             timecode_test = timecode_test_raw.replace(':', '\\:').rstrip()
