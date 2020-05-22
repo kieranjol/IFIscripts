@@ -23,6 +23,7 @@ import ctypes
 import platform
 import itertools
 import unicodedata
+import shutil
 from builtins import input
 import makedfxml
 from glob import glob
@@ -1860,6 +1861,18 @@ def find_cpl(source):
         return cpl_list[0]
 
 
+def check_av_or_doc(input):
+    '''
+    Checks if the input is AV or a document.
+    This is a file extension check for very basic sorting.
+    '''
+    if input.lower.endswith('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV', '.stl', '.STL'):
+        format = 'av'
+    elif input.lower.endswith('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip' )
+        format = 'doc'
+    return format
+
+
 def get_technical_metadata(path, new_log_textfile):
     '''
     Recursively create mediainfos and mediatraces for AV files.
@@ -1877,9 +1890,7 @@ def get_technical_metadata(path, new_log_textfile):
             d for d in directories if d != 'metadata'
         ]
         for av_file in filenames:
-            if av_file.lower().endswith(
-                    ('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV', '.stl', '.STL')
-            ):
+            if check_av_or_doc(av_file.lower()) == 'av':
                 if av_file[0] != '.':
                     inputxml = "%s/%s_mediainfo.xml" % (
                         os.path.join(path, 'metadata'), os.path.basename(av_file)
@@ -1914,9 +1925,7 @@ def get_technical_metadata(path, new_log_textfile):
                             new_log_textfile,
                             'EVENT = Metadata extraction - eventDetail=Mediatrace technical metadata extraction via mediainfo, eventOutcome=%s, agentName=%s' % (inputtracexml, mediainfo_version)
                         )
-            elif av_file.lower().endswith(
-                    ('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip' )
-            ):
+            elif check_av_or_doc(av_file.lower()) == 'doc':
                 if av_file[0] != '.':
                     if not av_file.lower().endswith(('.txt', '.csv')):
                         exiftool_version = 'exiftool'
@@ -1985,3 +1994,17 @@ def count_stuff(source):
         if len(file_list) == 0:
             source_count = 1
     return source_count, file_list
+
+def check_existence(dependency_list):
+    '''
+    Process a list of subprocess strings and check if they're installed
+    '''
+    missing = False
+    for dependency in dependency_list:
+        if shutil.which(dependency) is None:
+            print('This script requires %s, please install it.' % dependency)
+            missing = True
+    if missing is True:
+        print('Exiting')
+        sys.exit()
+
