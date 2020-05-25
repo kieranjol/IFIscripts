@@ -62,7 +62,7 @@ if args.bag:
 else:
     bagging = 'disabled'
 '''
-
+ififuncs.check_existence(['ffprobe', 'ffmpeg'])
 if args.m:
     email = 'enabled'
 else:

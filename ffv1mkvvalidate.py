@@ -160,6 +160,7 @@ def main():
     '''
     Launches the functions that will validate your FFV1/MKV files.
     '''
+    ififuncs.check_existence(['mediaconch'])
     args = parse_args()
     source = args.input
     user = ififuncs.get_user()

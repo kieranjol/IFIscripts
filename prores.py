@@ -48,6 +48,7 @@ def main(args_):
     '''
     Launch the various functions that will make a h264/mp4 access copy.
     '''
+    ififuncs.check_existence(['ffmpeg'])
     args = set_options(args_)
     prores_options = []
     
