@@ -48,12 +48,12 @@ but the following are also needed for many scripts:
 * rsync
 * gcp (installed via gnu-coreutils on OSX)
 * rawcooked
-* 7zip aka 7za aka p7zip
+* 7zip aka 7za aka p7zip-full
 * md5deep
 * mediaconch
 
 A lot of these can be installed on Ubuntu with a single line:
-``sudo apt update && sudo apt install python3-pip ffmpeg mkvtoolnix exiftool git md5deep p7zip``
+``sudo apt update && sudo apt install python3-pip ffmpeg mkvtoolnix exiftool git md5deep p7zip-full``
 
 In order to add the rest, refer to the installation instructions of the relevant tools.
 For mediaarea tools, it can be easiest to use their own snapshot repository:
