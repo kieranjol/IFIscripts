@@ -53,7 +53,9 @@ but the following are also needed for many scripts:
 * mediaconch
 
 A lot of these can be installed on Ubuntu with a single line:
-sudo apt update && sudo apt install ffmpeg mkvtoolnix exiftool git md5deep p7zip
+``sudo apt update && sudo apt install python3-pip ffmpeg mkvtoolnix exiftool git md5deep p7zip``
+
 In order to add the rest, refer to the installation instructions of the relevant tools.
 For mediaarea tools, it can be easiest to use their own snapshot repository:
+
 ``wget https://mediaarea.net/repo/deb/repo-mediaarea-snapshots_1.0-13_all.deb && sudo dpkg -i repo-mediaarea-snapshots_1.0-13_all.deb && sudo apt update && sudo apt install mediainfo dvrescue qcli rawcooked mediaconch``
