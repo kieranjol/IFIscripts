@@ -374,6 +374,7 @@ def main():
     '''
     Overly long main function that does most of the heavy lifting.
     '''
+    ififuncs.check_existence(['rawcooked', 'ffmpeg'])
     args = setup()
     run_loop(args)
 

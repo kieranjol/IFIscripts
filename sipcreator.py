@@ -411,6 +411,11 @@ def main(args_):
     args = parse_args(args_)
     start = datetime.datetime.now()
     inputs = args.i
+    for input in inputs:
+        if ififuncs.check_av_or_doc(input) == 'av':
+            ififuncs.check_existence(['mediainfo'])
+        elif ififuncs.check_av_or_doc(input) == 'doc':
+            ififuncs.check_existence(['sf', 'exiftool'])
     if args.d:
         try:
             import clairmeta
@@ -418,6 +423,8 @@ def main(args_):
         except ImportError:
             print('Exiting as Clairmeta is not installed. If there is a case for not using clairmeta, please let me know and i can make a workaround')
             sys.exit()
+    if args.zip:
+        ififuncs.check_existence(['7za'])
     print(args)
     user = ififuncs.determine_user(args)
     object_entry = get_object_entry(args)

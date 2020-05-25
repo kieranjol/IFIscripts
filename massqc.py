@@ -6,12 +6,14 @@ qcli makes xml.gz QCTools reports.
 import sys
 import subprocess
 import os
+import ififuncs
 
 
 def main():
     '''
     Simple recursive process that makes QCTools sidecar reports.
     '''
+    ififuncs.check_existence(['qcli'])
     source = sys.argv[1]
     if os.path.isfile(source):
         cmd = [

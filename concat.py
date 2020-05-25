@@ -127,6 +127,7 @@ def main(args_):
     '''
     Launches the functions that prepare and execute the concatenation.
     '''
+    ififuncs.check_existence(['ffmpeg', 'mkvpropedit', 'mediainfo'])
     uuid = ififuncs.create_uuid()
     args = parse_args(args_)
     print(args)

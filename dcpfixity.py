@@ -26,7 +26,7 @@ try:
     import bagit
 except ImportError:
     print 'skipping error'
-
+ififuncs.check_existence(['ffprobe', 'ffmpeg'])
 parser = argparse.ArgumentParser(description='DCP FIXITY checker/bagging tool.'
                                  ' Written by Kieran O\'Leary.')
 parser.add_argument('input')

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Runs mediaconch on FFV1/MKV files.
 The process will validate the files against the FFV1/MKV/PCM standards.
@@ -86,7 +86,7 @@ def setup(full_path, user):
         sip_root, os.path.basename(parent_dir) + '_manifest.md5'
     )
     if not os.path.isfile(manifest):
-        print 'manifest does not exist %s' % manifest
+        print('manifest does not exist %s' % manifest)
         return 'skipping'
     if os.path.isdir(metadata_dir):
         mediaconch_xmlfile_basename = '%s_mediaconch_validation.xml' % filename
@@ -94,10 +94,10 @@ def setup(full_path, user):
             metadata_dir, mediaconch_xmlfile_basename
         )
         if os.path.isfile(mediaconch_xmlfile):
-            print 'mediaconch xml already exists'
+            print('mediaconch xml already exists')
             return 'skipping'
     else:
-        print 'no metadata directory found. Exiting.'
+        print('no metadata directory found. Exiting.')
     return log_name_source, user, mediaconch_xmlfile, manifest, full_path, parent_dir
 
 
@@ -160,6 +160,7 @@ def main():
     '''
     Launches the functions that will validate your FFV1/MKV files.
     '''
+    ififuncs.check_existence(['mediaconch'])
     args = parse_args()
     source = args.input
     user = ififuncs.get_user()
@@ -176,12 +177,12 @@ def main():
                         log_name_source, user, mediaconch_xmlfile, manifest, full_path,
                     )
                     validation_outcome = parse_mediaconch(mediaconch_xmlfile)
-                    print str(validation_outcome)
+                    print(str(validation_outcome))
                     if int(validation_outcome['fail_count']) > 0:
-                        print 'Validation failed!'
+                        print('Validation failed!')
                         event_outcome = 'fail'
                     elif int(validation_outcome['fail_count']) == 0:
-                        print 'validation successful'
+                        print('validation successful')
                         event_outcome = 'pass'
                     ififuncs.generate_log(
                         log_name_source,

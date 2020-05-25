@@ -4,7 +4,7 @@ Installation
 General
 -------
 
-This is a python 2.7 project. Eventually we will move to python3, but that's for another day (written on 2018-04-08).
+This is a python 3.8 project.
 
 In general, you can just clone or download the whole repository (https://github.com/kieranjol/IFIscripts)  and run the scripts from your cloned path. In the Irish Film Institute, on linux, OSX and Windows, we create a folder in the home directory called ``ifigit``, then we run ``git clone https://github.com/kieranjol/ifiscripts``. Then we add the ``ifiscripts`` folder to ``$PATH`` which allows us to access the scripts from any directory, not just ``ifigit/ifiscripts``. We will be moving to using ``pip`` and ``setup.py`` for installs and updates in the future.
 
@@ -39,7 +39,7 @@ There are some external ``subprocess`` dependencies for most of the scripts. The
 but the following are also needed for many scripts:
 
 * mkvpropedit (installed via mkvtoolnix)
-* siegfried
+* siegfried aka sf
 * exiftool
 * git
 * clairmeta (this requires other dependencies - https://github.com/Ymagis/ClairMeta)
@@ -48,8 +48,14 @@ but the following are also needed for many scripts:
 * rsync
 * gcp (installed via gnu-coreutils on OSX)
 * rawcooked
+* 7zip aka 7za aka p7zip-full
+* md5deep
+* mediaconch
 
+A lot of these can be installed on Ubuntu with a single line:
+``sudo apt update && sudo apt install python3-pip ffmpeg mkvtoolnix exiftool git md5deep p7zip-full``
 
+In order to add the rest, refer to the installation instructions of the relevant tools.
+For mediaarea tools, it can be easiest to use their own snapshot repository:
 
-
-
+``wget https://mediaarea.net/repo/deb/repo-mediaarea-snapshots_1.0-13_all.deb && sudo dpkg -i repo-mediaarea-snapshots_1.0-13_all.deb && sudo apt update && sudo apt install mediainfo dvrescue qcli rawcooked mediaconch``

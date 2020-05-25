@@ -8,7 +8,7 @@ import subprocess
 import sys
 import os
 from ififuncs import hashlib_md5
-
+import ififuncs
 
 def getffprobe(variable, streamvalue, which_file):
     '''
@@ -225,6 +225,7 @@ def main(args_):
     '''
     Launch the various functions that will make a h264/mp4 access copy.
     '''
+    ififuncs.check_existence(['ffprobe', 'ffmpeg'])
     args = set_options(args_)
     video_files = get_filenames(args)
     for filename in video_files:

@@ -12,7 +12,6 @@ import subprocess
 import datetime
 import ififuncs
 
-
 def parse_args(args_):
     '''
     Parse command line arguments.
@@ -95,4 +94,5 @@ def main(args_):
     return result, full_zip
 
 if __name__ == '__main__':
+    ififuncs.check_existence(['7za'])
     main(sys.argv[1:])

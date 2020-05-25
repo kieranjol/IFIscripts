@@ -9,6 +9,7 @@ import subprocess
 import os
 import argparse
 import sys
+import ififuncs
 
 def parse_args(args_):
     '''
@@ -34,6 +35,7 @@ def main(args_):
     '''
     Creates three v210/mov tesfiles in a test_files subdirectory
     '''
+    ififuncs.check_existence(['ffmpeg'])
     args = parse_args(args_)
     output_dir = os.path.join(os.path.abspath(args.o), 'test_files')
     ten_bit_dpx_dir = os.path.join(output_dir, 'ten_bit_dpx')

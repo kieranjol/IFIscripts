@@ -142,6 +142,7 @@ def verify_losslessness(output_folder, output, output_uuid, fmd5):
     return fmd5_logfile, fmd5ffv1, verdict
 
 def main(args_):
+    ififuncs.check_existence(['ffmpeg', 'mediainfo'])
     print('\n - Normalise.py started')
     args = parse_args(args_)
     print(args)
