@@ -34,10 +34,13 @@ def set_options():
     )
     parser.add_argument(
         '-wide',
-        action='store_true',help='Adds 16:9 metadata flag'
+        action='store_true', help='Adds 16:9 metadata flag'
+    )
+    parser.add_argument(
+        '-bitc',
+        action='store_true', help='Adds BITC and watermark'
     )
     return parser.parse_args()
-
 def main():
     '''
     Launch the various functions that will make a h264/mp4 access copy.
@@ -60,10 +63,12 @@ def main():
                         os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_prores.mov')
                 else:
                     if not (os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) in str(os.listdir(args.o)):
-                        if not args.wide:
-                            bitc.main([full_path, '-o', args.o, '-clean'])
-                        else:
-                            bitc.main([full_path, '-wide', '-o', args.o, '-clean'])
+                        bitc_cmd = [full_path, '-o', args.o]
+                        if not args.bitc:
+                            bitc_cmd.extend(['-clean'])
+                        if args.wide:
+                            bitc_cmd.extend(['-wide'])
+                        bitc.main(bitc_cmd)
                         proxy_filename = os.path.join(args.o, filename +'_h264.mov')
                         if os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path)))).startswith('aaa'):
                             os.rename(proxy_filename, os.path.join(args.o, os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(full_path))))) + '_h264.mov')
