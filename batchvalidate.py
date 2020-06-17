@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import validate
 import sys
 import os
@@ -22,9 +22,5 @@ for root, dirname, filenames in os.walk(source):
                         print(result)
             else:
                 continue
-
 for result in results:
-        print(result)
-    
-                
-    
+    print(result)
