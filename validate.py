@@ -24,7 +24,7 @@ def get_input(manifest):
     else:
         return manifest
 
-def parse_manifest(manifest, log_name_source):
+def parse_manifest(manifest, log_name_source, args):
     '''
     Analyses the manifest to see if any files are missing.
     Returns a list of missing files and a dictionary containing checksums
@@ -76,7 +76,8 @@ def parse_manifest(manifest, log_name_source):
         for i in file_list:
             if i not in paths:
                 print((i, 'is present in your source directory but not in the source manifest'))
-        proceed = ififuncs.ask_yes_no('Do you want to proceed regardless?')
+        if not args.y:
+            proceed = ififuncs.ask_yes_no('Do you want to proceed regardless?')
     if proceed == 'N':
         print('Exiting')
         sys.exit()
@@ -157,6 +158,7 @@ def make_parser(args_):
                                      ' Written by Kieran O\'Leary.')
     parser.add_argument('input', help='file path of md5 checksum file')
     parser.add_argument('-update_log', help='updates the package log file with the fixity check information', action='store_true')
+    parser.add_argument('-y', help='answer Y to user input questions regarding manifest issues', action='store_true')
     parsed_args = parser.parse_args(args_)
     return parsed_args
 
@@ -166,7 +168,7 @@ def check_manifest(args, log_name_source):
     Launches other functions.
     '''
     manifest = get_input(args.input)
-    manifest_dict, missing_files_list = parse_manifest(manifest, log_name_source)
+    manifest_dict, missing_files_list = parse_manifest(manifest, log_name_source, args)
     error_counter = validate(manifest_dict, manifest, log_name_source, missing_files_list)
     return manifest, error_counter
 
