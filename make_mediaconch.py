@@ -53,6 +53,18 @@ def main():
                             logging.info('Generating sidecar - %s' % sidecar)
                     else:
                         logging.info('%s already exists - skipping' % sidecar)
+                    if filename.endswith('.mkv'):
+                        mkv_implementation_overview_cmd = ['mediaconch', full_path]
+                        mkv_implementation_overview = subprocess.check_output(mkv_implementation_overview_cmd)
+                        if 'fail!' in str(mkv_implementation_overview):
+                            logging.info('%s does not validate against the implementation - look at the sidecar XML for more info' % filename)
+                        elif 'pass!' in str(mkv_implementation_overview):
+                            logging.info('%s: Valid implementation' % filename)
+                        mkv_sidecar_output = subprocess.check_output(['mediaconch', '-fx', full_path])
+                        if not os.path.isfile(full_path + '_implementation_report'):
+                            with open(full_path + '_ImplementationReport.xml', 'wb') as fo:
+                                fo.write(mkv_sidecar_output)
+                                logging.info('Generating implementation report sidecar: %s'% full_path + 'ImplementationReport.xml')
 
 if __name__ == '__main__':
     main()
