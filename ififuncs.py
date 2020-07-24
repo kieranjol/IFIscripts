@@ -730,14 +730,14 @@ def get_user():
     user = ''
     if user not in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
         user = input(
-            '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Noelia Romero\n6. Ana Truchanova\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
+            '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n\n1. Aoife Fitzmaurice\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Noelia Romero\n6. Ana Truchanova\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
         )
         while user not in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
             user = input(
-                '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n1. Leanne Ledwidge\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Noelia Romero\n6. Ana Truchanova\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
+                '\n\n**** Who are you?\nPress 1,2,3,4,5,6,7,8,9\n1. Aoife Fitzmaurice\n2. Gavin Martin\n3. Kieran O\'Leary\n4. Raelene Casey\n5. Noelia Romero\n6. Ana Truchanova\n7. Eoin O\'Donohoe\n8. Yujing Huang\n9. Colm Connolly\n'
             )
     if user == '1':
-        user = 'Leanne Ledwidge'
+        user = 'Aoife Fitzmaurice'
         time.sleep(1)
     elif user == '2':
         user = 'Gavin Martin'
