@@ -189,7 +189,7 @@ def setup_drawtext(args, filename):
         'get_frame_rate',
         'stream=avg_frame_rate',
         filename
-    ).rstrip()
+    ).rsplit()[0]
     # This tests if there is actually a timecode present in the file.
     if not timecode_test_raw:
         # The timecode needs to be phrased in a way unique to each O.S.

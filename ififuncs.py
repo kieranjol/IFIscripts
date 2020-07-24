@@ -1441,7 +1441,7 @@ def recursive_file_list(video_files):
     recursive_list = []
     for root, _, filenames in os.walk(video_files):
         for filename in filenames:
-            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF', '.WAV', '.wav', '.aiff', '.AIFF', 'mp3', 'MP3')):
+            if filename.endswith(('.MP4', '.mp4', '.mov', '.mkv', '.mxf', '.MXF', '.WAV', '.wav', '.aiff', '.AIFF', 'mp3', 'MP3', 'm2t')):
                 recursive_list.append(os.path.join(root, filename))
     return recursive_list
 
@@ -1455,7 +1455,7 @@ def get_video_files(source):
         folder_list = os.listdir(source)
         for filename in folder_list:
             if not filename[0] == '.':
-                if filename.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi')):
+                if filename.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.m2t')):
                     file_list.append(os.path.join(source, filename))
     elif os.path.isfile(source):
         file_list = [source]
@@ -1532,6 +1532,7 @@ def get_digital_object_descriptor(source_folder):
     mp3_count = 0
     stl_count = 0
     mxf_count = 0
+    m2t_count = 0
     BPAV = False
     as11 = False
     dig_object_descriptor = ''
@@ -1553,6 +1554,8 @@ def get_digital_object_descriptor(source_folder):
                 mp3_count += 1
             elif filename.lower().endswith('stl'):
                 stl_count += 1
+            elif filename.lower().endswith('m2t'):
+                m2t_count += 1
             elif filename.lower().endswith('mxf'):
                 mxf_count += 1
                 try:
@@ -1584,6 +1587,8 @@ def get_digital_object_descriptor(source_folder):
     elif mp4_count >= 1:
         if BPAV is True:
             dig_object_descriptor = 'XDCAM EX'
+    elif m2t_count >= 1:
+        dig_object_descriptor = 'MPEG-2 Transport Stream'
     return dig_object_descriptor
 
 def check_for_fcp(filename):
@@ -1867,7 +1872,7 @@ def check_av_or_doc(input):
     This is a file extension check for very basic sorting.
     '''
     format = ''
-    if input.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV', '.stl', '.STL')):
+    if input.lower().endswith(('.mov', 'MP4', '.mp4', '.mkv', '.MXF', '.mxf', '.dv', '.DV', '.3gp', '.webm', '.swf', '.avi', '.wav', '.WAV', '.stl', '.STL', 'm2t')):
         format = 'av'
     elif input.lower().endswith(('.tif', 'tiff', '.doc', '.txt', '.docx', '.pdf', '.jpg', '.jpeg', '.png', '.rtf', '.xml', '.odt', '.cr2', '.epub', '.ppt', '.pptx', '.xls', '.xlsx', '.gif', '.bmp', '.csv', '.zip')):
         format = 'doc'
