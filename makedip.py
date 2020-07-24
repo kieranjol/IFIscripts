@@ -50,7 +50,7 @@ def main():
     for root, _, filenames in os.walk(source):
         for filename in filenames:
             full_path = os.path.join(root, filename)
-            if full_path.endswith(('.mov', '.mkv', '.mxf', '.dv')):
+            if full_path.endswith(('.mov', '.mkv', '.mxf', '.dv', '.m2t')):
                 if args.prores:
                     if not args.wide:
                         prores.main([full_path, '-o', args.o, '-hq'])

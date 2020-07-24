@@ -24,7 +24,7 @@ def main():
     else:
         for root, _, filenames in os.walk(source):
             for filename in filenames:
-                if filename.endswith(('.mov', '.mkv')):
+                if filename.endswith(('.mov', '.mkv','.dv', '.m2t')):
                     if filename[0] != '.':
                         cmd = [
                             'qcli',

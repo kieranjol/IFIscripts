@@ -168,7 +168,8 @@ def setup_drawtext(args, filename):
     '''
     Sets up the filtergraphs for either timecode, watermark or both.
     '''
-    video_height = float(getffprobe('video_height', 'stream=height', filename))
+    # HDV m2t streams report two height values, so the rsplit() just accepts the first.
+    video_height = float(getffprobe('video_height', 'stream=height', filename).rsplit()[0])
     # Calculate appropriate font size
     font_size = video_height / 12
     watermark_size = video_height / 14
@@ -188,7 +189,7 @@ def setup_drawtext(args, filename):
         'get_frame_rate',
         'stream=avg_frame_rate',
         filename
-    ).rstrip()
+    ).rsplit()[0]
     # This tests if there is actually a timecode present in the file.
     if not timecode_test_raw:
         # The timecode needs to be phrased in a way unique to each O.S.
