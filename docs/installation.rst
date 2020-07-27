@@ -52,6 +52,24 @@ but the following are also needed for many scripts:
 * md5deep
 * mediaconch
 
+Specific Instructions - Windows
+-------------------------------
+
+* install 64-bit git-bash using all the default settings https://git-scm.com/downloads - make sure it's the 64-bit version!
+* install 64-bit python3, making sure to tick the option to ADD TO PATH https://www.python.org/downloads/
+* open cmd and `mkdir ifiscripts` and `git clone https://github.com/kieranjol/ifiscripts`
+* add this ifiscripts path  (eg C:\Users\KAZETCCCC\ifigit\ifiscripts)to the environmental path, following these steps:https://www.computerhope.com/issues/ch000549.htm
+* ffmpeg the default option works well - 64-bit static https://ffmpeg.zeranoe.com/builds/ and place in scripts folder
+  * OR install media-autobuild-suite but extract to the C:\mas folder due to long path issues
+* mediainfo - get the 64-bit CLI version https://mediaarea.net/en/MediaInfo/Download/Windows
+* install siegfried exe (https://www.itforarchivists.com/siegfried/)file to the ifiscripts folder and run `sf -update ` in cmd 
+* download exiftoolinstaller and select the 'latest build' option - make sure that the option to add to path is ticked - https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows
+* install notepad++  - https://notepad-plus-plus.org/downloads/
+* install libreoffice - https://www.libreoffice.org/download/download/
+
+
+Specific Instructions - Ubuntu
+---------------------
 A lot of these can be installed on Ubuntu with a single line:
 ``sudo apt update && sudo apt install python3-pip ffmpeg mkvtoolnix exiftool git md5deep p7zip-full``
 
