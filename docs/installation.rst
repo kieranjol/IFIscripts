@@ -14,19 +14,6 @@ However some folks just ``cd`` into the cloned repository and run the scripts fr
 External dependencies are listed below, but ``lxml`` is the main python library that must be installed for most scripts.
 ``pip install lxml`` should work fine.
 
-Using pip/setup.py
-------------------
-
-the following is currently experimental, but it should work fine:
-
-You can get a selection of scripts by making sure that ``pip`` installed, then running:
-``pip install ifiscripts``
-or ``cd`` into the ``ifiscripts`` cloned folder and run
-``pip install .``
-
-You may need to run the ``pip`` commands with ``sudo``.
-
-The pip installation methods have the added benefit of installing the python dependencies such as ``lxml``.
 
 External Dependencies
 ---------------------
@@ -57,12 +44,13 @@ Specific Instructions - Windows
 
 * install 64-bit git-bash using all the default settings https://git-scm.com/downloads - make sure it's the 64-bit version!
 * install 64-bit python3, making sure to tick the option to ADD TO PATH https://www.python.org/downloads/
-* open cmd and `mkdir ifiscripts` and `git clone https://github.com/kieranjol/ifiscripts`
-* add this ifiscripts path  (eg C:\Users\KAZETCCCC\ifigit\ifiscripts)to the environmental path, following these steps:https://www.computerhope.com/issues/ch000549.htm
+* open cmd and ``mkdir ifiscripts`` and ``git clone https://github.com/kieranjol/ifiscripts``
+* add this ifiscripts path  (eg ``C:\Users\KAZETCCCC\ifigit\ifiscripts``)to the environmental path, following these steps: https://www.computerhope.com/issues/ch000549.htm
 * ffmpeg the default option works well - 64-bit static https://ffmpeg.zeranoe.com/builds/ and place in scripts folder
   * OR install media-autobuild-suite but extract to the C:\mas folder due to long path issues
 * mediainfo - get the 64-bit CLI version https://mediaarea.net/en/MediaInfo/Download/Windows
-* install siegfried exe (https://www.itforarchivists.com/siegfried/)file to the ifiscripts folder and run `sf -update ` in cmd 
+* install lxml with ``pip install lxml``
+* install siegfried exe (https://www.itforarchivists.com/siegfried/)file to the ifiscripts folder and run ``sf -update`` in cmd 
 * download exiftoolinstaller and select the 'latest build' option - make sure that the option to add to path is ticked - https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows
 * install notepad++  - https://notepad-plus-plus.org/downloads/
 * install libreoffice - https://www.libreoffice.org/download/download/
@@ -77,3 +65,18 @@ In order to add the rest, refer to the installation instructions of the relevant
 For mediaarea tools, it can be easiest to use their own snapshot repository:
 
 ``wget https://mediaarea.net/repo/deb/repo-mediaarea-snapshots_1.0-13_all.deb && sudo dpkg -i repo-mediaarea-snapshots_1.0-13_all.deb && sudo apt update && sudo apt install mediainfo dvrescue qcli rawcooked mediaconch``
+
+Using pip/setup.py
+------------------
+
+the following is currently experimental, but it should work fine:
+
+You can get a selection of scripts by making sure that ``pip`` installed, then running:
+``pip install ifiscripts``
+or ``cd`` into the ``ifiscripts`` cloned folder and run
+``pip install .``
+
+You may need to run the ``pip`` commands with ``sudo``.
+
+The pip installation methods have the added benefit of installing the python dependencies such as ``lxml``.
+
