@@ -411,6 +411,14 @@ massqc.py
 -  Usage for batch processing all videos in a directory -
    ``massqc.py directory_name``
 
+videoerror.py
+~~~~~~~~~~~~~~~~~~
+
+-  Detect corrupted frames in m2t/HDV captures.
+-  Generates a CSV report in ~/Desktop/ifiscripts_logs
+-  Usage for batch processing all m2t videos recursively in a directory -
+   `` videoerror.py directory_name``
+
 framemd5.py
 ~~~~~~~~~~
 
