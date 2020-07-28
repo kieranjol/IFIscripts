@@ -1980,7 +1980,9 @@ def check_if_manifest(manifest):
     if '_manifest' in manifest:
         if manifest.endswith('.md5'):
             if manifest[0] != '.':
-                return True
+                # sloppy code to prevent manifests made with manifest_normalise.py from breaking scripts
+                if not manifest.endswith('_modified_manifest.md5'):
+                    return True
 
 def count_stuff(source):
     '''
