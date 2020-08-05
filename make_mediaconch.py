@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Generates Mediaconch xml reports
 Accepts a file extension pattern and a policy input

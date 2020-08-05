@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 '''
 Normalises manifests so that they adhere to ifiscripts manifest.
 This includes removing lines with hashes.
