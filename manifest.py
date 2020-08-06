@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Generates sidecar MD5 or SHA512 checksum manifest.
 '''
