@@ -14,7 +14,7 @@ def analyze_log(logfile):
     Analyzes logfiles on the desktop and summarises the outcome.
     '''
     outcome = ''
-    with open(logfile, 'r') as fo:
+    with open(logfile, 'r', encoding='utf-8') as fo:
         log_lines = fo.readlines()
         for line in log_lines:
             if 'EVENT = File Transfer Judgement - Success' in line:
