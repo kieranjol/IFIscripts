@@ -42,7 +42,7 @@ def main():
     clip2 = os.path.join(clpr, '338_0011_07')
     clip3 = os.path.join(clpr, '338_0011_08')
     for folder in [bpav, clpr, takr, clip1, clip2, clip3]:
-        print folder
+        print(folder)
         os.makedirs(folder)
     cueup = os.path.join(bpav, 'CUEUP.XML')
     mediapro = os.path.join(bpav, 'MEDIAPRO.XML')

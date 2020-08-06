@@ -97,9 +97,9 @@ def consolidate_logs(lognames, path):
     uuid = os.path.basename(path)
     new_log_textfile = os.path.join(path, 'logs' + '/' + uuid + '_sip_log.log')
     for log in lognames:
-        with open(log, 'r') as fo:
+        with open(log, 'r', encoding='utf-8') as fo:
             log_lines = fo.readlines()
-        with open(new_log_textfile, 'a') as log_object:
+        with open(new_log_textfile, 'a', encoding='utf-8') as log_object:
             for lines in log_lines:
                 log_object.write(lines)
 
