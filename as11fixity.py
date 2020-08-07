@@ -13,7 +13,7 @@ import unidecode
 
 
 def create_csv(csv_file, *args):
-    f = open(csv_file, 'w', newline='')
+    f = open(csv_file, 'w', encoding='utf8', newline='')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -22,7 +22,7 @@ def create_csv(csv_file, *args):
 
 
 def append_csv(csv_file, *args):
-    f = open(csv_file, 'a', newline='')
+    f = open(csv_file, 'a', encoding='utf-8', newline='')
     try:
         writer = csv.writer(f)
         writer.writerow(*args)
@@ -131,7 +131,7 @@ def main():
 
                 manifest_basename = os.path.basename(uuid_dir) + '_manifest.md5'
                 manifest = os.path.join(os.path.dirname(uuid_dir), manifest_basename)
-                with open(manifest, 'r') as fo:
+                with open(manifest, 'r', encoding='utf-8') as fo:
                     manifest_lines = fo.readlines()
                     for line in manifest_lines:
                         if line.lower().replace('\n', '').endswith('.mxf'):
@@ -163,7 +163,7 @@ def main():
                     print('Generating Report....  \n')
                     if os.path.isfile(log):
                         print(log)
-                        with open(log, 'r') as log_object:
+                        with open(log, 'r', encoding='utf-8') as log_object:
                             log_lines = log_object.readlines()
                             for lines in log_lines:
                                 if 'eventIdentifierType=object entry,' in lines:
