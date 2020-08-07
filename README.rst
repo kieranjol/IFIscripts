@@ -1,5 +1,5 @@
 =================
-Full documentation at: http://ifiscripts.readthedocs.io/en/latest/index.html
+This repo is now archived as is no longer maintained. The maintained, live repo is at https://github.com/Irish-Film-Institute/IFIscripts Full documentation at: http://ifiscripts.readthedocs.io/en/latest/index.html -
 =================
 .. inclusion-marker-do-not-remove
 .. image:: http://readthedocs.org/projects/ifiscripts/badge/?version=latest
