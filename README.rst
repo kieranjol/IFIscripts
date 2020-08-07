@@ -11,7 +11,7 @@ Summary
 -------
 
 These scriptsfacilitate collections management workflows within the IFI Irish Film Archive. These scripts have been tested
-in OSX, Windows 7 & 10, Ubuntu 14.04 & 16.04 & 18.04. They are located here on github: https://github.com/kieranjol/IFIscripts
+in OSX, Windows 7 & 10, Ubuntu 14.04 & 16.04 & 18.04. They are located here on github: https://github.com/Irish-Film-Institute/IFIscripts
 
 They are mostly Python 3.7 compatible but some are still Python 2.7 only.
 Most scripts take either a file or a directory as their input, for
